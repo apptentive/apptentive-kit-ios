@@ -15,23 +15,28 @@ import Quick
 // TDD (start with test, implement)
 // BDD (start with a behavior/feature, write test, implement)
 
+// BDD benefits:
+// know where to begin implemnentation (where user starts)
+// write least amount of code to get the test to pass (no over-engineered, speculative, unneeded code)
+// stay user-focused
+
 // Three test types:
 // Feature (live/mock)
 // Integrations (live/mock)
 // Unit
 
+// test principles:
+// unit tests test one thing in isolation (no dependecies if possible)
+// integration tests test (multiple asseertions, single input - single output, end-to-end)
+// test should not need tests too (has behavior, mutable state, imperative logic)
+
+// Notes:
 // input is SDK use developer, customer use app triggers SDK use, API reponse
 // output -> API call, interaction, callback by SDK
 
 // JSON file -> test
 // SDK call authenticate -> what does it send? correct? test SDK as wrapper on API
 // from apddev perspective, not care what API does, where you draw the line
-
-
-// test principles:
-// unit tests test one thing in isolation (no dependecies if possible)
-// integration tests test (multiple asseertions, single input - single output, end-to-end)
-// test should not need tests too (has behavior, mutable state, imperative logic)
 
 // end-to-end: one end is what customers call (methods), other end server outside SDK/what server sees
 // mock/live testing
