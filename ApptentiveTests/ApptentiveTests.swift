@@ -8,43 +8,96 @@
 
 import Nimble
 import Quick
-import Apptentive
+@testable import Apptentive
 
 class Authentication: QuickSpec {
-	override func spec() {
-
-		describe("Apptentive authentication") {
-			it("authenticates successfully with valid credentials") {
-
-				let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 201, httpVersion: nil, headerFields: nil)
-				let sessionWrapper = MockSessionWrapper(data: Data(), response: response, error: nil)
-
-				let apptentive = Apptentive(sessionWrapper: sessionWrapper)
-
-				waitUntil { done in
-					apptentive.register(credentials: Apptentive.Credentials(key: "abc", signature: "123")) { (error) in
-						expect(error).to(beNil())
-						done()
-					}
-				}
-			}
-		}
-	}
+    override func spec() {
+        describe("SDK Authentication") {
+            context("when an app dev registers with a valid key / signature") {
+                it("AppDev gets positive confirmation") {
+                    let authenticator = MockAuthenticator(shouldSucceed: true)
+                    
+                    Apptentive(authenticator: authenticator).register(key: "abc", signature: "123") { success in
+                        expect(success).to(beTrue())
+                    }
+                }
+            }
+            
+            context("when an app dev unsuccessfully registers with a valid key / signature") {
+                it("AppDev gets negative confirmation") {
+                    let authenticator = MockAuthenticator(shouldSucceed: false)
+                    
+                    Apptentive(authenticator: authenticator).register(key: "abc", signature: "123") { success in
+                        expect(success).to(beFalse())
+                    }
+                }
+            }
+        }
+    }
 }
 
-class MockSessionWrapper: SessionWrapper {
-	let data: Data?
-	let response: URLResponse?
-	let error: Error?
-
-	init(data: Data?, response: URLResponse?, error: Error?) {
-		self.data = data
-		self.response = response
-		self.error = error
-	}
-
-	func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-		completion(self.data, self.response, self.error)
-	}
+struct MockAuthenticator: Authenticating {
+    let shouldSucceed: Bool
+    
+    func authenticate(key: String, signature: String, completion: @escaping (Bool) -> ()) {
+        completion(shouldSucceed)
+    }
 }
 
+class ApptentiveAuthenticatorTests: QuickSpec {
+    override func spec() {
+        
+        it("builds a request") {
+            let authenticator = ApptentiveAuthenticator(requestor: MockRequestor())
+            
+            let request = authenticator.buildRequest(key: "abc", signature: "123")
+
+            expect(request.url).to(equal(URL(string: "https://api.apptentive.com/conversations")))
+            expect(request.allHTTPHeaderFields?["APPTENTIVE-KEY"]).to(equal("abc"))
+            expect(request.allHTTPHeaderFields?["APPTENTIVE-SIGNATURE"]).to(equal("123"))
+            expect(request.httpMethod).to(equal("POST"))
+        }
+        
+ /*(       it("sends a request") {
+            
+            let mockRequestor = MockRequestor()
+            let authenticator = ApptentiveAuthenticator(requestor: mockRequestor)
+            
+            let expectedRequest = URLRequest(url: URL(string: "http://example.com")!)
+            authenticator.send(request) { _ in
+                expect(mockRequestor.request).to(not(beNil()))
+            }
+            
+            expect(authenticator.send).to.have.been.calledWith(expectedRequest)
+        }*/
+    }
+}
+
+class ApptentiveAuthenticatorIntegrationTests: QuickSpec {
+    override func spec() {
+
+        it("authfdjsklfds") {
+            let mockRequestor = MockRequestor()
+            let authenticator = ApptentiveAuthenticator(requestor: mockRequestor)
+
+            
+            authenticator.authenticate(key: "abc", signature: "123", completion: { (success) in
+                expect(mockRequestor.request?.url).to(equal(URL(string: "https://api.apptentive.com/conversations")))
+                expect(mockRequestor.request?.allHTTPHeaderFields?["APPTENTIVE-KEY"]).to(equal("abc"))
+                expect(mockRequestor.request?.allHTTPHeaderFields?["APPTENTIVE-SIGNATURE"]).to(equal("123"))
+                expect(mockRequestor.request?.httpMethod).to(equal("POST"))
+                
+                expect(success).to(beTrue())
+            })
+        }
+    }
+}
+
+class MockRequestor: HTTPRequesting {
+    var request: URLRequest?
+
+    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+        self.request = request
+        completion(nil, nil, nil)
+    }
+}

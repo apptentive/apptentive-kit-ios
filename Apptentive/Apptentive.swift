@@ -8,43 +8,68 @@
 
 import Foundation
 
-public protocol SessionWrapper {
-	func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ())
+protocol Authenticating {
+    
+    func authenticate(key: String, signature: String, completion: @escaping (Bool)->())
 }
 
+protocol HTTPRequesting {
+    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ())
+}
+
+extension URLSession: HTTPRequesting {
+    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+        let task = URLSession.shared.dataTask(with: request, completionHandler: completion)
+        
+        task.resume()
+    }
+}
+
+class ApptentiveAuthenticator: Authenticating {
+    let requestor: HTTPRequesting
+    
+    required init(requestor: HTTPRequesting) {
+        self.requestor = requestor
+    }
+    
+    func buildRequest(key: String, signature: String) -> URLRequest {
+        let url = URL(string: "https://api.apptentive.com/conversations")!
+        
+        var request = URLRequest(url: url)
+        request.addValue(key, forHTTPHeaderField: "APPTENTIVE-KEY")
+        request.addValue(signature, forHTTPHeaderField: "APPTENTIVE-SIGNATURE")
+        request.httpMethod = "POST"
+        
+        return request
+    }
+    
+    func authenticate(key: String, signature: String, completion: @escaping (Bool) -> ()) {
+        
+        // build request
+        let request = buildRequest(key: key, signature: signature)
+        
+        // make request
+/*        requestor.sendRequest(request) { (data, response, error) in
+            
+            // map response
+            if let response = response as? HTTPURLResponse {
+                let statusCode = response.statusCode
+                
+                let success = statusCode == 201
+                completion(success)
+            }
+        }*/
+    }
+}
 
 public class Apptentive {
-	let sessionWrapper: SessionWrapper
-
-	public init(sessionWrapper: SessionWrapper) {
-		self.sessionWrapper = sessionWrapper
-	}
-
-	public func register(credentials: Credentials, completion: @escaping (Error?) -> ()) {
-		var request = URLRequest(url: URL(string: "https://api.apptentive.com/conversations")!)
-		request.addValue(credentials.key, forHTTPHeaderField: "APPTENTIVE-KEY")
-		request.addValue(credentials.signature, forHTTPHeaderField: "APPTENTIVE-SIGNATURE")
-		request.httpMethod = "POST"
-
-		sessionWrapper.sendRequest(request) { (data, response, error) in
-			if (response as! HTTPURLResponse).statusCode == 201 {
-				completion(nil)
-			}
-		}
-	}
-
-	public struct Credentials {
-		let key: String
-		let signature: String
-
-		public init(key: String, signature: String) {
-			self.key = key
-			self.signature = signature
-		}
-	}
-}
-
-public enum ApptentiveError: Error {
-	
-	case invalidCredentials
+    let authenticator: Authenticating
+    
+    init(authenticator: Authenticating) {
+        self.authenticator = authenticator
+    }
+    
+    public func register(key: String, signature: String, completion: @escaping (Bool)->()) {
+        self.authenticator.authenticate(key: key, signature: signature, completion: completion)
+    }
 }
