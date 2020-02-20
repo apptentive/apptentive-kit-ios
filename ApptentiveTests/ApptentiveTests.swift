@@ -10,10 +10,57 @@ import Nimble
 import Quick
 @testable import Apptentive
 
-class Authentication: QuickSpec {
+
+// Test driven approaches:
+// TDD (start with test, implement)
+// BDD (start with a behavior/feature, write test, implement)
+
+// Three test types:
+// Feature (live/mock)
+// Integrations (live/mock)
+// Unit
+
+// input is SDK use developer, customer use app triggers SDK use, API reponse
+// output -> API call, interaction, callback by SDK
+
+// JSON file -> test
+// SDK call authenticate -> what does it send? correct? test SDK as wrapper on API
+// from apddev perspective, not care what API does, where you draw the line
+
+
+// test principles:
+// unit tests test one thing in isolation (no dependecies if possible)
+// integration tests test (multiple asseertions, single input - single output, end-to-end)
+// test should not need tests too (has behavior, mutable state, imperative logic)
+
+// end-to-end: one end is what customers call (methods), other end server outside SDK/what server sees
+// mock/live testing
+// abstract low level details for tests
+
+// could pass in wrong key to authenticator, instead of setup (feels like you are fixing the game, rather than mock react)
+
+// pass KS -> SERVER (decides)
+// response <- SERVER
+
+// KS -> request with headers
+// <- response with status code
+
+// keys URL request, values URL responses (stateless, readable, maintainable)
+
+// test feature behavior as expected by user
+class AuthenticationFeatureSpec: QuickSpec {
+    
+    struct MockAuthenticator: Authenticating {
+        let shouldSucceed: Bool
+        
+        func authenticate(key: String, signature: String, completion: @escaping (Bool) -> ()) {
+            completion(self.shouldSucceed)
+        }
+    }
+    
     override func spec() {
         describe("SDK Authentication") {
-            context("when an app dev registers with a valid key / signature") {
+            context("when an app dev registers with some key / signature") {
                 it("AppDev gets positive confirmation") {
                     let authenticator = MockAuthenticator(shouldSucceed: true)
                     
@@ -23,7 +70,7 @@ class Authentication: QuickSpec {
                 }
             }
             
-            context("when an app dev unsuccessfully registers with a valid key / signature") {
+            context("when an app dev unsuccessfully registers with some key / signature") {
                 it("AppDev gets negative confirmation") {
                     let authenticator = MockAuthenticator(shouldSucceed: false)
                     
@@ -33,71 +80,5 @@ class Authentication: QuickSpec {
                 }
             }
         }
-    }
-}
-
-struct MockAuthenticator: Authenticating {
-    let shouldSucceed: Bool
-    
-    func authenticate(key: String, signature: String, completion: @escaping (Bool) -> ()) {
-        completion(shouldSucceed)
-    }
-}
-
-class ApptentiveAuthenticatorTests: QuickSpec {
-    override func spec() {
-        
-        it("builds a request") {
-            let authenticator = ApptentiveAuthenticator(requestor: MockRequestor())
-            
-            let request = authenticator.buildRequest(key: "abc", signature: "123")
-
-            expect(request.url).to(equal(URL(string: "https://api.apptentive.com/conversations")))
-            expect(request.allHTTPHeaderFields?["APPTENTIVE-KEY"]).to(equal("abc"))
-            expect(request.allHTTPHeaderFields?["APPTENTIVE-SIGNATURE"]).to(equal("123"))
-            expect(request.httpMethod).to(equal("POST"))
-        }
-        
- /*(       it("sends a request") {
-            
-            let mockRequestor = MockRequestor()
-            let authenticator = ApptentiveAuthenticator(requestor: mockRequestor)
-            
-            let expectedRequest = URLRequest(url: URL(string: "http://example.com")!)
-            authenticator.send(request) { _ in
-                expect(mockRequestor.request).to(not(beNil()))
-            }
-            
-            expect(authenticator.send).to.have.been.calledWith(expectedRequest)
-        }*/
-    }
-}
-
-class ApptentiveAuthenticatorIntegrationTests: QuickSpec {
-    override func spec() {
-
-        it("authfdjsklfds") {
-            let mockRequestor = MockRequestor()
-            let authenticator = ApptentiveAuthenticator(requestor: mockRequestor)
-
-            
-            authenticator.authenticate(key: "abc", signature: "123", completion: { (success) in
-                expect(mockRequestor.request?.url).to(equal(URL(string: "https://api.apptentive.com/conversations")))
-                expect(mockRequestor.request?.allHTTPHeaderFields?["APPTENTIVE-KEY"]).to(equal("abc"))
-                expect(mockRequestor.request?.allHTTPHeaderFields?["APPTENTIVE-SIGNATURE"]).to(equal("123"))
-                expect(mockRequestor.request?.httpMethod).to(equal("POST"))
-                
-                expect(success).to(beTrue())
-            })
-        }
-    }
-}
-
-class MockRequestor: HTTPRequesting {
-    var request: URLRequest?
-
-    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        self.request = request
-        completion(nil, nil, nil)
     }
 }

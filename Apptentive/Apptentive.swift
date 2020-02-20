@@ -9,7 +9,6 @@
 import Foundation
 
 protocol Authenticating {
-    
     func authenticate(key: String, signature: String, completion: @escaping (Bool)->())
 }
 
@@ -32,24 +31,17 @@ class ApptentiveAuthenticator: Authenticating {
         self.requestor = requestor
     }
     
-    func buildRequest(key: String, signature: String) -> URLRequest {
-        let url = URL(string: "https://api.apptentive.com/conversations")!
+    func authenticate(key: String, signature: String, completion: @escaping (Bool) -> ()) {
         
+        // build request
+        let url = URL(string: "https://api.apptentive.com/conversations")!
         var request = URLRequest(url: url)
         request.addValue(key, forHTTPHeaderField: "APPTENTIVE-KEY")
         request.addValue(signature, forHTTPHeaderField: "APPTENTIVE-SIGNATURE")
         request.httpMethod = "POST"
         
-        return request
-    }
-    
-    func authenticate(key: String, signature: String, completion: @escaping (Bool) -> ()) {
-        
-        // build request
-        let request = buildRequest(key: key, signature: signature)
-        
         // make request
-/*        requestor.sendRequest(request) { (data, response, error) in
+        requestor.sendRequest(request) { (data, response, error) in
             
             // map response
             if let response = response as? HTTPURLResponse {
@@ -58,7 +50,7 @@ class ApptentiveAuthenticator: Authenticating {
                 let success = statusCode == 201
                 completion(success)
             }
-        }*/
+        }
     }
 }
 
