@@ -32,26 +32,33 @@ class ApptentiveAuthenticator: Authenticating {
     }
     
     func authenticate(key: String, signature: String, completion: @escaping (Bool) -> ()) {
+		let request = Self.buildRequest(key: key, signature: signature, url: URL(string: "https://api.apptentive.com/conversations")!)
         
-        // build request
-        let url = URL(string: "https://api.apptentive.com/conversations")!
+        requestor.sendRequest(request) { (data, response, error) in
+			let success = Self.processResponse(response: response)
+
+            completion(success)
+         }
+    }
+    
+	static func buildRequest(key: String, signature: String, url: URL) -> URLRequest {
         var request = URLRequest(url: url)
+        request.httpMethod = "POST"
         request.addValue(key, forHTTPHeaderField: "APPTENTIVE-KEY")
         request.addValue(signature, forHTTPHeaderField: "APPTENTIVE-SIGNATURE")
-        request.httpMethod = "POST"
         
-        // make request
-        requestor.sendRequest(request) { (data, response, error) in
-            
-            // map response
-            if let response = response as? HTTPURLResponse {
-                let statusCode = response.statusCode
-                
-                let success = statusCode == 201
-                completion(success)
-            }
-        }
+        return request
     }
+
+	static func processResponse(response: URLResponse?) -> Bool {
+		if let response = response as? HTTPURLResponse {
+			 let statusCode = response.statusCode
+
+			 return statusCode == 201
+		}
+
+		return false
+	}
 }
 
 public class Apptentive {

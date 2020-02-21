@@ -93,11 +93,99 @@ class AuthenticationFeatureSpec: QuickSpec {
                 it("AppDev gets negative confirmation") {
                     let authenticator = MockAuthenticator(shouldSucceed: false)
 
+					waitUntil { done in
 						Apptentive(authenticator: authenticator).register(key: "abc", signature: "123") { success in
 							expect(success).to(beFalse())
+							done()
+						}
+					}
+                }
+            }
+        }
     }
 }
+
+class AuthenticatorIntegrationSpec: QuickSpec {
+	override func spec() {
+		describe("Authenticator request roundtrip") {
+			it("Builds and sends an authentication request, then maps response to a result") {
+                
+                let requestor = SpyRequestor()
+				let authenticator = ApptentiveAuthenticator(requestor: requestor)
+                
+				waitUntil { done in
+					authenticator.authenticate(key: "", signature: "") { (success) in
+                        
+                        expect(requestor.request).toNot(beNil()) // asserts build and send
+                        expect(success).to(beAKindOf(Bool.self)) // asserts recieve and map
+                        
+                        done()
 					}
 				}
 			}
 		}
+        
+        class SpyRequestor: HTTPRequesting {
+            var request: URLRequest?
+            
+            func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+                self.request = request
+                
+                let stubReponse = HTTPURLResponse()
+                completion(nil, stubReponse, nil)
+            }
+        }
+	}
+}
+
+class AuthenticatorSpec: QuickSpec {
+    override func spec() {
+        describe("Authenticator") {
+            it("builds a request for authentication") {
+                let expectedURL = URL(string: "https://example.com")!
+                
+                var expectedRequest = URLRequest(url: expectedURL)
+                expectedRequest.httpMethod = "POST"
+                expectedRequest.addValue("abc", forHTTPHeaderField: "APPTENTIVE-KEY")
+                expectedRequest.addValue("123", forHTTPHeaderField: "APPTENTIVE-SIGNATURE")
+                
+				let request = ApptentiveAuthenticator.buildRequest(key: "abc", signature: "123", url: expectedURL)
+
+                expect(request).to(equal(expectedRequest))
+            }
+
+			context("given a successful status code") {
+				it("maps a 201 status to success") {
+					let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 201, httpVersion: nil, headerFields: nil)
+
+					let result = ApptentiveAuthenticator.processResponse(response: response)
+
+					expect(result).to(beTrue())
+				}
+			}
+
+			context("given a failure") {
+				it("maps a 401 status to failure") {
+					let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 401, httpVersion: nil, headerFields: nil)
+
+					let result = ApptentiveAuthenticator.processResponse(response: response)
+
+					expect(result).to(beFalse())
+				}
+
+				it("maps no response to failure") {
+					let response: URLResponse? = nil
+
+					let result = ApptentiveAuthenticator.processResponse(response: response)
+
+					expect(result).to(beFalse())
+				}
+			}
+        }
+		
+		struct DummyRequestor: HTTPRequesting {
+			func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {}
+		}
+	}
+}
+
