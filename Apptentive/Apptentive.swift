@@ -20,9 +20,9 @@ protocol HTTPRequesting {
 
 extension URLSession: HTTPRequesting {
     func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ()) {
-		let task = self.dataTask(with: request) { (data, response, error) in
-			completion((data, response, error))
-		}
+        let task = self.dataTask(with: request) { (data, response, error) in
+            completion((data, response, error))
+        }
         
         task.resume()
     }
@@ -36,16 +36,16 @@ class ApptentiveAuthenticator: Authenticating {
     }
     
     func authenticate(key: String, signature: String, completion: @escaping (Bool) -> ()) {
-		let request = Self.buildRequest(key: key, signature: signature, url: URL(string: "https://api.apptentive.com/conversations")!)
+        let request = Self.buildRequest(key: key, signature: signature, url: URL(string: "https://api.apptentive.com/conversations")!)
         
         requestor.sendRequest(request) { (data, response, error) in
-			let success = Self.processResponse(response: response)
-
+            let success = Self.processResponse(response: response)
+            
             completion(success)
-         }
+        }
     }
     
-	static func buildRequest(key: String, signature: String, url: URL) -> URLRequest {
+    static func buildRequest(key: String, signature: String, url: URL) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue(key, forHTTPHeaderField: "APPTENTIVE-KEY")
@@ -53,16 +53,16 @@ class ApptentiveAuthenticator: Authenticating {
         
         return request
     }
-
-	static func processResponse(response: URLResponse?) -> Bool {
-		if let response = response as? HTTPURLResponse {
-			 let statusCode = response.statusCode
-
-			 return statusCode == 201
-		}
-
-		return false
-	}
+    
+    static func processResponse(response: URLResponse?) -> Bool {
+        if let response = response as? HTTPURLResponse {
+            let statusCode = response.statusCode
+            
+            return statusCode == 201
+        }
+        
+        return false
+    }
 }
 
 public class Apptentive {

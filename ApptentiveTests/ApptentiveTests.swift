@@ -19,51 +19,26 @@ import Quick
 // write least amount of code to get the test to pass (no over-engineered, speculative, unneeded code)
 // stay user-focused
 
-// Three (maybe four) test types:
+// Test types:
 // Feature (live/mock)
 // Integrations (live/mock)
 // Unit
-// Live/End-to-end (live or fake server, actual http requests)
+// Acceptance (Live/End-to-end, live or fake server, actual http requests)
 
 // test principles:
 // unit tests test one thing in isolation (no dependecies if possible)
 // integration tests test (multiple asseertions, single input - single output, end-to-end)
 // test should not need tests too (has behavior, mutable state, imperative logic)
 
-// Notes:
-// input is SDK use developer, customer use app triggers SDK use, API reponse
-// output -> API call, interaction, callback by SDK
-
-// JSON file -> test
-// SDK call authenticate -> what does it send? correct? test SDK as wrapper on API
-// from apddev perspective, not care what API does, where you draw the line
-
-// end-to-end: one end is what customers call (methods), other end server outside SDK/what server sees
-// mock/live testing
-// abstract low level details for tests
-
-// could pass in wrong key to authenticator, instead of setup (feels like you are fixing the game, rather than mock react)
-
-// pass KS -> SERVER (decides)
-// response <- SERVER
-
-// KS -> request with headers
-// <- response with status code
-
-// keys URL request, values URL responses (stateless, readable, maintainable)
-
-// test feature behavior as expected by user
-
 /**
-
-- Dummy objects are passed around but never actually used. Usually they are just used to fill parameter lists.
-- Fake objects actually have working implementations, but usually take some shortcut which makes them not suitable for production (an in memory database is a good example).
-- Stubs provide canned answers to calls made during the test, usually not responding at all to anything outside what's programmed in for the test.
-- Spies are stubs that also record some information based on how they were called. One form of this might be an email service that records how many messages it was sent.
-- Mocks are what we are talking about here: objects pre-programmed with expectations which form a specification of the calls they are expected to receive.
-
-*/
-
+ 
+ - Dummy objects are passed around but never actually used. Usually they are just used to fill parameter lists.
+ - Fake objects actually have working implementations, but usually take some shortcut which makes them not suitable for production (an in memory database is a good example).
+ - Stubs provide canned answers to calls made during the test, usually not responding at all to anything outside what's programmed in for the test.
+ - Spies are stubs that also record some information based on how they were called. One form of this might be an email service that records how many messages it was sent.
+ - Mocks are what we are talking about here: objects pre-programmed with expectations which form a specification of the calls they are expected to receive.
+ 
+ */
 
 class AuthenticationFeatureSpec: QuickSpec {
     
@@ -80,26 +55,26 @@ class AuthenticationFeatureSpec: QuickSpec {
             context("when an app dev registers with some key / signature") {
                 it("AppDev gets positive confirmation") {
                     let authenticator = MockAuthenticator(shouldSucceed: true)
-
-					waitUntil { done in
-						Apptentive(authenticator: authenticator).register(key: "", signature: "") { success in
-							expect(success).to(beTrue())
-							done()
-						}
-					}
+                    
+                    waitUntil { done in
+                        Apptentive(authenticator: authenticator).register(key: "", signature: "") { success in
+                            expect(success).to(beTrue())
+                            done()
+                        }
+                    }
                 }
             }
             
             context("when an app dev unsuccessfully registers with some key / signature") {
                 it("AppDev gets negative confirmation") {
                     let authenticator = MockAuthenticator(shouldSucceed: false)
-
-					waitUntil { done in
-						Apptentive(authenticator: authenticator).register(key: "", signature: "") { success in
-							expect(success).to(beFalse())
-							done()
-						}
-					}
+                    
+                    waitUntil { done in
+                        Apptentive(authenticator: authenticator).register(key: "", signature: "") { success in
+                            expect(success).to(beFalse())
+                            done()
+                        }
+                    }
                 }
             }
         }
@@ -107,24 +82,24 @@ class AuthenticationFeatureSpec: QuickSpec {
 }
 
 class AuthenticatorIntegrationSpec: QuickSpec {
-	override func spec() {
-		describe("Authenticator request roundtrip") {
-			it("Builds and sends an authentication request, then maps response to a result") {
+    override func spec() {
+        describe("Authenticator request roundtrip") {
+            it("Builds and sends an authentication request, then maps response to a result") {
                 
                 let requestor = SpyRequestor()
-				let authenticator = ApptentiveAuthenticator(requestor: requestor)
+                let authenticator = ApptentiveAuthenticator(requestor: requestor)
                 
-				waitUntil { done in
-					authenticator.authenticate(key: "", signature: "") { (success) in
+                waitUntil { done in
+                    authenticator.authenticate(key: "", signature: "") { (success) in
                         
                         expect(requestor.request).toNot(beNil()) // asserts build and send
                         expect(success).to(beAKindOf(Bool.self)) // asserts recieve and map
                         
                         done()
-					}
-				}
-			}
-		}
+                    }
+                }
+            }
+        }
         
         class SpyRequestor: HTTPRequesting {
             var request: URLRequest?
@@ -136,57 +111,59 @@ class AuthenticatorIntegrationSpec: QuickSpec {
                 completion((nil, stubReponse, nil))
             }
         }
-	}
+    }
 }
 
 class AuthenticatorSpec: QuickSpec {
     override func spec() {
         describe("Authenticator") {
             it("builds a request for authentication") {
+                
                 let expectedURL = URL(string: "https://example.com")!
                 
                 var expectedRequest = URLRequest(url: expectedURL)
-                expectedRequest.httpMethod = "POST"
-                expectedRequest.addValue("abc", forHTTPHeaderField: "APPTENTIVE-KEY")
-                expectedRequest.addValue("123", forHTTPHeaderField: "APPTENTIVE-SIGNATURE")
+                expectedRequest.httpMethod = "some method"
+                expectedRequest.addValue("some-head-key", forHTTPHeaderField: "some-header-value")
                 
-				let request = ApptentiveAuthenticator.buildRequest(key: "abc", signature: "123", url: expectedURL)
-
-                expect(request).to(equal(expectedRequest))
+                let request = ApptentiveAuthenticator.buildRequest(key: "", signature: "", url: expectedURL)
+                
+                expect(request.url).toNot(beNil())
+                expect(request.allHTTPHeaderFields).toNot(beEmpty())
+                expect(request.httpMethod).toNot(beEmpty())
             }
-
-			context("given a successful status code") {
-				it("maps a 201 status to success") {
-					let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 201, httpVersion: nil, headerFields: nil)
-
-					let result = ApptentiveAuthenticator.processResponse(response: response)
-
-					expect(result).to(beTrue())
-				}
-			}
-
-			context("given a failure") {
-				it("maps a 401 status to failure") {
-					let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 401, httpVersion: nil, headerFields: nil)
-
-					let result = ApptentiveAuthenticator.processResponse(response: response)
-
-					expect(result).to(beFalse())
-				}
-
-				it("maps no response to failure") {
-					let response: URLResponse? = nil
-
-					let result = ApptentiveAuthenticator.processResponse(response: response)
-
-					expect(result).to(beFalse())
-				}
-			}
+            
+            context("given a successful status code") {
+                it("maps a 201 status to success") {
+                    let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 201, httpVersion: nil, headerFields: nil)
+                    
+                    let result = ApptentiveAuthenticator.processResponse(response: response)
+                    
+                    expect(result).to(beTrue())
+                }
+            }
+            
+            context("given a failure") {
+                it("maps a 401 status to failure") {
+                    let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 401, httpVersion: nil, headerFields: nil)
+                    
+                    let result = ApptentiveAuthenticator.processResponse(response: response)
+                    
+                    expect(result).to(beFalse())
+                }
+                
+                it("maps no response to failure") {
+                    let response: URLResponse? = nil
+                    
+                    let result = ApptentiveAuthenticator.processResponse(response: response)
+                    
+                    expect(result).to(beFalse())
+                }
+            }
         }
-		
-		struct DummyRequestor: HTTPRequesting {
-			func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ()) {}
-		}
-	}
+        
+        struct DummyRequestor: HTTPRequesting {
+            func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ()) {}
+        }
+    }
 }
 
