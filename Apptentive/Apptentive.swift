@@ -18,7 +18,7 @@ protocol HTTPRequesting {
 
 extension URLSession: HTTPRequesting {
     func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        let task = URLSession.shared.dataTask(with: request, completionHandler: completion)
+        let task = self.dataTask(with: request, completionHandler: completion)
         
         task.resume()
     }
