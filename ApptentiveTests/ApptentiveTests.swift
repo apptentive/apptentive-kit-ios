@@ -79,22 +79,25 @@ class AuthenticationFeatureSpec: QuickSpec {
             context("when an app dev registers with some key / signature") {
                 it("AppDev gets positive confirmation") {
                     let authenticator = MockAuthenticator(shouldSucceed: true)
-                    
-                    Apptentive(authenticator: authenticator).register(key: "abc", signature: "123") { success in
-                        expect(success).to(beTrue())
-                    }
+
+					waitUntil { done in
+						Apptentive(authenticator: authenticator).register(key: "abc", signature: "123") { success in
+							expect(success).to(beTrue())
+							done()
+						}
+					}
                 }
             }
             
             context("when an app dev unsuccessfully registers with some key / signature") {
                 it("AppDev gets negative confirmation") {
                     let authenticator = MockAuthenticator(shouldSucceed: false)
-                    
-                    Apptentive(authenticator: authenticator).register(key: "abc", signature: "123") { success in
-                        expect(success).to(beFalse())
-                    }
-                }
-            }
-        }
+
+						Apptentive(authenticator: authenticator).register(key: "abc", signature: "123") { success in
+							expect(success).to(beFalse())
     }
 }
+					}
+				}
+			}
+		}
