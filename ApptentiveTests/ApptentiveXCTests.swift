@@ -46,3 +46,64 @@ class AuthenticationFeatureTest: XCTestCase {
         }
     }
 }
+
+class AuthenticatorTests: XCTestCase {
+	func testBuildsARequest() {
+		let expectedURL = URL(string: "https://example.com")!
+
+		let request = ApptentiveAuthenticator.buildRequest(key: "", signature: "", url: expectedURL)
+
+		XCTAssertNotNil(request.url)
+		XCTAssertEqual(false, request.allHTTPHeaderFields?.isEmpty)
+		XCTAssertEqual(false, request.httpMethod?.isEmpty)
+	}
+
+	func testMaps201ResponseToSuccess() {
+		let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 201, httpVersion: nil, headerFields: nil)
+
+		let result = ApptentiveAuthenticator.processResponse(response: response)
+
+		XCTAssertTrue(result)
+	}
+
+	func testMaps401ResponseToFailure() {
+		let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 401, httpVersion: nil, headerFields: nil)
+
+		let result = ApptentiveAuthenticator.processResponse(response: response)
+
+		XCTAssertFalse(result)
+	}
+
+	func testMapsNoResponseToFailure() {
+		let response: URLResponse? = nil
+
+		let result = ApptentiveAuthenticator.processResponse(response: response)
+
+		XCTAssertFalse(result)
+	}
+
+	func testAuthenticate() {
+		let requestor = SpyRequestor()
+		let authenticator = ApptentiveAuthenticator(requestor: requestor)
+
+		let expectation = XCTestExpectation()
+		authenticator.authenticate(key: "", signature: "") { (success) in
+
+			XCTAssertNotNil(requestor.request)
+			XCTAssert(success || !success)
+
+			expectation.fulfill()
+		}
+
+        class SpyRequestor: HTTPRequesting {
+            var request: URLRequest?
+
+            func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ()) {
+                self.request = request
+
+                let stubReponse = HTTPURLResponse()
+                completion((nil, stubReponse, nil))
+            }
+        }
+	}
+}
