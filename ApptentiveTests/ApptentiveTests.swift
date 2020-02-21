@@ -82,7 +82,7 @@ class AuthenticationFeatureSpec: QuickSpec {
                     let authenticator = MockAuthenticator(shouldSucceed: true)
 
 					waitUntil { done in
-						Apptentive(authenticator: authenticator).register(key: "abc", signature: "123") { success in
+						Apptentive(authenticator: authenticator).register(key: "", signature: "") { success in
 							expect(success).to(beTrue())
 							done()
 						}
@@ -95,7 +95,7 @@ class AuthenticationFeatureSpec: QuickSpec {
                     let authenticator = MockAuthenticator(shouldSucceed: false)
 
 					waitUntil { done in
-						Apptentive(authenticator: authenticator).register(key: "abc", signature: "123") { success in
+						Apptentive(authenticator: authenticator).register(key: "", signature: "") { success in
 							expect(success).to(beFalse())
 							done()
 						}
