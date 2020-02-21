@@ -19,10 +19,11 @@ import Quick
 // write least amount of code to get the test to pass (no over-engineered, speculative, unneeded code)
 // stay user-focused
 
-// Three test types:
+// Three (maybe four) test types:
 // Feature (live/mock)
 // Integrations (live/mock)
 // Unit
+// Live/End-to-end (live or fake server, actual http requests)
 
 // test principles:
 // unit tests test one thing in isolation (no dependecies if possible)
@@ -128,11 +129,11 @@ class AuthenticatorIntegrationSpec: QuickSpec {
         class SpyRequestor: HTTPRequesting {
             var request: URLRequest?
             
-            func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+            func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ()) {
                 self.request = request
                 
                 let stubReponse = HTTPURLResponse()
-                completion(nil, stubReponse, nil)
+                completion((nil, stubReponse, nil))
             }
         }
 	}
@@ -184,7 +185,7 @@ class AuthenticatorSpec: QuickSpec {
         }
 		
 		struct DummyRequestor: HTTPRequesting {
-			func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {}
+			func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ()) {}
 		}
 	}
 }

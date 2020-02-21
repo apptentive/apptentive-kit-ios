@@ -8,17 +8,21 @@
 
 import Foundation
 
+public typealias URLResult = (Data?, URLResponse?, Error?)
+
 protocol Authenticating {
     func authenticate(key: String, signature: String, completion: @escaping (Bool)->())
 }
 
 protocol HTTPRequesting {
-    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ())
+    func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ())
 }
 
 extension URLSession: HTTPRequesting {
-    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        let task = self.dataTask(with: request, completionHandler: completion)
+    func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ()) {
+		let task = self.dataTask(with: request) { (data, response, error) in
+			completion((data, response, error))
+		}
         
         task.resume()
     }
