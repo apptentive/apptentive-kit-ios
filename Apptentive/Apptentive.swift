@@ -11,7 +11,7 @@ import Foundation
 public typealias URLResult = (Data?, URLResponse?, Error?)
 
 protocol Authenticating {
-    func authenticate(key: String, signature: String, completion: @escaping (Bool)->())
+	func authenticate(credentials: Apptentive.Credentials, completion: @escaping (Bool)->())
 }
 
 protocol HTTPRequesting {
@@ -30,13 +30,16 @@ extension URLSession: HTTPRequesting {
 
 class ApptentiveAuthenticator: Authenticating {
     let requestor: HTTPRequesting
-    
+
+	typealias HTTPHeaders = [String: String]
+
     required init(requestor: HTTPRequesting) {
         self.requestor = requestor
     }
     
-    func authenticate(key: String, signature: String, completion: @escaping (Bool) -> ()) {
-        let request = Self.buildRequest(key: key, signature: signature, url: URL(string: "https://api.apptentive.com/conversations")!)
+	func authenticate(credentials: Apptentive.Credentials, completion: @escaping (Bool) -> ()) {
+		let headers = Self.buildHeaders(credentials: credentials)
+		let request = Self.buildRequest(url: URL(string: "https://api.apptentive.com/conversations")!, method: "POST", headers: headers)
         
         requestor.sendRequest(request) { (data, response, error) in
             let success = Self.processResponse(response: response)
@@ -44,13 +47,19 @@ class ApptentiveAuthenticator: Authenticating {
             completion(success)
         }
     }
+
+	static func buildHeaders(credentials: Apptentive.Credentials) -> HTTPHeaders {
+		return [
+			"APPTENTIVE-KEY": credentials.key,
+			"APPTENTIVE-SIGNATURE": credentials.signature
+		]
+	}
     
-    static func buildRequest(key: String, signature: String, url: URL) -> URLRequest {
+	static func buildRequest(url: URL, method: String, headers: HTTPHeaders) -> URLRequest {
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue(key, forHTTPHeaderField: "APPTENTIVE-KEY")
-        request.addValue(signature, forHTTPHeaderField: "APPTENTIVE-SIGNATURE")
-        
+        request.httpMethod = method
+		request.allHTTPHeaderFields = headers
+
         return request
     }
     
@@ -72,7 +81,12 @@ public class Apptentive {
         self.authenticator = authenticator
     }
     
-    public func register(key: String, signature: String, completion: @escaping (Bool)->()) {
-        self.authenticator.authenticate(key: key, signature: signature, completion: completion)
+	public func register(credentials: Credentials, completion: @escaping (Bool)->()) {
+		self.authenticator.authenticate(credentials: credentials, completion: completion)
     }
+
+	public struct Credentials {
+		let key: String
+		let signature: String
+	}
 }

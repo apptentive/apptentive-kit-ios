@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		01A0917123FCB4A700AF187E /* Apptentive.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A0916F23FCB4A700AF187E /* Apptentive.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		01A0917F23FCB4CC00AF187E /* ApptentiveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A0917E23FCB4CC00AF187E /* ApptentiveTests.swift */; };
 		01A0918123FCB4CC00AF187E /* Apptentive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* Apptentive.framework */; };
 		01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A0918723FCB5D600AF187E /* Apptentive.swift */; };
 		1F6CCEF9240096F0009A1D44 /* ApptentiveXCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6CCEF8240096F0009A1D44 /* ApptentiveXCTests.swift */; };
@@ -31,7 +30,6 @@
 		01A0916F23FCB4A700AF187E /* Apptentive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Apptentive.h; sourceTree = "<group>"; };
 		01A0917023FCB4A700AF187E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01A0917C23FCB4CC00AF187E /* ApptentiveTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		01A0917E23FCB4CC00AF187E /* ApptentiveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveTests.swift; sourceTree = "<group>"; };
 		01A0918023FCB4CC00AF187E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01A0918723FCB5D600AF187E /* Apptentive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Apptentive.swift; sourceTree = "<group>"; };
 		07BC7FF0CA99A2B875FDBF80 /* Pods_Apptentive_ApptentiveTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Apptentive_ApptentiveTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,7 +95,6 @@
 		01A0917D23FCB4CC00AF187E /* ApptentiveTests */ = {
 			isa = PBXGroup;
 			children = (
-				01A0917E23FCB4CC00AF187E /* ApptentiveTests.swift */,
 				1F6CCEF8240096F0009A1D44 /* ApptentiveXCTests.swift */,
 				01A0918023FCB4CC00AF187E /* Info.plist */,
 			);
@@ -310,7 +307,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F6CCEF9240096F0009A1D44 /* ApptentiveXCTests.swift in Sources */,
-				01A0917F23FCB4CC00AF187E /* ApptentiveTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

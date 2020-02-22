@@ -12,12 +12,13 @@ import XCTest
 
 class AuthenticationFeatureTest: XCTestCase {
     
-    struct MockAuthenticator: Authenticating {
+	struct MockAuthenticator: Authenticating {
+
         let shouldSucceed: Bool
-        
-        func authenticate(key: String, signature: String, completion: @escaping (Bool) -> ()) {
-            completion(self.shouldSucceed)
-        }
+
+		func authenticate(credentials: Apptentive.Credentials, completion: @escaping (Bool) -> ()) {
+			completion(self.shouldSucceed)
+		}
     }
     
     func testSDKRegistrationSucceedsWithPositiveConfirmation() {
@@ -39,8 +40,10 @@ class AuthenticationFeatureTest: XCTestCase {
         let authenticator = MockAuthenticator(shouldSucceed: shouldSucceed)
         
         let expectation = XCTestExpectation()
-        
-        Apptentive(authenticator: authenticator).register(key: "", signature: "") { success in
+
+		let credentials = Apptentive.Credentials(key: "", signature: "")
+
+		Apptentive(authenticator: authenticator).register(credentials: credentials) { success in
             asserts(success)
             expectation.fulfill()
         }
@@ -48,14 +51,28 @@ class AuthenticationFeatureTest: XCTestCase {
 }
 
 class AuthenticatorTests: XCTestCase {
+	func testBuildHeaders() {
+		let credentials = Apptentive.Credentials(key: "123", signature: "abc")
+		let expectedHeaders = [
+			"APPTENTIVE-KEY": "123",
+			"APPTENTIVE-SIGNATURE": "abc"
+		]
+
+		let headers = ApptentiveAuthenticator.buildHeaders(credentials: credentials)
+
+		XCTAssertEqual(headers, expectedHeaders)
+	}
+
 	func testBuildsARequest() {
-		let expectedURL = URL(string: "https://example.com")!
+		let url = URL(string: "https://example.com")!
+		let headers = ["Foo": "Bar"]
+		let method = "BAZ"
 
-		let request = ApptentiveAuthenticator.buildRequest(key: "", signature: "", url: expectedURL)
+		let request = ApptentiveAuthenticator.buildRequest(url: url, method: method, headers: headers)
 
-		XCTAssertNotNil(request.url)
-		XCTAssertEqual(false, request.allHTTPHeaderFields?.isEmpty)
-		XCTAssertEqual(false, request.httpMethod?.isEmpty)
+		XCTAssertEqual(request.url, url)
+		XCTAssertEqual(request.allHTTPHeaderFields, headers)
+		XCTAssertEqual(request.httpMethod, method)
 	}
 
 	func testMaps201ResponseToSuccess() {
@@ -85,9 +102,10 @@ class AuthenticatorTests: XCTestCase {
 	func testAuthenticate() {
 		let requestor = SpyRequestor()
 		let authenticator = ApptentiveAuthenticator(requestor: requestor)
+		let credentials = Apptentive.Credentials(key: "", signature: "")
 
 		let expectation = XCTestExpectation()
-		authenticator.authenticate(key: "", signature: "") { (success) in
+		authenticator.authenticate(credentials: credentials) { (success) in
 
 			XCTAssertNotNil(requestor.request)
 			XCTAssert(success || !success)
