@@ -108,6 +108,9 @@ class AuthenticatorTests: XCTestCase {
 		authenticator.authenticate(credentials: credentials) { (success) in
 
 			XCTAssertNotNil(requestor.request)
+			XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
+			XCTAssertNotNil(requestor.request?.url)
+			XCTAssertEqual(requestor.request?.httpMethod?.isEmpty, false)
 			XCTAssert(success || !success)
 
 			expectation.fulfill()
