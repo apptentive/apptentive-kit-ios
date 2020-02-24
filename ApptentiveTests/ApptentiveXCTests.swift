@@ -78,7 +78,7 @@ class AuthenticatorTests: XCTestCase {
 	}
 
 	func testMaps201ResponseToSuccess() {
-		let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 201, httpVersion: nil, headerFields: nil)
+		let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)
 
 		let result = ApptentiveAuthenticator.processResponse(response: response)
 
