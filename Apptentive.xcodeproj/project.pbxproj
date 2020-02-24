@@ -12,6 +12,8 @@
 		01A0918123FCB4CC00AF187E /* Apptentive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* Apptentive.framework */; };
 		01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A0918723FCB5D600AF187E /* Apptentive.swift */; };
 		1F6CCEF9240096F0009A1D44 /* ApptentiveUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6CCEF8240096F0009A1D44 /* ApptentiveUnitTests.swift */; };
+		1FB7F8052404914C006F450B /* ApptentiveAuthenticator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7F8042404914C006F450B /* ApptentiveAuthenticator.swift */; };
+		1FB7F8072404919A006F450B /* HTTPRequesting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FB7F8062404919A006F450B /* HTTPRequesting.swift */; };
 		789DFF9184B4630C6E07A255 /* Pods_Apptentive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D366D0AE00015C29B9D9428B /* Pods_Apptentive.framework */; };
 		BCCF2D51E460EA2580D5B7C8 /* Pods_Apptentive_ApptentiveTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07BC7FF0CA99A2B875FDBF80 /* Pods_Apptentive_ApptentiveTests.framework */; };
 /* End PBXBuildFile section */
@@ -37,6 +39,8 @@
 		07BC7FF0CA99A2B875FDBF80 /* Pods_Apptentive_ApptentiveTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Apptentive_ApptentiveTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16A244601F14B68C17F70D61 /* Pods-Apptentive-ApptentiveTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Apptentive-ApptentiveTests.release.xcconfig"; path = "Target Support Files/Pods-Apptentive-ApptentiveTests/Pods-Apptentive-ApptentiveTests.release.xcconfig"; sourceTree = "<group>"; };
 		1F6CCEF8240096F0009A1D44 /* ApptentiveUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveUnitTests.swift; sourceTree = "<group>"; };
+		1FB7F8042404914C006F450B /* ApptentiveAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveAuthenticator.swift; sourceTree = "<group>"; };
+		1FB7F8062404919A006F450B /* HTTPRequesting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequesting.swift; sourceTree = "<group>"; };
 		2A45D9EDC43C9D72AC3896E8 /* Pods-Apptentive.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Apptentive.debug.xcconfig"; path = "Target Support Files/Pods-Apptentive/Pods-Apptentive.debug.xcconfig"; sourceTree = "<group>"; };
 		412C5D7BFA14FD16C9FAB81F /* Pods-Apptentive-ApptentiveTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Apptentive-ApptentiveTests.debug.xcconfig"; path = "Target Support Files/Pods-Apptentive-ApptentiveTests/Pods-Apptentive-ApptentiveTests.debug.xcconfig"; sourceTree = "<group>"; };
 		94F17A94599767F72BBCFF6D /* Pods-Apptentive.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Apptentive.release.xcconfig"; path = "Target Support Files/Pods-Apptentive/Pods-Apptentive.release.xcconfig"; sourceTree = "<group>"; };
@@ -90,6 +94,8 @@
 				01A0916F23FCB4A700AF187E /* Apptentive.h */,
 				01A0917023FCB4A700AF187E /* Info.plist */,
 				01A0918723FCB5D600AF187E /* Apptentive.swift */,
+				1FB7F8042404914C006F450B /* ApptentiveAuthenticator.swift */,
+				1FB7F8062404919A006F450B /* HTTPRequesting.swift */,
 			);
 			path = Apptentive;
 			sourceTree = "<group>";
@@ -97,9 +103,9 @@
 		01A0917D23FCB4CC00AF187E /* ApptentiveTests */ = {
 			isa = PBXGroup;
 			children = (
-				01A0918023FCB4CC00AF187E /* Info.plist */,
 				019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */,
 				1F6CCEF8240096F0009A1D44 /* ApptentiveUnitTests.swift */,
+				01A0918023FCB4CC00AF187E /* Info.plist */,
 			);
 			path = ApptentiveTests;
 			sourceTree = "<group>";
@@ -302,6 +308,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */,
+				1FB7F8072404919A006F450B /* HTTPRequesting.swift in Sources */,
+				1FB7F8052404914C006F450B /* ApptentiveAuthenticator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
