@@ -40,14 +40,18 @@ class AuthenticationFeatureTest: XCTestCase {
         let url = URL(string: "https://bdd-api-default.k8s.dev.apptentive.com/conversations")!
         let authenticator = ApptentiveAuthenticator(url: url, requestor: URLSession.shared)
         
-        let expectation = self.expectation(description: "test")
+        let expectation = self.expectation(description: "Authentication request complete")
         
 		Apptentive(authenticator: authenticator).register(credentials: credentials) { success in
             asserts(success)
             expectation.fulfill()
         }
         
-        self.waitForExpectations(timeout: 10.0)
+        self.waitForExpectations(timeout: 2.0) { error in
+            if let error = error {
+                XCTFail("Authentication request timed out: \(error.localizedDescription)")
+            }
+        }
     }
 }
 
