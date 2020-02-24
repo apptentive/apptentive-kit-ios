@@ -1,59 +1,14 @@
 //
-//  ApptentiveXCTests.swift
+//  ApptentiveUnitTests.swift
 //  ApptentiveTests
 //
 //  Created by Apptentive on 2/21/20.
 //  Copyright © 2020 Frank Schmitt. All rights reserved.
 //
 
-import Foundation
 import XCTest
 @testable import Apptentive
 
-/*
- 
- 1) Make feature test real (URL now depedancy, swap mocks with real, use actual service or GO mock server)
- 2) extract header keys to struct for SST
- 3) seperate tests into own files
- 
- */
-
-class AuthenticationFeatureTest: XCTestCase {
-    
-    func testSDKRegistrationSucceedsWithPositiveConfirmation() {
-        let credentials = Apptentive.Credentials(key: "valid", signature: "valid")
-        
-        self.sdkRegistrationWithConfirmation(credentials: credentials) {
-            XCTAssertTrue($0)
-        }
-    }
-    
-    func testSDKRegistrationFailsWithNegativeConfirmation() {
-        let credentials = Apptentive.Credentials(key: "", signature: "")
-        
-        self.sdkRegistrationWithConfirmation(credentials: credentials) {
-            XCTAssertFalse($0)
-        }
-    }
-    
-    func sdkRegistrationWithConfirmation(credentials: Apptentive.Credentials, asserts: @escaping (Bool)->()) {
-        let url = URL(string: "https://bdd-api-default.k8s.dev.apptentive.com/conversations")!
-        let authenticator = ApptentiveAuthenticator(url: url, requestor: URLSession.shared)
-        
-        let expectation = self.expectation(description: "Authentication request complete")
-        
-		Apptentive(authenticator: authenticator).register(credentials: credentials) { success in
-            asserts(success)
-            expectation.fulfill()
-        }
-        
-        self.waitForExpectations(timeout: 2.0) { error in
-            if let error = error {
-                XCTFail("Authentication request timed out: \(error.localizedDescription)")
-            }
-        }
-    }
-}
 
 class AuthenticatorTests: XCTestCase {
 
