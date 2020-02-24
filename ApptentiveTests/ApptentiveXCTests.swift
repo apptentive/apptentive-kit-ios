@@ -81,20 +81,12 @@ class AuthenticatorTests: XCTestCase {
 		XCTAssertEqual(request.httpMethod, method)
 	}
 
-	func testMaps201ResponseToSuccess() {
+	func testMaps200ResponseToSuccess() {
 		let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)
 
 		let result = ApptentiveAuthenticator.processResponse(response: response)
 
 		XCTAssertTrue(result)
-	}
-
-	func testMaps401ResponseToFailure() {
-		let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 401, httpVersion: nil, headerFields: nil)
-
-		let result = ApptentiveAuthenticator.processResponse(response: response)
-
-		XCTAssertFalse(result)
 	}
 
 	func testMapsNoResponseToFailure() {
