@@ -10,43 +10,44 @@ import Foundation
 import XCTest
 @testable import Apptentive
 
+/*
+ 
+ 1) Make feature test real (URL now depedancy, swap mocks with real, use actual service or GO mock server)
+ 2) extract header keys to struct for SST
+ 3) seperate tests into own files
+ 
+ */
+
 class AuthenticationFeatureTest: XCTestCase {
     
-	struct MockAuthenticator: Authenticating {
-
-        let shouldSucceed: Bool
-
-		func authenticate(credentials: Apptentive.Credentials, completion: @escaping (Bool) -> ()) {
-			completion(self.shouldSucceed)
-		}
-    }
-    
     func testSDKRegistrationSucceedsWithPositiveConfirmation() {
+        let credentials = Apptentive.Credentials(key: "valid", signature: "valid")
         
-        self.sdkRegistrationWithConfirmation(shouldSucceed: true) {
+        self.sdkRegistrationWithConfirmation(credentials: credentials) {
             XCTAssertTrue($0)
         }
     }
     
     func testSDKRegistrationFailsWithNegativeConfirmation() {
+        let credentials = Apptentive.Credentials(key: "", signature: "")
         
-        self.sdkRegistrationWithConfirmation(shouldSucceed: false) {
+        self.sdkRegistrationWithConfirmation(credentials: credentials) {
             XCTAssertFalse($0)
         }
     }
     
-    func sdkRegistrationWithConfirmation(shouldSucceed: Bool, asserts: @escaping (Bool)->()) {
-
-        let authenticator = MockAuthenticator(shouldSucceed: shouldSucceed)
+    func sdkRegistrationWithConfirmation(credentials: Apptentive.Credentials, asserts: @escaping (Bool)->()) {
+        let url = URL(string: "https://bdd-api-default.k8s.dev.apptentive.com/conversations")!
+        let authenticator = ApptentiveAuthenticator(url: url, requestor: URLSession.shared)
         
-        let expectation = XCTestExpectation()
-
-		let credentials = Apptentive.Credentials(key: "", signature: "")
-
+        let expectation = self.expectation(description: "test")
+        
 		Apptentive(authenticator: authenticator).register(credentials: credentials) { success in
             asserts(success)
             expectation.fulfill()
         }
+        
+        self.waitForExpectations(timeout: 10.0)
     }
 }
 
@@ -100,8 +101,10 @@ class AuthenticatorTests: XCTestCase {
 	}
 
 	func testAuthenticate() {
+        let url = URL(string: "http://example.com")!
 		let requestor = SpyRequestor()
-		let authenticator = ApptentiveAuthenticator(requestor: requestor)
+        
+        let authenticator = ApptentiveAuthenticator(url: url, requestor: requestor)
 		let credentials = Apptentive.Credentials(key: "", signature: "")
 
 		let expectation = XCTestExpectation()
@@ -109,7 +112,7 @@ class AuthenticatorTests: XCTestCase {
 
 			XCTAssertNotNil(requestor.request)
 			XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-			XCTAssertNotNil(requestor.request?.url)
+            XCTAssertEqual(requestor.request?.url, url)
 			XCTAssertEqual(requestor.request?.httpMethod, "POST")
 			XCTAssert(success || !success)
 

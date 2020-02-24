@@ -30,16 +30,18 @@ extension URLSession: HTTPRequesting {
 
 class ApptentiveAuthenticator: Authenticating {
     let requestor: HTTPRequesting
+    let url: URL
 
 	typealias HTTPHeaders = [String: String]
 
-    required init(requestor: HTTPRequesting) {
+    required init(url: URL, requestor: HTTPRequesting) {
         self.requestor = requestor
+        self.url = url
     }
     
 	func authenticate(credentials: Apptentive.Credentials, completion: @escaping (Bool) -> ()) {
 		let headers = Self.buildHeaders(credentials: credentials)
-		let request = Self.buildRequest(url: URL(string: "https://api.apptentive.com/conversations")!, method: "POST", headers: headers)
+        let request = Self.buildRequest(url: self.url, method: "POST", headers: headers)
         
         requestor.sendRequest(request) { (data, response, error) in
             let success = Self.processResponse(response: response)
@@ -50,8 +52,8 @@ class ApptentiveAuthenticator: Authenticating {
 
 	static func buildHeaders(credentials: Apptentive.Credentials) -> HTTPHeaders {
 		return [
-			"APPTENTIVE-KEY": credentials.key,
-			"APPTENTIVE-SIGNATURE": credentials.signature
+			"apptentive-key": credentials.key,
+			"apptentive-signature": credentials.signature
 		]
 	}
     
@@ -67,7 +69,9 @@ class ApptentiveAuthenticator: Authenticating {
         if let response = response as? HTTPURLResponse {
             let statusCode = response.statusCode
             
-            return statusCode == 201
+            if statusCode == 200 {
+                return true
+            }
         }
         
         return false
@@ -76,6 +80,13 @@ class ApptentiveAuthenticator: Authenticating {
 
 public class Apptentive {
     let authenticator: Authenticating
+    
+    convenience init() {
+        
+        let url = URL(string: "https://api.apptentive.com/conversations")!
+        let authenticator = ApptentiveAuthenticator(url: url, requestor: URLSession.shared)
+        self.init(authenticator: authenticator)
+    }
     
     init(authenticator: Authenticating) {
         self.authenticator = authenticator
