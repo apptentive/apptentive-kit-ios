@@ -52,11 +52,12 @@ class AuthenticationFeatureTest: XCTestCase {
 }
 
 class AuthenticatorTests: XCTestCase {
+
 	func testBuildHeaders() {
 		let credentials = Apptentive.Credentials(key: "123", signature: "abc")
 		let expectedHeaders = [
-			"APPTENTIVE-KEY": "123",
-			"APPTENTIVE-SIGNATURE": "abc"
+			ApptentiveAuthenticator.Headers.apptentiveKey: "123",
+			ApptentiveAuthenticator.Headers.apptentiveSignature: "abc"
 		]
 
 		let headers = ApptentiveAuthenticator.buildHeaders(credentials: credentials)

@@ -38,7 +38,12 @@ class ApptentiveAuthenticator: Authenticating {
         self.requestor = requestor
         self.url = url
     }
-    
+
+	struct Headers {
+		static let apptentiveKey = "apptentive-key"
+		static let apptentiveSignature = "apptentive-signature"
+	}
+
 	func authenticate(credentials: Apptentive.Credentials, completion: @escaping (Bool) -> ()) {
 		let headers = Self.buildHeaders(credentials: credentials)
         let request = Self.buildRequest(url: self.url, method: "POST", headers: headers)
@@ -52,8 +57,8 @@ class ApptentiveAuthenticator: Authenticating {
 
 	static func buildHeaders(credentials: Apptentive.Credentials) -> HTTPHeaders {
 		return [
-			"apptentive-key": credentials.key,
-			"apptentive-signature": credentials.signature
+			Headers.apptentiveKey: credentials.key,
+			Headers.apptentiveSignature: credentials.signature
 		]
 	}
     
