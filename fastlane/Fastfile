@@ -16,8 +16,13 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Description of what the lane does"
-  lane :test do
-    run_tests(scheme: "Apptentive")
+  desc "Run feature tests (requires mock server)"
+  lane :feature_test do
+    run_tests(scheme: "ApptentiveFeatureTests")
+  end
+
+  desc "Run unit tests (standalone)"
+  lane :unit_test do
+    run_tests(scheme: "ApptentiveUnitTests")
   end
 end
