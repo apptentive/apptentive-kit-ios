@@ -1,5 +1,5 @@
 //
-//  ApptentiveUnitTests.swift
+//  AuthenticatorTests.swift
 //  ApptentiveTests
 //
 //  Created by Apptentive on 2/21/20.

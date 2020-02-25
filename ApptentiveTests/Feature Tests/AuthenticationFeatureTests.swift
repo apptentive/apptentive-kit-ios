@@ -1,5 +1,5 @@
 //
-//  ApptentiveFeatureTests.swift
+//  AuthenticationFeatureTests.swift
 //  ApptentiveTests
 //
 //  Created by Frank Schmitt on 2/24/20.
