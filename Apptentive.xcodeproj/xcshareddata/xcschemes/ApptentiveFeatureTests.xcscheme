@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
-               BuildableName = "ApptentiveTests.xctest"
-               BlueprintName = "ApptentiveTests"
+               BuildableName = "ApptentiveFeatureTests.xctest"
+               BlueprintName = "ApptentiveFeatureTests"
                ReferencedContainer = "container:Apptentive.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,15 +33,10 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
-               BuildableName = "ApptentiveTests.xctest"
-               BlueprintName = "ApptentiveTests"
+               BuildableName = "ApptentiveFeatureTests.xctest"
+               BlueprintName = "ApptentiveFeatureTests"
                ReferencedContainer = "container:Apptentive.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "AuthenticatorTests">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
@@ -66,8 +61,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
-            BuildableName = "ApptentiveTests.xctest"
-            BlueprintName = "ApptentiveTests"
+            BuildableName = "ApptentiveFeatureTests.xctest"
+            BlueprintName = "ApptentiveFeatureTests"
             ReferencedContainer = "container:Apptentive.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

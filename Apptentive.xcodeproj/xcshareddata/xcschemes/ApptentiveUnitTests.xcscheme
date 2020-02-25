@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
-               BuildableName = "ApptentiveTests.xctest"
-               BlueprintName = "ApptentiveTests"
+               BuildableName = "ApptentiveFeatureTests.xctest"
+               BlueprintName = "ApptentiveFeatureTests"
                ReferencedContainer = "container:Apptentive.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,16 +32,11 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
-               BuildableName = "ApptentiveTests.xctest"
-               BlueprintName = "ApptentiveTests"
+               BlueprintIdentifier = "01D739222405CB630000EE52"
+               BuildableName = "ApptentiveUnitTests.xctest"
+               BlueprintName = "ApptentiveUnitTests"
                ReferencedContainer = "container:Apptentive.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "AuthenticationFeatureTests">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
@@ -62,15 +57,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
-            BuildableName = "ApptentiveTests.xctest"
-            BlueprintName = "ApptentiveTests"
-            ReferencedContainer = "container:Apptentive.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

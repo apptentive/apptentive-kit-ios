@@ -33,8 +33,18 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
-               BuildableName = "ApptentiveTests.xctest"
-               BlueprintName = "ApptentiveTests"
+               BuildableName = "ApptentiveFeatureTests.xctest"
+               BlueprintName = "ApptentiveFeatureTests"
+               ReferencedContainer = "container:Apptentive.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "01D739222405CB630000EE52"
+               BuildableName = "ApptentiveUnitTests.xctest"
+               BlueprintName = "ApptentiveUnitTests"
                ReferencedContainer = "container:Apptentive.xcodeproj">
             </BuildableReference>
          </TestableReference>
