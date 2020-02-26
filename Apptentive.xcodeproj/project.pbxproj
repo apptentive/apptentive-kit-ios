@@ -488,7 +488,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 86WML2UN43;
-				INFOPLIST_FILE = ApptentiveTests/Info.plist;
+				INFOPLIST_FILE = ApptentiveFeatureTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -507,7 +507,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 86WML2UN43;
-				INFOPLIST_FILE = ApptentiveTests/Info.plist;
+				INFOPLIST_FILE = ApptentiveFeatureTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

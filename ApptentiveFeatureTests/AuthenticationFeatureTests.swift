@@ -46,3 +46,4 @@ class AuthenticationFeatureTests: XCTestCase {
         }
     }
 }
+
