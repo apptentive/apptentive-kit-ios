@@ -16,11 +16,11 @@ or alternatively using `brew cask install fastlane`
 
 # Available Actions
 ## iOS
-### ios feature_test
+### ios integration_test
 ```
-fastlane ios feature_test
+fastlane ios integration_test
 ```
-Run feature tests (requires mock server)
+Run integration tests (requires internet)
 ### ios unit_test
 ```
 fastlane ios unit_test
