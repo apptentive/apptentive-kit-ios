@@ -1,0 +1,20 @@
+language: swift
+osx_image: xcode11.3
+
+stages:
+  - test
+
+jobs:
+  include:
+    - stage: test
+      name: unit_test
+      script:
+        - bundle install
+        - bundle exec fastlane unit_test
+    # Currently disabled until travis and see dev endpoints or a local service can be spun up
+    # - stage: test
+    #   name: integration_test
+    #   script:
+    #     - bundle install
+    #     - bundle exec fastlane integration_test 
+

@@ -1,5 +1,5 @@
 //
-//  ApptentiveFeatureTests.swift
+//  AuthenticationFeatureTests.swift
 //  ApptentiveTests
 //
 //  Created by Frank Schmitt on 2/24/20.
@@ -11,6 +11,18 @@ import XCTest
 
 
 class AuthenticationFeatureTests: XCTestCase {
+    var authenticationUrl = URL(string:"http://localhost:8080/conversations")!
+
+    override func setUp() {
+        #if Dev
+        self.authenticationUrl = URL(string:"https://bdd-api-default.k8s.dev.apptentive.com/conversations")!
+        #elseif Stage
+        self.authenticationUrl = URL(string:"https://bdd-api-default.k8s.shared-dev.apptentive.com/conversations")!
+        #elseif Prod
+        self.authenticationUrl = URL(string:"https://bdd-api-default.k8s.production.apptentive.com/conversations")!
+        #endif
+    }
+
 
     func testSDKRegistrationSucceedsWithPositiveConfirmation() {
         let credentials = Apptentive.Credentials(key: "valid", signature: "valid")
@@ -29,8 +41,7 @@ class AuthenticationFeatureTests: XCTestCase {
     }
 
     func sdkRegistrationWithConfirmation(credentials: Apptentive.Credentials, asserts: @escaping (Bool)->()) {
-        let url = URL(string: "https://bdd-api-default.k8s.dev.apptentive.com/conversations")!
-        let authenticator = ApptentiveAuthenticator(url: url, requestor: URLSession.shared)
+        let authenticator = ApptentiveAuthenticator(url: self.authenticationUrl, requestor: URLSession.shared)
 
         let expectation = self.expectation(description: "Authentication request complete")
 
@@ -46,3 +57,4 @@ class AuthenticationFeatureTests: XCTestCase {
         }
     }
 }
+

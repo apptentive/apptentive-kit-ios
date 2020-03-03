@@ -9,14 +9,14 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "01A0916B23FCB4A700AF187E"
-               BuildableName = "Apptentive.framework"
-               BlueprintName = "Apptentive"
+               BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
+               BuildableName = "ApptentiveFeatureTests.xctest"
+               BlueprintName = "ApptentiveFeatureTests"
                ReferencedContainer = "container:Apptentive.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -35,16 +35,6 @@
                BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
                BuildableName = "ApptentiveFeatureTests.xctest"
                BlueprintName = "ApptentiveFeatureTests"
-               ReferencedContainer = "container:Apptentive.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "01D739222405CB630000EE52"
-               BuildableName = "ApptentiveUnitTests.xctest"
-               BlueprintName = "ApptentiveUnitTests"
                ReferencedContainer = "container:Apptentive.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -70,9 +60,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "01A0916B23FCB4A700AF187E"
-            BuildableName = "Apptentive.framework"
-            BlueprintName = "Apptentive"
+            BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
+            BuildableName = "ApptentiveFeatureTests.xctest"
+            BlueprintName = "ApptentiveFeatureTests"
             ReferencedContainer = "container:Apptentive.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

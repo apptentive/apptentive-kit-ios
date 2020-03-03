@@ -16,8 +16,15 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Description of what the lane does"
-  lane :test do
-    run_tests(scheme: "Apptentive")
+  desc "Run integration tests (requires internet)"
+  lane :integration_test do |options|
+    environment = options[:environment] || 'dev'
+    xcargs = "OTHER_SWIFT_FLAGS=-D#{environment.capitalize}"
+    run_tests(scheme: "ApptentiveFeatureTests", xcargs: xcargs)
+  end
+
+  desc "Run unit tests (standalone)"
+  lane :unit_test do
+    run_tests(scheme: "ApptentiveUnitTests")
   end
 end
