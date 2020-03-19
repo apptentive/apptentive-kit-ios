@@ -22,10 +22,34 @@ platform :ios do
   end
 
   desc "Run integration tests (requires internet)"
-  lane :integration_test do |options|
-    environment = options[:environment] || 'dev'
-    xcargs = "OTHER_SWIFT_FLAGS=-D#{environment.capitalize}"
-    run_tests(scheme: "ApptentiveFeatureTests", xcargs: xcargs)
+  private_lane :integration_test do |options|
+    if !options[:server_env].nil?
+      server_env = options[:server_env] || 'dev'
+      xcargs = "OTHER_SWIFT_FLAGS=-D#{server_env.capitalize}"
+      run_tests(scheme: "ApptentiveFeatureTests", xcargs: xcargs)
+    else
+      run_tests(scheme: "ApptentiveFeatureTests")
+    end
+  end
+
+  desc "Run integration tests against production"
+  lane :integration_test_production do
+    integration_test(server_env: "production")
+  end
+
+  desc "Run integration tests against staging"
+  lane :integration_test_staging do
+    integration_test(server_env: "staging")
+  end
+
+  desc "Run integration tests against dev"
+  lane :integration_test_dev do
+    integration_test(server_env: "dev")
+  end
+
+  desc "Run integration tests against localhost"
+  lane :integration_test_local do
+    integration_test()
   end
 
   desc "Run unit tests (standalone)"
