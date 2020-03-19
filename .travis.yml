@@ -23,6 +23,11 @@ jobs:
       script:
         - bundle install
         - bundle exec fastlane unit_test
+    - stage: test
+      name: ui_test
+      script:
+        - bundle install
+        - bundle exec fastlane ui_test
     - stage: framework
       name: xcframework
       script:

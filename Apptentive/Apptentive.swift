@@ -6,7 +6,7 @@
 //  Copyright © 2020 Frank Schmitt. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 
 public class Apptentive {
@@ -23,12 +23,19 @@ public class Apptentive {
         self.authenticator = authenticator
     }
     
-	public func register(credentials: Credentials, completion: @escaping (Bool)->()) {
-		self.authenticator.authenticate(credentials: credentials, completion: completion)
+    public func register(credentials: Credentials, completion: @escaping (Bool)->()) {
+        self.authenticator.authenticate(credentials: credentials, completion: completion)
     }
-
-	public struct Credentials {
-		let key: String
-		let signature: String
-	}
+    
+    public struct Credentials {
+        let key: String
+        let signature: String
+    }
+    
+    public func presentLoveDialog(from viewController: UIViewController, with configuration: LoveDialogConfiguration) {
+        let appName = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? ""
+        let loveDialog = LoveDialogBuilder.build(with: configuration, appName: appName)
+        
+        viewController.present(loveDialog, animated: true)
+    }
 }

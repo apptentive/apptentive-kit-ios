@@ -33,6 +33,11 @@ platform :ios do
     run_tests(scheme: "ApptentiveUnitTests")
   end
 
+  desc "Run UI tests (standalone)"
+  lane :ui_test do
+    run_tests(scheme: "ApptentiveUITestsApp")
+  end
+
   desc "Builds Apptentive xcframework binary"
   private_lane :framework do |options|
     framework_scheme = "Apptentive"
