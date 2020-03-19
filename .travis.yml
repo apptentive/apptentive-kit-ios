@@ -1,16 +1,36 @@
 language: swift
 osx_image: xcode11.3
 
+addons:
+  artifacts:
+    paths:
+      - $(ls *.zip | tr "\n" ":")
+
+branches:
+  only:
+    - dev
+    - staging
+    - production
+
 stages:
-  - test
+  - verify
+  - framework
 
 jobs:
   include:
-    - stage: test
+    - stage: verify
       name: unit_test
       script:
         - bundle install
         - bundle exec fastlane unit_test
+    - stage: framework
+      name: xcframework
+      script:
+        - bundle install
+        - bundle exec fastlane framework_production
+        - bundle exec fastlane framework_staging
+        - bundle exec fastlane framework_dev
+        - bundle exec fastlane zipArtifacts
     # Currently disabled until travis and see dev endpoints or a local service can be spun up
     # - stage: test
     #   name: integration_test

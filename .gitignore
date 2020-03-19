@@ -67,3 +67,8 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+.bundle/
+vendor/
+ios*.xcarchive
+iossimulator*.xcarchive/
+iphoneos/

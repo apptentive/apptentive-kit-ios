@@ -16,6 +16,11 @@
 default_platform(:ios)
 
 platform :ios do
+  build_number = ENV['TRAVIS_BUILD_NUMBER']
+  if build_number.nil?
+    build_number = '0'
+  end
+
   desc "Run integration tests (requires internet)"
   lane :integration_test do |options|
     environment = options[:environment] || 'dev'
@@ -26,5 +31,92 @@ platform :ios do
   desc "Run unit tests (standalone)"
   lane :unit_test do
     run_tests(scheme: "ApptentiveUnitTests")
+  end
+
+  desc "Builds Apptentive xcframework binary"
+  private_lane :framework do |options|
+    framework_scheme = "Apptentive"
+
+    increment_build_number(
+      build_number: build_number
+    )
+
+    xcargs = {
+      :BUILD_LIBRARY_FOR_DISTRIBUTION => "YES",
+      :SKIP_INSTALL => "NO"
+    }
+
+    server_env = "local"
+
+    if !options[:server_env].nil?
+      xcargs[:OTHER_SWIFT_FLAGS] = "-D#{options[:server_env].capitalize}"
+      server_env = options[:server_env].downcase
+    end
+
+    gym(
+      scheme: framework_scheme,
+      output_directory: "./iOS-#{server_env}",
+      destination: 'generic/platform=iOS',
+      archive_path: "./ios-#{server_env}.xcarchive",
+      sdk: 'iphoneos',
+      derived_data_path: './iphoneos',
+      skip_package_ipa: true,
+      xcargs: xcargs,
+      skip_codesigning: true
+    )
+    
+    gym(
+      scheme: framework_scheme,
+      output_directory: "./iossimulator-#{server_env}",
+      destination: 'generic/platform=iOS Simulator',
+      archive_path: "./iossimulator-#{server_env}.xcarchive",
+      sdk: 'iphonesimulator',
+      derived_data_path: './iphoneos',
+      skip_package_ipa: true,
+      xcargs: xcargs,
+      skip_codesigning: true
+    )
+
+    sh("xcodebuild -create-xcframework \
+      -framework ../ios-#{server_env}.xcarchive/Products/Library/Frameworks/Apptentive.framework \
+      -framework ../iossimulator-#{server_env}.xcarchive/Products/Library/Frameworks/Apptentive.framework \
+      -output ../Apptentive-#{server_env}.xcframework")
+  end
+
+  desc "Zips all xcarchive and xcframework"
+  lane :zipArtifacts do
+    Dir.glob("../*.xcarchive").each do |file|
+      zip(
+        path: File.expand_path(file),
+        output_path: "#{File.basename(file)}.zip"
+      )
+    end
+
+    Dir.glob("../*.xcframework").each do |file|
+      zip(
+        path: File.expand_path(file),
+        output_path: "#{File.basename(file)}.zip"
+      )
+    end
+  end
+
+  desc "Builds Apptentive xcframework binary pointed at production servers"
+  lane :framework_production do
+    framework(server_env: "production")
+  end
+
+  desc "Builds Apptentive xcframework binary pointed at staging servers"
+  lane :framework_staging do
+    framework(server_env: "staging")
+  end
+
+  desc "Builds Apptentive xcframework binary pointed at dev servers"
+  lane :framework_dev do
+    framework(server_env: "dev")
+  end
+
+  desc "Builds Apptentive xcframework binary pointed at localhost"
+  lane :framework_local do
+    framework()
   end
 end

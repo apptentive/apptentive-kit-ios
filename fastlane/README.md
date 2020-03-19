@@ -16,16 +16,36 @@ or alternatively using `brew cask install fastlane`
 
 # Available Actions
 ## iOS
-### ios integration_test
-```
-fastlane ios integration_test
-```
-Run integration tests (requires internet)
 ### ios unit_test
 ```
 fastlane ios unit_test
 ```
 Run unit tests (standalone)
+### ios zipArtifacts
+```
+fastlane ios zipArtifacts
+```
+Zips all xcarchive and xcframework
+### ios framework_production
+```
+fastlane ios framework_production
+```
+Builds Apptentive xcframework binary pointed at production servers
+### ios framework_staging
+```
+fastlane ios framework_staging
+```
+Builds Apptentive xcframework binary pointed at staging servers
+### ios framework_dev
+```
+fastlane ios framework_dev
+```
+Builds Apptentive xcframework binary pointed at dev servers
+### ios framework_local
+```
+fastlane ios framework_local
+```
+Builds Apptentive xcframework binary pointed at localhost
 
 ----
 
