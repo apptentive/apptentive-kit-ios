@@ -23,7 +23,7 @@ jobs:
       script:
         - bundle install
         - bundle exec fastlane unit_test
-    - stage: test
+    - stage: verify
       name: ui_test
       script:
         - bundle install
