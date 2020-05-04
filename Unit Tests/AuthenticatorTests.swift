@@ -3,7 +3,7 @@
 //  ApptentiveTests
 //
 //  Created by Apptentive on 2/21/20.
-//  Copyright © 2020 Frank Schmitt. All rights reserved.
+//  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
 import XCTest

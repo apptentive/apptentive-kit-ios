@@ -16,6 +16,26 @@ or alternatively using `brew cask install fastlane`
 
 # Available Actions
 ## iOS
+### ios integration_test_production
+```
+fastlane ios integration_test_production
+```
+Run integration tests against production
+### ios integration_test_staging
+```
+fastlane ios integration_test_staging
+```
+Run integration tests against staging
+### ios integration_test_dev
+```
+fastlane ios integration_test_dev
+```
+Run integration tests against dev
+### ios integration_test_local
+```
+fastlane ios integration_test_local
+```
+Run integration tests against localhost
 ### ios unit_test
 ```
 fastlane ios unit_test
@@ -26,31 +46,21 @@ Run unit tests (standalone)
 fastlane ios ui_test
 ```
 Run UI tests (standalone)
+### ios framework
+```
+fastlane ios framework
+```
+Builds Apptentive xcframework binary
 ### ios zipArtifacts
 ```
 fastlane ios zipArtifacts
 ```
 Zips all xcarchive and xcframework
-### ios framework_production
+### ios beta
 ```
-fastlane ios framework_production
+fastlane ios beta
 ```
-Builds Apptentive xcframework binary pointed at production servers
-### ios framework_staging
-```
-fastlane ios framework_staging
-```
-Builds Apptentive xcframework binary pointed at staging servers
-### ios framework_dev
-```
-fastlane ios framework_dev
-```
-Builds Apptentive xcframework binary pointed at dev servers
-### ios framework_local
-```
-fastlane ios framework_local
-```
-Builds Apptentive xcframework binary pointed at localhost
+Deploys Operator app to TestFlight
 
 ----
 

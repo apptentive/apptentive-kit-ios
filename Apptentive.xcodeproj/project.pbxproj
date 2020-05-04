@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		010ADF442458F8C3005D63FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 010ADF432458F8C3005D63FE /* Main.storyboard */; };
 		019121812404581B00FFE0F4 /* AuthenticationFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019121802404581B00FFE0F4 /* AuthenticationFeatureTests.swift */; };
 		01A0917123FCB4A700AF187E /* Apptentive.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A0916F23FCB4A700AF187E /* Apptentive.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01A0918123FCB4CC00AF187E /* Apptentive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* Apptentive.framework */; };
@@ -15,7 +16,6 @@
 		01D7392E2405CB860000EE52 /* AuthenticatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6CCEF8240096F0009A1D44 /* AuthenticatorTests.swift */; };
 		1F323D45240EED3000A678BC /* ApptentiveUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D44240EED3000A678BC /* ApptentiveUITests.swift */; };
 		1F323D51240EEE0400A678BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D50240EEE0400A678BC /* AppDelegate.swift */; };
-		1F323D53240EEE0400A678BC /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D52240EEE0400A678BC /* SceneDelegate.swift */; };
 		1F323D57240EEE0500A678BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F323D56240EEE0500A678BC /* Assets.xcassets */; };
 		1F323D5A240EEE0500A678BC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F323D59240EEE0500A678BC /* Preview Assets.xcassets */; };
 		1F323D5D240EEE0500A678BC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F323D5B240EEE0500A678BC /* LaunchScreen.storyboard */; };
@@ -74,6 +74,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		010ADF432458F8C3005D63FE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		019121802404581B00FFE0F4 /* AuthenticationFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationFeatureTests.swift; sourceTree = "<group>"; };
 		01A0916C23FCB4A700AF187E /* Apptentive.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Apptentive.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A0916F23FCB4A700AF187E /* Apptentive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Apptentive.h; sourceTree = "<group>"; };
@@ -82,6 +83,8 @@
 		01A0918023FCB4CC00AF187E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01A0918723FCB5D600AF187E /* Apptentive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Apptentive.swift; sourceTree = "<group>"; };
 		01AFB2E624106AB60018EE02 /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fastlane; sourceTree = "<group>"; };
+		01AFFAA5245A1786000353C0 /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .travis.yml; sourceTree = "<group>"; };
+		01AFFAA6245A1786000353C0 /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fastlane; sourceTree = "<group>"; };
 		01D739232405CB630000EE52 /* ApptentiveUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01D739272405CB630000EE52 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F323D42240EED3000A678BC /* ApptentiveUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,7 +92,6 @@
 		1F323D46240EED3000A678BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F323D4E240EEE0400A678BC /* ApptentiveUITestsApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ApptentiveUITestsApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F323D50240EEE0400A678BC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		1F323D52240EEE0400A678BC /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		1F323D56240EEE0500A678BC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1F323D59240EEE0500A678BC /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1F323D5C240EEE0500A678BC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -148,13 +150,14 @@
 			isa = PBXGroup;
 			children = (
 				01AFB2E624106AB60018EE02 /* fastlane */,
+				01AFFAA5245A1786000353C0 /* .travis.yml */,
+				01AFFAA6245A1786000353C0 /* fastlane */,
 				01A0916E23FCB4A700AF187E /* Apptentive */,
 				01A0917D23FCB4CC00AF187E /* Integration Tests */,
 				01D739242405CB630000EE52 /* Unit Tests */,
-				1F323D43240EED3000A678BC /* ApptentiveUITests */,
+				1F323D43240EED3000A678BC /* UI Tests */,
 				1F323D4F240EEE0400A678BC /* ApptentiveUITestsApp */,
 				01A0916D23FCB4A700AF187E /* Products */,
-				CCEF75D99D3D4BAB4C64DDFC /* Pods */,
 				1F323D64240F28C200A678BC /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -203,25 +206,25 @@
 			path = "Unit Tests";
 			sourceTree = "<group>";
 		};
-		1F323D43240EED3000A678BC /* ApptentiveUITests */ = {
+		1F323D43240EED3000A678BC /* UI Tests */ = {
 			isa = PBXGroup;
 			children = (
 				1F323D44240EED3000A678BC /* ApptentiveUITests.swift */,
 				1F323D46240EED3000A678BC /* Info.plist */,
 			);
-			path = ApptentiveUITests;
+			path = "UI Tests";
 			sourceTree = "<group>";
 		};
 		1F323D4F240EEE0400A678BC /* ApptentiveUITestsApp */ = {
 			isa = PBXGroup;
 			children = (
 				1F323D50240EEE0400A678BC /* AppDelegate.swift */,
-				1F323D52240EEE0400A678BC /* SceneDelegate.swift */,
 				1F323D6A240F2F0500A678BC /* ViewController.swift */,
 				1F323D56240EEE0500A678BC /* Assets.xcassets */,
 				1F323D5B240EEE0500A678BC /* LaunchScreen.storyboard */,
 				1F323D5E240EEE0500A678BC /* Info.plist */,
 				1F323D58240EEE0500A678BC /* Preview Content */,
+				010ADF432458F8C3005D63FE /* Main.storyboard */,
 			);
 			path = ApptentiveUITestsApp;
 			sourceTree = "<group>";
@@ -239,13 +242,6 @@
 			children = (
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		CCEF75D99D3D4BAB4C64DDFC /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -440,6 +436,7 @@
 				1F323D5D240EEE0500A678BC /* LaunchScreen.storyboard in Resources */,
 				1F323D5A240EEE0500A678BC /* Preview Assets.xcassets in Resources */,
 				1F323D57240EEE0500A678BC /* Assets.xcassets in Resources */,
+				010ADF442458F8C3005D63FE /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -487,7 +484,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F323D51240EEE0400A678BC /* AppDelegate.swift in Sources */,
-				1F323D53240EEE0400A678BC /* SceneDelegate.swift in Sources */,
 				1F323D6B240F2F0500A678BC /* ViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -561,8 +557,9 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -580,7 +577,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -624,8 +621,10 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -637,7 +636,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -653,11 +652,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 2;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = Apptentive/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -666,6 +665,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apptentive.Apptentive;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -679,11 +679,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 2;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = Apptentive/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -692,6 +692,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.apptentive.Apptentive;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -704,7 +705,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				INFOPLIST_FILE = "Integration Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -723,7 +723,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				INFOPLIST_FILE = "Integration Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -741,7 +740,6 @@
 		01D7392C2405CB630000EE52 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				INFOPLIST_FILE = "Unit Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -759,7 +757,6 @@
 		01D7392D2405CB630000EE52 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				INFOPLIST_FILE = "Unit Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -777,8 +774,7 @@
 		1F323D47240EED3000A678BC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = ApptentiveUITests/Info.plist;
+				INFOPLIST_FILE = "UI Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -795,8 +791,7 @@
 		1F323D48240EED3000A678BC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				INFOPLIST_FILE = ApptentiveUITests/Info.plist;
+				INFOPLIST_FILE = "UI Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -814,7 +809,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"ApptentiveUITestsApp/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = ApptentiveUITestsApp/Info.plist;
@@ -833,7 +827,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"ApptentiveUITestsApp/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = ApptentiveUITestsApp/Info.plist;

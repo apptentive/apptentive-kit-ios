@@ -3,7 +3,7 @@
 //  Apptentive
 //
 //  Created by Frank Schmitt on 2/18/20.
-//  Copyright © 2020 Frank Schmitt. All rights reserved.
+//  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
