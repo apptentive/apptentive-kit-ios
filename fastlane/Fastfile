@@ -126,11 +126,7 @@ platform :ios do
   end
 
   desc "Deploys Operator app to TestFlight"
-  lane :beta do
-    disable_automatic_code_signing(
-      path: "Apptentive.xcodeproj"
-    )
-
+  lane :beta do    
     # Match the version number of the SDK
     version = get_version_number(
       xcodeproj: "Apptentive.xcodeproj",
@@ -149,6 +145,19 @@ platform :ios do
         build_number: ENV["BUILD_NUMBER"]
       )
     end
+    
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Apptentive.xcodeproj",
+      code_sign_identity: "Apple Distribution"
+    )
+    
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Operator/Operator.xcodeproj",
+      code_sign_identity: "Apple Distribution",
+      profile_name: "match AppStore com.apptentive.Operator"
+    )
     
     match(type: "appstore", app_identifier: "com.apptentive.Operator", readonly: is_ci)
     
