@@ -17,7 +17,7 @@ default_platform(:ios)
 setup_travis
 
 platform :ios do
-  build_number = ENV['TRAVIS_BUILD_NUMBER']
+  build_number = ENV['BUILD_NUMBER']
   if build_number.nil?
     build_number = '0'
   end
@@ -108,23 +108,29 @@ platform :ios do
 
   desc "Zips all xcarchive and xcframework"
   lane :zipArtifacts do
-    Dir.glob("../*.xcarchive").each do |file|
+    Dir.mkdir 'artifacts'
+
+    Dir.glob("../build/*.xcarchive").each do |file|
       zip(
         path: File.expand_path(file),
-        output_path: "#{File.basename(file)}.zip"
+        output_path: "./artifacts/#{File.basename(file)}.zip"
       )
     end
 
-    Dir.glob("../*.xcframework").each do |file|
+    Dir.glob("../build/*.xcframework").each do |file|
       zip(
         path: File.expand_path(file),
-        output_path: "#{File.basename(file)}.zip"
+        output_path: "./artifacts/#{File.basename(file)}.zip"
       )
     end
   end
 
   desc "Deploys Operator app to TestFlight"
   lane :beta do
+    disable_automatic_code_signing(
+      path: "Apptentive.xcodeproj"
+    )
+
     # Match the version number of the SDK
     version = get_version_number(
       xcodeproj: "Apptentive.xcodeproj",
@@ -153,6 +159,7 @@ platform :ios do
       export_method: "app-store",
       output_directory: "build"
     )
+
     upload_to_testflight
   end
 end

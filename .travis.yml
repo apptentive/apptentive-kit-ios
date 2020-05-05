@@ -6,6 +6,22 @@ addons:
     paths:
       - $(ls *.zip | tr "\n" ":")
 
+before_deploy:
+  - export TRAVIS_TAG="$(agvtool what-marketing-version -terse1)-${TRAVIS_BRANCH}+${TRAVIS_BUILD_NUMBER}"
+  - git tag $TRAVIS_TAG
+
+deploy:
+  provider: releases
+  api_key: ${GITHUB_TOKEN}
+  file_glob: true
+  file:
+    - "./artifacts/**/*"
+  skip_cleanup: true
+  on:
+    all_branches: true
+  on:
+    tags: true
+
 branches:
   only:
     - dev
@@ -33,8 +49,9 @@ jobs:
     - stage: framework
       name: xcframework
       script:
+        - env
         - bundle install
-        - bundle exec fastlane framework
+        - BUILD_NUMBER=$TRAVIS_BUILD_NUMBER bundle exec fastlane framework
         - bundle exec fastlane zipArtifacts
     - stage: deploy
       name: testflight
@@ -46,4 +63,4 @@ jobs:
     #   name: integration_test
     #   script:
     #     - bundle install
-    #     - bundle exec fastlane integration_test 
+    #     - bundle exec fastlane integration_test
