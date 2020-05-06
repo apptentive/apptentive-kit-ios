@@ -9,15 +9,15 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "1F323D4D240EEE0400A678BC"
-               BuildableName = "ApptentiveUITestsApp.app"
-               BlueprintName = "ApptentiveUITestsApp"
-               ReferencedContainer = "container:Apptentive.xcodeproj">
+               BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
+               BuildableName = "ApptentiveFeatureTests.xctest"
+               BlueprintName = "ApptentiveFeatureTests"
+               ReferencedContainer = "container:ApptentiveKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "1F323D41240EED3000A678BC"
-               BuildableName = "ApptentiveUITests.xctest"
-               BlueprintName = "ApptentiveUITests"
-               ReferencedContainer = "container:Apptentive.xcodeproj">
+               BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
+               BuildableName = "ApptentiveFeatureTests.xctest"
+               BlueprintName = "ApptentiveFeatureTests"
+               ReferencedContainer = "container:ApptentiveKit.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -50,16 +50,6 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "1F323D4D240EEE0400A678BC"
-            BuildableName = "ApptentiveUITestsApp.app"
-            BlueprintName = "ApptentiveUITestsApp"
-            ReferencedContainer = "container:Apptentive.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -67,16 +57,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "1F323D4D240EEE0400A678BC"
-            BuildableName = "ApptentiveUITestsApp.app"
-            BlueprintName = "ApptentiveUITestsApp"
-            ReferencedContainer = "container:Apptentive.xcodeproj">
+            BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
+            BuildableName = "ApptentiveFeatureTests.xctest"
+            BlueprintName = "ApptentiveFeatureTests"
+            ReferencedContainer = "container:ApptentiveKit.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

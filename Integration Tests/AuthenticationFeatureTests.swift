@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Apptentive
+@testable import ApptentiveKit
 
 
 class AuthenticationFeatureTests: XCTestCase {

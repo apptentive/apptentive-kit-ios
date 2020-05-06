@@ -65,7 +65,7 @@ platform :ios do
 
   desc "Builds Apptentive xcframework binary"
   lane :framework do
-    framework_scheme = "Apptentive"
+    framework_scheme = "ApptentiveKit"
 
     increment_build_number(
       build_number: build_number
@@ -101,9 +101,9 @@ platform :ios do
     )
 
     sh("xcodebuild -create-xcframework \
-      -framework ../build/ios.xcarchive/Products/Library/Frameworks/Apptentive.framework \
-      -framework ../build/iossimulator.xcarchive/Products/Library/Frameworks/Apptentive.framework \
-      -output ../build/Apptentive.xcframework")
+      -framework ../build/ios.xcarchive/Products/Library/Frameworks/ApptentiveKit.framework \
+      -framework ../build/iossimulator.xcarchive/Products/Library/Frameworks/ApptentiveKit.framework \
+      -output ../build/ApptentiveKit.xcframework")
   end
 
   desc "Zips all xcarchive and xcframework"
@@ -129,8 +129,8 @@ platform :ios do
   lane :beta do    
     # Match the version number of the SDK
     version = get_version_number(
-      xcodeproj: "Apptentive.xcodeproj",
-      target: "Apptentive"
+      xcodeproj: "ApptentiveKit.xcodeproj",
+      target: "ApptentiveKit"
     )
     
     increment_version_number(
@@ -148,7 +148,7 @@ platform :ios do
     
     update_code_signing_settings(
       use_automatic_signing: false,
-      path: "Apptentive.xcodeproj",
+      path: "ApptentiveKit.xcodeproj",
       code_sign_identity: "Apple Distribution"
     )
     

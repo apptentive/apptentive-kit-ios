@@ -17,7 +17,7 @@
                BlueprintIdentifier = "01A0917B23FCB4CC00AF187E"
                BuildableName = "ApptentiveFeatureTests.xctest"
                BlueprintName = "ApptentiveFeatureTests"
-               ReferencedContainer = "container:Apptentive.xcodeproj">
+               ReferencedContainer = "container:ApptentiveKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
                BlueprintIdentifier = "01D739222405CB630000EE52"
                BuildableName = "ApptentiveUnitTests.xctest"
                BlueprintName = "ApptentiveUnitTests"
-               ReferencedContainer = "container:Apptentive.xcodeproj">
+               ReferencedContainer = "container:ApptentiveKit.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>

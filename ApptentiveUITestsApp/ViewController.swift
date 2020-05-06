@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Apptentive
+import ApptentiveKit
 
 
 struct TestRow {

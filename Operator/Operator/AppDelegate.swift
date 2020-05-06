@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Apptentive
+import ApptentiveKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

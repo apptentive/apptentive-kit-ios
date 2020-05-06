@@ -10,17 +10,17 @@
 		010ADF442458F8C3005D63FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 010ADF432458F8C3005D63FE /* Main.storyboard */; };
 		019121812404581B00FFE0F4 /* AuthenticationFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019121802404581B00FFE0F4 /* AuthenticationFeatureTests.swift */; };
 		01A0917123FCB4A700AF187E /* Apptentive.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A0916F23FCB4A700AF187E /* Apptentive.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		01A0918123FCB4CC00AF187E /* Apptentive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* Apptentive.framework */; };
+		01A0918123FCB4CC00AF187E /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A0918723FCB5D600AF187E /* Apptentive.swift */; };
-		01D739282405CB630000EE52 /* Apptentive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* Apptentive.framework */; };
+		01D739282405CB630000EE52 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		01D7392E2405CB860000EE52 /* AuthenticatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6CCEF8240096F0009A1D44 /* AuthenticatorTests.swift */; };
 		1F323D45240EED3000A678BC /* ApptentiveUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D44240EED3000A678BC /* ApptentiveUITests.swift */; };
 		1F323D51240EEE0400A678BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D50240EEE0400A678BC /* AppDelegate.swift */; };
 		1F323D57240EEE0500A678BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F323D56240EEE0500A678BC /* Assets.xcassets */; };
 		1F323D5A240EEE0500A678BC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F323D59240EEE0500A678BC /* Preview Assets.xcassets */; };
 		1F323D5D240EEE0500A678BC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F323D5B240EEE0500A678BC /* LaunchScreen.storyboard */; };
-		1F323D65240F28C200A678BC /* Apptentive.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* Apptentive.framework */; };
-		1F323D66240F28C200A678BC /* Apptentive.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* Apptentive.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1F323D65240F28C200A678BC /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
+		1F323D66240F28C200A678BC /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1F323D6B240F2F0500A678BC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D6A240F2F0500A678BC /* ViewController.swift */; };
 		1F36F5BF241030AA00A0981F /* LoveDialogBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F36F5BE241030AA00A0981F /* LoveDialogBuilderTests.swift */; };
 		1F36F5C1241030D200A0981F /* LoveDialogBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F36F5C0241030D200A0981F /* LoveDialogBuilder.swift */; };
@@ -66,7 +66,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1F323D66240F28C200A678BC /* Apptentive.framework in Embed Frameworks */,
+				1F323D66240F28C200A678BC /* ApptentiveKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -76,7 +76,7 @@
 /* Begin PBXFileReference section */
 		010ADF432458F8C3005D63FE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		019121802404581B00FFE0F4 /* AuthenticationFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationFeatureTests.swift; sourceTree = "<group>"; };
-		01A0916C23FCB4A700AF187E /* Apptentive.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Apptentive.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ApptentiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A0916F23FCB4A700AF187E /* Apptentive.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Apptentive.h; sourceTree = "<group>"; };
 		01A0917023FCB4A700AF187E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01A0917C23FCB4CC00AF187E /* ApptentiveFeatureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveFeatureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -116,7 +116,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01A0918123FCB4CC00AF187E /* Apptentive.framework in Frameworks */,
+				01A0918123FCB4CC00AF187E /* ApptentiveKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,7 +124,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01D739282405CB630000EE52 /* Apptentive.framework in Frameworks */,
+				01D739282405CB630000EE52 /* ApptentiveKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,7 +139,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F323D65240F28C200A678BC /* Apptentive.framework in Frameworks */,
+				1F323D65240F28C200A678BC /* ApptentiveKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -165,7 +165,7 @@
 		01A0916D23FCB4A700AF187E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				01A0916C23FCB4A700AF187E /* Apptentive.framework */,
+				01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */,
 				01A0917C23FCB4CC00AF187E /* ApptentiveFeatureTests.xctest */,
 				01D739232405CB630000EE52 /* ApptentiveUnitTests.xctest */,
 				1F323D42240EED3000A678BC /* ApptentiveUITests.xctest */,
@@ -258,9 +258,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		01A0916B23FCB4A700AF187E /* Apptentive */ = {
+		01A0916B23FCB4A700AF187E /* ApptentiveKit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 01A0917423FCB4A700AF187E /* Build configuration list for PBXNativeTarget "Apptentive" */;
+			buildConfigurationList = 01A0917423FCB4A700AF187E /* Build configuration list for PBXNativeTarget "ApptentiveKit" */;
 			buildPhases = (
 				01A0916723FCB4A700AF187E /* Headers */,
 				01A0916823FCB4A700AF187E /* Sources */,
@@ -271,9 +271,9 @@
 			);
 			dependencies = (
 			);
-			name = Apptentive;
+			name = ApptentiveKit;
 			productName = Apptentive;
-			productReference = 01A0916C23FCB4A700AF187E /* Apptentive.framework */;
+			productReference = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		01A0917B23FCB4CC00AF187E /* ApptentiveFeatureTests */ = {
@@ -378,7 +378,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 01A0916623FCB4A700AF187E /* Build configuration list for PBXProject "Apptentive" */;
+			buildConfigurationList = 01A0916623FCB4A700AF187E /* Build configuration list for PBXProject "ApptentiveKit" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -391,7 +391,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				01A0916B23FCB4A700AF187E /* Apptentive */,
+				01A0916B23FCB4A700AF187E /* ApptentiveKit */,
 				01A0917B23FCB4CC00AF187E /* ApptentiveFeatureTests */,
 				01D739222405CB630000EE52 /* ApptentiveUnitTests */,
 				1F323D41240EED3000A678BC /* ApptentiveUITests */,
@@ -493,12 +493,12 @@
 /* Begin PBXTargetDependency section */
 		01A0918323FCB4CC00AF187E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 01A0916B23FCB4A700AF187E /* Apptentive */;
+			target = 01A0916B23FCB4A700AF187E /* ApptentiveKit */;
 			targetProxy = 01A0918223FCB4CC00AF187E /* PBXContainerItemProxy */;
 		};
 		01D7392A2405CB630000EE52 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 01A0916B23FCB4A700AF187E /* Apptentive */;
+			target = 01A0916B23FCB4A700AF187E /* ApptentiveKit */;
 			targetProxy = 01D739292405CB630000EE52 /* PBXContainerItemProxy */;
 		};
 		1F323D63240F288800A678BC /* PBXTargetDependency */ = {
@@ -508,7 +508,7 @@
 		};
 		1F323D68240F28C200A678BC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 01A0916B23FCB4A700AF187E /* Apptentive */;
+			target = 01A0916B23FCB4A700AF187E /* ApptentiveKit */;
 			targetProxy = 1F323D67240F28C200A678BC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -558,7 +558,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 0;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -621,7 +621,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -649,11 +649,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 0;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 2;
+				DYLIB_CURRENT_VERSION = 0;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = Apptentive/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -675,11 +675,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 0;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 2;
+				DYLIB_CURRENT_VERSION = 0;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = Apptentive/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -839,7 +839,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		01A0916623FCB4A700AF187E /* Build configuration list for PBXProject "Apptentive" */ = {
+		01A0916623FCB4A700AF187E /* Build configuration list for PBXProject "ApptentiveKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				01A0917223FCB4A700AF187E /* Debug */,
@@ -848,7 +848,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		01A0917423FCB4A700AF187E /* Build configuration list for PBXNativeTarget "Apptentive" */ = {
+		01A0917423FCB4A700AF187E /* Build configuration list for PBXNativeTarget "ApptentiveKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				01A0917523FCB4A700AF187E /* Debug */,
