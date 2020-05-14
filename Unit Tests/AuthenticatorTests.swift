@@ -7,79 +7,79 @@
 //
 
 import XCTest
-@testable import ApptentiveKit
 
+@testable import ApptentiveKit
 
 class AuthenticatorTests: XCTestCase {
 
-	func testBuildHeaders() {
-		let credentials = Apptentive.Credentials(key: "123", signature: "abc")
-		let expectedHeaders = [
-			ApptentiveAuthenticator.Headers.apptentiveKey: "123",
-			ApptentiveAuthenticator.Headers.apptentiveSignature: "abc"
-		]
+    func testBuildHeaders() {
+        let credentials = Apptentive.Credentials(key: "123", signature: "abc")
+        let expectedHeaders = [
+            ApptentiveAuthenticator.Headers.apptentiveKey: "123",
+            ApptentiveAuthenticator.Headers.apptentiveSignature: "abc",
+        ]
 
-		let headers = ApptentiveAuthenticator.buildHeaders(credentials: credentials)
+        let headers = ApptentiveAuthenticator.buildHeaders(credentials: credentials)
 
-		XCTAssertEqual(headers, expectedHeaders)
-	}
+        XCTAssertEqual(headers, expectedHeaders)
+    }
 
-	func testBuildsARequest() {
-		let url = URL(string: "https://example.com")!
-		let headers = ["Foo": "Bar"]
-		let method = "BAZ"
+    func testBuildsARequest() {
+        let url = URL(string: "https://example.com")!
+        let headers = ["Foo": "Bar"]
+        let method = "BAZ"
 
-		let request = ApptentiveAuthenticator.buildRequest(url: url, method: method, headers: headers)
+        let request = ApptentiveAuthenticator.buildRequest(url: url, method: method, headers: headers)
 
-		XCTAssertEqual(request.url, url)
-		XCTAssertEqual(request.allHTTPHeaderFields, headers)
-		XCTAssertEqual(request.httpMethod, method)
-	}
+        XCTAssertEqual(request.url, url)
+        XCTAssertEqual(request.allHTTPHeaderFields, headers)
+        XCTAssertEqual(request.httpMethod, method)
+    }
 
-	func testMaps200ResponseToSuccess() {
-		let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)
+    func testMaps200ResponseToSuccess() {
+        let response = HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)
 
-		let result = ApptentiveAuthenticator.processResponse(response: response)
+        let result = ApptentiveAuthenticator.processResponse(response: response)
 
-		XCTAssertTrue(result)
-	}
+        XCTAssertTrue(result)
+    }
 
-	func testMapsNoResponseToFailure() {
-		let response: URLResponse? = nil
+    func testMapsNoResponseToFailure() {
+        let response: URLResponse? = nil
 
-		let result = ApptentiveAuthenticator.processResponse(response: response)
+        let result = ApptentiveAuthenticator.processResponse(response: response)
 
-		XCTAssertFalse(result)
-	}
+        XCTAssertFalse(result)
+    }
 
-	func testAuthenticate() {
+    func testAuthenticate() {
         let url = URL(string: "http://example.com")!
-		let requestor = SpyRequestor()
-        
+        let requestor = SpyRequestor()
+
         let authenticator = ApptentiveAuthenticator(url: url, requestor: requestor)
-		let credentials = Apptentive.Credentials(key: "", signature: "")
+        let credentials = Apptentive.Credentials(key: "", signature: "")
 
-		let expectation = XCTestExpectation()
-		authenticator.authenticate(credentials: credentials) { (success) in
+        let expectation = XCTestExpectation()
+        authenticator.authenticate(credentials: credentials) { (success) in
 
-			XCTAssertNotNil(requestor.request)
-			XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
+            XCTAssertNotNil(requestor.request)
+            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
             XCTAssertEqual(requestor.request?.url, url)
-			XCTAssertEqual(requestor.request?.httpMethod, "POST")
-			XCTAssert(success || !success)
+            XCTAssertEqual(requestor.request?.httpMethod, "POST")
+            XCTAssert(success || !success)
 
-			expectation.fulfill()
-		}
+            expectation.fulfill()
+        }
 
         class SpyRequestor: HTTPRequesting {
             var request: URLRequest?
 
-            func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ()) {
+            func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> Void) {
                 self.request = request
 
                 let stubReponse = HTTPURLResponse()
                 completion((nil, stubReponse, nil))
             }
         }
-	}
+    }
 }

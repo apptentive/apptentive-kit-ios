@@ -8,19 +8,18 @@
 
 import Foundation
 
-
 public typealias URLResult = (Data?, URLResponse?, Error?)
 
 protocol HTTPRequesting {
-    func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ())
+    func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> Void)
 }
 
 extension URLSession: HTTPRequesting {
-    func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> ()) {
+    func sendRequest(_ request: URLRequest, completion: @escaping (URLResult) -> Void) {
         let task = self.dataTask(with: request) { (data, response, error) in
             completion((data, response, error))
         }
-        
+
         task.resume()
     }
 }

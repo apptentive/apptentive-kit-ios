@@ -6,22 +6,21 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import UIKit
 import ApptentiveKit
+import UIKit
 
 class FirstViewController: UIViewController {
 
-	override func viewDidLoad() {
-		super.viewDidLoad()
-		// Do any additional setup after loading the view.
-	}
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view.
+    }
 
-	@IBAction func love(_ sender: Any) {
-		guard let appDelegate = UIApplication.shared.delegate as? AppDelegate, let apptentive = appDelegate.apptentive else {
-			return
-		}
+    @IBAction func love(_ sender: Any) {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate, let apptentive = appDelegate.apptentive else {
+            return
+        }
 
-		apptentive.presentLoveDialog(from: self, with: LoveDialogConfiguration())
-	}
+        apptentive.presentLoveDialog(from: self, with: LoveDialogConfiguration())
+    }
 }
-

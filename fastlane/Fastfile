@@ -63,6 +63,25 @@ platform :ios do
     run_tests(scheme: "ApptentiveUITestsApp")
   end
 
+  desc "Runs the swift-format linter on ApptentiveKit"
+  lane :lint do
+    sh('swift-format -m lint --configuration ../.swift-format -r ../Apptentive')
+  end
+
+  desc "Runs the swift-format linter on all swift files in repo"
+  lane :lint_all do
+    sh('swift-format -m lint --configuration ../.swift-format -r ..')
+  end
+
+  desc "Runs the swift-format formatter in-place on all swift files"
+  lane :format do
+    doit = prompt(text: "This will destructively re-format all swift files in this repository. Are you sure? (Y/N)")
+    if doit == 'Y'
+      sh('swift-format -m format -i --configuration ../.swift-format -r ..')
+    end
+  end
+
+ 
   desc "Builds Apptentive xcframework binary"
   lane :framework do
     framework_scheme = "ApptentiveKit"

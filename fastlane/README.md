@@ -46,6 +46,21 @@ Run unit tests (standalone)
 fastlane ios ui_test
 ```
 Run UI tests (standalone)
+### ios lint
+```
+fastlane ios lint
+```
+Runs the swift-format linter on ApptentiveKit
+### ios lint_all
+```
+fastlane ios lint_all
+```
+Runs the swift-format linter on all swift files in repo
+### ios format
+```
+fastlane ios format
+```
+Runs the swift-format formatter in-place on all swift files
 ### ios framework
 ```
 fastlane ios framework

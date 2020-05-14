@@ -9,7 +9,7 @@
 import Foundation
 
 protocol Authenticating {
-    func authenticate(credentials: Apptentive.Credentials, completion: @escaping (Bool)->())
+    func authenticate(credentials: Apptentive.Credentials, completion: @escaping (Bool) -> Void)
 }
 
 class ApptentiveAuthenticator: Authenticating {
@@ -28,13 +28,13 @@ class ApptentiveAuthenticator: Authenticating {
         static let apptentiveSignature = "apptentive-signature"
     }
 
-    func authenticate(credentials: Apptentive.Credentials, completion: @escaping (Bool) -> ()) {
+    func authenticate(credentials: Apptentive.Credentials, completion: @escaping (Bool) -> Void) {
         let headers = Self.buildHeaders(credentials: credentials)
         let request = Self.buildRequest(url: self.url, method: "POST", headers: headers)
-        
+
         requestor.sendRequest(request) { (data, response, error) in
             let success = Self.processResponse(response: response)
-            
+
             completion(success)
         }
     }
@@ -42,10 +42,10 @@ class ApptentiveAuthenticator: Authenticating {
     static func buildHeaders(credentials: Apptentive.Credentials) -> HTTPHeaders {
         return [
             Headers.apptentiveKey: credentials.key,
-            Headers.apptentiveSignature: credentials.signature
+            Headers.apptentiveSignature: credentials.signature,
         ]
     }
-    
+
     static func buildRequest(url: URL, method: String, headers: HTTPHeaders) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = method
@@ -53,16 +53,16 @@ class ApptentiveAuthenticator: Authenticating {
 
         return request
     }
-    
+
     static func processResponse(response: URLResponse?) -> Bool {
         if let response = response as? HTTPURLResponse {
             let statusCode = response.statusCode
-            
+
             if statusCode == 200 {
                 return true
             }
         }
-        
+
         return false
     }
 }
