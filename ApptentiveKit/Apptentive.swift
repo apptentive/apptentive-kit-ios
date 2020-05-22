@@ -9,27 +9,24 @@
 import UIKit
 
 public class Apptentive {
-    let authenticator: Authenticating
+    let baseURL: URL
+    var client: ApptentiveClient? = nil
 
     public convenience init() {
         // swift-format-ignore
-        self.init(url: URL(string: "https://api.apptentive.com/conversations")!)
+        self.init(baseURL: URL(string: "https://api.apptentive.com/")!)
     }
 
-    public convenience init(url: URL) {
-        let authenticator = ApptentiveAuthenticator(url: url, requestor: URLSession.shared)
-        self.init(authenticator: authenticator)
+    public init(baseURL: URL) {
+        self.baseURL = baseURL
     }
 
-    init(authenticator: Authenticating) {
-        self.authenticator = authenticator
+    public func register(credentials: AppCredentials, completion: @escaping (Bool) -> Void) {
+        self.client = V9Client(url: baseURL, appCredentials: credentials, requestor: URLSession.shared, platform: Platform.current)
+        self.client?.createConversation(completion: completion)
     }
 
-    public func register(credentials: Credentials, completion: @escaping (Bool) -> Void) {
-        self.authenticator.authenticate(credentials: credentials, completion: completion)
-    }
-
-    public struct Credentials {
+    public struct AppCredentials {
         let key: String
         let signature: String
 

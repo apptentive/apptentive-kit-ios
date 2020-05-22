@@ -2,7 +2,7 @@
 //  LoveDialogBuilderTests.swift
 //  ApptentiveUnitTests
 //
-//  Created by Apptentive on 3/4/20.
+//  Created by Frank Schmitt on 3/4/20.
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 

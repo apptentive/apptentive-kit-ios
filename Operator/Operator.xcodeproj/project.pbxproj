@@ -79,6 +79,7 @@
 		018B09A924577B17007450EA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		018B09C52457AEF7007450EA /* Defaults.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		01D76280246358E4007A5AD5 /* ApptentiveKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ApptentiveKit.xcodeproj; path = ../../ApptentiveKit.xcodeproj; sourceTree = "<group>"; };
+		01EB6C072477409C0067F4B9 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +114,7 @@
 		018B099824577B15007450EA /* Operator */ = {
 			isa = PBXGroup;
 			children = (
+				01EB6C072477409C0067F4B9 /* README.md */,
 				018B099924577B15007450EA /* AppDelegate.swift */,
 				018B099D24577B15007450EA /* FirstViewController.swift */,
 				018B09A124577B15007450EA /* Main.storyboard */,

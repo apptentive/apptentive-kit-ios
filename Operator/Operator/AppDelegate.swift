@@ -12,7 +12,7 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
-    var apptentive: Apptentive!
+    var apptentive: Apptentive?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
@@ -26,9 +26,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     fileprivate func registerDefaults() {
-        if let defaultDefaultsURL = Bundle.main.url(forResource: "Defaults", withExtension: "plist"), let defaultDefaults = NSDictionary(contentsOf: defaultDefaultsURL) as? [String: AnyObject] {
-            UserDefaults.standard.register(defaults: defaultDefaults)
+        guard let defaultDefaultsURL = Bundle.main.url(forResource: "Defaults", withExtension: "plist"), let defaultDefaults = NSDictionary(contentsOf: defaultDefaultsURL) as? [String: AnyObject] else {
+            return assertionFailure("Unable to read `Defaults.plist`. Please ensure you have renamed the `Defaults-Template.plist` file. See README.md for more information.")
         }
+
+        UserDefaults.standard.register(defaults: defaultDefaults)
     }
 
     fileprivate func connect(_ completion: @escaping (Bool) -> Void) {
@@ -37,8 +39,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return
         }
 
-        self.apptentive = Apptentive(url: url)
+        self.apptentive = Apptentive(baseURL: url)
 
-        apptentive.register(credentials: Apptentive.Credentials(key: key, signature: signature), completion: completion)
+        apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature), completion: completion)
     }
 }

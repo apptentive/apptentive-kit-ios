@@ -73,3 +73,6 @@ vendor/
 ios*.xcarchive
 iossimulator*.xcarchive/
 iphoneos/
+
+# Credential-type files
+Defaults.plist

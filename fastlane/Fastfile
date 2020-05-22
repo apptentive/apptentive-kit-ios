@@ -24,18 +24,24 @@ platform :ios do
 
   desc "Run integration tests (requires internet)"
   private_lane :integration_test do |options|
-    if !options[:server_env].nil?
-      server_env = options[:server_env] || 'dev'
-      xcargs = "OTHER_SWIFT_FLAGS=-D#{server_env.capitalize}"
-      run_tests(scheme: "ApptentiveFeatureTests", xcargs: xcargs)
-    else
-      run_tests(scheme: "ApptentiveFeatureTests")
-    end
+    # Convert template Defaults.plist file to the real deal
+    File.rename "../Integration Tests/Defaults-Template.plist", "../Integration Tests/Defaults.plist"
+
+    update_plist(
+      plist_path: "Integration Tests/Defaults.plist",
+      block: proc do |plist|
+        plist[:Key] = options[:apptentive_key]
+        plist[:Signature] = options[:apptentive_signature]
+        plist[:ServerURL] = options[:apptentive_url]
+      end
+    )
+    
+    run_tests(scheme: "ApptentiveFeatureTests")
   end
 
   desc "Run integration tests against production"
   lane :integration_test_production do
-    integration_test(server_env: "production")
+    integration_test(apptentive_url: "https://api.apptentive.com", apptentive_key: ENV['APPTENTIVE_PROD_KEY'], apptentive_signature: ENV['APPTENTIVE_PROD_SIGNATURE'])
   end
 
   desc "Run integration tests against staging"
@@ -65,7 +71,7 @@ platform :ios do
 
   desc "Runs the swift-format linter on ApptentiveKit"
   lane :lint do
-    sh('swift-format -m lint --configuration ../.swift-format -r ../Apptentive')
+    sh('swift-format -m lint --configuration ../.swift-format -r ../ApptentiveKit')
   end
 
   desc "Runs the swift-format linter on all swift files in repo"
@@ -164,6 +170,17 @@ platform :ios do
         build_number: ENV["BUILD_NUMBER"]
       )
     end
+
+    # Convert template Defaults.plist file to the real deal
+    File.rename "../Operator/Operator/Defaults-Template.plist", "../Operator/Operator/Defaults.plist"
+
+    update_plist(
+      plist_path: "Operator/Operator/Defaults.plist",
+      block: proc do |plist|
+        plist[:Key] = ENV['APPTENTIVE_PROD_KEY']
+        plist[:Signature] = ENV['APPTENTIVE_PROD_SIGNATURE']
+      end
+    )
     
     update_code_signing_settings(
       use_automatic_signing: false,
@@ -179,7 +196,7 @@ platform :ios do
     )
     
     match(type: "appstore", app_identifier: "com.apptentive.Operator", readonly: is_ci)
-    
+
     build_app(
       project: "Operator/Operator.xcodeproj",
       scheme: "Operator",
