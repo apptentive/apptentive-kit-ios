@@ -42,4 +42,10 @@ public class Apptentive {
 
         viewController.present(loveDialog, animated: true)
     }
+
+    public func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController) {
+        let interactionController = SurveyInteractionController(interaction: interaction)
+
+        interactionController.present(from: presentingViewController)
+    }
 }

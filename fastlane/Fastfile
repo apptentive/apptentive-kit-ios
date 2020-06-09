@@ -61,7 +61,7 @@ platform :ios do
 
   desc "Run unit tests (standalone)"
   lane :unit_test do
-    run_tests(scheme: "ApptentiveUnitTests")
+    run_tests(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveUnitTests")
   end
 
   desc "Run UI tests (standalone)"

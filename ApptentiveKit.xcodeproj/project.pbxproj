@@ -11,10 +11,21 @@
 		011E299B246DE249000BDEE6 /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011E299A246DE249000BDEE6 /* Platform.swift */; };
 		011E299D246DE3F5000BDEE6 /* Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011E299C246DE3F5000BDEE6 /* Version.swift */; };
 		0175C5A42474C343008150DD /* HTTPRequestingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0175C5A32474C343008150DD /* HTTPRequestingTests.swift */; };
+		018A9089247EFC9B004577EB /* SuveyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9088247EFC9B004577EB /* SuveyViewModelTests.swift */; };
+		018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9090247EFFEC004577EB /* SurveyViewModel.swift */; };
+		018A9093247EFFFE004577EB /* SurveyConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9092247EFFFE004577EB /* SurveyConfiguration.swift */; };
+		018A909A247F09D4004577EB /* Interaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9099247F09D4004577EB /* Interaction.swift */; };
+		018A909D247F0D01004577EB /* InteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A909C247F0D01004577EB /* InteractionTests.swift */; };
+		018A90E52486F618004577EB /* SurveyInteractionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A90E42486F618004577EB /* SurveyInteractionController.swift */; };
 		019121812404581B00FFE0F4 /* v9ClientFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019121802404581B00FFE0F4 /* v9ClientFeatureTests.swift */; };
 		01A0917123FCB4A700AF187E /* ApptentiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A0916F23FCB4A700AF187E /* ApptentiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01A0918123FCB4CC00AF187E /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A0918723FCB5D600AF187E /* Apptentive.swift */; };
+		01CB079E248848620031DE52 /* SurveyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CB079D248848620031DE52 /* SurveyViewController.swift */; };
+		01CB07A224885E530031DE52 /* SurveyQuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CB07A124885E530031DE52 /* SurveyQuestionView.swift */; };
+		01D41E7C2489AB8B004751FC /* SurveyIntroductionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D41E7B2489AB8B004751FC /* SurveyIntroductionView.swift */; };
+		01D41E7E2489BEAC004751FC /* SurveySubmitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D41E7D2489BEAC004751FC /* SurveySubmitView.swift */; };
+		01D41E7F2489CD8A004751FC /* Survey - 3.1.json in Resources */ = {isa = PBXBuildFile; fileRef = 018A90E12481D2B8004577EB /* Survey - 3.1.json */; };
 		01D739282405CB630000EE52 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		01D7392E2405CB860000EE52 /* v9ClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F6CCEF8240096F0009A1D44 /* v9ClientTests.swift */; };
 		01EB6C0624773AD90067F4B9 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 01EB6C0524773AD90067F4B9 /* Defaults.plist */; };
@@ -82,6 +93,13 @@
 		011E299A246DE249000BDEE6 /* Platform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Platform.swift; sourceTree = "<group>"; };
 		011E299C246DE3F5000BDEE6 /* Version.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Version.swift; sourceTree = "<group>"; };
 		0175C5A32474C343008150DD /* HTTPRequestingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestingTests.swift; sourceTree = "<group>"; };
+		018A9088247EFC9B004577EB /* SuveyViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuveyViewModelTests.swift; sourceTree = "<group>"; };
+		018A9090247EFFEC004577EB /* SurveyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyViewModel.swift; sourceTree = "<group>"; };
+		018A9092247EFFFE004577EB /* SurveyConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyConfiguration.swift; sourceTree = "<group>"; };
+		018A9099247F09D4004577EB /* Interaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interaction.swift; sourceTree = "<group>"; };
+		018A909C247F0D01004577EB /* InteractionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionTests.swift; sourceTree = "<group>"; };
+		018A90E12481D2B8004577EB /* Survey - 3.1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Survey - 3.1.json"; sourceTree = "<group>"; };
+		018A90E42486F618004577EB /* SurveyInteractionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyInteractionController.swift; sourceTree = "<group>"; };
 		019121802404581B00FFE0F4 /* v9ClientFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = v9ClientFeatureTests.swift; sourceTree = "<group>"; };
 		01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ApptentiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A0916F23FCB4A700AF187E /* ApptentiveKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ApptentiveKit.h; sourceTree = "<group>"; };
@@ -91,6 +109,10 @@
 		01A0918723FCB5D600AF187E /* Apptentive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Apptentive.swift; sourceTree = "<group>"; };
 		01AFFAA5245A1786000353C0 /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .travis.yml; sourceTree = "<group>"; };
 		01AFFAA6245A1786000353C0 /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fastlane; sourceTree = "<group>"; };
+		01CB079D248848620031DE52 /* SurveyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyViewController.swift; sourceTree = "<group>"; };
+		01CB07A124885E530031DE52 /* SurveyQuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyQuestionView.swift; sourceTree = "<group>"; };
+		01D41E7B2489AB8B004751FC /* SurveyIntroductionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyIntroductionView.swift; sourceTree = "<group>"; };
+		01D41E7D2489BEAC004751FC /* SurveySubmitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveySubmitView.swift; sourceTree = "<group>"; };
 		01D739232405CB630000EE52 /* ApptentiveUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01D739272405CB630000EE52 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01EB6C0524773AD90067F4B9 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
@@ -162,6 +184,33 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		018A908A247EFDC6004577EB /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				018A90E12481D2B8004577EB /* Survey - 3.1.json */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		018A908D247EFFC7004577EB /* Interactions */ = {
+			isa = PBXGroup;
+			children = (
+				018A9099247F09D4004577EB /* Interaction.swift */,
+				018A90D82481C73C004577EB /* Survey */,
+			);
+			path = Interactions;
+			sourceTree = "<group>";
+		};
+		018A90D82481C73C004577EB /* Survey */ = {
+			isa = PBXGroup;
+			children = (
+				018A9090247EFFEC004577EB /* SurveyViewModel.swift */,
+				018A90E42486F618004577EB /* SurveyInteractionController.swift */,
+				018A9092247EFFFE004577EB /* SurveyConfiguration.swift */,
+			);
+			path = Survey;
+			sourceTree = "<group>";
+		};
 		01A0916223FCB4A700AF187E = {
 			isa = PBXGroup;
 			children = (
@@ -192,9 +241,11 @@
 		01A0916E23FCB4A700AF187E /* ApptentiveKit */ = {
 			isa = PBXGroup;
 			children = (
+				01A0918723FCB5D600AF187E /* Apptentive.swift */,
+				01CB079924883E060031DE52 /* UI */,
+				018A908D247EFFC7004577EB /* Interactions */,
 				011E2999246DE23E000BDEE6 /* Model */,
 				01A0916F23FCB4A700AF187E /* ApptentiveKit.h */,
-				01A0918723FCB5D600AF187E /* Apptentive.swift */,
 				1FB7F8042404914C006F450B /* V9Client.swift */,
 				1FB7F8062404919A006F450B /* HTTPRequesting.swift */,
 				1F36F5C0241030D200A0981F /* LoveDialogBuilder.swift */,
@@ -213,13 +264,35 @@
 			path = "Integration Tests";
 			sourceTree = "<group>";
 		};
+		01CB079924883E060031DE52 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				01CB079A24883E0D0031DE52 /* Survey */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		01CB079A24883E0D0031DE52 /* Survey */ = {
+			isa = PBXGroup;
+			children = (
+				01CB079D248848620031DE52 /* SurveyViewController.swift */,
+				01CB07A124885E530031DE52 /* SurveyQuestionView.swift */,
+				01D41E7B2489AB8B004751FC /* SurveyIntroductionView.swift */,
+				01D41E7D2489BEAC004751FC /* SurveySubmitView.swift */,
+			);
+			path = Survey;
+			sourceTree = "<group>";
+		};
 		01D739242405CB630000EE52 /* Unit Tests */ = {
 			isa = PBXGroup;
 			children = (
+				018A908A247EFDC6004577EB /* Data */,
 				1F6CCEF8240096F0009A1D44 /* v9ClientTests.swift */,
 				1F36F5BE241030AA00A0981F /* LoveDialogBuilderTests.swift */,
 				01D739272405CB630000EE52 /* Info.plist */,
 				0175C5A32474C343008150DD /* HTTPRequestingTests.swift */,
+				018A9088247EFC9B004577EB /* SuveyViewModelTests.swift */,
+				018A909C247F0D01004577EB /* InteractionTests.swift */,
 			);
 			path = "Unit Tests";
 			sourceTree = "<group>";
@@ -290,6 +363,8 @@
 			dependencies = (
 			);
 			name = ApptentiveKit;
+			packageProductDependencies = (
+			);
 			productName = Apptentive;
 			productReference = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */;
 			productType = "com.apple.product-type.framework";
@@ -405,6 +480,8 @@
 				Base,
 			);
 			mainGroup = 01A0916223FCB4A700AF187E;
+			packageReferences = (
+			);
 			productRefGroup = 01A0916D23FCB4A700AF187E /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -438,6 +515,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01D41E7F2489CD8A004751FC /* Survey - 3.1.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,12 +544,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01D41E7E2489BEAC004751FC /* SurveySubmitView.swift in Sources */,
+				018A9093247EFFFE004577EB /* SurveyConfiguration.swift in Sources */,
+				018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */,
+				018A90E52486F618004577EB /* SurveyInteractionController.swift in Sources */,
 				011E299B246DE249000BDEE6 /* Platform.swift in Sources */,
 				01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */,
 				1FB7F8072404919A006F450B /* HTTPRequesting.swift in Sources */,
+				01D41E7C2489AB8B004751FC /* SurveyIntroductionView.swift in Sources */,
+				01CB07A224885E530031DE52 /* SurveyQuestionView.swift in Sources */,
 				1FB7F8052404914C006F450B /* V9Client.swift in Sources */,
+				01CB079E248848620031DE52 /* SurveyViewController.swift in Sources */,
 				011E299D246DE3F5000BDEE6 /* Version.swift in Sources */,
 				1F36F5C1241030D200A0981F /* LoveDialogBuilder.swift in Sources */,
+				018A909A247F09D4004577EB /* Interaction.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -490,6 +576,8 @@
 				0175C5A42474C343008150DD /* HTTPRequestingTests.swift in Sources */,
 				01D7392E2405CB860000EE52 /* v9ClientTests.swift in Sources */,
 				1F36F5BF241030AA00A0981F /* LoveDialogBuilderTests.swift in Sources */,
+				018A909D247F0D01004577EB /* InteractionTests.swift in Sources */,
+				018A9089247EFC9B004577EB /* SuveyViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
