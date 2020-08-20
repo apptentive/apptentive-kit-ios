@@ -34,15 +34,7 @@ class ViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: UITableViewCell = {
-            let cellID = "Interaction"
-
-            if let result = tableView.dequeueReusableCell(withIdentifier: cellID) {
-                return result
-            } else {
-                return UITableViewCell(style: .default, reuseIdentifier: cellID)
-            }
-        }()
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Interaction", for: indexPath)
 
         cell.textLabel?.text = self.interactions[indexPath.row].0
 

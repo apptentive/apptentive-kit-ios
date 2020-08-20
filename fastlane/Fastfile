@@ -25,7 +25,7 @@ platform :ios do
   desc "Run integration tests (requires internet)"
   private_lane :integration_test do |options|
     # Convert template Defaults.plist file to the real deal
-    File.rename "../Integration Tests/Defaults-Template.plist", "../Integration Tests/Defaults.plist"
+    File.rename "../Integration Tests/Defaults-Template.plist", "../Integration Tests/Defaults.plist" unless File.exists? "../Integration Tests/Defaults.plist"
 
     update_plist(
       plist_path: "Integration Tests/Defaults.plist",
