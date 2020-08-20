@@ -1,6 +1,6 @@
 //
 //  Apptentive.h
-//  Apptentive
+//  ApptentiveKit
 //
 //  Created by Frank Schmitt on 2/18/20.
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.

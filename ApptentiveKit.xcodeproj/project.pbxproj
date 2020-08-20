@@ -456,6 +456,8 @@
 				LastSwiftUpdateCheck = 1130;
 				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = Apptentive;
+				LastUpgradeCheck = 1160;
+				ORGANIZATIONNAME = "Apptentive, Inc";
 				TargetAttributes = {
 					01A0916B23FCB4A700AF187E = {
 						CreatedOnToolsVersion = 11.3.1;

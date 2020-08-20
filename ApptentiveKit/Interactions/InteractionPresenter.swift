@@ -3,7 +3,7 @@
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 7/21/20.
-//  Copyright © 2020 Apptentive. All rights reserved.
+//  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
 import UIKit

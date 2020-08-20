@@ -3,7 +3,7 @@
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 5/27/20.
-//  Copyright © 2020 Apptentive. All rights reserved.
+//  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
 /// An `Interaction` represents an interaction with the user, typically via display of view controller.

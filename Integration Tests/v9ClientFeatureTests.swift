@@ -1,5 +1,5 @@
 //
-//  v9ClientFeatureTests.swift
+//  ApptentiveFeatureTests.swift
 //  ApptentiveTests
 //
 //  Created by Frank Schmitt on 2/24/20.
@@ -10,7 +10,7 @@ import XCTest
 
 @testable import ApptentiveKit
 
-class v9ClientFeatureTests: XCTestCase {
+class ApptentiveFeatureTests: XCTestCase {
     var baseURL: URL?
     var validKey: String?
     var validSignature: String?
