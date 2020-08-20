@@ -15,7 +15,7 @@
   "prioritizeKeepingFunctionOutputTogether" : false,
   "respectsExistingLineBreaks" : true,
   "rules" : {
-    "AllPublicDeclarationsHaveDocumentation" : false,
+    "AllPublicDeclarationsHaveDocumentation" : true,
     "AlwaysUseLowerCamelCase" : true,
     "AmbiguousTrailingClosureOverload" : true,
     "BeginDocumentationCommentWithOneLineSummary" : true,
@@ -41,7 +41,7 @@
     "OnlyOneTrailingClosureArgument" : true,
     "OrderedImports" : true,
     "ReturnVoidInsteadOfEmptyTuple" : true,
-    "UseLetInEveryBoundCaseVariable" : true,
+    "UseLetInEveryBoundCaseVariable" : false,
     "UseShorthandTypeNames" : true,
     "UseSingleLinePropertyGetter" : true,
     "UseSynthesizedInitializer" : true,

@@ -8,54 +8,96 @@
 
 import Foundation
 
-class SurveyViewModel {
+/// Describes the interface that users of the view model should conform to to receive updates in response to user actions.
+public protocol SurveyViewModelDelegate: class {
+    func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel)
+    func surveyViewModelValidationDidChange(_ viewModel: SurveyViewModel)
+    func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel)
+}
+
+/// A class that describes the data in a survey interaction and allows reponses to be gathered and transmitted.
+public class SurveyViewModel {
     let surveyID: String
-    let title: String
-    let submitButtonText: String
-    let validationErrorMessage: String
-    let introduction: String
-    let thankYouMessage: String?
-    let shouldShowThankYou: Bool
-    let required: Bool
-    let questions: [Question]
 
-    required init(interaction: Interaction) {
-        self.surveyID = interaction.id
+    /// The name of the survey, typically displayed in a navigation bar.
+    public let name: String?
 
-        self.title = interaction.configuration.title
-        self.submitButtonText = interaction.configuration.submitText
-        self.validationErrorMessage = interaction.configuration.validationError
-        self.introduction = interaction.configuration.introduction
-        self.thankYouMessage = interaction.configuration.thankYouMessage
-        self.shouldShowThankYou = interaction.configuration.shouldShowThankYou
-        self.required = interaction.configuration.required
-        self.questions = interaction.configuration.questions.map { Question(question: $0, requiredText: interaction.configuration.requiredText) }
+    /// The label text for the button that submits the survey.
+    public let submitButtonText: String
+
+    /// A message shown to the user after submitting when one or more questions have invalid answers.
+    public let validationErrorMessage: String
+
+    /// A short description of the survey typically displayed between the name and the question list.
+    public let introduction: String?
+
+    /// A short message shown to the user after the survey is submitted successfully.
+    public let thankYouMessage: String?
+
+    /// Whether the user should be allowed to dismiss the survey.
+    public let isRequired: Bool
+
+    /// The list of questions in the survey.
+    public let questions: [Question]
+
+    /// An object, typically a view controller, that implements the `SurveyViewModelDelegate` protocol to receive updates when the survey data changes.
+    public weak var delegate: SurveyViewModelDelegate?
+
+    required init(configuration: SurveyConfiguration, surveyID: String) {
+        self.surveyID = surveyID
+
+        self.name = configuration.name
+        self.submitButtonText = configuration.submitText ?? "Submit"
+        self.validationErrorMessage = configuration.validationError ?? "There are issues with your responses"
+        self.introduction = configuration.introduction
+        self.thankYouMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
+        self.isRequired = configuration.required ?? false
+        self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
 
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self
         }
     }
 
-    class Question {
-        weak var surveyViewModel: SurveyViewModel?
-        let questionID: String
-        let text: String
-        let required: Bool
-        let requiredText: String?
-        let errorMessage: String
-        let instructions: String?
-
-        init(question: SurveyConfiguration.Question, requiredText: String?) {
-            self.questionID = question.id
-            self.text = question.text
-            self.required = question.required
-            self.requiredText = question.required ? (requiredText ?? "Required") : nil
-            self.errorMessage = question.errorMessage
-            self.instructions = question.instructions
+    private static func buildQuestionViewModels(questions: [SurveyConfiguration.Question], requiredText: String?) -> [Question] {
+        // Bail if we have non-unique question IDs
+        let questionIDs = questions.map { $0.id }
+        guard questionIDs.sorted() == Array(Set(questionIDs)).sorted() else {
+            assertionFailure("Question IDs are not unique!")
+            return []
         }
 
-        var instructionsText: String {
-            [self.requiredText, self.instructions].compactMap({ $0 }).joined(separator: "—")
+        return questions.map { question in
+            FreeformQuestion(question: question, requiredText: requiredText)
+        }
+    }
+
+    var response: SurveyResponse {
+        // Construct a dictionary where the keys are question IDs and the values are responses.
+        return Dictionary(uniqueKeysWithValues: self.questions.map({ ($0.questionID, $0.response) })).compactMapValues({ $0 })
+    }
+
+    /// A value that indicates the responses to each question satisfy its validation requirements.
+    public var isValid: Bool {
+        return self.questions.allSatisfy(\.isValid)
+    }
+
+    /// Submits the users answers to the survey.
+    ///
+    /// If the answers are valid, the delegate's `surveyViewModelDidSubmit(_:)` will be called.
+    /// If one or more answers are invalid, the delegate's `surveyViewModelValidationDidChange(_:)` will be called.
+    public func submit() {
+        if self.isValid {
+            // TODO: submit survey
+            print("Survey response is \(String(describing: self.response))")
+
+            self.delegate?.surveyViewModelDidSubmit(self)
+        } else {
+            self.questions.forEach { question in
+                question.isMarkedAsInvalid = !question.isValid
+            }
+
+            self.delegate?.surveyViewModelValidationDidChange(self)
         }
     }
 }

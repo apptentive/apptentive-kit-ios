@@ -9,18 +9,18 @@
 import Foundation
 
 struct SurveyConfiguration: Decodable {
-    let title: String
-    let submitText: String
-    let validationError: String
-    let introduction: String
+    let name: String?
+    let submitText: String?
+    let validationError: String?
+    let introduction: String?
     let thankYouMessage: String?
     let shouldShowThankYou: Bool
     let requiredText: String?
-    let required: Bool
+    let required: Bool?
     let questions: [Question]
 
     enum CodingKeys: String, CodingKey {
-        case title
+        case name
         case submitText = "submit_text"
         case validationError = "validation_error"
         case introduction = "description"
@@ -42,8 +42,14 @@ struct SurveyConfiguration: Decodable {
         let answerChoices: [Choice]?
         let minSelections: Int?
         let maxSelections: Int?
+
         let multiline: Bool?
         let placeholderText: String?
+
+        let rangeMin: Int?
+        let rangeMax: Int?
+        let rangeMinText: String?
+        let rangeMaxText: String?
 
         enum CodingKeys: String, CodingKey {
             case id
@@ -58,6 +64,11 @@ struct SurveyConfiguration: Decodable {
             case maxSelections = "max_selections"
             case multiline
             case placeholderText = "freeform_hint"
+
+            case rangeMin = "min"
+            case rangeMax = "max"
+            case rangeMinText = "min_label"
+            case rangeMaxText = "max_label"
         }
 
         enum QuestionType: String, Decodable {
@@ -70,7 +81,7 @@ struct SurveyConfiguration: Decodable {
         struct Choice: Decodable, Identifiable {
             let id: String
             let value: String
-            let type: ChoiceType
+            let type: ChoiceType?
 
             let placeholderText: String?
 
@@ -78,7 +89,6 @@ struct SurveyConfiguration: Decodable {
                 case id
                 case value
                 case type
-
                 case placeholderText = "freeform_hint"
             }
 

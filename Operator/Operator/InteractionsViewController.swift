@@ -1,20 +1,15 @@
 //
-//  ViewController.swift
-//  ApptentiveUITestsApp
+//  InteractionsViewController.swift
+//  Operator
 //
-//  Created by Frank Schmitt on 3/3/20.
+//  Created by Frank Schmitt on 7/22/20.
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
 import ApptentiveKit
 import UIKit
 
-struct TestRow {
-    var label: String
-    var action: () -> Void
-}
-
-class ViewController: UITableViewController {
+class InteractionsViewController: UITableViewController {
     var interactions = [(String, Interaction)]()
 
     override func viewDidLoad() {
@@ -34,17 +29,10 @@ class ViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: UITableViewCell = {
-            let cellID = "Interaction"
-
-            if let result = tableView.dequeueReusableCell(withIdentifier: cellID) {
-                return result
-            } else {
-                return UITableViewCell(style: .default, reuseIdentifier: cellID)
-            }
-        }()
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Interaction", for: indexPath)
 
         cell.textLabel?.text = self.interactions[indexPath.row].0
+        cell.detailTextLabel?.text = self.interactions[indexPath.row].1.typeName
 
         return cell
     }

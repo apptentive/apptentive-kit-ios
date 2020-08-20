@@ -114,7 +114,7 @@ class v9ClientTests: XCTestCase {
     }
 
     class MockPlatform: PlatformProtocol {
-        var sdkVersion: Version {
+        var sdkVersion: String {
             "1.2.3"
         }
 

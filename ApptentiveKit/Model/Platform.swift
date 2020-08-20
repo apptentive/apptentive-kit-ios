@@ -11,7 +11,7 @@ import UIKit
 protocol PlatformProtocol {
     static var current: PlatformProtocol { get }
 
-    var sdkVersion: Version { get }
+    var sdkVersion: String { get }
 }
 
 #if canImport(UIKit)
@@ -21,13 +21,13 @@ protocol PlatformProtocol {
     class Platform: PlatformProtocol {
         static let current: PlatformProtocol = Platform()
 
-        lazy var sdkVersion: Version = {
+        lazy var sdkVersion: String = {
             guard let versionString = Bundle(for: type(of: self)).infoDictionary?["CFBundleShortVersionString"] as? String else {
                 assertionFailure("Unable to read SDK version from ApptentiveKit's Info.plist file")
                 return "Unavailable"
             }
 
-            return Version(string: versionString)
+            return versionString
         }()
     }
 

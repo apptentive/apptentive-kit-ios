@@ -61,7 +61,7 @@ class V9Client: ApptentiveClient {
     }
 
     static func buildUserAgent(platform: PlatformProtocol) -> String {
-        return "Apptentive/\(platform.sdkVersion.versionString) (Apple)"
+        return "Apptentive/\(platform.sdkVersion) (Apple)"
     }
 
     static func buildHeaders(credentials: Apptentive.AppCredentials, userAgent: String, contentType: String) -> HTTPHeaders {

@@ -9,12 +9,12 @@
         "answer_choices": [
           {
             "id": "3",
-            "value": "A",
+            "value": "1A",
             "type": "select_option"
           },
           {
             "id": "4",
-            "value": "B",
+            "value": "1B",
             "type": "select_option"
           },
           {
@@ -31,55 +31,16 @@
         "required": false
       },
       {
-        "id": "6",
-        "answer_choices": [
-          {
-            "id": "7",
-            "value": "A",
-            "type": "select_option"
-          },
-          {
-            "id": "8",
-            "value": "B",
-            "type": "select_option"
-          },
-          {
-            "id": "9",
-            "value": "What else?",
-            "type": "select_other",
-            "hint": "Here's a hint..."
-          },
-          {
-            "id": "10",
-            "value": "And then?",
-            "type": "select_other",
-            "hint": "Here's a hint..."
-          }
-        ],
-        "instructions": "select one",
-        "randomize": false,
-        "value": "Multichoice Required",
-        "type": "multichoice",
-        "error_message": "Error - There was a problem with your single-select answer.",
-        "required": true
-      },
-      {
         "id": "11",
         "answer_choices": [
           {
             "id": "12",
-            "value": "A",
+            "value": "3A",
             "type": "select_option"
           },
           {
-            "id": "13",
-            "value": "Got more?",
-            "type": "select_other",
-            "hint": "Here's a hint..."
-          },
-          {
             "id": "14",
-            "value": "B",
+            "value": "3B",
             "type": "select_option"
           }
         ],
@@ -97,12 +58,12 @@
         "answer_choices": [
           {
             "id": "16",
-            "value": "Do you have a more specific way to answer this question?",
+            "value": "4Do you have a more specific way to answer this question?",
             "type": "select_other"
           },
           {
             "id": "17",
-            "value": "B",
+            "value": "4B",
             "type": "select_option"
           }
         ],
@@ -120,34 +81,34 @@
         "answer_choices": [
           {
             "id": "19",
-            "value": "A",
+            "value": "5A",
             "type": "select_option"
           },
           {
             "id": "20",
-            "value": "B",
+            "value": "5B",
             "type": "select_option"
           },
           {
             "id": "21",
-            "value": "Other #1",
+            "value": "5Other #1",
             "type": "select_other",
             "hint": "Here's a hint..."
           },
           {
             "id": "22",
-            "value": "C",
+            "value": "5C",
             "type": "select_option"
           },
           {
             "id": "23",
-            "value": "Other #2",
+            "value": "5Other #2",
             "type": "select_other",
             "hint": "Another hint..."
           },
           {
             "id": "24",
-            "value": "D",
+            "value": "5D",
             "type": "select_option"
           }
         ],
@@ -165,32 +126,32 @@
         "answer_choices": [
           {
             "id": "26",
-            "value": "A",
+            "value": "6A",
             "type": "select_option"
           },
           {
             "id": "27",
-            "value": "B",
+            "value": "6B",
             "type": "select_option"
           },
           {
             "id": "28",
-            "value": "Other #1",
+            "value": "6Other #1",
             "type": "select_other"
           },
           {
             "id": "29",
-            "value": "C",
+            "value": "6C",
             "type": "select_option"
           },
           {
             "id": "30",
-            "value": "Other #2",
+            "value": "6Other #2",
             "type": "select_other"
           },
           {
             "id": "31",
-            "value": "D",
+            "value": "6D",
             "type": "select_option"
           }
         ],
@@ -211,7 +172,7 @@
         "type": "singleline",
         "error_message": "Error - There was a problem with your text answer.",
         "required": false,
-        "freeform_hint": "Whatchu thinking?"
+        "freeform_hint": "7"
       },
       {
         "id": "56e0b5d9c7199274f700001b",
@@ -221,7 +182,7 @@
         "type": "singleline",
         "error_message": "Error - There was a problem with your text answer.",
         "required": true,
-        "freeform_hint": "Whatchu thinking?"
+        "freeform_hint": "8"
       },
       {
         "id": "56e0b5d9c7199274f700001c",
@@ -231,7 +192,7 @@
         "type": "singleline",
         "error_message": "Error - There was a problem with your text answer.",
         "required": false,
-        "freeform_hint": "Whatchu thinking?"
+        "freeform_hint": "9"
       },
       {
         "id": "56e0b5d9c7199274f700001d",
@@ -241,68 +202,8 @@
         "type": "singleline",
         "error_message": "Error - There was a problem with your text answer.",
         "required": true,
-        "freeform_hint": "Whatchu thinking?"
+        "freeform_hint": "10"
       },
-      {
-        "id": "R1",
-        "type": "range",
-        "error_message": "Error - There was a problem with your NPS answer.",
-        "value": "How likely is it that you would recommend our app to a friend or colleague?",
-        "min": 0,
-        "max": 10,
-        "min_label": "Not at all likely",
-        "max_label": "Extremely likely",
-        "required": false
-      },
-      {
-        "id": "R2",
-        "type": "range",
-        "error_message": "Error - There was a problem with your NPS answer.",
-        "value": "How are you feeling about using this app?",
-        "min": 1,
-        "max": 5,
-        "min_label": "Sad",
-        "max_label": "Happy",
-        "required": true
-      },
-      {
-        "id": "R3",
-        "type": "range",
-        "error_message": "Error - There was a problem with your NPS answer.",
-        "value": "How close to zero do you feel comfortable getting?",
-        "min": -5,
-        "max": 5,
-        "min_label": "Negative",
-        "max_label": "Positive",
-        "required": false
-      },
-      {
-        "id": "R4",
-        "type": "range",
-        "error_message": "Error - There was a problem with your NPS answer.",
-        "value": "Missing labels",
-        "min": 1,
-        "max": 5,
-        "required": false
-      },
-      {
-        "id": "R5",
-        "type": "range",
-        "error_message": "Error - There was a problem with your NPS answer.",
-        "value": "Empty labels",
-        "min": 1,
-        "max": 5,
-        "min_label": "",
-        "max_label": "",
-        "required": false
-      },
-      {
-        "id": "R6",
-        "type": "range",
-        "error_message": "Error - There was a problem with your NPS answer.",
-        "value": "Missing min/max",
-        "required": false
-      }
     ],
     "submit_text": "Boom",
     "required_text": "Mandatory",
