@@ -16,7 +16,7 @@ public class Apptentive {
     public static let shared = Apptentive()
 
     let baseURL: URL
-    var client: ApptentiveClient? = nil
+    var client: HTTPClient<ApptentiveV9API>?
 
     /// An object that overrides the `InteractionPresenter` class used to display interactions to the user.
     public var interactionPresenter: InteractionPresenter
@@ -38,8 +38,17 @@ public class Apptentive {
     ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
     public func register(credentials: AppCredentials, completion: @escaping (Bool) -> Void) {
-        self.client = V9Client(url: baseURL, appCredentials: credentials, requestor: URLSession.shared, platform: Platform.current)
-        self.client?.createConversation(completion: completion)
+        self.client = HTTPClient<ApptentiveV9API>(requestor: URLSession.shared, baseURL: self.baseURL)
+        let conversation = Conversation(appCredentials: credentials, sdkVersion: Platform.current.sdkVersion)
+        self.client?.request(.createConversation(conversation)) { (result: (Result<ConversationResponse, Error>)) in
+            switch result {
+            case .success(_):
+                completion(true)
+
+            case .failure(_):
+                completion(false)
+            }
+        }
     }
 
     /// Contains the credentials necessary to connect to the Apptentive API.

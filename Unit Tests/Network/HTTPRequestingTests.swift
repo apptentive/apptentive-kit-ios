@@ -16,9 +16,7 @@ class HTTPRequestingTests: XCTestCase {
         let url = URL(string: "https://example.com")!
         let response = HTTPURLResponse(url: url, statusCode: 222, httpVersion: "1.1", headerFields: [:])
 
-        let result = URLSession.processResult(data: data, response: response, error: nil)
-
-        let httpResult = try result.get()
+        let httpResult = try HTTPClient<ApptentiveV9API>.processResult(data: data, response: response, error: nil)
 
         XCTAssertEqual(httpResult.0, data)
         XCTAssertEqual(httpResult.1, response)
@@ -29,10 +27,10 @@ class HTTPRequestingTests: XCTestCase {
     func testProcessConnectionError() throws {
         let error = MockError()
 
-        let result = URLSession.processResult(data: nil, response: nil, error: error)
+        let result = Result { try HTTPClient<ApptentiveV9API>.processResult(data: nil, response: nil, error: error) }
 
         if case .failure(let resultingError) = result {
-            if case .connectionError(let underlyingError) = resultingError {
+            if case HTTPClientError.connectionError(let underlyingError) = resultingError {
                 XCTAssert(underlyingError is MockError)
             } else {
                 XCTFail()
@@ -46,10 +44,10 @@ class HTTPRequestingTests: XCTestCase {
         let url = URL(string: "https://example.com")!
         let response = HTTPURLResponse(url: url, statusCode: 444, httpVersion: "1.1", headerFields: [:])
 
-        let result = URLSession.processResult(data: nil, response: response, error: nil)
+        let result = Result { try HTTPClient<ApptentiveV9API>.processResult(data: nil, response: response, error: nil) }
 
         if case .failure(let resultingError) = result {
-            if case .clientError(let errorResponse, let data) = resultingError {
+            if case HTTPClientError.clientError(let errorResponse, let data) = resultingError {
                 XCTAssertNil(data)
                 XCTAssertEqual(errorResponse, response)
             }
@@ -62,10 +60,10 @@ class HTTPRequestingTests: XCTestCase {
         let url = URL(string: "https://example.com")!
         let response = HTTPURLResponse(url: url, statusCode: 555, httpVersion: "1.1", headerFields: [:])
 
-        let result = URLSession.processResult(data: nil, response: response, error: nil)
+        let result = Result { try HTTPClient<ApptentiveV9API>.processResult(data: nil, response: response, error: nil) }
 
         if case .failure(let resultingError) = result {
-            if case .serverError(let errorResponse, let data) = resultingError {
+            if case HTTPClientError.serverError(let errorResponse, let data) = resultingError {
                 XCTAssertNil(data)
                 XCTAssertEqual(errorResponse, response)
             }
