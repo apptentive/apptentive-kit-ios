@@ -36,9 +36,9 @@ class ApptentiveV9APITests: XCTestCase {
         let method = "BAZ"
         let bodyObject = MockEncodable(foo: "foo", bar: "bar")
         let baseURL = URL(string: "https://api.example.com/")!
-        var conversation = Conversation()
+        var conversation = Conversation(environment: Environment())
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
-        conversation.sdkVersion = "1.2.3"
+        conversation.appRelease.sdkVersion = "1.2.3"
 
         let endpoint = ApptentiveV9API(conversation: conversation, path: path, method: method, bodyObject: ApptentiveV9API.HTTPBodyEncodable(value: bodyObject))
 
@@ -65,10 +65,10 @@ class ApptentiveV9APITests: XCTestCase {
 
     func testAuthenticate() throws {
         let baseURL = URL(string: "http://example.com")!
-        let requestor = SpyRequestor(responseData: try JSONEncoder().encode(ConversationResponse()))
-        var conversation = Conversation()
+        var conversation = Conversation(environment: Environment())
+        let requestor = SpyRequestor(responseData: try JSONEncoder().encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789")))
         let credentials = Apptentive.AppCredentials(key: "abc", signature: "123")
-        conversation.sdkVersion = "1.2.3"
+        conversation.appRelease.sdkVersion = "1.2.3"
         conversation.appCredentials = credentials
 
         let client = HTTPClient<ApptentiveV9API>(requestor: requestor, baseURL: baseURL)

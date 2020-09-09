@@ -39,7 +39,10 @@ public class Apptentive {
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
     public func register(credentials: AppCredentials, completion: @escaping (Bool) -> Void) {
         self.client = HTTPClient<ApptentiveV9API>(requestor: URLSession.shared, baseURL: self.baseURL)
-        let conversation = Conversation(appCredentials: credentials, sdkVersion: Platform.current.sdkVersion)
+
+        var conversation = Conversation(environment: Environment())
+        conversation.appCredentials = credentials
+
         self.client?.request(.createConversation(conversation)) { (result: (Result<ConversationResponse, Error>)) in
             switch result {
             case .success(_):
@@ -65,4 +68,9 @@ public class Apptentive {
             self.signature = signature
         }
     }
+}
+
+public enum ApptentiveError: Error {
+    case invalidCustomDataType(Any?)
+    case internalInconsistency
 }

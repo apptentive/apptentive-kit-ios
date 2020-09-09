@@ -43,7 +43,7 @@ struct ApptentiveV9API: HTTPEndpoint {
 
         return Self.buildHeaders(
             appCredentials: appCredentials,
-            userAgent: Self.userAgent(sdkVersion: self.conversation.sdkVersion),
+            userAgent: Self.userAgent(sdkVersion: self.conversation.appRelease.sdkVersion),
             contentType: ContentType.json,
             apiVersion: Self.apiVersion)
     }

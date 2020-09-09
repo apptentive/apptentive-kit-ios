@@ -1,5 +1,5 @@
 //
-//  HTTPRequestingTests.swift
+//  HTTPClientTests.swift
 //  ApptentiveUnitTests
 //
 //  Created by Frank Schmitt on 5/19/20.
@@ -10,7 +10,7 @@ import XCTest
 
 @testable import ApptentiveKit
 
-class HTTPRequestingTests: XCTestCase {
+class HTTPClientTests: XCTestCase {
     func testProcessSuccess() throws {
         let data = Data()
         let url = URL(string: "https://example.com")!
