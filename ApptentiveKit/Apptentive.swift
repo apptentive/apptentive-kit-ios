@@ -12,45 +12,19 @@ import UIKit
 public class Apptentive {
     /// The shared instance of the Apptentive SDK.
     ///
-    /// This property is populated lazily upon access. You can also manually create an instance of this class and pass it to the appropriate calls sites.
+    /// This object is created lazily upon access.
     public static let shared = Apptentive()
-
-    let baseURL: URL
-    var client: HTTPClient<ApptentiveV9API>?
 
     /// An object that overrides the `InteractionPresenter` class used to display interactions to the user.
     public var interactionPresenter: InteractionPresenter
-
-    /// Creates a new instance of the Apptentive interface.
-    ///
-    /// Calling this method manually has no effect on the value of the `shared` static property.
-    /// - Parameters:
-    ///   - baseURL: The URL of the Apptentive server that the SDK will communicate with.
-    ///   - interactionPresenter: An object that overrides the `InteractionPresenter` class used to display interactions  to the user.
-    public init(baseURL: URL? = nil, interactionPresenter: InteractionPresenter? = nil) {
-        // swift-format-ignore
-        self.baseURL = baseURL ?? URL(string: "https://api.apptentive.com/")!
-        self.interactionPresenter = interactionPresenter ?? InteractionPresenter()
-    }
 
     /// Provides the SDK with the credentials necessary to connect to the Apptentive API.
     /// - Parameters:
     ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
     public func register(credentials: AppCredentials, completion: @escaping (Bool) -> Void) {
-        self.client = HTTPClient<ApptentiveV9API>(requestor: URLSession.shared, baseURL: self.baseURL)
-
-        var conversation = Conversation(environment: Environment())
-        conversation.appCredentials = credentials
-
-        self.client?.request(.createConversation(conversation)) { (result: (Result<ConversationResponse, Error>)) in
-            switch result {
-            case .success(_):
-                completion(true)
-
-            case .failure(_):
-                completion(false)
-            }
+        self.backendQueue.async {
+            self.backend.connect(appCredentials: credentials, baseURL: self.baseURL, completion: completion)
         }
     }
 
@@ -68,9 +42,28 @@ public class Apptentive {
             self.signature = signature
         }
     }
+
+    // MARK: - Internal
+
+    init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: Environment? = nil) {
+        // swift-format-ignore
+        self.baseURL = baseURL ?? URL(string: "https://api.apptentive.com/")!
+        self.backendQueue = backendQueue ?? DispatchQueue(label: "Apptentive Backend")
+        self.environment = environment ?? Environment()
+
+        self.backend = Backend(queue: self.backendQueue, environment: self.environment)
+        self.interactionPresenter = InteractionPresenter()
+    }
+
+    // MARK: - Private
+
+    private let baseURL: URL
+    private let backendQueue: DispatchQueue
+    private let backend: Backend
+    private let environment: Environment
 }
 
-public enum ApptentiveError: Error {
-    case invalidCustomDataType(Any?)
+enum ApptentiveError: Error {
     case internalInconsistency
+    case invalidCustomDataType(Any?)
 }

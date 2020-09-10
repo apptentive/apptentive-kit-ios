@@ -6,7 +6,7 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import ApptentiveKit
+@testable import ApptentiveKit
 import UIKit
 
 @UIApplicationMain
