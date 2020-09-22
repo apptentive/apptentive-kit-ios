@@ -18,6 +18,12 @@ struct ConversationRequest: Codable, Equatable {
     let appRelease: AppReleaseRequest
     let person: PersonRequest
     let device: DeviceRequest
+
+    enum CodingKeys: String, CodingKey {
+        case appRelease = "app_release"
+        case person
+        case device
+    }
 }
 
 struct AppReleaseRequest: Codable, Equatable {
@@ -95,20 +101,20 @@ struct AppReleaseRequest: Codable, Equatable {
 struct PersonRequest: Codable, Equatable {
     let name: String?
     let emailAddress: String?
-    let customerID: String?
+    let mParticleID: String?
     let customData: CustomData
 
     init(person: Person) {
         self.name = person.name
         self.emailAddress = person.emailAddress
-        self.customerID = person.customerID
+        self.mParticleID = person.mParticleID
         self.customData = person.customData
     }
 
     enum CodingKeys: String, CodingKey {
         case name = "name"
         case emailAddress = "email"
-        case customerID = "mparticle_id"
+        case mParticleID = "mparticle_id"
         case customData = "custom_data"
     }
 }

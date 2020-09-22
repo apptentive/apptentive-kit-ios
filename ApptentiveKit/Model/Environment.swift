@@ -16,6 +16,14 @@ import Foundation
     import CoreTelephony
 #endif
 
+protocol PlatformEnvironment {
+    var fileManager: FileManager { get }
+    var isInForeground: Bool { get }
+    var isProtectedDataAvailable: Bool { get }
+
+    func applicationSupportURL() throws -> URL
+}
+
 protocol AppEnvironment {
     var infoDictionary: [String: Any]? { get }
     var appStoreReceiptURL: URL? { get }
@@ -42,7 +50,14 @@ protocol DeviceEnvironment {
     #endif
 }
 
+protocol EnvironmentDelegate: AnyObject {
+    func protectedDataDidBecomeAvailable(_ environment: Environment)
+}
+
 class Environment: ConversationEnvironment {
+    let fileManager: FileManager
+    var isProtectedDataAvailable: Bool
+
     let infoDictionary: [String: Any]?
     let appStoreReceiptURL: URL?
 
@@ -68,6 +83,8 @@ class Environment: ConversationEnvironment {
         let telephonyNetworkInfo: CTTelephonyNetworkInfo
     #endif
 
+    weak var delegate: EnvironmentDelegate?
+
     lazy var sdkVersion: String = {
         guard let versionString = Bundle(for: type(of: self)).infoDictionary?["CFBundleShortVersionString"] as? String else {
             assertionFailure("Unable to read SDK version from ApptentiveKit's Info.plist file")
@@ -78,6 +95,8 @@ class Environment: ConversationEnvironment {
     }()
 
     init() {
+        self.fileManager = FileManager.default
+
         self.infoDictionary = Bundle.main.infoDictionary
         self.appStoreReceiptURL = Bundle.main.appStoreReceiptURL
 
@@ -105,6 +124,10 @@ class Environment: ConversationEnvironment {
             self.identifierForVendor = UIDevice.current.identifierForVendor
             self.osName = UIDevice.current.systemName
             self.osVersion = UIDevice.current.systemVersion
+
+            self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
+        #else
+            self.isProtectedDataAvailable = true
         #endif
 
         self.localeIdentifier = Locale.current.identifier
@@ -112,5 +135,20 @@ class Environment: ConversationEnvironment {
         self.preferredLocalization = Bundle.main.preferredLocalizations.first
 
         self.timeZoneSecondsFromGMT = TimeZone.current.secondsFromGMT()
+
+        #if canImport(UIKit)
+            NotificationCenter.default.addObserver(self, selector: #selector(protectedDataDidBecomeAvailable(notification:)), name: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil)
+        #endif
     }
+
+    func applicationSupportURL() throws -> URL {
+        return try self.fileManager.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    }
+
+    #if canImport(UIKit)
+        @objc func protectedDataDidBecomeAvailable(notification: Notification) {
+            self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
+            delegate?.protectedDataDidBecomeAvailable(self)
+        }
+    #endif
 }

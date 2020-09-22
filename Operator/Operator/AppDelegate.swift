@@ -6,8 +6,9 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-@testable import ApptentiveKit
 import UIKit
+
+@testable import ApptentiveKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

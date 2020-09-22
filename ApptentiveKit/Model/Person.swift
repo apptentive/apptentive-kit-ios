@@ -8,9 +8,17 @@
 
 import Foundation
 
-struct Person {
+struct Person: Codable {
     var name: String?
     var emailAddress: String?
-    var customerID: String?
+    var mParticleID: String?
     var customData = CustomData()
+
+    mutating func merge(with newer: Person) {
+        self.name = newer.name ?? name
+        self.emailAddress = newer.emailAddress ?? emailAddress
+        self.mParticleID = newer.mParticleID ?? mParticleID
+
+        self.customData.merge(with: newer.customData)
+    }
 }

@@ -7,6 +7,7 @@
 //
 
 import XCTest
+
 @testable import ApptentiveKit
 
 class InteractionPresenterTests: XCTestCase {
@@ -41,11 +42,11 @@ class InteractionPresenterTests: XCTestCase {
 
     func testPresentUnimplemented() throws {
         let fakeInteractionString = """
-        {
-        "id": "abc123",
-        "type": "FakeInteraction",
-        }
-"""
+                    {
+                    "id": "abc123",
+                    "type": "FakeInteraction",
+                    }
+            """
         guard let fakeInteractionData = fakeInteractionString.data(using: .utf8) else {
             return XCTFail("Unable to encode test fake interaction string")
         }
@@ -97,7 +98,7 @@ class InteractionPresenterTests: XCTestCase {
 
     class FakeView: UIView {
         override var window: UIWindow {
-            return  UIWindow()
+            return UIWindow()
         }
     }
 }

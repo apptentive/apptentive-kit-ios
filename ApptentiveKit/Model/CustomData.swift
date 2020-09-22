@@ -16,6 +16,12 @@ struct CustomData: Equatable, Codable {
         self.customData = [:]
     }
 
+    mutating func merge(with newer: CustomData) {
+        self.customData = self.customData.merging(newer.customData) { (old, new) in
+            new
+        }
+    }
+
     subscript(key: String) -> Codable? {
         get {
             return self.customData[key]

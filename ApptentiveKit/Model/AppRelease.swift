@@ -9,7 +9,7 @@
 import Foundation
 
 struct AppRelease: Codable {
-    let type: String = "ios"
+    var type: String = "ios"
     var bundleIdentifier: String?
     var version: String?
     var build: String?
@@ -26,7 +26,7 @@ struct AppRelease: Codable {
     var xcodeBuild: String?
     var isUpdatedVersion: Bool = false
     var isUpdatedBuild: Bool = false
-    let installTime: Date = Date()
+    var installTime: Date = Date()
     var versionInstallTime: Date = Date()
     var buildInstallTime: Date = Date()
     var sdkVersion: String
@@ -72,5 +72,37 @@ struct AppRelease: Codable {
 
         self.sdkDistributionName = environment.distributionName
         self.sdkDistributionVersion = environment.distributionVersion
+    }
+
+    mutating func merge(with newer: AppRelease) {
+        if newer.version != self.version {
+            self.isUpdatedVersion = true
+        }
+
+        if newer.build != self.build {
+            self.isUpdatedBuild = true
+        }
+
+        self.bundleIdentifier = newer.bundleIdentifier
+        self.version = newer.version
+        self.build = newer.build
+        self.hasAppStoreReceipt = newer.hasAppStoreReceipt
+        self.isDebugBuild = newer.isDebugBuild
+        self.isOverridingStyles = newer.isOverridingStyles
+        self.compiler = newer.compiler
+        self.platformBuild = newer.platformBuild
+        self.platformName = newer.platformName
+        self.platformVersion = newer.platformVersion
+        self.sdkBuild = newer.sdkBuild
+        self.sdkName = newer.sdkName
+        self.xcode = newer.xcode
+        self.xcodeBuild = newer.xcodeBuild
+
+        self.sdkVersion = newer.sdkVersion
+        self.sdkProgrammingLanguage = newer.sdkProgrammingLanguage
+        self.sdkAuthorName = newer.sdkAuthorName
+        self.sdkPlatform = newer.sdkPlatform
+        self.sdkDistributionName = newer.sdkDistributionName
+        self.sdkDistributionVersion = newer.sdkDistributionVersion
     }
 }
