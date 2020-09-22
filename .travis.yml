@@ -1,13 +1,5 @@
 language: swift
-osx_image: xcode11.4
-
-addons:
-  artifacts:
-    paths:
-      - $(ls *.zip | tr "\n" ":")
-  homebrew:
-    packages:
-    - swift-format
+osx_image: xcode12
 
 deploy:
   provider: releases
@@ -47,10 +39,19 @@ jobs:
         - bundle exec fastlane ui_test
     - stage: verify
       name: lint
+      addons:
+        homebrew:
+          taps: apptentive/travis
+          packages:
+          - swift-format-5.3
       script:
         - bundle exec fastlane lint
     - stage: framework
       name: xcframework
+      addons:
+        artifacts:
+          paths:
+            - $(ls *.zip | tr "\n" ":")
       script:
         - bundle install
         - BUILD_NUMBER=$TRAVIS_BUILD_NUMBER bundle exec fastlane framework
