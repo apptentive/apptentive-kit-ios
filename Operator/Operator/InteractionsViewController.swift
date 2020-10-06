@@ -38,7 +38,11 @@ class InteractionsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        try? Apptentive.shared.presentInteraction(self.interactions[indexPath.row].1, from: self)
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate, let apptentive = appDelegate.apptentive else {
+            return assertionFailure("Unable to get Apptentive dependency")
+        }
+
+        try? apptentive.presentInteraction(self.interactions[indexPath.row].1, from: self)
 
         self.tableView.deselectRow(at: indexPath, animated: true)
     }

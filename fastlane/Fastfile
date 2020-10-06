@@ -172,7 +172,7 @@ platform :ios do
     end
 
     # Convert template Defaults.plist file to the real deal
-    File.rename "../Operator/Operator/Defaults-Template.plist", "../Operator/Operator/Defaults.plist"
+    File.rename "../Operator/Operator/Defaults-Template.plist", "../Operator/Operator/Defaults.plist" unless File.exists? "../Operator/Operator/Defaults.plist"
 
     update_plist(
       plist_path: "Operator/Operator/Defaults.plist",

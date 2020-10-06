@@ -8,7 +8,10 @@
 
 import Foundation
 
-typealias SurveyResponse = [String: [SurveyQuestionResponse]]
+struct SurveyResponse: Equatable {
+    let surveyID: String
+    let answers: [String: [SurveyQuestionResponse]]
+}
 
 enum SurveyQuestionResponse: Equatable {
     case choice(String)

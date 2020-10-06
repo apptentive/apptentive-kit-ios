@@ -1,5 +1,5 @@
 //
-//  ApptentiveV9ObjectsTests.swift
+//  ConversationRequestTests.swift
 //  ApptentiveUnitTests
 //
 //  Created by Frank Schmitt on 8/21/20.
@@ -15,7 +15,7 @@ import XCTest
     import CoreTelephony
 #endif
 
-class ApptentiveV9ObjectsTests: XCTestCase {
+class ConversationRequestTests: XCTestCase {
     func testConversationEncoding() throws {
         let conversation = Conversation(environment: MockEnvironment())
         let conversationRequest = ConversationRequest(conversation: conversation)

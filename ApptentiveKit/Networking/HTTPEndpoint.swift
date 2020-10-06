@@ -9,12 +9,12 @@
 import Foundation
 
 protocol HTTPEndpoint {
-    var method: String { get }
+    var method: HTTPMethod { get }
 
     func headers() throws -> [String: String]
     func url(relativeTo baseURL: URL) throws -> URL
     func body() throws -> Data?
-    static func transformResponseData<T: Decodable>(_ data: Data) throws -> T
+    func transformResponseData<T: Decodable>(_ data: Data) throws -> T
 }
 
 extension HTTPEndpoint {
@@ -23,7 +23,7 @@ extension HTTPEndpoint {
 
         var request = URLRequest(url: url)
 
-        request.httpMethod = self.method
+        request.httpMethod = self.method.rawValue
         request.allHTTPHeaderFields = try self.headers()
         request.httpBody = try self.body()
 

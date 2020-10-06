@@ -13,17 +13,23 @@ open class InteractionPresenter {
     /// A view controller that can be used to present view-controller-based interactions.
     open var presentingViewController: UIViewController?
 
+    var sender: ResponseSending?
+
     /// Creates a new default interaction presenter.
     public init() {}
 
     func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController?) throws {
+        guard let sender = self.sender else {
+            throw ApptentiveError.internalInconsistency
+        }
+
         if let presentingViewController = presentingViewController {
             self.presentingViewController = presentingViewController
         }
 
         switch interaction.configuration {
         case .survey(let surveyConfiguration):
-            let viewModel = SurveyViewModel(configuration: surveyConfiguration, surveyID: interaction.id)
+            let viewModel = SurveyViewModel(configuration: surveyConfiguration, surveyID: interaction.id, sender: sender)
             try self.presentSurvey(with: viewModel)
         default:
             throw InteractionPresenterError.notImplemented(interaction.typeName)

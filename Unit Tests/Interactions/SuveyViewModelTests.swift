@@ -12,6 +12,7 @@ import XCTest
 
 class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
     var viewModel: SurveyViewModel?
+    var spySender: SpySender?
 
     var gotDidSubmit: Bool = false
     var gotValidationDidChange: Bool = false
@@ -27,7 +28,8 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         }
 
         if case let Interaction.InteractionConfiguration.survey(surveyConfiguration) = surveyInteraction.configuration {
-            self.viewModel = SurveyViewModel(configuration: surveyConfiguration, surveyID: surveyInteraction.id)
+            self.spySender = SpySender()
+            self.viewModel = SurveyViewModel(configuration: surveyConfiguration, surveyID: surveyInteraction.id, sender: self.spySender!)
             self.viewModel?.delegate = self
         }
     }
@@ -44,7 +46,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertEqual(viewModel.introduction, "Please help us see how each question is formatted when returning a survey response to the server.")
         XCTAssertEqual(viewModel.thankYouMessage, "Thank you!")
         XCTAssertEqual(viewModel.isRequired, false)
-        XCTAssertEqual(viewModel.questions.count, 16)
+        XCTAssertEqual(viewModel.questions.count, 4)
 
     }
 
@@ -53,27 +55,31 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
             return XCTFail("Unable to load view model")
         }
 
-        guard let freeformShortOptional = viewModel.questions[6] as? SurveyViewModel.FreeformQuestion,
-            let freeformShortRequired = viewModel.questions[7] as? SurveyViewModel.FreeformQuestion,
-            let freeformLongOptional = viewModel.questions[8] as? SurveyViewModel.FreeformQuestion,
-            let freeformLongRequired = viewModel.questions[9] as? SurveyViewModel.FreeformQuestion
+        guard let freeformShortOptional = viewModel.questions[0] as? SurveyViewModel.FreeformQuestion,
+            let freeformShortRequired = viewModel.questions[1] as? SurveyViewModel.FreeformQuestion,
+            let freeformLongOptional = viewModel.questions[2] as? SurveyViewModel.FreeformQuestion,
+            let freeformLongRequired = viewModel.questions[3] as? SurveyViewModel.FreeformQuestion
         else {
             return XCTFail("Freeform questions have non-freeform view models")
         }
 
-        XCTAssertEqual(viewModel.response, [String: [SurveyQuestionResponse]]())
+        XCTAssertEqual(viewModel.response.answers, [String: [SurveyQuestionResponse]]())
 
         freeformShortOptional.answerText = " "
         freeformShortRequired.answerText = "Foo"
         freeformLongOptional.answerText = "\n"
         freeformLongRequired.answerText = "Bar"
 
+        viewModel.submit()
+
+        XCTAssertTrue(self.gotDidSubmit)
         XCTAssertEqual(
-            viewModel.response,
+            self.spySender?.sentSurveyResponse?.answers,
             [
                 "56e0b5d9c7199274f700001b": [SurveyQuestionResponse.freeform("Foo")],
                 "56e0b5d9c7199274f700001d": [SurveyQuestionResponse.freeform("Bar")],
             ])
+
     }
 
     func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {
@@ -86,5 +92,13 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel) {
         self.gotSelectionDidChange = true
+    }
+}
+
+class SpySender: ResponseSending {
+    var sentSurveyResponse: SurveyResponse?
+
+    func send(surveyResponse: SurveyResponse) {
+        self.sentSurveyResponse = surveyResponse
     }
 }

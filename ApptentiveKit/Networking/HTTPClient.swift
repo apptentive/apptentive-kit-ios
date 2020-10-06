@@ -29,7 +29,7 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
                 completion(
                     Result {
                         let httpResponse = try Self.processResult(data: data, response: response, error: error)
-                        return try Endpoint.transformResponseData(httpResponse.data)
+                        return try endpoint.transformResponseData(httpResponse.data)
                     })
             }
 
@@ -99,4 +99,11 @@ enum HTTPClientError: Error {
             return "Unahndled status code: \(response.statusCode)"
         }
     }
+}
+
+enum HTTPMethod: String {
+    case get = "GET"
+    case put = "PUT"
+    case post = "POST"
+    case delete = "DELETE"
 }

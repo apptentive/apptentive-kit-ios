@@ -18,7 +18,8 @@ class ApptentiveV9APITests: XCTestCase {
             appCredentials: appCredentials,
             userAgent: "Apptentive/1.2.3 (Apple)",
             contentType: "foo/bar",
-            apiVersion: "9")
+            apiVersion: "9",
+            token: "foobar")
 
         let expectedHeaders = [
             "APPTENTIVE-KEY": "123",
@@ -26,6 +27,7 @@ class ApptentiveV9APITests: XCTestCase {
             "X-API-Version": "9",
             "User-Agent": "Apptentive/1.2.3 (Apple)",
             "Content-Type": "foo/bar",
+            "Authorization": "Bearer foobar",
         ]
 
         XCTAssertEqual(headers, expectedHeaders)
@@ -33,11 +35,12 @@ class ApptentiveV9APITests: XCTestCase {
 
     func testBuildRequest() throws {
         let path = "foo"
-        let method = "BAZ"
+        let method = HTTPMethod.delete
         let bodyObject = MockEncodable(foo: "foo", bar: "bar")
         let baseURL = URL(string: "https://api.example.com/")!
         var conversation = Conversation(environment: Environment())
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
+        conversation.conversationCredentials = Conversation.ConversationCredentials(token: "def", id: "456")
         conversation.appRelease.sdkVersion = "1.2.3"
 
         let endpoint = ApptentiveV9API(conversation: conversation, path: path, method: method, bodyObject: ApptentiveV9API.HTTPBodyEncodable(value: bodyObject))
@@ -50,10 +53,11 @@ class ApptentiveV9APITests: XCTestCase {
             "X-API-Version": "9",
             "User-Agent": "Apptentive/1.2.3 (Apple)",
             "Content-Type": "application/json",
+            "Authorization": "Bearer def",
         ]
 
-        XCTAssertEqual(request.url, URL(string: "https://api.example.com/foo")!)
-        XCTAssertEqual(request.httpMethod, method)
+        XCTAssertEqual(request.url, URL(string: "https://api.example.com/conversations/456/foo")!)
+        XCTAssertEqual(request.httpMethod, method.rawValue)
         XCTAssertEqual(request.allHTTPHeaderFields, expectedHeaders)
     }
 
@@ -67,9 +71,8 @@ class ApptentiveV9APITests: XCTestCase {
         let baseURL = URL(string: "http://example.com")!
         var conversation = Conversation(environment: Environment())
         let requestor = SpyRequestor(responseData: try JSONEncoder().encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789")))
-        let credentials = Apptentive.AppCredentials(key: "abc", signature: "123")
         conversation.appRelease.sdkVersion = "1.2.3"
-        conversation.appCredentials = credentials
+        conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
 
         let client = HTTPClient<ApptentiveV9API>(requestor: requestor, baseURL: baseURL)
 
@@ -91,23 +94,55 @@ class ApptentiveV9APITests: XCTestCase {
 
             expectation.fulfill()
         }
+    }
 
-        class SpyRequestor: HTTPRequesting {
-            var request: URLRequest?
-            var responseData: Data
+    func testSendSurveyResponse() throws {
+        let baseURL = URL(string: "http://example.com")!
+        var conversation = Conversation(environment: Environment())
+        let requestor = SpyRequestor(responseData: Data())
+        conversation.appRelease.sdkVersion = "1.2.3"
+        conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
+        conversation.conversationCredentials = Conversation.ConversationCredentials(token: "456", id: "def")
 
-            init(responseData: Data) {
-                self.responseData = responseData
+        let client = HTTPClient<ApptentiveV9API>(requestor: requestor, baseURL: baseURL)
+
+        let surveyResponse = SurveyResponse(surveyID: "789", answers: ["1": [SurveyQuestionResponse.freeform("foo")]])
+
+        let expectation = XCTestExpectation()
+        let _ = client.request(.createSurveyResponse(surveyResponse, for: conversation)) { (result: Result<PayloadResponse, Error>) in
+            XCTAssertNotNil(requestor.request)
+            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
+            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/surveys/789/responses"))
+            XCTAssertEqual(requestor.request?.httpMethod, "POST")
+
+            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                XCTFail("Error (fake) creating survey response: \(error)")
             }
 
-            func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> HTTPCancellable {
-                self.request = request
+            expectation.fulfill()
+        }
+    }
 
-                let stubReponse = HTTPURLResponse(url: request.url!, statusCode: 201, httpVersion: "1.1", headerFields: [:])
-                completion(responseData, stubReponse, nil)
+    class SpyRequestor: HTTPRequesting {
+        var request: URLRequest?
+        var responseData: Data
 
-                return FakeHTTPCancellable()
-            }
+        init(responseData: Data) {
+            self.responseData = responseData
+        }
+
+        func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> HTTPCancellable {
+            self.request = request
+
+            let stubReponse = HTTPURLResponse(url: request.url!, statusCode: 201, httpVersion: "1.1", headerFields: [:])
+            completion(responseData, stubReponse, nil)
+
+            return FakeHTTPCancellable()
         }
     }
 

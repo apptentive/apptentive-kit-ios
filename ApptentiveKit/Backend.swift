@@ -59,6 +59,25 @@ class Backend {
         }
     }
 
+    func send(surveyResponse: SurveyResponse) {
+        // TODO: use some kind of payload sending queue so we don't have to do this check
+        guard let client = self.client else {
+            return assertionFailure("Attempting to send survey response before connect was called.")
+        }
+
+        client.request(.createSurveyResponse(surveyResponse, for: conversation)) { (result: Result<PayloadResponse, Error>) in
+            self.queue.async {
+                switch result {
+                case .success:
+                    print("Successfully sent survey response")
+                case .failure(let error):
+                    print("Error sending survey response: \(error)")
+                    print("This is where we would retry the request.")
+                }
+            }
+        }
+    }
+
     private func processChanges() {
         if let _ = conversation.conversationCredentials {
             if let connectCompletion = self.connectCompletion {

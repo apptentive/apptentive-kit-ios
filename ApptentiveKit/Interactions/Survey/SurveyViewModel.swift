@@ -17,6 +17,8 @@ public protocol SurveyViewModelDelegate: class {
 
 /// A class that describes the data in a survey interaction and allows reponses to be gathered and transmitted.
 public class SurveyViewModel {
+    let sender: ResponseSending
+
     let surveyID: String
 
     /// The name of the survey, typically displayed in a navigation bar.
@@ -43,7 +45,7 @@ public class SurveyViewModel {
     /// An object, typically a view controller, that implements the `SurveyViewModelDelegate` protocol to receive updates when the survey data changes.
     public weak var delegate: SurveyViewModelDelegate?
 
-    required init(configuration: SurveyConfiguration, surveyID: String) {
+    required init(configuration: SurveyConfiguration, surveyID: String, sender: ResponseSending) {
         self.surveyID = surveyID
 
         self.name = configuration.name
@@ -53,6 +55,7 @@ public class SurveyViewModel {
         self.thankYouMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
+        self.sender = sender
 
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self
@@ -74,7 +77,9 @@ public class SurveyViewModel {
 
     var response: SurveyResponse {
         // Construct a dictionary where the keys are question IDs and the values are responses.
-        return Dictionary(uniqueKeysWithValues: self.questions.map({ ($0.questionID, $0.response) })).compactMapValues({ $0 })
+        let questionResponses = Dictionary(uniqueKeysWithValues: self.questions.map({ ($0.questionID, $0.response) })).compactMapValues({ $0 })
+
+        return SurveyResponse(surveyID: self.surveyID, answers: questionResponses)
     }
 
     /// A value that indicates the responses to each question satisfy its validation requirements.
@@ -88,8 +93,7 @@ public class SurveyViewModel {
     /// If one or more answers are invalid, the delegate's `surveyViewModelValidationDidChange(_:)` will be called.
     public func submit() {
         if self.isValid {
-            // TODO: submit survey
-            print("Survey response is \(String(describing: self.response))")
+            self.sender.send(surveyResponse: self.response)
 
             self.delegate?.surveyViewModelDidSubmit(self)
         } else {
