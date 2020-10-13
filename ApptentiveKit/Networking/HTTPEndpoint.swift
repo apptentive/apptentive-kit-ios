@@ -14,7 +14,7 @@ protocol HTTPEndpoint {
     func headers() throws -> [String: String]
     func url(relativeTo baseURL: URL) throws -> URL
     func body() throws -> Data?
-    func transformResponseData<T: Decodable>(_ data: Data) throws -> T
+    func transformResponse<T: Decodable>(_ response: HTTPResponse) throws -> T
 }
 
 extension HTTPEndpoint {

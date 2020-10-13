@@ -33,6 +33,10 @@ struct ApptentiveV9API: HTTPEndpoint {
         return Self(conversation: conversation, path: "surveys/\(surveyResponse.surveyID)/responses", method: .post, bodyObject: HTTPBodyEncodable(value: bodyObject))
     }
 
+    static func getInteractions(for conversation: Conversation) -> Self {
+        return Self(conversation: conversation, path: "interactions", method: .get)
+    }
+
     // MARK: - HTTPEndpoint
 
     func url(relativeTo baseURL: URL) throws -> URL {
@@ -79,12 +83,23 @@ struct ApptentiveV9API: HTTPEndpoint {
         }
     }
 
-    func transformResponseData<T>(_ data: Data) throws -> T where T: Decodable {
-        if data.count == 0 {
-            return try T(from: EmptyDecoder())
-        } else {
-            return try self.decoder.decode(T.self, from: data)
+    func transformResponse<T>(_ response: HTTPResponse) throws -> T where T: Decodable {
+        let responseObject: T = try {
+            if response.data.count == 0 {
+                return try T(from: EmptyDecoder())
+            } else {
+                return try self.decoder.decode(T.self, from: response.data)
+            }
+        }()
+
+        if var expiring = responseObject as? Expiring {
+            expiring.expiry = Self.parseExpiry(response.response)
+
+            // swift-format-ignore
+            return expiring as! T
         }
+
+        return responseObject
     }
 
     // MARK: - Internals
@@ -132,6 +147,17 @@ struct ApptentiveV9API: HTTPEndpoint {
         }
 
         return headers
+    }
+
+    static func parseExpiry(_ response: HTTPURLResponse) -> Date? {
+        if let cacheControlHeader = response.allHeaderFields["Cache-Control"] as? String {
+            let scanner = Scanner(string: cacheControlHeader.lowercased())
+            var maxAge: Double = .nan
+            if scanner.scanString("max-age", into: nil) && scanner.scanString("=", into: nil) && scanner.scanDouble(&maxAge) {
+                return Date(timeIntervalSinceNow: maxAge)
+            }
+        }
+        return nil
     }
 
     struct Headers {

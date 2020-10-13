@@ -67,7 +67,33 @@ class ApptentiveV9APITests: XCTestCase {
         XCTAssertEqual(userAgent, "Apptentive/1.2.3 (Apple)")
     }
 
-    func testAuthenticate() throws {
+    func testParseExpiry() {
+        let response1 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["Cache-Control": "max-age = 86400"])!
+
+        guard let expiry1 = ApptentiveV9API.parseExpiry(response1) else {
+            return XCTFail("Unable to parse valid expiry")
+        }
+
+        XCTAssertEqual(expiry1.timeIntervalSinceNow, Date(timeIntervalSinceNow: 86400).timeIntervalSinceNow, accuracy: 1.0)
+
+        let response2 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["Cache-control": "axmay-agehay: 86400"])!
+
+        let expiry2 = ApptentiveV9API.parseExpiry(response2)
+
+        XCTAssertNil(expiry2)
+
+        XCTAssertEqual(expiry1.timeIntervalSinceNow, Date(timeIntervalSinceNow: 86400).timeIntervalSinceNow, accuracy: 1.0)
+
+        let response3 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["cAcHe-cOnTrOl": "max-age = 200"])!
+
+        guard let expiry3 = ApptentiveV9API.parseExpiry(response3) else {
+            return XCTFail("Unable to parse valid expiry (with weird case)")
+        }
+
+        XCTAssertEqual(expiry3.timeIntervalSinceNow, Date(timeIntervalSinceNow: 200).timeIntervalSinceNow, accuracy: 1.0)
+    }
+
+    func testCreateConversation() throws {
         let baseURL = URL(string: "http://example.com")!
         var conversation = Conversation(environment: Environment())
         let requestor = SpyRequestor(responseData: try JSONEncoder().encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789")))
@@ -96,7 +122,7 @@ class ApptentiveV9APITests: XCTestCase {
         }
     }
 
-    func testSendSurveyResponse() throws {
+    func testCreateSurveyResponse() throws {
         let baseURL = URL(string: "http://example.com")!
         var conversation = Conversation(environment: Environment())
         let requestor = SpyRequestor(responseData: Data())

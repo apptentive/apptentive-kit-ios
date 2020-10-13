@@ -29,7 +29,7 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
                 completion(
                     Result {
                         let httpResponse = try Self.processResult(data: data, response: response, error: error)
-                        return try endpoint.transformResponseData(httpResponse.data)
+                        return try endpoint.transformResponse(httpResponse)
                     })
             }
 

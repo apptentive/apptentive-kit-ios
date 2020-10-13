@@ -50,6 +50,21 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
         }
     }
 
+    /// Engages the specified event, using the view controller (if any) as the presenting view controller for any interactions.
+    /// - Parameters:
+    ///   - event: The event to engage
+    ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
+    ///   - completion: A completion handler that is called with a boolean indicating whether or not an interaction was presented.
+    public func engage(event: Event, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
+        self.backendQueue.async {
+            if let presentingViewController = viewController {
+                self.interactionPresenter.presentingViewController = presentingViewController
+            }
+
+            self.backend.engage(event: event, completion: completion)
+        }
+    }
+
     // MARK: - Internal
 
     init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: Environment? = nil) {
@@ -67,6 +82,7 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
             self.protectedDataDidBecomeAvailable(self.environment)
         }
 
+        self.backend.frontend = self
         self.interactionPresenter.sender = self
     }
 
@@ -79,6 +95,7 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
     }
 
     // MARK: EnvironmentDelegate
+
     func protectedDataDidBecomeAvailable(_ environment: Environment) {
         self.backendQueue.async {
             do {

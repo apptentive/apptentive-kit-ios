@@ -18,7 +18,7 @@ open class InteractionPresenter {
     /// Creates a new default interaction presenter.
     public init() {}
 
-    func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController?) throws {
+    func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController? = nil) throws {
         guard let sender = self.sender else {
             throw ApptentiveError.internalInconsistency
         }

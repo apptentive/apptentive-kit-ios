@@ -28,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     fileprivate func registerDefaults() {
         guard let defaultDefaultsURL = Bundle.main.url(forResource: "Defaults", withExtension: "plist"), let defaultDefaults = NSDictionary(contentsOf: defaultDefaultsURL) as? [String: AnyObject] else {
-            return assertionFailure("Unable to read `Defaults.plist`. Please ensure you have renamed the `Defaults-Template.plist` file. See README.md for more information.")
+            preconditionFailure("Unable to read `Defaults.plist`. Please ensure you have renamed the `Defaults-Template.plist` file. See README.md for more information.")
         }
 
         UserDefaults.standard.register(defaults: defaultDefaults)
@@ -43,5 +43,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.apptentive = Apptentive(baseURL: url)
 
         apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature), completion: completion)
+    }
+}
+
+extension UIViewController {
+    var apptentive: Apptentive {
+        (UIApplication.shared.delegate as! AppDelegate).apptentive!
     }
 }

@@ -47,6 +47,12 @@
 		015F2AEA24CA2A88004B53E2 /* SurveyIntroductionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */; };
 		015F2AEC24CA2A94004B53E2 /* SurveySubmitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */; };
 		0170A04E24DA2D9300234BE6 /* Interactions in Resources */ = {isa = PBXBuildFile; fileRef = 0170A04D24DA2D9300234BE6 /* Interactions */; };
+		017FC92C25310E2400C7A47F /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC92B25310E2400C7A47F /* Event.swift */; };
+		017FC93A25310E4700C7A47F /* Targeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC93425310E4700C7A47F /* Targeter.swift */; };
+		017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC95325310E9400C7A47F /* EngagementManifest.swift */; };
+		017FC9792531101500C7A47F /* testManifest1.json in Resources */ = {isa = PBXBuildFile; fileRef = 017FC95B2531101500C7A47F /* testManifest1.json */; };
+		017FC9922531101500C7A47F /* TargeterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC9752531101500C7A47F /* TargeterTests.swift */; };
+		017FC9942531101500C7A47F /* EventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC9772531101500C7A47F /* EventTests.swift */; };
 		018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9090247EFFEC004577EB /* SurveyViewModel.swift */; };
 		018A909A247F09D4004577EB /* Interaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9099247F09D4004577EB /* Interaction.swift */; };
 		019121812404581B00FFE0F4 /* ApptentiveFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */; };
@@ -158,6 +164,12 @@
 		015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyIntroductionView.swift; sourceTree = "<group>"; };
 		015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveySubmitView.swift; sourceTree = "<group>"; };
 		0170A04D24DA2D9300234BE6 /* Interactions */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Interactions; sourceTree = "<group>"; };
+		017FC92B25310E2400C7A47F /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
+		017FC93425310E4700C7A47F /* Targeter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Targeter.swift; sourceTree = "<group>"; };
+		017FC95325310E9400C7A47F /* EngagementManifest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EngagementManifest.swift; sourceTree = "<group>"; };
+		017FC95B2531101500C7A47F /* testManifest1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testManifest1.json; sourceTree = "<group>"; };
+		017FC9752531101500C7A47F /* TargeterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TargeterTests.swift; sourceTree = "<group>"; };
+		017FC9772531101500C7A47F /* EventTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventTests.swift; sourceTree = "<group>"; };
 		018A9090247EFFEC004577EB /* SurveyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyViewModel.swift; sourceTree = "<group>"; };
 		018A9099247F09D4004577EB /* Interaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interaction.swift; sourceTree = "<group>"; };
 		019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveFeatureTests.swift; sourceTree = "<group>"; };
@@ -236,6 +248,8 @@
 		011E2999246DE23E000BDEE6 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				017FC95325310E9400C7A47F /* EngagementManifest.swift */,
+				017FC92B25310E2400C7A47F /* Event.swift */,
 				013D8E9D24F09B00005EC4D1 /* AppRelease.swift */,
 				013D8E9124F039F9005EC4D1 /* Conversation.swift */,
 				013D8E9C24F09B00005EC4D1 /* CustomData.swift */,
@@ -317,6 +331,32 @@
 			path = Conversation;
 			sourceTree = "<group>";
 		};
+		017FC93125310E4700C7A47F /* Targeting */ = {
+			isa = PBXGroup;
+			children = (
+				017FC93425310E4700C7A47F /* Targeter.swift */,
+			);
+			path = Targeting;
+			sourceTree = "<group>";
+		};
+		017FC9592531101500C7A47F /* Targeting */ = {
+			isa = PBXGroup;
+			children = (
+				017FC95A2531101500C7A47F /* Test Manifests */,
+				017FC9752531101500C7A47F /* TargeterTests.swift */,
+				017FC9772531101500C7A47F /* EventTests.swift */,
+			);
+			path = Targeting;
+			sourceTree = "<group>";
+		};
+		017FC95A2531101500C7A47F /* Test Manifests */ = {
+			isa = PBXGroup;
+			children = (
+				017FC95B2531101500C7A47F /* testManifest1.json */,
+			);
+			path = "Test Manifests";
+			sourceTree = "<group>";
+		};
 		018A908D247EFFC7004577EB /* Interactions */ = {
 			isa = PBXGroup;
 			children = (
@@ -377,6 +417,7 @@
 				013D8EB824F5C99B005EC4D1 /* Backend.swift */,
 				013D8E8624F03888005EC4D1 /* Networking */,
 				018A908D247EFFC7004577EB /* Interactions */,
+				017FC93125310E4700C7A47F /* Targeting */,
 				011E2999246DE23E000BDEE6 /* Model */,
 				01A0916F23FCB4A700AF187E /* ApptentiveKit.h */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+TemporaryAPI.swift */,
@@ -401,6 +442,7 @@
 				015D6BC3250AC0AC00372759 /* Conversation */,
 				013D8E9324F03C04005EC4D1 /* Network */,
 				013D8DDF24EEFA13005EC4D1 /* Interactions */,
+				017FC9592531101500C7A47F /* Targeting */,
 				01D739272405CB630000EE52 /* Info.plist */,
 				015D6BCE250AC7AD00372759 /* MockEnvironment.swift */,
 			);
@@ -663,6 +705,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				017FC9792531101500C7A47F /* testManifest1.json in Resources */,
 				013D8E0E24EEFA13005EC4D1 /* Survey - 3.1.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -697,6 +740,7 @@
 				015F2AEC24CA2A94004B53E2 /* SurveySubmitView.swift in Sources */,
 				013D8EB924F5C99B005EC4D1 /* Backend.swift in Sources */,
 				015F2AB224C7A6DB004B53E2 /* SurveyConfiguration.swift in Sources */,
+				017FC93A25310E4700C7A47F /* Targeter.swift in Sources */,
 				013D8E9024F039A7005EC4D1 /* HTTPRequesting.swift in Sources */,
 				018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */,
 				015F2AEA24CA2A88004B53E2 /* SurveyIntroductionView.swift in Sources */,
@@ -712,6 +756,7 @@
 				015F2ACF24C8F2DD004B53E2 /* SurveyViewController.swift in Sources */,
 				01E79827251C2EC200D24A05 /* DeviceRequest.swift in Sources */,
 				015AF83724E739C0000DF8B0 /* SurveyViewModel+Question.swift in Sources */,
+				017FC92C25310E2400C7A47F /* Event.swift in Sources */,
 				01E79845251C30F800D24A05 /* Payload.swift in Sources */,
 				015F2A9F24C7A460004B53E2 /* InteractionPresenter.swift in Sources */,
 				011FF860252D1AF700073EBC /* ResponseSending.swift in Sources */,
@@ -724,6 +769,7 @@
 				0158976724E5C8C600DF0DC0 /* Apptentive+TemporaryAPI.swift in Sources */,
 				013D8EA824F09B01005EC4D1 /* Environment.swift in Sources */,
 				013D8E9224F039F9005EC4D1 /* Conversation.swift in Sources */,
+				017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */,
 				013D8E8C24F038D3005EC4D1 /* HTTPClient.swift in Sources */,
 				013D8EAF24F09B63005EC4D1 /* CwlSysctl.swift in Sources */,
 				018A909A247F09D4004577EB /* Interaction.swift in Sources */,
@@ -742,6 +788,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				017FC9942531101500C7A47F /* EventTests.swift in Sources */,
 				013D8E9924F03C13005EC4D1 /* HTTPClientTests.swift in Sources */,
 				015D6BCF250AC7AD00372759 /* MockEnvironment.swift in Sources */,
 				01E7986B251C32F200D24A05 /* SurveyResponsePayloadTests.swift in Sources */,
@@ -752,6 +799,7 @@
 				013D8E9824F03C13005EC4D1 /* ApptentiveV9APITests.swift in Sources */,
 				013D8E0B24EEFA13005EC4D1 /* SuveyViewModelTests.swift in Sources */,
 				013D8E0D24EEFA13005EC4D1 /* InteractionTests.swift in Sources */,
+				017FC9922531101500C7A47F /* TargeterTests.swift in Sources */,
 				015D6BCB250AC0AC00372759 /* PersonTests.swift in Sources */,
 				015D6BCA250AC0AC00372759 /* DeviceTests.swift in Sources */,
 			);

@@ -10,6 +10,7 @@ import Foundation
 
 class Backend {
     let queue: DispatchQueue
+    weak var frontend: Apptentive?
 
     enum ConnectionType {
         case cached
@@ -24,13 +25,17 @@ class Backend {
 
     private var client: HTTPClient<ApptentiveV9API>?
     private var conversationRepository: ConversationRepository?
+    private var targeter: Targeter
 
     private var createConversationTask: HTTPCancellable?
+    private var getInteractionsTask: HTTPCancellable?
+
     private var connectCompletion: ((Result<ConnectionType, Error>) -> Void)?
 
     init(queue: DispatchQueue, environment: Environment) {
         self.queue = queue
         self.conversation = Conversation(environment: environment)
+        self.targeter = Targeter()
     }
 
     func connect(appCredentials: Apptentive.AppCredentials, baseURL: URL, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
@@ -56,6 +61,37 @@ class Backend {
             let savedConversation = try conversationRepository.load()
 
             self.conversation = try savedConversation.merged(with: self.conversation)
+        }
+    }
+
+    func engage(event: Event, completion: ((Bool) -> Void)?) {
+        do {
+            if let interaction = try self.targeter.interactionData(for: event) {
+                guard let frontend = self.frontend else {
+                    throw ApptentiveError.internalInconsistency
+                }
+
+                DispatchQueue.main.async {
+                    do {
+                        try frontend.interactionPresenter.presentInteraction(interaction)
+
+                        completion?(true)
+                    } catch let error {
+                        completion?(false)
+                        assertionFailure("Interaction presentation error: \(error)")
+                    }
+                }
+
+            } else {
+                DispatchQueue.main.async {
+                    completion?(false)
+                }
+            }
+        } catch let error {
+            DispatchQueue.main.async {
+                completion?(false)
+                assertionFailure("Targeting error: \(error)")
+            }
         }
     }
 
@@ -85,7 +121,7 @@ class Backend {
                 self.connectCompletion = nil
             }
 
-            // We have connected
+            self.getInteractionsIfNeeded()
         } else if let _ = conversation.appCredentials {
             self.createConversationIfNeeded()
         }  // we have no saved conversation credentials and app hasn't called "Connect" yet.
@@ -112,6 +148,23 @@ class Backend {
 
                     self.createConversationTask = nil
                     self.connectCompletion = nil
+                }
+            }
+        }
+    }
+
+    private func getInteractionsIfNeeded() {
+        if self.getInteractionsTask == nil && (self.targeter.engagementManifest.expiry ?? Date.distantPast) < Date() {
+            self.getInteractionsTask = self.client?.request(.getInteractions(for: self.conversation)) { (result: Result<EngagementManifest, Error>) in
+                self.queue.async {
+                    switch result {
+                    case .success(let engagementManifest):
+                        self.targeter.engagementManifest = engagementManifest
+                    case .failure(let error):
+                        print("Failed to download engagement manifest: \(error)")
+                    }
+
+                    self.getInteractionsTask = nil
                 }
             }
         }
