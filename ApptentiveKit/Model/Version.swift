@@ -27,7 +27,7 @@ struct Version: Equatable, Comparable, ExpressibleByStringLiteral, ExpressibleBy
     /// The string used to initialize the version.
     let versionString: String
 
-    /// Whether the version conforms to semanitc versioning (consists of up to three positive integers separated by `.`)
+    /// Whether the version conforms to semanitc versioning (consists of up to three positive integers separated by periods).
     let isSemantic: Bool
 
     /// Creates a new version object using the given string.

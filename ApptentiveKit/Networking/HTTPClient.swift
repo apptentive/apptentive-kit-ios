@@ -11,15 +11,29 @@ import Foundation
 typealias HTTPResponse = (data: Data, response: HTTPURLResponse)
 typealias HTTPResult = Result<HTTPResponse, Error>
 
+/// A class used to communicate with a particular REST API.
 class HTTPClient<Endpoint: HTTPEndpoint> {
+
+    /// The object conforming to `HTTPRequesting` that will be used to perform requests.
     let requestor: HTTPRequesting
+
+    /// The URL relative to which requests should be built.
     let baseURL: URL
 
+    /// Initializes a new client.
+    /// - Parameters:
+    ///   - requestor: The object conforming to `HTTPRequesting` that will be used to make requests.
+    ///   - baseURL: The URL relative to which requests should be built.
     init(requestor: HTTPRequesting, baseURL: URL) {
         self.requestor = requestor
         self.baseURL = baseURL
     }
 
+    /// Performs a request to the specified endpoint.
+    /// - Parameters:
+    ///   - endpoint: The endpoint for the request.
+    ///   - completion: A completion handler called with the result of the request.
+    /// - Returns: An `HTTPCancellable` instance corresponding to the request.
     @discardableResult
     func request<T: Decodable>(_ endpoint: Endpoint, completion: @escaping (Result<T, Error>) -> Void) -> HTTPCancellable? {
         do {
@@ -41,6 +55,13 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
         }
     }
 
+    /// Processes the result of a request into an HTTP response object.
+    /// - Parameters:
+    ///   - data: The data returned in the response, if any.
+    ///   - response: The HTTP response, if any.
+    ///   - error: The error encountered during the request, if any.
+    /// - Throws: Any errors encountered when processing the request.
+    /// - Returns: An HTTP response object consisting of an `HTTPURLResponse` object and response data.
     static func processResult(data: Data?, response: URLResponse?, error: Error?) throws -> HTTPResponse {
         if let error = error {
             throw HTTPClientError.connectionError(error)
@@ -55,7 +76,7 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
             if let data = data {
                 return (data, httpResponse)
             } else if httpResponse.statusCode == 204 {
-                // 204 = "No Content", backfill with empty `Data` object
+                // 204 = "No Content", backfill with empty `Data` object.
                 return (Data(), httpResponse)
             } else {
                 throw HTTPClientError.missingResponseBody

@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Adds the ability to query the conversation for the values of fields.
 extension Conversation: TargetingState {
     func value(for field: Field) throws -> Any? {
         guard let firstKey = field.keys.first else {
@@ -39,6 +40,7 @@ extension Conversation: TargetingState {
     }
 }
 
+/// Adds the ability to query the app release for the values of fields.
 extension AppRelease: TargetingState {
     func value(for field: Field) throws -> Any? {
         guard let firstKey = field.keys.first, let previousKey = field.parentKeys.first else {
@@ -76,6 +78,7 @@ extension AppRelease: TargetingState {
     }
 }
 
+/// Adds the ability to query the engagement metrics for the values of fields.
 extension EngagementMetrics: TargetingState {
     func value(for field: Field) throws -> Any? {
         guard let key = field.keys.first else {
@@ -88,6 +91,7 @@ extension EngagementMetrics: TargetingState {
     }
 }
 
+/// Adds the ability to query an engagement metric for the values of fields.
 extension EngagementMetric: TargetingState {
     func value(for field: Field) throws -> Any? {
         guard let firstKey = field.keys.first else {
@@ -122,6 +126,7 @@ extension EngagementMetric: TargetingState {
     }
 }
 
+/// Adds the ability to query the device for the values of fields.
 extension Device: TargetingState {
     func value(for field: Field) throws -> Any? {
         guard let firstKey = field.keys.first else {
@@ -171,6 +176,7 @@ extension Device: TargetingState {
     }
 }
 
+/// Adds the ability to query the person for the values of fields.
 extension Person: TargetingState {
     func value(for field: Field) throws -> Any? {
         guard let firstKey = field.keys.first else {
@@ -193,6 +199,7 @@ extension Person: TargetingState {
     }
 }
 
+/// Adds the ability to query the custom data for the values of fields.
 extension CustomData: TargetingState {
     func value(for field: Field) throws -> Any? {
         guard let key = field.keys.first else {

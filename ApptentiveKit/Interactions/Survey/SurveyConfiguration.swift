@@ -8,6 +8,13 @@
 
 import Foundation
 
+/// An object corresponding to the `configuration` object in an interaction of type `Survey`.
+///
+/// This object is intended to faithfully represent the data retrieved as part
+/// of the engagement manfiest. In cases where a question has type-specific
+/// parameters, all possible parameters are available for all question types.
+/// The view model should massage these values into per-question-type
+/// objects for the UI to display.
 struct SurveyConfiguration: Decodable {
     let name: String?
     let submitText: String?

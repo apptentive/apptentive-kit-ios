@@ -18,6 +18,11 @@ open class InteractionPresenter {
     /// Creates a new default interaction presenter.
     public init() {}
 
+    /// Presents an interaction.
+    /// - Parameters:
+    ///   - interaction: The interaction to present.
+    ///   - presentingViewController: The view controller to use to present the interaction.
+    /// - Throws: If the `sender` property isn't set, if the interaction isn't recognized, or if the presenting view controller is missing or invalid.
     func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController? = nil) throws {
         guard let sender = self.sender else {
             throw ApptentiveError.internalInconsistency

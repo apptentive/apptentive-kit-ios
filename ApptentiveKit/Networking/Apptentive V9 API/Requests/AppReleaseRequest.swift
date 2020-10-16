@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// The HTTP request body object used when creating or updating a the app release and SDK on the server.
 struct AppReleaseRequest: Codable, Equatable {
     let sdkVersion: String
     let sdkProgrammingLanguage: String

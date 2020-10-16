@@ -63,7 +63,7 @@ public class SurveyViewModel {
     }
 
     private static func buildQuestionViewModels(questions: [SurveyConfiguration.Question], requiredText: String?) -> [Question] {
-        // Bail if we have non-unique question IDs
+        // Bail if we have non-unique question IDs.
         let questionIDs = questions.map { $0.id }
         guard questionIDs.sorted() == Array(Set(questionIDs)).sorted() else {
             assertionFailure("Question IDs are not unique!")

@@ -7,6 +7,7 @@
 //
 
 import XCTest
+
 @testable import ApptentiveKit
 
 // Write tests based on https://apptentive.atlassian.net/wiki/spaces/APPTENTIVE/pages/107282439/Criteria+V7+Specification
@@ -34,7 +35,7 @@ class TargetingStateTests: XCTestCase {
         XCTAssertEqual(try self.conversation.value(for: "application/cf_bundle_version") as? Version, Version(string: "4.5.6"))
     }
 
-    func testSDKVersion() throws {        
+    func testSDKVersion() throws {
         self.conversation.appRelease.sdkVersion = "7.8.9"
 
         XCTAssertEqual(try self.conversation.value(for: "sdk/version") as? Version, Version(string: "7.8.9"))
@@ -168,7 +169,7 @@ class TargetingStateTests: XCTestCase {
         XCTAssertEqual(try self.conversation.value(for: "person/custom_data/boolean") as? Bool, true)
     }
 
-    func testDeviceOSName () throws {
+    func testDeviceOSName() throws {
         XCTAssertEqual(try self.conversation.value(for: "device/os_name") as? String, "iOS")
     }
 
@@ -193,7 +194,6 @@ class TargetingStateTests: XCTestCase {
 
         XCTAssertEqual(try self.conversation.value(for: "device/carrier") as? String, "foo")
     }
-
 
     func testDeviceLocaleCountryCode() throws {
         XCTAssertEqual(try self.conversation.value(for: "device/locale_country_code") as? String, "US")

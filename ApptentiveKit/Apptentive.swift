@@ -52,7 +52,7 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
 
     /// Engages the specified event, using the view controller (if any) as the presenting view controller for any interactions.
     /// - Parameters:
-    ///   - event: The event to engage
+    ///   - event: The event to engage.
     ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
     ///   - completion: A completion handler that is called with a boolean indicating whether or not an interaction was presented.
     public func engage(event: Event, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {

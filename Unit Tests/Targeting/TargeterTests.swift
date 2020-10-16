@@ -6,8 +6,8 @@
 //
 
 import Foundation
-
 import XCTest
+
 @testable import ApptentiveKit
 
 final class TargeterTests: XCTestCase {
@@ -37,16 +37,16 @@ final class TargeterTests: XCTestCase {
 
     static var allTests = [
         ("testManifest1", testManifest1),
-        ("testNoManifest", testNoManifest)
+        ("testNoManifest", testNoManifest),
     ]
 
     private func manifest(for testMethodName: String) -> EngagementManifest? {
-        let testName = String(testMethodName.dropLast(2)) // strip parentheses from method name
+        let testName = String(testMethodName.dropLast(2))  // strip parentheses from method name.
         let url = Self.testResourceDirectory.appendingPathComponent(testName).appendingPathExtension("json")
 
         if let data = try? Data(contentsOf: url) {
             let decoder = JSONDecoder()
-            //decoder.keyDecodingStrategy = .convertFromSnakeCase
+
             if let manifest = try? decoder.decode(EngagementManifest.self, from: data) {
                 return manifest
             } else {

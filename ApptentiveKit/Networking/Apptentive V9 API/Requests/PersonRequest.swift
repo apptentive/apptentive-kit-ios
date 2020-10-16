@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// The HTTP request body object used when creating or updating a person on the server.
 struct PersonRequest: Codable, Equatable {
     let name: String?
     let emailAddress: String?

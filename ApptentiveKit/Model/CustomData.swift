@@ -9,13 +9,18 @@
 import Foundation
 import UIKit
 
+/// Represents device or person custom data.
 struct CustomData: Equatable, Codable {
+    /// The internal representation of the custom data.
     var customData: [String: Codable]
 
+    /// Initializes a new empty custom data object.
     init() {
         self.customData = [:]
     }
 
+    /// Merges the custom data with newer custom data.
+    /// - Parameter newer: The newer custom data to merge in.
     mutating func merge(with newer: CustomData) {
         self.customData = self.customData.merging(newer.customData) { (old, new) in
             new

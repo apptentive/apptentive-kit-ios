@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Encapsulates the payload contents for a survey response.
 struct SurveyResponseContents: Codable, Equatable {
     let answers: SurveyAnswersRequestPart
 
@@ -20,6 +21,7 @@ struct SurveyResponseContents: Codable, Equatable {
     }
 }
 
+/// The survey response payload part corresponding to the survey answers.
 struct SurveyAnswersRequestPart: Codable, Equatable {
     let answers: [String: [SurveyQuestionResponse]]
 

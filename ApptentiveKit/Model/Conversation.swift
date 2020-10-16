@@ -10,21 +10,34 @@ import Foundation
 
 typealias ConversationEnvironment = DeviceEnvironment & AppEnvironment
 
+/// A object describing the state of the SDK, used for targeting and overall state management.
 struct Conversation: Equatable, Codable {
+
+    /// The key and signature to use when communicating with the Apptentive API.
     var appCredentials: Apptentive.AppCredentials?
+
+    /// The token and conversation ID used when communicating with the Apptentive API.
     var conversationCredentials: ConversationCredentials?
 
+    /// An object encapsulating the token and ID of a conversation.
     struct ConversationCredentials: Equatable, Codable {
         let token: String
         let id: String
     }
 
+    /// The app release corresponding to the conversation.
     var appRelease: AppRelease
+
+    /// The person corresponding to the conversation.
     var person: Person
+
+    /// The device corresponding to the conversation.
     var device: Device
     var codePoints: EngagementMetrics
     var interactions: EngagementMetrics
 
+    /// Initializes a conversation with the specified environment.
+    /// - Parameter environment: The environment used to create the initial app release and device values.
     init(environment: ConversationEnvironment) {
         self.appRelease = AppRelease(environment: environment)
         self.person = Person()
@@ -33,6 +46,9 @@ struct Conversation: Equatable, Codable {
         self.interactions = EngagementMetrics()
     }
 
+    /// Merges the conversation with a newer conversation.
+    /// - Parameter newer: The newer conversation.
+    /// - Throws: An error if the app- or conversation credentials are mismatched.
     mutating func merge(with newer: Conversation) throws {
         guard self.appCredentials == nil || newer.appCredentials == nil || self.appCredentials == newer.appCredentials else {
             assertionFailure("Apptentive Key and Signature have changed from their previous values, which is not supported.")
@@ -61,6 +77,10 @@ struct Conversation: Equatable, Codable {
         self.interactions.merge(with: newer.interactions)
     }
 
+    /// Creates a new conversation merged with the specified newer conversation.
+    /// - Parameter newer: The newer conversation to merge with the receiver.
+    /// - Throws: An error if the app- or conversation credentials are mismatched.
+    /// - Returns: The merged conversation.
     func merged(with newer: Conversation) throws -> Conversation {
         var copy = self
 

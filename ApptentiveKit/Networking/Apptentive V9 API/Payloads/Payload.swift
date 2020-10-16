@@ -8,16 +8,29 @@
 
 import Foundation
 
+/// An HTTP request body object that wraps updates that are sent to the Apptentive API.
 struct Payload: Codable {
+
+    /// The payload contents that should be wrapped.
     let contents: PayloadContents
+
+    /// A unique string that identifies this payload for deduplication on the server.
     let nonce: String
+
+    /// The date/time at which the payload was created.
     let creationDate: Date
+
+    /// The offset (in seconds) from UTC for the creation date.
     let creationUTCOffset: Int
 
+    /// Creates a new payload object that wraps a survey response.
+    /// - Parameter surveyResponse: The survey response to wrap.
     init(wrapping surveyResponse: SurveyResponse) {
         self.init(contents: .surveyResponse(SurveyResponseContents(response: surveyResponse)))
     }
 
+    /// Initializes a new payload.
+    /// - Parameter contents: The contents of the payload.
     private init(contents: PayloadContents) {
         self.nonce = UUID().uuidString
         self.creationDate = Date()
@@ -61,6 +74,7 @@ enum PayloadTypeCodingKeys: String, CodingKey {
     case response
 }
 
+/// The union of coding keys from all payload types.
 enum AllPossiblePayloadCodingKeys: String, CodingKey {
     case nonce
     case creationDate = "client_created_at"
@@ -68,6 +82,9 @@ enum AllPossiblePayloadCodingKeys: String, CodingKey {
     case answers
 }
 
+/// The contents of the payload.
+///
+/// Each payload type has an associated value corresponding to its content.
 enum PayloadContents: Equatable {
     case surveyResponse(SurveyResponseContents)
 
@@ -86,4 +103,5 @@ enum PayloadContents: Equatable {
     }
 }
 
+/// An empty object corresponding to the expected response when sending a payload.
 struct PayloadResponse: Codable {}

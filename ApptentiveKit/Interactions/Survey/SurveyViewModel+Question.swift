@@ -29,12 +29,13 @@ extension SurveyViewModel {
         /// The text to display with the question to indicate validation requirements.
         public let instructions: String?
 
+        /// The response object that will make up part of the survey response API request.
         var response: [SurveyQuestionResponse]? {
             assertionFailure("Abstract method called")
             return nil
         }
 
-        // The actual valididty of the answer(s)
+        /// The actual valididty of the answer(s).
         var isValid: Bool {
             return !(self.isRequired && self.response == nil)
         }

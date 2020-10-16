@@ -8,37 +8,67 @@
 
 import Foundation
 
+/// Configures a URL request corresponding to an endpoint on the Apptentive API.
 struct ApptentiveV9API: HTTPEndpoint {
+
+    /// The HTTP method for this endpoint.
     let method: HTTPMethod
+
+    /// The HTTP body that should be sent with the request (if any).
     let bodyEncodable: HTTPBodyEncodable?
+
+    /// Whether this request requires conversation credentials (true for all but the initial conversation creation request).
     let requiresCredentials: Bool
 
+    /// The path of the request.
+    ///
+    /// When `requiresCredentials` is true, the path is automatically prepended with `conversations/<conversation ID>`.
     private let path: String
+
+    /// The conversation object initiating the request (used to obtain app and conversation credentials).
     private let conversation: Conversation
 
+    /// The JSON encoder used for encoding the HTTP request body.
     private let encoder: JSONEncoder
+
+    /// The JSON decoder used for decoding the HTTP response body.
     private let decoder: JSONDecoder
 
     // MARK: - Endpoints
 
+    /// Builds a request to create a conversation on the server.
+    /// - Parameter conversation: The conversation to be created.
+    /// - Returns: A struct describing the HTTP request to be performed.
     static func createConversation(_ conversation: Conversation) -> Self {
         let bodyObject = ConversationRequest(conversation: conversation)
 
         return Self(conversation: conversation, path: "conversations", method: .post, bodyObject: HTTPBodyEncodable(value: bodyObject), requiresCredentials: false)
     }
 
+    /// Builds a request to create a survey response on the server.
+    /// - Parameters:
+    ///   - surveyResponse: The survey response to be created.
+    ///   - conversation: The conversation associated with the survey response.
+    /// - Returns: A struct describing the HTTP request to be performed.
     static func createSurveyResponse(_ surveyResponse: SurveyResponse, for conversation: Conversation) -> Self {
         let bodyObject = Payload(wrapping: surveyResponse)
 
         return Self(conversation: conversation, path: "surveys/\(surveyResponse.surveyID)/responses", method: .post, bodyObject: HTTPBodyEncodable(value: bodyObject))
     }
 
+    /// Builds a request to retrieve an engagement manifest from the server.
+    /// - Parameter conversation: The conversation for which to retrieve the manifest.
+    /// - Returns: A struct describing the HTTP request to be performed.
     static func getInteractions(for conversation: Conversation) -> Self {
         return Self(conversation: conversation, path: "interactions", method: .get)
     }
 
     // MARK: - HTTPEndpoint
 
+    /// Returns the URL for the endpoint.
+    /// - Parameter baseURL: The URL relative to which requests should be made.
+    /// - Throws: An error if inssufficient credentials are provided.
+    /// - Returns: A URL for the request.
     func url(relativeTo baseURL: URL) throws -> URL {
         var fullPath = self.path
 
@@ -47,7 +77,7 @@ struct ApptentiveV9API: HTTPEndpoint {
                 throw ApptentiveV9APIError.missingConversationCredentials
             }
 
-            // Credentialed requests need to be scoped to the conversation
+            // Credentialed requests need to be scoped to the conversation.
             fullPath = "conversations/\(conversationID)/\(path)"
         }
 
@@ -58,6 +88,9 @@ struct ApptentiveV9API: HTTPEndpoint {
         return url
     }
 
+    /// Returns the HTTP headers for the endpoint.
+    /// - Throws: An error if insufficient credentials are provided.
+    /// - Returns: The HTTP headers to use for the request.
     func headers() throws -> [String: String] {
         guard let appCredentials = self.conversation.appCredentials else {
             throw ApptentiveV9APIError.missingAppCredentials
@@ -77,21 +110,32 @@ struct ApptentiveV9API: HTTPEndpoint {
             token: token)
     }
 
+    /// Returns the HTTP body data for the endpoint.
+    /// - Throws: An error if the body fails to encode.
+    /// - Returns: The HTTP body data for the request.
     func body() throws -> Data? {
         return try self.bodyEncodable.flatMap {
             try self.encoder.encode($0)
         }
     }
 
+    /// Decodes the HTTP response to the correct type.
+    ///
+    /// If the response object conforms to the `Expiring` protocol, its `expiry` property will be set according to the `Cache-Control` header.
+    /// - Parameter response: The response object to decode.
+    /// - Throws: And error if the response can't be decoded.
+    /// - Returns: The decoded response object.
     func transformResponse<T>(_ response: HTTPResponse) throws -> T where T: Decodable {
         let responseObject: T = try {
             if response.data.count == 0 {
+                // Empty data is not valid JSON, so we need to use a custom placeholder decoder.
                 return try T(from: EmptyDecoder())
             } else {
                 return try self.decoder.decode(T.self, from: response.data)
             }
         }()
 
+        // If the response object conforms to `Expiring`, set its `expiry` property.
         if var expiring = responseObject as? Expiring {
             expiring.expiry = Self.parseExpiry(response.response)
 
@@ -102,8 +146,13 @@ struct ApptentiveV9API: HTTPEndpoint {
         return responseObject
     }
 
-    // MARK: - Internals
-
+    /// Initializes a new request for the endpoint.
+    /// - Parameters:
+    ///   - conversation: The conversation to use for constructing the request.
+    ///   - path: The path of the request, scoped to the conversation if appropriate.
+    ///   - method: The HTTP method for the request.
+    ///   - bodyObject: The object that should be encoded for the HTTP body of the request.
+    ///   - requiresCredentials: Whether the request should send conversation credentials and be scoped to the conversation.
     init(conversation: Conversation, path: String, method: HTTPMethod, bodyObject: HTTPBodyEncodable? = nil, requiresCredentials: Bool? = nil) {
         self.encoder = JSONEncoder()
         self.encoder.dateEncodingStrategy = .secondsSince1970
@@ -119,14 +168,26 @@ struct ApptentiveV9API: HTTPEndpoint {
         self.requiresCredentials = requiresCredentials ?? true
     }
 
+    /// The API version to send for the request.
     static var apiVersion: String {
         "9"
     }
 
+    /// The string to be sent for the request's `User-Agent` header.
+    /// - Parameter sdkVersion: The version of the SDK making the request.
+    /// - Returns: The user agent string.
     static func userAgent(sdkVersion: Version) -> String {
         return "Apptentive/\(sdkVersion.versionString) (Apple)"
     }
 
+    /// Builds the HTTP header dictionary for the specified parameters.
+    /// - Parameters:
+    ///   - appCredentials: The app key and app signature for the request.
+    ///   - userAgent: The user agent for the request.
+    ///   - contentType: The content type for the request.
+    ///   - apiVersion: The API version for the request.
+    ///   - token: The JWT for the request, if any.
+    /// - Returns: A dictionary whose keys are header names and whose values are the corresponding header values.
     static func buildHeaders(
         appCredentials: Apptentive.AppCredentials,
         userAgent: String,
@@ -149,6 +210,9 @@ struct ApptentiveV9API: HTTPEndpoint {
         return headers
     }
 
+    /// Parses the date after which the resource should be considered stale.
+    /// - Parameter response: The HTTP response whose headers shoud be parsed.
+    /// - Returns: A date after which the resource should be considered stale, or nil if the header was missing or could not be parsed.
     static func parseExpiry(_ response: HTTPURLResponse) -> Date? {
         if let cacheControlHeader = response.allHeaderFields["Cache-Control"] as? String {
             let scanner = Scanner(string: cacheControlHeader.lowercased())
@@ -160,6 +224,7 @@ struct ApptentiveV9API: HTTPEndpoint {
         return nil
     }
 
+    /// The header names used for Apptentive API requests.
     struct Headers {
         static let apptentiveKey = "APPTENTIVE-KEY"
         static let apptentiveSignature = "APPTENTIVE-SIGNATURE"
@@ -169,14 +234,18 @@ struct ApptentiveV9API: HTTPEndpoint {
         static let authorization = "Authorization"
     }
 
+    /// The content type of the request.
     struct ContentType {
         static let json = "application/json"
     }
 
-    /// Type-erasing `Encodable` container.
+    /// A type-erasing `Encodable` container.
     struct HTTPBodyEncodable: Encodable {
         let value: Encodable
 
+        /// Encodes the value to the specified encoder.
+        /// - Parameter encoder: The encoder to which the value should be encoded.
+        /// - Throws: An error if encoding fails.
         func encode(to encoder: Encoder) throws {
             try self.value.encode(to: encoder)
         }

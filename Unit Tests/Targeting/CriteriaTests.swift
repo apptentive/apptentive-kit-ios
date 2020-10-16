@@ -6,6 +6,7 @@
 ////
 
 import XCTest
+
 @testable import ApptentiveKit
 
 final class CriteriaTests: XCTestCase {
@@ -107,11 +108,11 @@ final class CriteriaTests: XCTestCase {
         ("testOperatorStringEquals", testOperatorStringEquals),
         ("testOperatorStringNotEquals", testOperatorStringNotEquals),
         ("testV7Criteria", testV7Criteria),
-        ("testWhitespaceTrimming", testWhitespaceTrimming)
+        ("testWhitespaceTrimming", testWhitespaceTrimming),
     ]
 
     private func criteria(for testMethodName: String) -> Criteria? {
-        let testName = String(testMethodName.dropLast(2)) // strip parentheses from method name
+        let testName = String(testMethodName.dropLast(2))  // strip parentheses from method name.
         let url = Self.testResourceDirectory.appendingPathComponent(testName).appendingPathExtension("json")
 
         if let data = try? Data(contentsOf: url) {
@@ -145,7 +146,8 @@ struct MockTargetingState: TargetingState {
             return Date()
         case "is_update/cf_bundle_short_version_string", "is_update/cf_bundle_version":
             return false
-        case "code_point/invalid_code_point/invokes/total", "code_point/invalid_code_point/invokes/cf_bundle_short_version_string", "interactions/invalid_interaction/invokes/total", "interactions/invalid_interaction/invokes/cf_bundle_short_version_string":
+        case "code_point/invalid_code_point/invokes/total", "code_point/invalid_code_point/invokes/cf_bundle_short_version_string", "interactions/invalid_interaction/invokes/total",
+            "interactions/invalid_interaction/invokes/cf_bundle_short_version_string":
             return 0
         case "device/custom_data/version_1.2.3":
             return Version(string: "1.2.3")
@@ -165,8 +167,8 @@ struct MockTargetingState: TargetingState {
     }
 }
 
-fileprivate extension String {
-    func trimmedAndLowercased() -> String {
+extension String {
+    fileprivate func trimmedAndLowercased() -> String {
         return self.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

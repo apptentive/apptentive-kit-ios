@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// The HTTP request body object used when creating or updating a device on the server.
 struct DeviceRequest: Codable, Equatable {
     let uuid: UUID?
     let osName: String?

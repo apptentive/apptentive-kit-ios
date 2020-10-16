@@ -8,6 +8,7 @@
 
 import UIKit
 
+/// Encapsulates methods on the Apptentive class that may or may not eventually make it into the public API.
 extension Apptentive {
     /// Manually presents an interaction to the user.
     /// - Parameters:

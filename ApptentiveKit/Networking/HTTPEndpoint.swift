@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Includes the methods and variables needed to describe an API endpoint.
 protocol HTTPEndpoint {
     var method: HTTPMethod { get }
 
@@ -17,6 +18,7 @@ protocol HTTPEndpoint {
     func transformResponse<T: Decodable>(_ response: HTTPResponse) throws -> T
 }
 
+/// Uses the data from an object conforming to `HTTPEndpoint ` to build a URL request.
 extension HTTPEndpoint {
     func buildRequest(baseURL: URL) throws -> URLRequest {
         let url = try self.url(relativeTo: baseURL)

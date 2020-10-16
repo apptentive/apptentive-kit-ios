@@ -30,5 +30,5 @@ class ConversationTests: XCTestCase {
         XCTAssertEqual(merged.appRelease.version, conversation2.appRelease.version)
 
         XCTAssertTrue(merged.appRelease.isUpdatedVersion)
-   }
+    }
 }

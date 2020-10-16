@@ -24,6 +24,8 @@ struct Device: Equatable, Codable {
     var advertisingIdentifier: UUID?
     var customData = CustomData()
 
+    /// Initializes a new device object with the values from the environment.
+    /// - Parameter environment: The environment to use for the initial values.
     init(environment: DeviceEnvironment) {
         self.uuid = environment.identifierForVendor
         self.osName = environment.osName
@@ -41,6 +43,10 @@ struct Device: Equatable, Codable {
         self.utcOffset = environment.timeZoneSecondsFromGMT
     }
 
+    /// Merges a device with a newer device.
+    ///
+    /// Uses a last-write-wins merge strategy.
+    /// - Parameter newer: The newer device to merge into this one.
     mutating func merge(with newer: Device) {
         self.uuid = newer.uuid
         self.osName = newer.osName
