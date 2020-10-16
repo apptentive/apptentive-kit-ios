@@ -11,13 +11,15 @@ import Foundation
 class FileRepository<T> {
     let containerURL: URL
     let fileManager: FileManager
+    let filename: String
 
     var fileExists: Bool {
         self.fileManager.fileExists(atPath: self.url.path)
     }
 
-    init(containerURL: URL, fileManager: FileManager) {
+    init(containerURL: URL, filename: String, fileManager: FileManager) {
         self.containerURL = containerURL
+        self.filename = filename
         self.fileManager = fileManager
     }
 
@@ -31,13 +33,12 @@ class FileRepository<T> {
         try self.save(data: data)
     }
 
-    fileprivate var filename: String {
-        assertionFailure("Abstract method called")
-        return String(describing: T.self)
+    fileprivate var url: URL {
+        containerURL.appendingPathComponent(self.filename).appendingPathExtension(self.fileExtension)
     }
 
-    fileprivate var url: URL {
-        containerURL.appendingPathComponent(self.filename)
+    var fileExtension: String {
+        ""
     }
 
     fileprivate func loadData() throws -> Data {
@@ -63,16 +64,14 @@ class PropertyListRepository<T: Codable>: FileRepository<T> {
     let encoder = PropertyListEncoder()
 
     override func decode(data: Data) throws -> T {
-        return try decoder.decode(T.self, from: data)
+        return try self.decoder.decode(T.self, from: data)
     }
 
     override func encode(object: T) throws -> Data {
-        return try encoder.encode(object)
+        return try self.encoder.encode(object)
     }
-}
 
-class ConversationRepository: PropertyListRepository<Conversation> {
-    override var filename: String {
-        "Conversation.plist"
+    override var fileExtension: String {
+        return "plist"
     }
 }

@@ -24,7 +24,7 @@ class Backend {
     }
 
     private var client: HTTPClient<ApptentiveV9API>?
-    private var conversationRepository: ConversationRepository?
+    private var conversationRepository: PropertyListRepository<Conversation>?
     private var targeter: Targeter
 
     private var createConversationTask: HTTPCancellable?
@@ -54,7 +54,7 @@ class Backend {
     func load(containerURL: URL, fileManager: FileManager) throws {
         try self.createContainerDirectoryIfNeeded(containerURL: containerURL, fileManager: fileManager)
 
-        let conversationRepository = ConversationRepository(containerURL: containerURL, fileManager: fileManager)
+        let conversationRepository = PropertyListRepository<Conversation>(containerURL: containerURL, filename: "Conversation", fileManager: fileManager)
         self.conversationRepository = conversationRepository
 
         if conversationRepository.fileExists {
@@ -65,8 +65,10 @@ class Backend {
     }
 
     func engage(event: Event, completion: ((Bool) -> Void)?) {
+        self.conversation.codePoints.invoke(for: event.codePointName)
+
         do {
-            if let interaction = try self.targeter.interactionData(for: event) {
+            if let interaction = try self.targeter.interactionData(for: event, state: self.conversation) {
                 guard let frontend = self.frontend else {
                     throw ApptentiveError.internalInconsistency
                 }
@@ -76,6 +78,10 @@ class Backend {
                         try frontend.interactionPresenter.presentInteraction(interaction)
 
                         completion?(true)
+
+                        self.queue.async {
+                            self.conversation.interactions.invoke(for: interaction.id)
+                        }
                     } catch let error {
                         completion?(false)
                         assertionFailure("Interaction presentation error: \(error)")

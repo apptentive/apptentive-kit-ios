@@ -1,0 +1,13 @@
+{
+  "$and": [
+    {
+      "application/cf_bundle_short_version_string": {
+      }
+    },
+    {
+      "person/custom_data/key_with_null_value": {
+        "$exists": false
+      }
+    }
+  ]
+}

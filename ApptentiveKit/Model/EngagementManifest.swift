@@ -19,9 +19,11 @@ struct EngagementManifest: Expiring, Decodable {
 
     struct Invocation: Decodable {
         let interactionID: String
+        let criteria: Criteria
 
         private enum CodingKeys: String, CodingKey {
             case interactionID = "interaction_id"
+            case criteria
         }
     }
 }

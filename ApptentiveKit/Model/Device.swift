@@ -8,11 +8,11 @@
 
 import Foundation
 
-struct Device: Codable {
+struct Device: Equatable, Codable {
     var uuid: UUID?
     var osName: String?
-    var osVersion: String?
-    var osBuild: String?
+    var osVersion: Version?
+    var osBuild: Version?
     var hardware: String?
     var carrier: String?
     var contentSizeCategory: String?

@@ -8,11 +8,23 @@
 
 import Foundation
 
-struct AppRelease: Codable {
+struct AppRelease: Equatable, Codable {
     var type: String = "ios"
     var bundleIdentifier: String?
-    var version: String?
-    var build: String?
+    var version: Version? {
+        didSet {
+            if version ?? 0 > oldValue ?? 0 {
+                isUpdatedVersion = true
+            }
+        }
+    }
+    var build: Version? {
+        didSet {
+            if build ?? 0 > oldValue ?? 0 {
+                isUpdatedBuild = true
+            }
+        }
+    }
     var hasAppStoreReceipt: Bool = false
     var isDebugBuild: Bool = false
     var isOverridingStyles: Bool = false
@@ -29,23 +41,23 @@ struct AppRelease: Codable {
     var installTime: Date = Date()
     var versionInstallTime: Date = Date()
     var buildInstallTime: Date = Date()
-    var sdkVersion: String
+    var sdkVersion: Version
     var sdkProgrammingLanguage: String
     var sdkAuthorName: String
     var sdkPlatform: String
     var sdkDistributionName: String?
-    var sdkDistributionVersion: String?
+    var sdkDistributionVersion: Version?
 
     init(environment: AppEnvironment) {
         if let infoDictionary = environment.infoDictionary {
             self.bundleIdentifier = infoDictionary["CFBundleIdentifier"] as? String
 
             if let versionString = infoDictionary["CFBundleShortVersionString"] as? String {
-                self.version = versionString
+                self.version = Version(string: versionString)
             }
 
             if let buildString = infoDictionary["CFBundleVersion"] as? String {
-                self.build = buildString
+                self.build = Version(string: buildString)
             }
 
             self.compiler = infoDictionary["DTCompiler"] as? String
@@ -75,14 +87,6 @@ struct AppRelease: Codable {
     }
 
     mutating func merge(with newer: AppRelease) {
-        if newer.version != self.version {
-            self.isUpdatedVersion = true
-        }
-
-        if newer.build != self.build {
-            self.isUpdatedBuild = true
-        }
-
         self.bundleIdentifier = newer.bundleIdentifier
         self.version = newer.version
         self.build = newer.build
@@ -104,5 +108,16 @@ struct AppRelease: Codable {
         self.sdkPlatform = newer.sdkPlatform
         self.sdkDistributionName = newer.sdkDistributionName
         self.sdkDistributionVersion = newer.sdkDistributionVersion
+    }
+}
+
+// For testing only
+extension AppRelease {
+    mutating func bumpVersion() {
+        self.version = Version(major: (version?.major ?? 0) + 1)
+    }
+
+    mutating func bumpBuild() {
+        self.build = Version(major: (build?.major ?? 0) + 1)
     }
 }

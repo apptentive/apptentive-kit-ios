@@ -56,11 +56,11 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
     ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
     ///   - completion: A completion handler that is called with a boolean indicating whether or not an interaction was presented.
     public func engage(event: Event, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
-        self.backendQueue.async {
-            if let presentingViewController = viewController {
-                self.interactionPresenter.presentingViewController = presentingViewController
-            }
+        if let presentingViewController = viewController {
+            self.interactionPresenter.presentingViewController = presentingViewController
+        }
 
+        self.backendQueue.async {
             self.backend.engage(event: event, completion: completion)
         }
     }

@@ -19,11 +19,16 @@ class ConversationTests: XCTestCase {
         var conversation2 = Conversation(environment: environment)
 
         conversation2.person.name = "Testy McTesterson"
+        conversation2.appRelease.version = "2"
 
         XCTAssertNotEqual(conversation1.person.name, conversation2.person.name)
+        XCTAssertNotEqual(conversation1.appRelease.version, conversation2.appRelease.version)
 
         let merged = try conversation1.merged(with: conversation2)
 
         XCTAssertEqual(merged.person.name, conversation2.person.name)
-    }
+        XCTAssertEqual(merged.appRelease.version, conversation2.appRelease.version)
+
+        XCTAssertTrue(merged.appRelease.isUpdatedVersion)
+   }
 }

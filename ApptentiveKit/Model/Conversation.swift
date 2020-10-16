@@ -10,7 +10,7 @@ import Foundation
 
 typealias ConversationEnvironment = DeviceEnvironment & AppEnvironment
 
-struct Conversation: Codable {
+struct Conversation: Equatable, Codable {
     var appCredentials: Apptentive.AppCredentials?
     var conversationCredentials: ConversationCredentials?
 
@@ -22,11 +22,15 @@ struct Conversation: Codable {
     var appRelease: AppRelease
     var person: Person
     var device: Device
+    var codePoints: EngagementMetrics
+    var interactions: EngagementMetrics
 
     init(environment: ConversationEnvironment) {
         self.appRelease = AppRelease(environment: environment)
         self.person = Person()
         self.device = Device(environment: environment)
+        self.codePoints = EngagementMetrics()
+        self.interactions = EngagementMetrics()
     }
 
     mutating func merge(with newer: Conversation) throws {
@@ -40,9 +44,21 @@ struct Conversation: Codable {
             throw ApptentiveError.internalInconsistency
         }
 
+        if appRelease.version ?? 0 < newer.appRelease.version ?? 0 {
+            self.codePoints.resetVersion()
+            self.interactions.resetVersion()
+        }
+
+        if appRelease.build ?? 0 < newer.appRelease.build ?? 0 {
+            self.codePoints.resetBuild()
+            self.interactions.resetBuild()
+        }
+
         self.appRelease.merge(with: newer.appRelease)
         self.person.merge(with: newer.person)
         self.device.merge(with: newer.device)
+        self.codePoints.merge(with: newer.codePoints)
+        self.interactions.merge(with: newer.interactions)
     }
 
     func merged(with newer: Conversation) throws -> Conversation {

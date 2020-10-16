@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Person: Codable {
+struct Person: Equatable, Codable {
     var name: String?
     var emailAddress: String?
     var mParticleID: String?

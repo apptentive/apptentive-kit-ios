@@ -32,16 +32,16 @@ struct AppReleaseRequest: Codable, Equatable {
     let xcodeBuild: String?
 
     init(appRelease: AppRelease) {
-        self.sdkVersion = appRelease.sdkVersion
+        self.sdkVersion = appRelease.sdkVersion.versionString
         self.sdkProgrammingLanguage = appRelease.sdkProgrammingLanguage
         self.sdkAuthorName = appRelease.sdkAuthorName
         self.sdkPlatform = appRelease.sdkPlatform
         self.sdkDistributionName = appRelease.sdkDistributionName
-        self.sdkDistributionVersion = appRelease.sdkDistributionVersion
+        self.sdkDistributionVersion = appRelease.sdkDistributionVersion?.versionString
         self.type = appRelease.type
         self.bundleIdentifier = appRelease.bundleIdentifier
-        self.version = appRelease.version
-        self.build = appRelease.build
+        self.version = appRelease.version?.versionString
+        self.build = appRelease.build?.versionString
         self.hasAppStoreReceipt = appRelease.hasAppStoreReceipt
         self.isDebugBuild = appRelease.isDebugBuild
         self.isOverridingStyles = appRelease.isOverridingStyles

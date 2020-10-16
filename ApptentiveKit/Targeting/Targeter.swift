@@ -8,6 +8,10 @@
 
 import Foundation
 
+protocol TargetingState {
+    func value(for field: Field) throws -> Any?
+}
+
 class Targeter {
     var engagementManifest: EngagementManifest {
         didSet {
@@ -24,8 +28,8 @@ class Targeter {
         buildInteractionIndex()
     }
 
-    func interactionData(for event: Event) throws -> Interaction? {
-        if let identifier = try interactionIdentifier(for: event) {
+    func interactionData(for event: Event, state: TargetingState) throws -> Interaction? {
+        if let identifier = try interactionIdentifier(for: event, state: state) {
             return interactionIndex[identifier]
         } else {
             return nil
@@ -36,9 +40,9 @@ class Targeter {
         interactionIndex = Dictionary(uniqueKeysWithValues: engagementManifest.interactions.map { ($0.id, $0) })
     }
 
-    private func interactionIdentifier(for event: Event) throws -> String? {
+    private func interactionIdentifier(for event: Event, state: TargetingState) throws -> String? {
         if let invocations = engagementManifest.targets[event.codePointName] {
-            if let invocation = invocations.first {
+            if let invocation = try invocations.first(where: { try $0.criteria.isSatisfied(for: state) }) {
                 return invocation.interactionID
             } else {
                 print("No interactions targeting event \(event) have criteria met by active conversation.")

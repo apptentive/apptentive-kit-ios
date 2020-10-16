@@ -13,6 +13,8 @@ import XCTest
 final class TargeterTests: XCTestCase {
     static let testResourceDirectory = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Test Manifests")
 
+    let targetingState = MockTargetingState()
+
     func testManifest1() throws {
         guard let manifest = manifest(for: #function) else {
             return XCTFail()
@@ -20,15 +22,17 @@ final class TargeterTests: XCTestCase {
 
         let targeter = Targeter(engagementManifest: manifest)
 
-        XCTAssertEqual(try targeter.interactionData(for: "event_4")?.id, "570694f855d9f42ce5000005")
+        XCTAssertEqual(try targeter.interactionData(for: "event_4", state: targetingState)?.id, "570694f855d9f42ce5000005")
 
-        XCTAssertNil(try targeter.interactionData(for: "nonexistent_event"))
+        XCTAssertNil(try targeter.interactionData(for: "nonexistent_event", state: targetingState))
+
+        XCTAssertNil(try targeter.interactionData(for: "launch", state: targetingState))
     }
 
     func testNoManifest() throws {
         let targeter = Targeter()
 
-        XCTAssertNil(try targeter.interactionData(for: "event_4")?.id)
+        XCTAssertNil(try targeter.interactionData(for: "event_4", state: targetingState)?.id)
     }
 
     static var allTests = [

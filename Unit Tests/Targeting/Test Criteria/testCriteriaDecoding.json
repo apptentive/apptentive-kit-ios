@@ -1,0 +1,7 @@
+{
+	"$not": {
+		"device/custom_data/string_qwerty": {
+		  "$contains": "wart",
+		}
+	}
+}

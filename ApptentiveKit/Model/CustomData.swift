@@ -59,13 +59,13 @@ struct CustomData: Equatable, Codable {
 
         try container.allKeys.forEach { codingKey in
             if let int = try? container.decode(Int.self, forKey: codingKey) {
-                customData[codingKey.stringValue] = int
+                self.customData[codingKey.stringValue] = int
             } else if let float = try? container.decode(Float.self, forKey: codingKey) {
-                customData[codingKey.stringValue] = float
+                self.customData[codingKey.stringValue] = float
             } else if let bool = try? container.decode(Bool.self, forKey: codingKey) {
-                customData[codingKey.stringValue] = bool
+                self.customData[codingKey.stringValue] = bool
             } else if let string = try? container.decode(String.self, forKey: codingKey) {
-                customData[codingKey.stringValue] = string
+                self.customData[codingKey.stringValue] = string
             } else {
                 throw ApptentiveError.invalidCustomDataType(nil)
             }

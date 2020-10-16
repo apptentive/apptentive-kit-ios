@@ -27,17 +27,17 @@ protocol PlatformEnvironment {
 protocol AppEnvironment {
     var infoDictionary: [String: Any]? { get }
     var appStoreReceiptURL: URL? { get }
-    var sdkVersion: String { get }
+    var sdkVersion: Version { get }
     var distributionName: String? { get }
-    var distributionVersion: String? { get }
+    var distributionVersion: Version? { get }
     var isDebugBuild: Bool { get }
 }
 
 protocol DeviceEnvironment {
     var identifierForVendor: UUID? { get }
     var osName: String { get }
-    var osVersion: String { get }
-    var osBuild: String { get }
+    var osVersion: Version { get }
+    var osBuild: Version { get }
     var hardware: String { get }
     var carrier: String? { get }
     var localeIdentifier: String { get }
@@ -63,8 +63,8 @@ class Environment: ConversationEnvironment {
 
     let identifierForVendor: UUID?
     let osName: String
-    let osVersion: String
-    let osBuild: String
+    let osVersion: Version
+    let osBuild: Version
     let hardware: String
 
     var localeIdentifier: String
@@ -73,7 +73,7 @@ class Environment: ConversationEnvironment {
     var timeZoneSecondsFromGMT: Int
 
     var distributionName: String?
-    var distributionVersion: String?
+    var distributionVersion: Version?
     let isDebugBuild: Bool
 
     var carrier: String?
@@ -85,13 +85,13 @@ class Environment: ConversationEnvironment {
 
     weak var delegate: EnvironmentDelegate?
 
-    lazy var sdkVersion: String = {
+    lazy var sdkVersion: Version = {
         guard let versionString = Bundle(for: type(of: self)).infoDictionary?["CFBundleShortVersionString"] as? String else {
             assertionFailure("Unable to read SDK version from ApptentiveKit's Info.plist file")
             return "Unavailable"
         }
 
-        return versionString
+        return Version(string: versionString)
     }()
 
     init() {
@@ -109,7 +109,7 @@ class Environment: ConversationEnvironment {
             }
         #endif
 
-        self.osBuild = Sysctl.osVersion
+        self.osBuild = Version(string: Sysctl.osVersion)
         self.hardware = Sysctl.model
 
         self.contentSizeCategory = UIApplication.shared.preferredContentSizeCategory
@@ -123,7 +123,7 @@ class Environment: ConversationEnvironment {
         #if canImport(UIKit)
             self.identifierForVendor = UIDevice.current.identifierForVendor
             self.osName = UIDevice.current.systemName
-            self.osVersion = UIDevice.current.systemVersion
+            self.osVersion = Version(string: UIDevice.current.systemVersion)
 
             self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
         #else

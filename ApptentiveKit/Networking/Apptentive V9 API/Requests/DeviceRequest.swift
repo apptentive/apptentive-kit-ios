@@ -27,8 +27,8 @@ struct DeviceRequest: Codable, Equatable {
     init(device: Device) {
         self.uuid = device.uuid
         self.osName = device.osName
-        self.osVersion = device.osVersion
-        self.osBuild = device.osBuild
+        self.osVersion = device.osVersion?.versionString
+        self.osBuild = device.osBuild?.versionString
         self.hardware = device.hardware
         self.carrier = device.carrier
         self.contentSizeCategory = device.contentSizeCategory

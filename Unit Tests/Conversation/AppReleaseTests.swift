@@ -23,7 +23,7 @@ class AppReleaseTests: XCTestCase {
         XCTAssertFalse(appRelease1.isUpdatedVersion)
         XCTAssertFalse(appRelease1.isUpdatedBuild)
 
-        let newerVersion = "2"
+        let newerVersion: Version = "2"
         appRelease2.sdkDistributionVersion = newerVersion
 
         appRelease1.merge(with: appRelease2)

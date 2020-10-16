@@ -123,8 +123,8 @@ struct ApptentiveV9API: HTTPEndpoint {
         "9"
     }
 
-    static func userAgent(sdkVersion: String) -> String {
-        return "Apptentive/\(sdkVersion) (Apple)"
+    static func userAgent(sdkVersion: Version) -> String {
+        return "Apptentive/\(sdkVersion.versionString) (Apple)"
     }
 
     static func buildHeaders(
