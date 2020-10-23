@@ -42,13 +42,15 @@ class Backend {
     }
 
     /// The REST client used to communicate with the Apptentive API.
-    private var client: HTTPClient<ApptentiveV9API>?
+    private var client: HTTPClient<ApptentiveV9API>
 
     /// The file repository used to load and save the conversation from/to persistent storage.
     private var conversationRepository: PropertyListRepository<Conversation>?
 
     /// The object that determines whether an interaction should be presented when an event is engaged.
     private var targeter: Targeter
+
+    private var payloadSender: PayloadSender
 
     /// The network task used to create a conversation.
     private var createConversationTask: HTTPCancellable?
@@ -63,26 +65,26 @@ class Backend {
     /// - Parameters:
     ///   - queue: The dispatch queue on which the backend instance should run.
     ///   - environment: The environment object used to initialize the conversation.
-    init(queue: DispatchQueue, environment: Environment) {
+    ///   - baseURL: The URL where the Apptentive API is based.
+    init(queue: DispatchQueue, environment: Environment, baseURL: URL) {
         self.queue = queue
         self.conversation = Conversation(environment: environment)
         self.targeter = Targeter()
+        self.client = HTTPClient(requestor: URLSession.shared, baseURL: baseURL)
+        self.payloadSender = PayloadSender(queue: queue, client: self.client)
     }
 
     /// Connects the backend to the Apptentive API.
     /// - Parameters:
     ///   - appCredentials: The App Key and App Signature to use when communicating with the Apptentive API
-    ///   - baseURL: The URL where the Apptentive API  is located.
     ///   - completion: A completion handler to be called when conversation credentials are loaded/retrieved, or when loading/retrieving fails.
-    func connect(appCredentials: Apptentive.AppCredentials, baseURL: URL, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
+    func connect(appCredentials: Apptentive.AppCredentials, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
         guard self.conversation.appCredentials == nil || self.conversation.appCredentials == appCredentials else {
             completion(.failure(ApptentiveError.mismatchedCredentials))
             return
         }
 
         self.connectCompletion = completion
-
-        self.client = HTTPClient(requestor: URLSession.shared, baseURL: baseURL)
 
         self.conversation.appCredentials = appCredentials
     }
@@ -106,10 +108,17 @@ class Backend {
     }
 
     /// Engages an event.
+    ///
+    /// This consists of the following steps:
+    /// 1. Sends an API request to create the event on the server.
+    /// 2. Increments the relevant engagement metric in the conversation.
+    /// 3. Presents an interaction if one was triggered by the event being engaged.
     /// - Parameters:
     ///   - event: The `Event` object to be engaged.
     ///   - completion: A completion handler whose argument indicates whether engaging the event resulted in the presentation of an interaction.
     func engage(event: Event, completion: ((Bool) -> Void)?) {
+        self.payloadSender.send(Payload(wrapping: event), for: self.conversation)
+
         self.conversation.codePoints.invoke(for: event.codePointName)
 
         do {
@@ -149,22 +158,7 @@ class Backend {
     /// Sends a survey response to the Apptentive API.
     /// - Parameter surveyResponse: The survey response to send to the API.
     func send(surveyResponse: SurveyResponse) {
-        // TODO: use some kind of payload sending queue so we don't have to do this check.
-        guard let client = self.client else {
-            return assertionFailure("Attempting to send survey response before connect was called.")
-        }
-
-        client.request(.createSurveyResponse(surveyResponse, for: conversation)) { (result: Result<PayloadResponse, Error>) in
-            self.queue.async {
-                switch result {
-                case .success:
-                    print("Successfully sent survey response")
-                case .failure(let error):
-                    print("Error sending survey response: \(error)")
-                    print("This is where we would retry the request.")
-                }
-            }
-        }
+        self.payloadSender.send(Payload(wrapping: surveyResponse), for: self.conversation)
     }
 
     /// Reacts to any changes in the conversation.
@@ -180,6 +174,9 @@ class Backend {
                 connectCompletion(.success(.cached))
                 self.connectCompletion = nil
             }
+
+            // Supply the payload sender with necessary credentials
+            self.payloadSender.credentials = self.conversation
 
             // Retrieve a new engagement manifest if the previous one is missing or expired.
             self.getInteractionsIfNeeded()
@@ -202,7 +199,7 @@ class Backend {
     private func createConversationOnServer() {
         // Make sure we don't have a request in flight already.
         if self.createConversationTask == nil {
-            self.createConversationTask = self.client?.request(.createConversation(self.conversation)) { (result: Result<ConversationResponse, Error>) in
+            self.createConversationTask = self.client.request(.createConversation(self.conversation)) { (result: Result<ConversationResponse, Error>) in
                 self.queue.async {
                     switch result {
                     case .success(let conversationResponse):
@@ -223,7 +220,7 @@ class Backend {
     private func getInteractionsIfNeeded() {
         // Make sure we don't have a request in flight already, and that the engagement manifest in memory (if any) is expired.
         if self.getInteractionsTask == nil && (self.targeter.engagementManifest.expiry ?? Date.distantPast) < Date() {
-            self.getInteractionsTask = self.client?.request(.getInteractions(for: self.conversation)) { (result: Result<EngagementManifest, Error>) in
+            self.getInteractionsTask = self.client.request(.getInteractions(with: self.conversation)) { (result: Result<EngagementManifest, Error>) in
                 self.queue.async {
                     switch result {
                     case .success(let engagementManifest):

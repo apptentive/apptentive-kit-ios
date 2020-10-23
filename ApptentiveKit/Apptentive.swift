@@ -24,12 +24,14 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
     public func register(credentials: AppCredentials, completion: ((Bool) -> Void)? = nil) {
         self.backendQueue.async {
-            self.backend.connect(appCredentials: credentials, baseURL: self.baseURL) { result in
-                if case let .failure(error) = result {
+            self.backend.connect(appCredentials: credentials) { result in
+                switch result {
+                case .success:
+                    completion?(true)
+
+                case .failure(let error):
                     print("Connection failed with error: \(error)")
                     completion?(false)
-                } else {
-                    completion?(true)
                 }
             }
         }
@@ -74,7 +76,7 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
         self.environment = environment ?? Environment()
         self.containerDirectory = containerDirectory ?? "com.apptentive.feedback"
 
-        self.backend = Backend(queue: self.backendQueue, environment: self.environment)
+        self.backend = Backend(queue: self.backendQueue, environment: self.environment, baseURL: self.baseURL)
         self.interactionPresenter = InteractionPresenter()
 
         self.environment.delegate = self

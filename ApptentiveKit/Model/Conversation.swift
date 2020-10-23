@@ -10,8 +10,18 @@ import Foundation
 
 typealias ConversationEnvironment = DeviceEnvironment & AppEnvironment
 
+/// Describes an object that can contain the information needed to connect to the Apptentive API.
+protocol APICredentialsProviding {
+
+    /// The key and signature to use when communicating with the Apptentive API.
+    var appCredentials: Apptentive.AppCredentials? { get }
+
+    /// The token and conversation ID used when communicating with the Apptentive API.
+    var conversationCredentials: Conversation.ConversationCredentials? { get }
+}
+
 /// A object describing the state of the SDK, used for targeting and overall state management.
-struct Conversation: Equatable, Codable {
+struct Conversation: Equatable, Codable, APICredentialsProviding {
 
     /// The key and signature to use when communicating with the Apptentive API.
     var appCredentials: Apptentive.AppCredentials?

@@ -18,7 +18,7 @@ struct ApptentiveV9API: HTTPEndpoint {
     let bodyEncodable: HTTPBodyEncodable?
 
     /// Whether this request requires conversation credentials (true for all but the initial conversation creation request).
-    let requiresCredentials: Bool
+    let requiresConversationCredentials: Bool
 
     /// The path of the request.
     ///
@@ -26,7 +26,7 @@ struct ApptentiveV9API: HTTPEndpoint {
     private let path: String
 
     /// The conversation object initiating the request (used to obtain app and conversation credentials).
-    private let conversation: Conversation
+    private let credentials: APICredentialsProviding
 
     /// The JSON encoder used for encoding the HTTP request body.
     private let encoder: JSONEncoder
@@ -42,25 +42,14 @@ struct ApptentiveV9API: HTTPEndpoint {
     static func createConversation(_ conversation: Conversation) -> Self {
         let bodyObject = ConversationRequest(conversation: conversation)
 
-        return Self(conversation: conversation, path: "conversations", method: .post, bodyObject: HTTPBodyEncodable(value: bodyObject), requiresCredentials: false)
-    }
-
-    /// Builds a request to create a survey response on the server.
-    /// - Parameters:
-    ///   - surveyResponse: The survey response to be created.
-    ///   - conversation: The conversation associated with the survey response.
-    /// - Returns: A struct describing the HTTP request to be performed.
-    static func createSurveyResponse(_ surveyResponse: SurveyResponse, for conversation: Conversation) -> Self {
-        let bodyObject = Payload(wrapping: surveyResponse)
-
-        return Self(conversation: conversation, path: "surveys/\(surveyResponse.surveyID)/responses", method: .post, bodyObject: HTTPBodyEncodable(value: bodyObject))
+        return Self(credentials: conversation, path: "conversations", method: .post, bodyObject: HTTPBodyEncodable(value: bodyObject), requiresConversationCredentials: false)
     }
 
     /// Builds a request to retrieve an engagement manifest from the server.
-    /// - Parameter conversation: The conversation for which to retrieve the manifest.
+    /// - Parameter credentials: The conversation for which to retrieve the manifest.
     /// - Returns: A struct describing the HTTP request to be performed.
-    static func getInteractions(for conversation: Conversation) -> Self {
-        return Self(conversation: conversation, path: "interactions", method: .get)
+    static func getInteractions(with credentials: APICredentialsProviding) -> Self {
+        return Self(credentials: credentials, path: "interactions", method: .get)
     }
 
     // MARK: - HTTPEndpoint
@@ -72,8 +61,8 @@ struct ApptentiveV9API: HTTPEndpoint {
     func url(relativeTo baseURL: URL) throws -> URL {
         var fullPath = self.path
 
-        if self.requiresCredentials {
-            guard let conversationID = self.conversation.conversationCredentials?.id else {
+        if self.requiresConversationCredentials {
+            guard let conversationID = self.credentials.conversationCredentials?.id else {
                 throw ApptentiveV9APIError.missingConversationCredentials
             }
 
@@ -92,19 +81,18 @@ struct ApptentiveV9API: HTTPEndpoint {
     /// - Throws: An error if insufficient credentials are provided.
     /// - Returns: The HTTP headers to use for the request.
     func headers() throws -> [String: String] {
-        guard let appCredentials = self.conversation.appCredentials else {
+        guard let appCredentials = self.credentials.appCredentials else {
             throw ApptentiveV9APIError.missingAppCredentials
         }
 
-        let token = self.conversation.conversationCredentials?.token
+        let token = self.credentials.conversationCredentials?.token
 
-        guard token != nil || !self.requiresCredentials else {
+        guard token != nil || !self.requiresConversationCredentials else {
             throw ApptentiveV9APIError.missingConversationCredentials
         }
 
         return Self.buildHeaders(
             appCredentials: appCredentials,
-            userAgent: Self.userAgent(sdkVersion: self.conversation.appRelease.sdkVersion),
             contentType: ContentType.json,
             apiVersion: Self.apiVersion,
             token: token)
@@ -148,24 +136,24 @@ struct ApptentiveV9API: HTTPEndpoint {
 
     /// Initializes a new request for the endpoint.
     /// - Parameters:
-    ///   - conversation: The conversation to use for constructing the request.
+    ///   - credentials: The provider of credentials to use when connecting to the API.
     ///   - path: The path of the request, scoped to the conversation if appropriate.
     ///   - method: The HTTP method for the request.
     ///   - bodyObject: The object that should be encoded for the HTTP body of the request.
-    ///   - requiresCredentials: Whether the request should send conversation credentials and be scoped to the conversation.
-    init(conversation: Conversation, path: String, method: HTTPMethod, bodyObject: HTTPBodyEncodable? = nil, requiresCredentials: Bool? = nil) {
+    ///   - requiresConversationCredentials: Whether the request should send conversation credentials and be scoped to the conversation.
+    init(credentials: APICredentialsProviding, path: String, method: HTTPMethod, bodyObject: HTTPBodyEncodable? = nil, requiresConversationCredentials: Bool = true) {
         self.encoder = JSONEncoder()
         self.encoder.dateEncodingStrategy = .secondsSince1970
 
         self.decoder = JSONDecoder()
         self.decoder.dateDecodingStrategy = .secondsSince1970
 
-        self.conversation = conversation
+        self.credentials = credentials
         self.path = path
         self.method = method
         self.bodyEncodable = bodyObject
 
-        self.requiresCredentials = requiresCredentials ?? true
+        self.requiresConversationCredentials = requiresConversationCredentials
     }
 
     /// The API version to send for the request.
@@ -183,20 +171,17 @@ struct ApptentiveV9API: HTTPEndpoint {
     /// Builds the HTTP header dictionary for the specified parameters.
     /// - Parameters:
     ///   - appCredentials: The app key and app signature for the request.
-    ///   - userAgent: The user agent for the request.
     ///   - contentType: The content type for the request.
     ///   - apiVersion: The API version for the request.
     ///   - token: The JWT for the request, if any.
     /// - Returns: A dictionary whose keys are header names and whose values are the corresponding header values.
     static func buildHeaders(
         appCredentials: Apptentive.AppCredentials,
-        userAgent: String,
         contentType: String,
         apiVersion: String,
         token: String?
     ) -> [String: String] {
         var headers = [
-            Headers.userAgent: userAgent,
             Headers.contentType: contentType,
             Headers.apiVersion: apiVersion,
             Headers.apptentiveKey: appCredentials.key,
@@ -229,7 +214,6 @@ struct ApptentiveV9API: HTTPEndpoint {
         static let apptentiveKey = "APPTENTIVE-KEY"
         static let apptentiveSignature = "APPTENTIVE-SIGNATURE"
         static let apiVersion = "X-API-Version"
-        static let userAgent = "User-Agent"
         static let contentType = "Content-Type"
         static let authorization = "Authorization"
     }
@@ -282,8 +266,10 @@ enum ApptentiveV9APIError: Error {
     case missingConversationCredentials
     case missingResponseData
     case invalidURLString(String)
+}
 
-    var localizedDescription: String {
+extension ApptentiveV9APIError: LocalizedError {
+    var errorDescription: String? {
         switch self {
         case .missingAppCredentials:
             return "Missing app credentials (key and signature)"

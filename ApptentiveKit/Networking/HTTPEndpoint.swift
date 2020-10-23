@@ -20,13 +20,18 @@ protocol HTTPEndpoint {
 
 /// Uses the data from an object conforming to `HTTPEndpoint ` to build a URL request.
 extension HTTPEndpoint {
-    func buildRequest(baseURL: URL) throws -> URLRequest {
+    func buildRequest(baseURL: URL, userAgent: String?) throws -> URLRequest {
         let url = try self.url(relativeTo: baseURL)
 
         var request = URLRequest(url: url)
 
         request.httpMethod = self.method.rawValue
         request.allHTTPHeaderFields = try self.headers()
+
+        if let userAgent = userAgent {
+            request.addValue(userAgent, forHTTPHeaderField: "User-Agent")
+        }
+
         request.httpBody = try self.body()
 
         return request

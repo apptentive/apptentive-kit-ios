@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		010864F3253E197A00101CFB /* EventContents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010864F2253E197A00101CFB /* EventContents.swift */; };
+		010864FF253E22BF00101CFB /* EventPayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010864FE253E22BF00101CFB /* EventPayloadTests.swift */; };
+		01086517253E42FC00101CFB /* PayloadSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01086516253E42FC00101CFB /* PayloadSender.swift */; };
 		010ADF442458F8C3005D63FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 010ADF432458F8C3005D63FE /* Main.storyboard */; };
 		011FF860252D1AF700073EBC /* ResponseSending.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011FF85F252D1AF700073EBC /* ResponseSending.swift */; };
 		013D8E0B24EEFA13005EC4D1 /* SuveyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE024EEFA13005EC4D1 /* SuveyViewModelTests.swift */; };
@@ -133,6 +136,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		010864F2253E197A00101CFB /* EventContents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventContents.swift; sourceTree = "<group>"; };
+		010864FE253E22BF00101CFB /* EventPayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPayloadTests.swift; sourceTree = "<group>"; };
+		01086516253E42FC00101CFB /* PayloadSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayloadSender.swift; sourceTree = "<group>"; };
 		010ADF432458F8C3005D63FE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		011FF85F252D1AF700073EBC /* ResponseSending.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseSending.swift; sourceTree = "<group>"; };
 		013D8DE024EEFA13005EC4D1 /* SuveyViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuveyViewModelTests.swift; sourceTree = "<group>"; };
@@ -304,6 +310,7 @@
 			isa = PBXGroup;
 			children = (
 				01E79842251C307600D24A05 /* Apptentive V9 API */,
+				01086516253E42FC00101CFB /* PayloadSender.swift */,
 				013D8E8F24F039A7005EC4D1 /* HTTPRequesting.swift */,
 				013D8E8A24F038D3005EC4D1 /* HTTPEndpoint.swift */,
 				013D8E8824F038D3005EC4D1 /* HTTPClient.swift */,
@@ -502,6 +509,7 @@
 			children = (
 				01E79844251C30F800D24A05 /* Payload.swift */,
 				01E7984A251C312200D24A05 /* SurveyResponseContents.swift */,
+				010864F2253E197A00101CFB /* EventContents.swift */,
 			);
 			path = Payloads;
 			sourceTree = "<group>";
@@ -512,6 +520,7 @@
 				013D8E9424F03C04005EC4D1 /* ApptentiveV9APITests.swift */,
 				013D8EB024F09F6C005EC4D1 /* ConversationRequestTests.swift */,
 				01E7985D251C32A300D24A05 /* SurveyResponsePayloadTests.swift */,
+				010864FE253E22BF00101CFB /* EventPayloadTests.swift */,
 			);
 			path = "Apptentive V9 API Tests";
 			sourceTree = "<group>";
@@ -801,6 +810,8 @@
 				0158976724E5C8C600DF0DC0 /* Apptentive+TemporaryAPI.swift in Sources */,
 				013D8EA824F09B01005EC4D1 /* Environment.swift in Sources */,
 				013D8E9224F039F9005EC4D1 /* Conversation.swift in Sources */,
+				01086517253E42FC00101CFB /* PayloadSender.swift in Sources */,
+				010864F3253E197A00101CFB /* EventContents.swift in Sources */,
 				017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */,
 				013D8E8C24F038D3005EC4D1 /* HTTPClient.swift in Sources */,
 				017230FB253673AA0095AEAA /* EngagementMetrics.swift in Sources */,
@@ -836,6 +847,7 @@
 				013D8E0D24EEFA13005EC4D1 /* InteractionTests.swift in Sources */,
 				017FC9922531101500C7A47F /* TargeterTests.swift in Sources */,
 				015D6BCB250AC0AC00372759 /* PersonTests.swift in Sources */,
+				010864FF253E22BF00101CFB /* EventPayloadTests.swift in Sources */,
 				017231122536769F0095AEAA /* FieldTests.swift in Sources */,
 				015D6BCA250AC0AC00372759 /* DeviceTests.swift in Sources */,
 			);

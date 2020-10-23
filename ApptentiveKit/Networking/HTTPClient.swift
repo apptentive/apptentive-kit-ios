@@ -20,13 +20,18 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
     /// The URL relative to which requests should be built.
     let baseURL: URL
 
+    /// The string to send for the `User-Agent` header (if blank, the default for the requestor will be used).
+    let userAgent: String?
+
     /// Initializes a new client.
     /// - Parameters:
     ///   - requestor: The object conforming to `HTTPRequesting` that will be used to make requests.
     ///   - baseURL: The URL relative to which requests should be built.
-    init(requestor: HTTPRequesting, baseURL: URL) {
+    ///   - userAgent: The string to send for the user agent header, or nil to use the default one for the requestor.
+    init(requestor: HTTPRequesting, baseURL: URL, userAgent: String? = nil) {
         self.requestor = requestor
         self.baseURL = baseURL
+        self.userAgent = userAgent
     }
 
     /// Performs a request to the specified endpoint.
@@ -37,7 +42,7 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
     @discardableResult
     func request<T: Decodable>(_ endpoint: Endpoint, completion: @escaping (Result<T, Error>) -> Void) -> HTTPCancellable? {
         do {
-            let request = try endpoint.buildRequest(baseURL: self.baseURL)
+            let request = try endpoint.buildRequest(baseURL: self.baseURL, userAgent: self.userAgent)
 
             let task = requestor.sendRequest(request) { (data, response, error) in
                 completion(
@@ -98,8 +103,10 @@ enum HTTPClientError: Error {
     case clientError(HTTPURLResponse, Data?)
     case serverError(HTTPURLResponse, Data?)
     case unhandledStatusCode(HTTPURLResponse, Data?)
+}
 
-    var localizedDescription: String {
+extension HTTPClientError: LocalizedError {
+    var errorDescription: String? {
         switch self {
         case .connectionError(let underlyingError):
             return "Connection error: \(underlyingError.localizedDescription)."
@@ -110,11 +117,19 @@ enum HTTPClientError: Error {
         case .missingResponseBody:
             return "Missing response body for non-204 status code."
 
-        case .clientError(let response, _):
-            return "Client error: \(response.statusCode)"
+        case .clientError(let response, let data):
+            var message = "Client error: \(response.statusCode)."
+            if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                message = "\(message) Response object: \(responseString)"
+            }
+            return message
 
-        case .serverError(let response, _):
-            return "Server Error: \(response.statusCode)"
+        case .serverError(let response, let data):
+            var message = "Server error: \(response.statusCode)."
+            if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                message = "\(message) Response object: \(responseString)"
+            }
+            return message
 
         case .unhandledStatusCode(let response, _):
             return "Unahndled status code: \(response.statusCode)"

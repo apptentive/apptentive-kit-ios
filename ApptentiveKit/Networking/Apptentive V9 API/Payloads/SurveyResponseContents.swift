@@ -9,7 +9,7 @@
 import Foundation
 
 /// Encapsulates the payload contents for a survey response.
-struct SurveyResponseContents: Codable, Equatable {
+struct SurveyResponseContents: Equatable, Decodable, PayloadEncodable {
     let answers: SurveyAnswersRequestPart
 
     init(response: SurveyResponse) {
