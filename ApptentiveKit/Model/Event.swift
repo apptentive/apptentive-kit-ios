@@ -36,6 +36,22 @@ public struct Event: ExpressibleByStringLiteral, Codable {
         self.init(name: value)
     }
 
+    /// Creates an internal SDK event with the given name and interaction.
+    /// - Parameters:
+    ///   - internalName: The name of the event.
+    ///   - interactionName: The name of the interaction (If no value is provided it will default to `app`).
+    init(internalName: String, interactionName: String = "app") {
+        self.name = internalName
+        self.vendor = "com.apptentive"
+        self.interaction = interactionName
+    }
+
+    /// Convenience property for a launch event.
+    static let launch = Self(internalName: "launch")
+
+    /// Convenience property for an exit event.
+    static let exit = Self(internalName: "exit")
+
     /// Returns a `#`-separated string incorporating the vendor, interaction and name, all appropriately percent-escaped.
     ///
     /// Code points are used when looking up potential invocations in the engagement manifest's `targets` section.

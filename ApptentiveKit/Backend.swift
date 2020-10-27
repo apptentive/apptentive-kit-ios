@@ -176,7 +176,9 @@ class Backend {
             }
 
             // Supply the payload sender with necessary credentials
-            self.payloadSender.credentials = self.conversation
+            if payloadSender.credentials == nil {
+                self.payloadSender.credentials = self.conversation
+            }
 
             // Retrieve a new engagement manifest if the previous one is missing or expired.
             self.getInteractionsIfNeeded()

@@ -76,13 +76,13 @@ class PayloadSender {
                 switch result {
                 case .success:
                     print("Successfully sent payload")
-                    let _ = self.payloads.dropFirst()
+                    self.payloads.removeFirst()
 
                 case .failure(let error):
                     print("Error sending payload: \(error.localizedDescription)")
                     // Either here or somewhere in the HTTP client, it should retry the request if the error isn't a client error.
                     // For now, we'll just discard the payload.
-                    let _ = self.payloads.dropFirst()
+                    self.payloads.removeFirst()
                 }
 
                 self.currentPayloadTask = nil

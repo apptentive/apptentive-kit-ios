@@ -59,6 +59,18 @@ protocol EnvironmentDelegate: AnyObject {
     /// Notifies the receiver that access to protected data (from the encrypted filesystem) is now available.
     /// - Parameter environment: The environment calling the method.
     func protectedDataDidBecomeAvailable(_ environment: Environment)
+
+    /// Notifies the receiver that the application will enter the foreground.
+    /// - Parameter environment: The environment calling the method.
+    func applicationWillEnterForeground(_ environment: Environment)
+
+    /// Notifies the receiver that the application did enter the background.
+    /// - Parameter environment: The environment calling the method.
+    func applicationDidEnterBackground(_ environment: Environment)
+
+    /// Notifies the receiver that the application will terminate.
+    /// - Parameter environment: The environment calling the method.
+    func applicationWillTerminate(_ environment: Environment)
 }
 
 /// Provides access to platform, device, and operating system information.
@@ -125,6 +137,9 @@ class Environment: ConversationEnvironment {
         let telephonyNetworkInfo: CTTelephonyNetworkInfo
     #endif
 
+    /// Whether the application is in the foreground.
+    var isInForeground: Bool
+
     /// The delegate to notify when aspects of the environment change.
     weak var delegate: EnvironmentDelegate?
 
@@ -171,8 +186,10 @@ class Environment: ConversationEnvironment {
             self.osVersion = Version(string: UIDevice.current.systemVersion)
 
             self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
+            self.isInForeground = UIApplication.shared.applicationState != .background
         #else
             self.isProtectedDataAvailable = true
+            self.isInForeground = true
         #endif
 
         self.localeIdentifier = Locale.current.identifier
@@ -183,6 +200,12 @@ class Environment: ConversationEnvironment {
 
         #if canImport(UIKit)
             NotificationCenter.default.addObserver(self, selector: #selector(protectedDataDidBecomeAvailable(notification:)), name: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil)
+
+            NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(notification:)), name: UIApplication.willEnterForegroundNotification, object: nil)
+
+            NotificationCenter.default.addObserver(self, selector: #selector(applicationDidEnterBackground(notification:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
+
+            NotificationCenter.default.addObserver(self, selector: #selector(applicationWillTerminate(notification:)), name: UIApplication.willTerminateNotification, object: nil)
         #endif
     }
 
@@ -197,6 +220,21 @@ class Environment: ConversationEnvironment {
         @objc func protectedDataDidBecomeAvailable(notification: Notification) {
             self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
             delegate?.protectedDataDidBecomeAvailable(self)
+        }
+
+        @objc func applicationWillEnterForeground(notification: Notification) {
+            delegate?.applicationWillEnterForeground(self)
+            self.isInForeground = true
+        }
+
+        @objc func applicationDidEnterBackground(notification: Notification) {
+            delegate?.applicationDidEnterBackground(self)
+            self.isInForeground = false
+        }
+
+        @objc func applicationWillTerminate(notification: Notification) {
+            delegate?.applicationWillTerminate(self)
+            self.isInForeground = false
         }
     #endif
 }

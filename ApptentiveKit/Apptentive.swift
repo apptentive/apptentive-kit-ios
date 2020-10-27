@@ -57,7 +57,7 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
     ///   - event: The event to engage.
     ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
     ///   - completion: A completion handler that is called with a boolean indicating whether or not an interaction was presented.
-    public func engage(event: Event, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
+    public func engage(event: Event, from viewController: UIViewController? = nil, completion: ((Bool) -> Void)? = nil) {
         if let presentingViewController = viewController {
             self.interactionPresenter.presentingViewController = presentingViewController
         }
@@ -84,6 +84,12 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
             self.protectedDataDidBecomeAvailable(self.environment)
         }
 
+        // Typically we will be initialized too late to receive the ApplicationWillEnterForeground
+        // notification, so we have to manually record a launch event here.
+        if self.environment.isInForeground {
+            self.engage(event: .launch)
+        }
+
         self.backend.frontend = self
         self.interactionPresenter.sender = self
     }
@@ -107,6 +113,20 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
             } catch let error {
                 assertionFailure("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error)")
             }
+        }
+    }
+
+    func applicationWillEnterForeground(_ environment: Environment) {
+        self.engage(event: .launch)
+    }
+
+    func applicationDidEnterBackground(_ environment: Environment) {
+        self.engage(event: .exit)
+    }
+
+    func applicationWillTerminate(_ environment: Environment) {
+        if environment.isInForeground {
+            self.engage(event: .exit)
         }
     }
 
