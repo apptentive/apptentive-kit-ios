@@ -19,7 +19,7 @@ public protocol SurveyViewModelDelegate: class {
 public class SurveyViewModel {
     let sender: ResponseSending
 
-    let surveyID: String
+    let interaction: Interaction
 
     /// The name of the survey, typically displayed in a navigation bar.
     public let name: String?
@@ -45,8 +45,8 @@ public class SurveyViewModel {
     /// An object, typically a view controller, that implements the `SurveyViewModelDelegate` protocol to receive updates when the survey data changes.
     public weak var delegate: SurveyViewModelDelegate?
 
-    required init(configuration: SurveyConfiguration, surveyID: String, sender: ResponseSending) {
-        self.surveyID = surveyID
+    required init(configuration: SurveyConfiguration, interaction: Interaction, sender: ResponseSending) {
+        self.interaction = interaction
 
         self.name = configuration.name
         self.submitButtonText = configuration.submitText ?? "Submit"
@@ -79,7 +79,7 @@ public class SurveyViewModel {
         // Construct a dictionary where the keys are question IDs and the values are responses.
         let questionResponses = Dictionary(uniqueKeysWithValues: self.questions.map({ ($0.questionID, $0.response) })).compactMapValues({ $0 })
 
-        return SurveyResponse(surveyID: self.surveyID, answers: questionResponses)
+        return SurveyResponse(surveyID: self.interaction.id, answers: questionResponses)
     }
 
     /// A value that indicates the responses to each question satisfy its validation requirements.
@@ -95,6 +95,8 @@ public class SurveyViewModel {
         if self.isValid {
             self.sender.send(surveyResponse: self.response)
 
+            self.sender.engage(event: .submit, from: self.interaction)
+
             self.delegate?.surveyViewModelDidSubmit(self)
         } else {
             self.questions.forEach { question in
@@ -103,5 +105,15 @@ public class SurveyViewModel {
 
             self.delegate?.surveyViewModelValidationDidChange(self)
         }
+    }
+
+    /// Registers that the survey was successfully presented to the user.
+    public func launch() {
+        self.sender.engage(event: .launch, from: self.interaction)
+    }
+
+    /// Registers that the survey was cancelled by the user.
+    public func cancel() {
+        self.sender.engage(event: .cancel, from: self.interaction)
     }
 }

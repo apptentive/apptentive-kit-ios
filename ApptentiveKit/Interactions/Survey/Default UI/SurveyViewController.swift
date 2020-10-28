@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextViewDelegate, SurveyViewModelDelegate {
+class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextViewDelegate, SurveyViewModelDelegate, UIAdaptivePresentationControllerDelegate {
     let viewModel: SurveyViewModel
     let introductionView: SurveyIntroductionView
     let submitView: SurveySubmitView
@@ -37,6 +37,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.navigationController?.presentationController?.delegate = self
 
         self.navigationItem.title = self.viewModel.name
 
@@ -79,6 +81,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.tableView.register(SurveyMultiLineCell.self, forCellReuseIdentifier: "multiLine")
         self.tableView.register(SurveySingleLineCell.self, forCellReuseIdentifier: "singleLine")
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "unimplemented")
+
+        self.viewModel.launch()
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -213,6 +217,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     // MARK: - Targets
 
     @objc func closeSurvey() {
+        self.viewModel.cancel()
         self.dismiss()
     }
 
@@ -248,6 +253,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
 
         question.answerText = textView.text
+    }
+
+    // MARK: - Adaptive Presentation Controller Delegate
+
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        self.viewModel.cancel()
     }
 
     // MARK: - Private

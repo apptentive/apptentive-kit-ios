@@ -29,7 +29,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 
         if case let Interaction.InteractionConfiguration.survey(surveyConfiguration) = surveyInteraction.configuration {
             self.spySender = SpySender()
-            self.viewModel = SurveyViewModel(configuration: surveyConfiguration, surveyID: surveyInteraction.id, sender: self.spySender!)
+            self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: surveyInteraction, sender: self.spySender!)
             self.viewModel?.delegate = self
         }
     }
@@ -41,7 +41,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 
         XCTAssertEqual(viewModel.name, "Every Question Type")
         XCTAssertEqual(viewModel.submitButtonText, "Boom")
-        XCTAssertEqual(viewModel.surveyID, "1")
+        XCTAssertEqual(viewModel.interaction.id, "1")
         XCTAssertEqual(viewModel.validationErrorMessage, "You done goofed.")
         XCTAssertEqual(viewModel.introduction, "Please help us see how each question is formatted when returning a survey response to the server.")
         XCTAssertEqual(viewModel.thankYouMessage, "Thank you!")
@@ -79,7 +79,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
                 "56e0b5d9c7199274f700001b": [SurveyQuestionResponse.freeform("Foo")],
                 "56e0b5d9c7199274f700001d": [SurveyQuestionResponse.freeform("Bar")],
             ])
-
+        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#Survey#submit")
     }
 
     func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {
@@ -96,7 +96,13 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 }
 
 class SpySender: ResponseSending {
+    var engagedEvent: Event?
     var sentSurveyResponse: SurveyResponse?
+
+    func engage(event: Event, from interaction: Interaction) {
+        self.engagedEvent = event
+        self.engagedEvent?.interaction = interaction
+    }
 
     func send(surveyResponse: SurveyResponse) {
         self.sentSurveyResponse = surveyResponse

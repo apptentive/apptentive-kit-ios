@@ -34,7 +34,7 @@ open class InteractionPresenter {
 
         switch interaction.configuration {
         case .survey(let surveyConfiguration):
-            let viewModel = SurveyViewModel(configuration: surveyConfiguration, surveyID: interaction.id, sender: sender)
+            let viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, sender: sender)
             try self.presentSurvey(with: viewModel)
         default:
             throw InteractionPresenterError.notImplemented(interaction.typeName)

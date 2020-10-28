@@ -102,6 +102,14 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
         }
     }
 
+    func engage(event: Event, from interaction: Interaction) {
+        var interactionEvent = event
+
+        interactionEvent.interaction = interaction
+
+        self.engage(event: interactionEvent)
+    }
+
     // MARK: EnvironmentDelegate
 
     func protectedDataDidBecomeAvailable(_ environment: Environment) {
