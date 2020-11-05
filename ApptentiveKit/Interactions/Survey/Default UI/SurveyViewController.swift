@@ -80,6 +80,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         self.tableView.register(SurveyMultiLineCell.self, forCellReuseIdentifier: "multiLine")
         self.tableView.register(SurveySingleLineCell.self, forCellReuseIdentifier: "singleLine")
+        self.tableView.register(SurveyChoiceCell.self, forCellReuseIdentifier: "choice")
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "unimplemented")
 
         self.viewModel.launch()
@@ -108,6 +109,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         case is SurveyViewModel.FreeformQuestion:
             return 1
 
+        case let choiceQuestion as SurveyViewModel.ChoiceQuestion:
+            return choiceQuestion.choiceLabels.count
+
+        case let rangeQuestion as SurveyViewModel.RangeQuestion:
+            return rangeQuestion.choiceLabels.count
+
         default:
             return 1
         }
@@ -121,6 +128,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         switch question {
         case let freeformQuestion as SurveyViewModel.FreeformQuestion:
             reuseIdentifier = freeformQuestion.allowMultipleLines ? "multiLine" : "singleLine"
+
+        case is SurveyViewModel.ChoiceQuestion:
+            reuseIdentifier = "choice"
+
+        case is SurveyViewModel.RangeQuestion:
+            reuseIdentifier = "choice"
 
         default:
             reuseIdentifier = "unimplemented"
@@ -144,6 +157,43 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             multiLineCell.textView.tag = self.tag(for: indexPath)
             multiLineCell.textView.accessibilityIdentifier = String(indexPath.section)
 
+        case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell):
+            choiceCell.textLabel?.text = choiceQuestion.choiceLabels[indexPath.row]
+
+            var imageName: String
+            var highlightedImageName: String
+
+            switch choiceQuestion.selectionStyle {
+            case .radioButton:
+                imageName = "circle"
+                highlightedImageName = "smallcircle.fill.circle.fill"
+            case .checkbox:
+                imageName = "square"
+                highlightedImageName = "checkmark.square.fill"
+            }
+
+            if #available(iOS 13.0, *) {
+                choiceCell.imageView?.image = UIImage(systemName: imageName)
+                choiceCell.imageView?.highlightedImage = UIImage(systemName: highlightedImageName)
+            } else {
+                choiceCell.imageView?.image = UIImage(named: imageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
+                choiceCell.imageView?.highlightedImage = UIImage(named: highlightedImageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
+            }
+
+        case (let rangeQuestion as SurveyViewModel.RangeQuestion, let choiceCell):
+            choiceCell.textLabel?.text = rangeQuestion.choiceLabels[indexPath.row]
+
+            let imageName = "circle"
+            let highlightedImageName = "smallcircle.fill.circle.fill"
+
+            if #available(iOS 13.0, *) {
+                choiceCell.imageView?.image = UIImage(systemName: imageName)
+                choiceCell.imageView?.highlightedImage = UIImage(systemName: highlightedImageName)
+            } else {
+                choiceCell.imageView?.image = UIImage(named: imageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
+                choiceCell.imageView?.highlightedImage = UIImage(named: highlightedImageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
+            }
+
         default:
             cell.textLabel?.text = "Unimplemented"
         }
@@ -163,6 +213,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     // MARK: Table View Delegate
 
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
+            return  // Not a choice question
+        }
+
+        cell.isSelected = choiceQuestion.selectedChoiceIndexes.contains(indexPath.row)
+    }
+
     override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         guard let header = view as? UITableViewHeaderFooterView else {
             return
@@ -176,6 +234,27 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         header.textLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
         header.textLabel?.text = self.viewModel.questions[section].text
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
+            return  // Not a choice question
+        }
+
+        choiceQuestion.toggleChoice(at: indexPath.row)
+    }
+
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
+            return  // Not a choice question
+        }
+
+        choiceQuestion.toggleChoice(at: indexPath.row)
+
+        // Override deselection of a radio button
+        if choiceQuestion.selectedChoiceIndexes.contains(indexPath.row) {
+            self.tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+        }
     }
 
     // MARK: - Survey View Model delgate
@@ -211,7 +290,17 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel) {
-        // TODO: Implement me
+        self.tableView.indexPathsForVisibleRows?.forEach { indexPath in
+            guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
+                return  // Not a choice question
+            }
+
+            guard let choiceCell = self.tableView.cellForRow(at: indexPath) as? SurveyChoiceCell else {
+                return assertionFailure("Should have choice cell for choice question")
+            }
+
+            choiceCell.isSelected = choiceQuestion.selectedChoiceIndexes.contains(indexPath.row)
+        }
     }
 
     // MARK: - Targets

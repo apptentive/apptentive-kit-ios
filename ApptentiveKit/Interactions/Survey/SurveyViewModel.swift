@@ -71,7 +71,14 @@ public class SurveyViewModel {
         }
 
         return questions.map { question in
-            FreeformQuestion(question: question, requiredText: requiredText)
+            switch question.type {
+            case .radio, .checkbox:
+                return ChoiceQuestion(question: question, requiredText: requiredText)
+            case .range:
+                return RangeQuestion(question: question, requiredText: requiredText)
+            case .freeform:
+                return FreeformQuestion(question: question, requiredText: requiredText)
+            }
         }
     }
 
