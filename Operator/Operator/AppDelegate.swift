@@ -7,8 +7,7 @@
 //
 
 import UIKit
-
-@testable import ApptentiveKit
+import ApptentiveKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -40,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return
         }
 
-        self.apptentive = Apptentive(baseURL: url)
+        self.apptentive = Apptentive(apiBaseURL: url)
 
         apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature), completion: completion)
     }

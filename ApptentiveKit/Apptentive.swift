@@ -67,6 +67,14 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
         }
     }
 
+    /// Creates a new Apptentive SDK object using the specified URL to communicate with the Apptentive API.
+    ///
+    /// This should only be used for testing the SDK against a server other than the production Apptentive API server.
+    /// - Parameter apiBaseURL: The URL to use to communicate with the Apptentive API.
+    public convenience init(apiBaseURL: URL) {
+        self.init(baseURL: apiBaseURL)
+    }
+
     // MARK: - Internal
 
     init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: Environment? = nil) {
