@@ -8,9 +8,9 @@
 
 import Foundation
 
-extension SurveyViewModel {
+public extension SurveyViewModel {
     /// Represents a question where the user can enter arbitrary text.
-    public class FreeformQuestion: Question {
+    class FreeformQuestion: Question {
         /// The text to display as a placeholder for e.g. a `UITextField` control.
         public let placeholderText: String?
 

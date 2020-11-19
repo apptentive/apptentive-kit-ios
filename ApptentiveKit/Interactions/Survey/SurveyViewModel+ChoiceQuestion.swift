@@ -8,9 +8,9 @@
 
 import Foundation
 
-extension SurveyViewModel {
+public extension SurveyViewModel {
     /// Represents a question where the user can select from a collection of predefined answers.
-    public class ChoiceQuestion: Question {
+     class ChoiceQuestion: Question {
         private let choices: [SurveyConfiguration.Question.Choice]
         private let type: SurveyConfiguration.Question.QuestionType
         private let minSelections: Int

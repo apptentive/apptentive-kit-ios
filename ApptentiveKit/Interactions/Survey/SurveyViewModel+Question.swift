@@ -8,9 +8,9 @@
 
 import Foundation
 
-extension SurveyViewModel {
+public extension SurveyViewModel {
     /// Base class for question view models (should be treated as abstract).
-    public class Question {
+    class Question {
         weak var surveyViewModel: SurveyViewModel?
         let questionID: String
 
