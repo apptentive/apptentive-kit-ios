@@ -66,7 +66,7 @@ platform :ios do
 
   desc "Run UI tests (standalone)"
   lane :ui_test do
-    run_tests(scheme: "ApptentiveUITestsApp")
+    run_tests(scheme: "ApptentiveUITestsApp", device: "iPhone 12 mini")
   end
 
   desc "Runs the swift-format linter on ApptentiveKit"

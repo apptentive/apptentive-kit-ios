@@ -12,15 +12,31 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     let viewModel: SurveyViewModel
     let introductionView: SurveyIntroductionView
     let submitView: SurveySubmitView
-    let thankYouLabel: UILabel
 
-    var hasSubmitted: Bool = false
+    enum FooterMode {
+        case submitButton
+        case thankYou
+    }
+
+    var footerMode: FooterMode = .submitButton {
+        didSet {
+            switch self.footerMode {
+            case .submitButton:
+                self.submitView.submitButton.isHidden = false
+                self.submitView.submitLabel.isHidden = true
+            case .thankYou:
+                self.submitView.submitLabel.text = self.viewModel.thankYouMessage
+                self.submitView.submitLabel.isHidden = false
+
+                self.submitView.submitButton.isHidden = true
+            }
+        }
+    }
 
     init(viewModel: SurveyViewModel) {
         self.viewModel = viewModel
         self.introductionView = SurveyIntroductionView(frame: .zero)
         self.submitView = SurveySubmitView(frame: .zero)
-        self.thankYouLabel = UILabel(frame: .zero)
 
         if #available(iOS 13.0, *) {
             super.init(style: .insetGrouped)
@@ -47,19 +63,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.submitView.submitButton.setTitle(self.viewModel.submitButtonText, for: .normal)
         self.submitView.submitButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
-        self.thankYouLabel.text = self.viewModel.thankYouMessage
-        self.thankYouLabel.adjustsFontForContentSizeCategory = true
-        self.thankYouLabel.numberOfLines = 0
-        self.thankYouLabel.lineBreakMode = .byWordWrapping
-        self.thankYouLabel.font = .preferredFont(forTextStyle: .largeTitle)
-        self.thankYouLabel.textAlignment = .center
-
-        if #available(iOS 13.0, *) {
-            self.thankYouLabel.textColor = .label
-        } else {
-            self.thankYouLabel.textColor = .black
-        }
-
         if #available(iOS 13.0, *) {
             self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(closeSurvey))
         } else {
@@ -69,19 +72,18 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.tableView.allowsMultipleSelection = true
         self.tableView.keyboardDismissMode = .interactive
 
-        let size = self.introductionView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 0), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
-
-        self.introductionView.bounds = CGRect(origin: .zero, size: size)
-
         self.tableView.tableHeaderView = self.introductionView
         self.tableView.tableFooterView = self.submitView
-        self.tableView.backgroundView = self.thankYouLabel
-        self.tableView.backgroundView?.isHidden = true
 
         self.tableView.register(SurveyMultiLineCell.self, forCellReuseIdentifier: "multiLine")
         self.tableView.register(SurveySingleLineCell.self, forCellReuseIdentifier: "singleLine")
         self.tableView.register(SurveyChoiceCell.self, forCellReuseIdentifier: "choice")
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "unimplemented")
+
+        self.tableView.register(SurveyQuestionHeaderView.self, forHeaderFooterViewReuseIdentifier: "question")
+
+        self.tableView.sectionHeaderHeight = UITableView.automaticDimension
+        self.tableView.estimatedSectionHeaderHeight = 66.0
 
         self.viewModel.launch()
     }
@@ -101,7 +103,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return self.hasSubmitted ? 0 : self.viewModel.questions.count
+        return self.viewModel.questions.count
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -201,14 +203,21 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         return cell
     }
 
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return self.viewModel.questions[section].text
-    }
-
-    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let question = self.viewModel.questions[section]
 
-        return [question.requiredText, question.instructions].compactMap({ $0 }).joined(separator: " — ")
+        guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "question") as? SurveyQuestionHeaderView else {
+            assertionFailure("Unexpected header view registered for identifier `question`.")
+            return nil
+        }
+
+        let instructionsText = [question.requiredText, question.instructions].compactMap({ $0 }).joined(separator: " — ")
+
+        header.questionLabel.text = question.text
+        header.instructionsLabel.text = instructionsText
+        header.instructionsLabel.isHidden = instructionsText.isEmpty
+
+        return header
     }
 
     // MARK: Table View Delegate
@@ -219,21 +228,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
 
         cell.isSelected = choiceQuestion.selectedChoiceIndexes.contains(indexPath.row)
-    }
-
-    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        guard let header = view as? UITableViewHeaderFooterView else {
-            return
-        }
-
-        if #available(iOS 13.0, *) {
-            header.textLabel?.textColor = .label
-        } else {
-            header.textLabel?.textColor = .black
-        }
-
-        header.textLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
-        header.textLabel?.text = self.viewModel.questions[section].text
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -261,25 +255,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {
         if let _ = self.viewModel.thankYouMessage {
-            self.hasSubmitted = true
+            self.footerMode = .thankYou
 
-            self.tableView.deleteSections(IndexSet(integersIn: 0..<self.viewModel.questions.count), with: .top)
-
-            self.thankYouLabel.alpha = 0
-            self.thankYouLabel.isHidden = false
-
-            UIView.animate(
-                withDuration: 0.1,
-                animations: {
-                    self.thankYouLabel.alpha = 1
-                    self.introductionView.alpha = 0
-                    self.submitView.alpha = 0
-                },
-                completion: { (_) in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
-                        self.dismiss()
-                    }
-                })
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(800)) {
+                self.dismiss()
+            }
         } else {
             self.dismiss()
         }
@@ -360,8 +340,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let submitSize = self.submitView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 0), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
 
         self.submitView.bounds = CGRect(origin: .zero, size: submitSize)
-
-        self.thankYouLabel.frame = self.tableView.readableContentGuide.layoutFrame
     }
 
     private func indexPath(forTag tag: Int) -> IndexPath {

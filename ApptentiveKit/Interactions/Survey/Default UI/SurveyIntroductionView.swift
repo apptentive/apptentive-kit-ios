@@ -33,7 +33,7 @@ class SurveyIntroductionView: UIView {
 
         NSLayoutConstraint.activate([
             self.textLabel.topAnchor.constraint(equalToSystemSpacingBelow: self.topAnchor, multiplier: 1.0),
-            self.bottomAnchor.constraint(equalTo: self.textLabel.bottomAnchor),
+            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textLabel.bottomAnchor, multiplier: 1.0),
             self.textLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: self.readableContentGuide.leadingAnchor, multiplier: 2.0),
             self.readableContentGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: self.textLabel.trailingAnchor, multiplier: 2.0),
         ])

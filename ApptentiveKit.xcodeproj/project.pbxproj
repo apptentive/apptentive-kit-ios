@@ -68,6 +68,7 @@
 		017FC9792531101500C7A47F /* testManifest1.json in Resources */ = {isa = PBXBuildFile; fileRef = 017FC95B2531101500C7A47F /* testManifest1.json */; };
 		017FC9922531101500C7A47F /* TargeterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC9752531101500C7A47F /* TargeterTests.swift */; };
 		017FC9942531101500C7A47F /* EventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC9772531101500C7A47F /* EventTests.swift */; };
+		01822BBA2565727D006ADB3B /* SurveyQuestionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */; };
 		018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9090247EFFEC004577EB /* SurveyViewModel.swift */; };
 		018A909A247F09D4004577EB /* Interaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9099247F09D4004577EB /* Interaction.swift */; };
 		019121812404581B00FFE0F4 /* ApptentiveFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */; };
@@ -200,6 +201,7 @@
 		017FC95B2531101500C7A47F /* testManifest1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testManifest1.json; sourceTree = "<group>"; };
 		017FC9752531101500C7A47F /* TargeterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TargeterTests.swift; sourceTree = "<group>"; };
 		017FC9772531101500C7A47F /* EventTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventTests.swift; sourceTree = "<group>"; };
+		01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyQuestionHeaderView.swift; sourceTree = "<group>"; };
 		018A9090247EFFEC004577EB /* SurveyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyViewModel.swift; sourceTree = "<group>"; };
 		018A9099247F09D4004577EB /* Interaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interaction.swift; sourceTree = "<group>"; };
 		019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveFeatureTests.swift; sourceTree = "<group>"; };
@@ -344,11 +346,12 @@
 		015A3A3A24DCD4B600DD44A2 /* Default UI */ = {
 			isa = PBXGroup;
 			children = (
-				015A0D4025509C0A00EF077D /* SurveyChoiceCell.swift */,
 				015F2ACE24C8F2DD004B53E2 /* SurveyViewController.swift */,
+				01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */,
+				015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */,
+				015A0D4025509C0A00EF077D /* SurveyChoiceCell.swift */,
 				015F2ADE24C9F85D004B53E2 /* SurveySingleLineCell.swift */,
 				015F2AE024C9FEBF004B53E2 /* SurveyMultiLineCell.swift */,
-				015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */,
 				015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */,
 			);
 			path = "Default UI";
@@ -817,6 +820,7 @@
 				01E7982D251C2EF100D24A05 /* AppReleaseRequest.swift in Sources */,
 				013D8EA624F09B01005EC4D1 /* Device.swift in Sources */,
 				015F2ADD24C9EE3A004B53E2 /* SurveyResponse.swift in Sources */,
+				01822BBA2565727D006ADB3B /* SurveyQuestionHeaderView.swift in Sources */,
 				015AF83C24E7437A000DF8B0 /* SurveyViewModel+FreeformQuestion.swift in Sources */,
 				013D8E8E24F038D3005EC4D1 /* HTTPEndpoint.swift in Sources */,
 				0158976724E5C8C600DF0DC0 /* Apptentive+TemporaryAPI.swift in Sources */,
