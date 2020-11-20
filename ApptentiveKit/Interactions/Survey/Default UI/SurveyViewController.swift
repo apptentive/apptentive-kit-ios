@@ -155,6 +155,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let multiLineCell as SurveyMultiLineCell):
             multiLineCell.textView.text = freeformQuestion.answerText
+            multiLineCell.placeholderLabel.text = freeformQuestion.placeholderText
             multiLineCell.textView.delegate = self
             multiLineCell.textView.tag = self.tag(for: indexPath)
             multiLineCell.textView.accessibilityIdentifier = String(indexPath.section)
