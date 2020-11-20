@@ -18,7 +18,7 @@ class ApptentiveUITests: XCTestCase {
 
         let tablesQuery = XCUIApplication().tables
 
-        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Survey"]/*[[".cells.staticTexts[\"Survey\"]",".staticTexts[\"Survey\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+        tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["Survey"] /*[[".cells.staticTexts[\"Survey\"]",".staticTexts[\"Survey\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
 
         let _ = XCUIApplication().navigationBars["Every Question Type"].waitForExistence(timeout: 2.0)
 
@@ -28,11 +28,11 @@ class ApptentiveUITests: XCTestCase {
         XCTAssertTrue(tablesQuery.otherElements["Multichoice Optional"].exists, "First questions title should exist")
         XCTAssertTrue(tablesQuery.otherElements["Multichoice Optional"].staticTexts["select one"].exists, "First question's instructions should exist")
 
-        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["1A"]/*[[".cells.staticTexts[\"1A\"]",".staticTexts[\"1A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
-        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["3A"]/*[[".cells.staticTexts[\"3A\"]",".staticTexts[\"3A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
-        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["4B"]/*[[".cells.staticTexts[\"4B\"]",".staticTexts[\"4B\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
-        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["5A"]/*[[".cells.staticTexts[\"5A\"]",".staticTexts[\"5A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
-        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["6A"]/*[[".cells.staticTexts[\"6A\"]",".staticTexts[\"6A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+        tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["1A"] /*[[".cells.staticTexts[\"1A\"]",".staticTexts[\"1A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+        tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["3A"] /*[[".cells.staticTexts[\"3A\"]",".staticTexts[\"3A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+        tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["4B"] /*[[".cells.staticTexts[\"4B\"]",".staticTexts[\"4B\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+        tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["5A"] /*[[".cells.staticTexts[\"5A\"]",".staticTexts[\"5A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+        tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["6A"] /*[[".cells.staticTexts[\"6A\"]",".staticTexts[\"6A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
 
         let textField = tablesQuery.textFields["6"]
         textField.tap()
@@ -54,7 +54,7 @@ class ApptentiveUITests: XCTestCase {
 
         let tablesQuery = XCUIApplication().tables
 
-        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Survey"]/*[[".cells.staticTexts[\"Survey\"]",".staticTexts[\"Survey\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+        tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["Survey"] /*[[".cells.staticTexts[\"Survey\"]",".staticTexts[\"Survey\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
 
         let oneA = tablesQuery.cells.containing(.staticText, identifier: "1A").firstMatch
         let oneB = tablesQuery.cells.containing(.staticText, identifier: "1B").firstMatch
@@ -77,7 +77,7 @@ class ApptentiveUITests: XCTestCase {
 
         let tablesQuery = XCUIApplication().tables
 
-        tablesQuery/*@START_MENU_TOKEN@*/.staticTexts["Survey"]/*[[".cells.staticTexts[\"Survey\"]",".staticTexts[\"Survey\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+        tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["Survey"] /*[[".cells.staticTexts[\"Survey\"]",".staticTexts[\"Survey\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
 
         let threeA = tablesQuery.cells.containing(.staticText, identifier: "3A").firstMatch
         let threeB = tablesQuery.cells.containing(.staticText, identifier: "3B").firstMatch

@@ -25,11 +25,11 @@ class SurveyMultiLineCell: UITableViewCell {
         if #available(iOS 13.0, *) {
             self.layer.borderColor = UIColor.tertiaryLabel.cgColor
             self.layer.borderWidth = 1.0
-            
+
             // The following determined experimentally to match UITextField
             self.textView.textContainerInset = UIEdgeInsets(top: 1.0, left: -5.0, bottom: 1.0, right: -5.0)
         } else {
-            self.textView.layer.borderColor = UIColor(red: 180.0/255.0, green: 180.0/255.0, blue: 180.0/255.0, alpha: 0.75).cgColor
+            self.textView.layer.borderColor = UIColor(red: 180.0 / 255.0, green: 180.0 / 255.0, blue: 180.0 / 255.0, alpha: 0.75).cgColor
             self.textView.layer.borderWidth = 1.0 / self.traitCollection.displayScale
             self.textView.layer.cornerRadius = 6.0
 
@@ -79,7 +79,7 @@ class SurveyMultiLineCell: UITableViewCell {
         NSLayoutConstraint.activate([
             self.placeholderLabel.topAnchor.constraint(equalTo: self.textView.topAnchor, constant: self.textView.textContainerInset.top),
             self.placeholderLabel.leadingAnchor.constraint(equalTo: self.textView.leadingAnchor, constant: self.textView.textContainerInset.left + 5.0),
-            self.textView.trailingAnchor.constraint(equalTo: self.placeholderLabel.trailingAnchor, constant: self.textView.textContainerInset.right + 5.0)
+            self.textView.trailingAnchor.constraint(equalTo: self.placeholderLabel.trailingAnchor, constant: self.textView.textContainerInset.right + 5.0),
         ])
 
         NotificationCenter.default.addObserver(self, selector: #selector(textViewDidChange), name: UITextView.textDidChangeNotification, object: self.textView)

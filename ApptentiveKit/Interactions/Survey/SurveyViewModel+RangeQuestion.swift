@@ -8,9 +8,9 @@
 
 import Foundation
 
-public extension SurveyViewModel {
+extension SurveyViewModel {
     /// Represents a question where the user can select a single value from a contiguous range of integers.
-    class RangeQuestion: ChoiceQuestion {
+    public class RangeQuestion: ChoiceQuestion {
         /// The minimum value that a user can select.
         public let minValue: Int
 

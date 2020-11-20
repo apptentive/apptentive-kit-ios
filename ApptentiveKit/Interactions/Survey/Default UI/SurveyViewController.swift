@@ -16,19 +16,38 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     enum FooterMode {
         case submitButton
         case thankYou
+        case validationError
     }
 
     var footerMode: FooterMode = .submitButton {
         didSet {
+            var viewToHide: UIView?
+            var viewToShow: UIView?
+
             switch self.footerMode {
             case .submitButton:
-                self.submitView.submitButton.isHidden = false
-                self.submitView.submitLabel.isHidden = true
+                viewToShow = self.submitView.submitButton
+                viewToHide = self.submitView.submitLabel
+
             case .thankYou:
                 self.submitView.submitLabel.text = self.viewModel.thankYouMessage
-                self.submitView.submitLabel.isHidden = false
+                self.submitView.submitLabel.textColor = self.normalColor
+                viewToShow = self.submitView.submitLabel
+                viewToHide = self.submitView.submitButton
 
-                self.submitView.submitButton.isHidden = true
+            case .validationError:
+                self.submitView.submitLabel.text = self.viewModel.validationErrorMessage
+                self.submitView.submitLabel.textColor = self.errorColor
+                viewToShow = self.submitView.submitLabel
+                viewToHide = self.submitView.submitButton
+            }
+
+            UIView.animate(withDuration: 0.1) {
+                viewToShow?.alpha = 1
+                viewToHide?.alpha = 0
+            } completion: { _ in
+                viewToShow?.isHidden = false
+                viewToHide?.isHidden = true
             }
         }
     }
@@ -156,6 +175,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let multiLineCell as SurveyMultiLineCell):
             multiLineCell.textView.text = freeformQuestion.answerText
             multiLineCell.placeholderLabel.text = freeformQuestion.placeholderText
+            multiLineCell.placeholderLabel.isHidden = !(freeformQuestion.answerText?.isEmpty ?? true)
             multiLineCell.textView.delegate = self
             multiLineCell.textView.tag = self.tag(for: indexPath)
             multiLineCell.textView.accessibilityIdentifier = String(indexPath.section)
@@ -218,7 +238,16 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         header.instructionsLabel.text = instructionsText
         header.instructionsLabel.isHidden = instructionsText.isEmpty
 
+        header.questionLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
+        header.instructionsLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
+
         return header
+    }
+
+    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        let question = self.viewModel.questions[section]
+
+        return question.isMarkedAsInvalid ? question.errorMessage : nil
     }
 
     // MARK: Table View Delegate
@@ -252,6 +281,15 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
     }
 
+    override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+        guard let footerView = view as? UITableViewHeaderFooterView else {
+            return
+        }
+
+        footerView.textLabel?.alpha = 1  // We may have faded this out in `surveyViewModelValidationDidChange(_:)`.
+        footerView.textLabel?.textColor = self.errorColor  // Footers always display an error in the error color.
+    }
+
     // MARK: - Survey View Model delgate
 
     func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {
@@ -267,7 +305,40 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func surveyViewModelValidationDidChange(_ viewModel: SurveyViewModel) {
-        // TODO: Implement me
+        self.footerMode = viewModel.isMarkedAsInvalid ? .validationError : .submitButton
+
+        self.tableView.beginUpdates()  // Animate in/out any error message footers
+
+        var visibleSectionIndexes = tableView.indexPathsForVisibleRows?.map { $0.section } ?? []
+
+        // There might be a header view for a subsequent section whose top row isn't visible.
+        if let lastVisibleSectionIndex = visibleSectionIndexes.last, lastVisibleSectionIndex < self.tableView.numberOfSections - 1 {
+            visibleSectionIndexes.append(lastVisibleSectionIndex + 1)
+        }
+
+        // There might be a footer view for a previous section whose bottom row isn't visible.
+        if let firstVisibleSectionIndex = visibleSectionIndexes.first, firstVisibleSectionIndex >= 1 {
+            visibleSectionIndexes.append(firstVisibleSectionIndex - 1)
+        }
+
+        visibleSectionIndexes.forEach({ sectionIndex in
+            let question = viewModel.questions[sectionIndex]
+
+            if let header = self.tableView.headerView(forSection: sectionIndex) as? SurveyQuestionHeaderView {
+                header.questionLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
+                header.instructionsLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
+            }
+
+            // The footer's position animates properly when a question is un-marked,
+            // but the text stays visible for some reason (a UIKit bug?).
+            if let footer = self.tableView.footerView(forSection: sectionIndex) {
+                UIView.animate(withDuration: 0.25) {
+                    footer.textLabel?.alpha = question.isMarkedAsInvalid ? 1 : 0
+                }
+            }
+        })
+
+        self.tableView.endUpdates()
     }
 
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel) {
@@ -293,6 +364,10 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     @objc func submitSurvey() {
         self.viewModel.submit()
+
+        if !self.viewModel.isValid {
+            self.scrollToFirstInvalidQuestion()
+        }
     }
 
     @objc func textFieldChanged(_ textField: UITextField) {
@@ -353,5 +428,23 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     private func dismiss() {
         self.presentingViewController?.dismiss(animated: true, completion: nil)
+    }
+
+    private func scrollToFirstInvalidQuestion() {
+        if let firstInvalidQuestionIndex = self.viewModel.invalidQuestionIndexes.first {
+            self.tableView.scrollToRow(at: IndexPath(row: 0, section: firstInvalidQuestionIndex), at: .middle, animated: true)
+        }
+    }
+
+    private var normalColor: UIColor {
+        if #available(iOS 13.0, *) {
+            return .label
+        } else {
+            return .black
+        }
+    }
+
+    private var errorColor: UIColor {
+        return .systemRed
     }
 }

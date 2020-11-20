@@ -6,8 +6,8 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import UIKit
 import ApptentiveKit
+import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

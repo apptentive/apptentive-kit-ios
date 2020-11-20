@@ -89,9 +89,19 @@ public class SurveyViewModel {
         return SurveyResponse(surveyID: self.interaction.id, answers: questionResponses)
     }
 
-    /// A value that indicates the responses to each question satisfy its validation requirements.
+    /// A value that indicates the responses to all questions satisfy their validation requirements.
     public var isValid: Bool {
         return self.questions.allSatisfy(\.isValid)
+    }
+
+    /// Whether there are any invalid questions that the user has not yet updated their response for.
+    public var isMarkedAsInvalid: Bool {
+        return self.questions.contains(where: \.isMarkedAsInvalid)
+    }
+
+    /// Returns the indexes of any questions that do not satisfy their validation requirements.
+    public var invalidQuestionIndexes: IndexSet {
+        return IndexSet(self.questions.enumerated().filter { !$0.element.isValid }.map { $0.offset })
     }
 
     /// Submits the users answers to the survey.
