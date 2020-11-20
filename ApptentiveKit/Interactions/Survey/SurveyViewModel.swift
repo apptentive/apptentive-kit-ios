@@ -94,6 +94,10 @@ public class SurveyViewModel {
         return self.questions.allSatisfy(\.isValid)
     }
 
+    /// Whether any questions have been responded to.
+    public var hasAnswer: Bool {
+        return self.questions.contains(where: \.hasAnswer)
+    }
     /// Whether there are any invalid questions that the user has not yet updated their response for.
     public var isMarkedAsInvalid: Bool {
         return self.questions.contains(where: \.isMarkedAsInvalid)
@@ -134,3 +138,5 @@ public class SurveyViewModel {
         self.sender.engage(event: .cancel, from: self.interaction)
     }
 }
+
+

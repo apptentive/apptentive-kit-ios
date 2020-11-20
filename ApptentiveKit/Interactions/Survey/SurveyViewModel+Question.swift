@@ -40,6 +40,11 @@ extension SurveyViewModel {
             return !(self.isRequired && self.response == nil)
         }
 
+        /// Whether a response has been entered.
+        var hasAnswer: Bool {
+            return self.response != nil
+        }
+
         /// Whether the UI should show the question as invalid.
         public var isMarkedAsInvalid = false
 

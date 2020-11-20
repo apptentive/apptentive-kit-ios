@@ -358,8 +358,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     // MARK: - Targets
 
     @objc func closeSurvey() {
-        self.viewModel.cancel()
-        self.dismiss()
+        if self.viewModel.hasAnswer {
+            self.confirmCancel()
+        } else {
+            self.cancel()
+        }
     }
 
     @objc func submitSurvey() {
@@ -406,6 +409,15 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.viewModel.cancel()
     }
 
+    func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
+        if self.viewModel.hasAnswer {
+            self.confirmCancel()
+            return false
+        } else {
+            return true
+        }
+    }
+
     // MARK: - Private
 
     private func updateHeaderFooterSize() {
@@ -424,6 +436,19 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     private func tag(for indexPath: IndexPath) -> Int {
         return (indexPath.section << 16) | (indexPath.item & 0xFFFF)
+    }
+
+    private func confirmCancel() {
+        let alertController = UIAlertController(title: "Are you sure you want to close this survey?", message: "You will lose any responses you have entered.", preferredStyle: .actionSheet)
+        alertController.addAction(UIAlertAction(title: "Close Survey", style: .destructive, handler: { _ in self.cancel() }))
+        alertController.addAction(UIAlertAction(title: "Continue Responding", style: .cancel, handler: nil))
+
+        self.present(alertController, animated: true, completion: nil)
+    }
+
+    private func cancel() {
+        self.viewModel.cancel()
+        self.dismiss()
     }
 
     private func dismiss() {
