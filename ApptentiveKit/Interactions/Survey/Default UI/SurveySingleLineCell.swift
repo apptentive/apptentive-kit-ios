@@ -12,7 +12,7 @@ class SurveySingleLineCell: UITableViewCell {
     let textField: UITextField
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        self.textField = UITextField(frame: CGRect.zero)
+        self.textField = UITextField(frame: .zero)
 
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -23,6 +23,8 @@ class SurveySingleLineCell: UITableViewCell {
         if #available(iOS 13.0, *) {
             self.layer.borderColor = UIColor.tertiaryLabel.cgColor
             self.layer.borderWidth = 1.0
+        } else {
+            self.textField.borderStyle = .roundedRect
         }
     }
 
