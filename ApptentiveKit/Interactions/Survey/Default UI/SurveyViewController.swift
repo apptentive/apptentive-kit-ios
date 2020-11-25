@@ -178,6 +178,28 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             multiLineCell.textView.tag = self.tag(for: indexPath)
             multiLineCell.textView.accessibilityIdentifier = String(indexPath.section)
 
+        case (let rangeQuestion as SurveyViewModel.RangeQuestion, let choiceCell):
+            choiceCell.textLabel?.text = rangeQuestion.choiceLabels[indexPath.row]
+
+            let imageName = "circle"
+            let highlightedImageName = "smallcircle.fill.circle.fill"
+
+            if #available(iOS 13.0, *) {
+                choiceCell.imageView?.image = UIImage(systemName: imageName)
+                choiceCell.imageView?.highlightedImage = UIImage(systemName: highlightedImageName)
+            } else {
+                choiceCell.imageView?.image = UIImage(named: imageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
+                choiceCell.imageView?.highlightedImage = UIImage(named: highlightedImageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
+            }
+
+            if indexPath.row == 0 {
+                choiceCell.detailTextLabel?.text = rangeQuestion.minText
+            } else if indexPath.row == rangeQuestion.choiceLabels.count - 1 {
+                choiceCell.detailTextLabel?.text = rangeQuestion.maxText
+            } else {
+                choiceCell.detailTextLabel?.text = nil
+            }
+
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell):
             choiceCell.textLabel?.text = choiceQuestion.choiceLabels[indexPath.row]
 
@@ -192,20 +214,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 imageName = "square"
                 highlightedImageName = "checkmark.square.fill"
             }
-
-            if #available(iOS 13.0, *) {
-                choiceCell.imageView?.image = UIImage(systemName: imageName)
-                choiceCell.imageView?.highlightedImage = UIImage(systemName: highlightedImageName)
-            } else {
-                choiceCell.imageView?.image = UIImage(named: imageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
-                choiceCell.imageView?.highlightedImage = UIImage(named: highlightedImageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
-            }
-
-        case (let rangeQuestion as SurveyViewModel.RangeQuestion, let choiceCell):
-            choiceCell.textLabel?.text = rangeQuestion.choiceLabels[indexPath.row]
-
-            let imageName = "circle"
-            let highlightedImageName = "smallcircle.fill.circle.fill"
 
             if #available(iOS 13.0, *) {
                 choiceCell.imageView?.image = UIImage(systemName: imageName)
@@ -348,7 +356,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 return  // Not a choice question
             }
 
-            guard let choiceCell = self.tableView.cellForRow(at: indexPath) as? SurveyChoiceCell else {
+            guard let cell = self.tableView.cellForRow(at: indexPath) else {
+                return  // Cell may already be offscreen
+            }
+
+            guard let choiceCell = cell as? SurveyChoiceCell else {
                 return assertionFailure("Should have choice cell for choice question")
             }
 
