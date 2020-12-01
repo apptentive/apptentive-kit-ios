@@ -43,7 +43,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             }
 
             UIView.transition(
-                with: self.submitView, duration: 0.25, options: .transitionCrossDissolve) {
+                with: self.submitView, duration: 0.25, options: .transitionCrossDissolve
+            ) {
                 viewToHide?.isHidden = true
                 viewToShow?.isHidden = false
             }
@@ -332,10 +333,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             if let header = self.tableView.headerView(forSection: sectionIndex) as? SurveyQuestionHeaderView {
                 UIView.transition(
-                    with: header, duration: 0.25, options: .transitionCrossDissolve) {
-                        header.questionLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
-                        header.instructionsLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
-                    }
+                    with: header, duration: 0.25, options: .transitionCrossDissolve
+                ) {
+                    header.questionLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
+                    header.instructionsLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
+                }
             }
 
             // The footer's position animates properly when a question is un-marked,

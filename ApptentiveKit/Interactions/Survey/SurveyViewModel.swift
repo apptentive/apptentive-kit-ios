@@ -138,5 +138,3 @@ public class SurveyViewModel {
         self.sender.engage(event: .cancel, from: self.interaction)
     }
 }
-
-
