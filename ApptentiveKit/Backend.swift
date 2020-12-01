@@ -136,6 +136,8 @@ class Backend {
                         self.queue.async {
                             self.conversation.interactions.invoke(for: interaction.id)
                         }
+                    } catch InteractionPresenterError.notImplemented(let interactionTypeName) {
+                        print("Interaction type \(interactionTypeName) is not implemented.")
                     } catch let error {
                         completion?(false)
                         assertionFailure("Interaction presentation error: \(error)")

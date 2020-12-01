@@ -8,7 +8,7 @@
 
 import XCTest
 
-class ApptentiveUITests: XCTestCase {
+class SurveyUITests: XCTestCase {
     override func setUp() {
         XCUIApplication().launch()
     }

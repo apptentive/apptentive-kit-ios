@@ -46,16 +46,24 @@ public struct Event: ExpressibleByStringLiteral, Decodable, CustomDebugStringCon
     }
 
     /// Convenience property for a launch event.
-    static let launch = Self(internalName: "launch")
+    static func launch(from interaction: Interaction? = nil) -> Self {
+        return Self(internalName: "launch", interaction: interaction)
+    }
 
     /// Convenience property for an exit event.
-    static let exit = Self(internalName: "exit")
+    static func exit(from interaction: Interaction? = nil) -> Self {
+        return Self(internalName: "exit", interaction: interaction)
+    }
 
     /// Convenience property for a submit event (e.g. a survey).
-    static let submit = Self(internalName: "submit")
+    static func submit(from interaction: Interaction?) -> Self {
+        return Self(internalName: "submit", interaction: interaction)
+    }
 
     /// Convenience property for a cancel event (e.g. a survey).
-    static let cancel = Self(internalName: "cancel")
+    static func cancel(from interaction: Interaction?) -> Self {
+        return Self(internalName: "cancel", interaction: interaction)
+    }
 
     /// Returns a `#`-separated string incorporating the vendor, interaction and name, all appropriately percent-escaped.
     ///

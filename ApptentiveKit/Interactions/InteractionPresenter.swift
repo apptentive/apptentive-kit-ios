@@ -33,34 +33,60 @@ open class InteractionPresenter {
         }
 
         switch interaction.configuration {
+        case .enjoymentDialog(let configuration):
+            let viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, sender: sender)
+            try self.presentEnjoymentDialog(with: viewModel)
+
         case .survey(let surveyConfiguration):
             let viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, sender: sender)
             try self.presentSurvey(with: viewModel)
+
         default:
             throw InteractionPresenterError.notImplemented(interaction.typeName)
         }
+    }
+
+    /// Presents an EnjoymentDialog ("Love Dialog") interaction.
+    ///
+    /// Override this method to change the way that love dialogs are presented, such as to use a custom view controller.
+    /// - Parameter viewModel: the love dialog view model that represents the love dialog and handles button taps.
+    /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
+    open func presentEnjoymentDialog(with viewModel: EnjoymentDialogViewModel) throws {
+        let viewController = UIAlertController(viewModel: viewModel)
+
+        try self.presentViewController(
+            viewController,
+            completion: {
+                viewModel.launch()
+            })
     }
 
     /// Presents a Survey interaction.
     ///
     /// Override this method to change the way Surveys are presented, such as to use a custom view controller.
     /// - Parameter viewModel: the survey view model that represents the survey and handles submissions.
-    /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`
+    /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
     open func presentSurvey(with viewModel: SurveyViewModel) throws {
         let viewController = SurveyViewController(viewModel: viewModel)
 
         let navigationController = UINavigationController(rootViewController: viewController)
 
-        try self.presentViewController(navigationController)
+        try self.presentViewController(
+            navigationController,
+            completion: {
+                viewModel.launch()
+            })
     }
 
     /// Presents a view-controller-based interaction.
     ///
     /// Override this method to change the way interactions are presented.
     ///
-    /// - Parameter viewControllerToPresent: the interaction view controller that should be presented.
+    /// - Parameters:
+    ///  - viewControllerToPresent: the interaction view controller that should be presented.
+    ///  - completion: a closure that is called when the interaction presentation completes.
     /// - Throws: if the `presentingViewController` property is nil or does not reference a view controller that can currently present another view controller.
-    open func presentViewController(_ viewControllerToPresent: UIViewController) throws {
+    open func presentViewController(_ viewControllerToPresent: UIViewController, completion: (() -> Void)? = {}) throws {
         guard let presentingViewController = self.presentingViewController else {
             throw InteractionPresenterError.noPresentingViewController
         }
@@ -73,7 +99,7 @@ open class InteractionPresenter {
             throw InteractionPresenterError.presentingViewControllerViewNotLoaded
         }
 
-        presentingViewController.present(viewControllerToPresent, animated: true)
+        presentingViewController.present(viewControllerToPresent, animated: true, completion: completion)
     }
 }
 

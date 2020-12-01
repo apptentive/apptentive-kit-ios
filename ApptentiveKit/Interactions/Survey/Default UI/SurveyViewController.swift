@@ -102,8 +102,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         self.tableView.sectionHeaderHeight = UITableView.automaticDimension
         self.tableView.estimatedSectionHeaderHeight = 66.0
-
-        self.viewModel.launch()
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {

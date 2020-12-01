@@ -24,12 +24,14 @@ public struct Interaction: Decodable {
         self.typeName = try container.decode(String.self, forKey: .type)
 
         switch self.typeName {
+        case "EnjoymentDialog":
+            self.configuration = .enjoymentDialog(try container.decode(EnjoymentDialogConfiguration.self, forKey: .configuration))
+
         case "Survey":
-            let configuration = try container.decode(SurveyConfiguration.self, forKey: .configuration)
-            self.configuration = InteractionConfiguration.survey(configuration)
+            self.configuration = .survey(try container.decode(SurveyConfiguration.self, forKey: .configuration))
 
         default:
-            self.configuration = InteractionConfiguration.notImplemented
+            self.configuration = .notImplemented
         }
     }
 
@@ -40,6 +42,7 @@ public struct Interaction: Decodable {
     }
 
     enum InteractionConfiguration {
+        case enjoymentDialog(EnjoymentDialogConfiguration)
         case survey(SurveyConfiguration)
         case notImplemented
     }

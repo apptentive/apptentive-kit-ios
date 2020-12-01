@@ -16,8 +16,6 @@ protocol ResponseSending {
     func send(surveyResponse: SurveyResponse)
 
     /// Engages the specified event by including the interaction.
-    /// - Parameters:
-    ///   - event: The event to engage.
-    ///   - interaction: The interaction that sent the event.
-    func engage(event: Event, from interaction: Interaction)
+    /// - Parameter event: The event to engage.
+    func engage(event: Event)
 }

@@ -116,7 +116,7 @@ public class SurveyViewModel {
         if self.isValid {
             self.sender.send(surveyResponse: self.response)
 
-            self.sender.engage(event: .submit, from: self.interaction)
+            self.sender.engage(event: .submit(from: self.interaction))
 
             self.delegate?.surveyViewModelDidSubmit(self)
         } else {
@@ -130,11 +130,11 @@ public class SurveyViewModel {
 
     /// Registers that the survey was successfully presented to the user.
     public func launch() {
-        self.sender.engage(event: .launch, from: self.interaction)
+        self.sender.engage(event: .launch(from: self.interaction))
     }
 
     /// Registers that the survey was cancelled by the user.
     public func cancel() {
-        self.sender.engage(event: .cancel, from: self.interaction)
+        self.sender.engage(event: .cancel(from: self.interaction))
     }
 }

@@ -11,13 +11,20 @@ import XCTest
 @testable import ApptentiveKit
 
 class InteractionTests: XCTestCase {
-    func testDecodingInteraction() throws {
-        guard let surveyURL = Bundle(for: type(of: self)).url(forResource: "Survey - 3.1", withExtension: "json") else {
-            return XCTFail("Unable to find test survey data")
+    func testInteractionDecoding() throws {
+        guard let directoryURL = Bundle(for: type(of: self)).url(forResource: "Test Interactions", withExtension: nil) else {
+            return XCTFail("Unable to find test data")
         }
 
-        let surveyData = try Data(contentsOf: surveyURL)
+        let localFileManager = FileManager()
 
-        let _ = try JSONDecoder().decode(Interaction.self, from: surveyData)
+        let resourceKeys = Set<URLResourceKey>([.nameKey])
+        let directoryEnumerator = localFileManager.enumerator(at: directoryURL, includingPropertiesForKeys: Array(resourceKeys), options: .skipsHiddenFiles)!
+
+        for case let fileURL as URL in directoryEnumerator {
+            let data = try Data(contentsOf: fileURL)
+
+            let _ = try JSONDecoder().decode(Interaction.self, from: data)
+        }
     }
 }

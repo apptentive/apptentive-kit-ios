@@ -1,5 +1,5 @@
 //
-//  SuveyViewModelTests.swift
+//  SurveyViewModelTests.swift
 //  ApptentiveUnitTests
 //
 //  Created by Frank Schmitt on 5/27/20.
@@ -18,20 +18,21 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
     var gotValidationDidChange: Bool = false
     var gotSelectionDidChange: Bool = false
 
-    override func setUp() {
-        guard let surveyURL = Bundle(for: type(of: self)).url(forResource: "Survey - 3.1", withExtension: "json"), let surveyData = try? Data(contentsOf: surveyURL) else {
-            return XCTFail("Unable to load test survey data")
+    override func setUpWithError() throws {
+        guard let surveyURL = Bundle(for: type(of: self)).url(forResource: "Survey", withExtension: "json", subdirectory: "Test Interactions") else {
+            return XCTFail("Unable to load test data")
         }
 
-        guard let surveyInteraction = try? JSONDecoder().decode(Interaction.self, from: surveyData) else {
-            return XCTFail("Unable to decode test survey data")
+        let data = try Data(contentsOf: surveyURL)
+        let interaction = try JSONDecoder().decode(Interaction.self, from: data)
+
+        guard case let Interaction.InteractionConfiguration.survey(surveyConfiguration) = interaction.configuration else {
+            return XCTFail("Unable to create view model")
         }
 
-        if case let Interaction.InteractionConfiguration.survey(surveyConfiguration) = surveyInteraction.configuration {
-            self.spySender = SpySender()
-            self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: surveyInteraction, sender: self.spySender!)
-            self.viewModel?.delegate = self
-        }
+        self.spySender = SpySender()
+        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, sender: self.spySender!)
+        self.viewModel?.delegate = self
     }
 
     func testSurveyMetadata() {
@@ -432,19 +433,5 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel) {
         self.gotSelectionDidChange = true
-    }
-}
-
-class SpySender: ResponseSending {
-    var engagedEvent: Event?
-    var sentSurveyResponse: SurveyResponse?
-
-    func engage(event: Event, from interaction: Interaction) {
-        self.engagedEvent = event
-        self.engagedEvent?.interaction = interaction
-    }
-
-    func send(surveyResponse: SurveyResponse) {
-        self.sentSurveyResponse = surveyResponse
     }
 }

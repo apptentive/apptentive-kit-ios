@@ -95,7 +95,7 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
         // Typically we will be initialized too late to receive the ApplicationWillEnterForeground
         // notification, so we have to manually record a launch event here.
         if self.environment.isInForeground {
-            self.engage(event: .launch)
+            self.engage(event: .launch())
         }
 
         self.backend.frontend = self
@@ -110,12 +110,8 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
         }
     }
 
-    func engage(event: Event, from interaction: Interaction) {
-        var interactionEvent = event
-
-        interactionEvent.interaction = interaction
-
-        self.engage(event: interactionEvent)
+    func engage(event: Event) {
+        self.engage(event: event, from: nil)
     }
 
     // MARK: EnvironmentDelegate
@@ -133,16 +129,16 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
     }
 
     func applicationWillEnterForeground(_ environment: Environment) {
-        self.engage(event: .launch)
+        self.engage(event: .launch())
     }
 
     func applicationDidEnterBackground(_ environment: Environment) {
-        self.engage(event: .exit)
+        self.engage(event: .exit())
     }
 
     func applicationWillTerminate(_ environment: Environment) {
         if environment.isInForeground {
-            self.engage(event: .exit)
+            self.engage(event: .exit())
         }
     }
 

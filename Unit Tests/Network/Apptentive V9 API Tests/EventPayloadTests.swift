@@ -57,9 +57,9 @@ class EventPayloadTests: XCTestCase {
         let jsonDecoder = JSONDecoder()
         jsonDecoder.dateDecodingStrategy = .secondsSince1970
 
-        var event: Event = .launch
+        var event: Event = .launch()
 
-        guard let surveyURL = Bundle(for: type(of: self)).url(forResource: "Survey - 3.1", withExtension: "json"), let surveyData = try? Data(contentsOf: surveyURL) else {
+        guard let surveyURL = Bundle(for: type(of: self)).url(forResource: "Survey", withExtension: "json", subdirectory: "Test Interactions"), let surveyData = try? Data(contentsOf: surveyURL) else {
             return XCTFail("Unable to load test survey data")
         }
 

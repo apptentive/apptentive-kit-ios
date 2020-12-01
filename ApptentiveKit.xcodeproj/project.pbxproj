@@ -12,10 +12,9 @@
 		01086517253E42FC00101CFB /* PayloadSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01086516253E42FC00101CFB /* PayloadSender.swift */; };
 		010ADF442458F8C3005D63FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 010ADF432458F8C3005D63FE /* Main.storyboard */; };
 		011FF860252D1AF700073EBC /* ResponseSending.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011FF85F252D1AF700073EBC /* ResponseSending.swift */; };
-		013D8E0B24EEFA13005EC4D1 /* SuveyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE024EEFA13005EC4D1 /* SuveyViewModelTests.swift */; };
+		013D8E0B24EEFA13005EC4D1 /* SurveyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */; };
 		013D8E0C24EEFA13005EC4D1 /* InteractionPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */; };
 		013D8E0D24EEFA13005EC4D1 /* InteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */; };
-		013D8E0E24EEFA13005EC4D1 /* Survey - 3.1.json in Resources */ = {isa = PBXBuildFile; fileRef = 013D8DE424EEFA13005EC4D1 /* Survey - 3.1.json */; };
 		013D8E8B24F038D3005EC4D1 /* ApptentiveV9API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8E8724F038D3005EC4D1 /* ApptentiveV9API.swift */; };
 		013D8E8C24F038D3005EC4D1 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8E8824F038D3005EC4D1 /* HTTPClient.swift */; };
 		013D8E8E24F038D3005EC4D1 /* HTTPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8E8A24F038D3005EC4D1 /* HTTPEndpoint.swift */; };
@@ -31,6 +30,9 @@
 		013D8EAF24F09B63005EC4D1 /* CwlSysctl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8EAE24F09B63005EC4D1 /* CwlSysctl.swift */; };
 		013D8EB124F09F6C005EC4D1 /* ConversationRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8EB024F09F6C005EC4D1 /* ConversationRequestTests.swift */; };
 		013D8EB924F5C99B005EC4D1 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8EB824F5C99B005EC4D1 /* Backend.swift */; };
+		014D5B19256ED5940030DC90 /* EnjoymentDialogConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D5B18256ED5940030DC90 /* EnjoymentDialogConfiguration.swift */; };
+		014D5B23256ED6B80030DC90 /* EnjoymentDialogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D5B22256ED6B80030DC90 /* EnjoymentDialogViewModel.swift */; };
+		014D5B33256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D5B32256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift */; };
 		0158976724E5C8C600DF0DC0 /* Apptentive+TemporaryAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0158976624E5C8C600DF0DC0 /* Apptentive+TemporaryAPI.swift */; };
 		015A0D3625509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015A0D3425509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift */; };
 		015A0D3725509BB600EF077D /* SurveyViewModel+RangeQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015A0D3525509BB600EF077D /* SurveyViewModel+RangeQuestion.swift */; };
@@ -72,6 +74,10 @@
 		018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9090247EFFEC004577EB /* SurveyViewModel.swift */; };
 		018A909A247F09D4004577EB /* Interaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9099247F09D4004577EB /* Interaction.swift */; };
 		019121812404581B00FFE0F4 /* ApptentiveFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */; };
+		019E78FE2575AC9B006BD412 /* Test Interactions in Resources */ = {isa = PBXBuildFile; fileRef = 019E78FD2575AC9B006BD412 /* Test Interactions */; };
+		019E79082575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019E79072575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift */; };
+		019E79122575AD7D006BD412 /* SpySender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019E79112575AD7D006BD412 /* SpySender.swift */; };
+		019E79252575B560006BD412 /* EnjoymentDialogUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */; };
 		01A0917123FCB4A700AF187E /* ApptentiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A0916F23FCB4A700AF187E /* ApptentiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01A0918123FCB4CC00AF187E /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A0918723FCB5D600AF187E /* Apptentive.swift */; };
@@ -84,7 +90,7 @@
 		01E7984B251C312200D24A05 /* SurveyResponseContents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7984A251C312200D24A05 /* SurveyResponseContents.swift */; };
 		01E7986B251C32F200D24A05 /* SurveyResponsePayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7985D251C32A300D24A05 /* SurveyResponsePayloadTests.swift */; };
 		01EB6C0624773AD90067F4B9 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 01EB6C0524773AD90067F4B9 /* Defaults.plist */; };
-		1F323D45240EED3000A678BC /* ApptentiveUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D44240EED3000A678BC /* ApptentiveUITests.swift */; };
+		1F323D45240EED3000A678BC /* SurveyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D44240EED3000A678BC /* SurveyUITests.swift */; };
 		1F323D51240EEE0400A678BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D50240EEE0400A678BC /* AppDelegate.swift */; };
 		1F323D57240EEE0500A678BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F323D56240EEE0500A678BC /* Assets.xcassets */; };
 		1F323D5A240EEE0500A678BC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F323D59240EEE0500A678BC /* Preview Assets.xcassets */; };
@@ -145,10 +151,9 @@
 		01086516253E42FC00101CFB /* PayloadSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayloadSender.swift; sourceTree = "<group>"; };
 		010ADF432458F8C3005D63FE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		011FF85F252D1AF700073EBC /* ResponseSending.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseSending.swift; sourceTree = "<group>"; };
-		013D8DE024EEFA13005EC4D1 /* SuveyViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuveyViewModelTests.swift; sourceTree = "<group>"; };
+		013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyViewModelTests.swift; sourceTree = "<group>"; };
 		013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractionPresenterTests.swift; sourceTree = "<group>"; };
 		013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractionTests.swift; sourceTree = "<group>"; };
-		013D8DE424EEFA13005EC4D1 /* Survey - 3.1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Survey - 3.1.json"; sourceTree = "<group>"; };
 		013D8E8724F038D3005EC4D1 /* ApptentiveV9API.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApptentiveV9API.swift; sourceTree = "<group>"; };
 		013D8E8824F038D3005EC4D1 /* HTTPClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
 		013D8E8A24F038D3005EC4D1 /* HTTPEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPEndpoint.swift; sourceTree = "<group>"; };
@@ -164,6 +169,9 @@
 		013D8EAE24F09B63005EC4D1 /* CwlSysctl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CwlSysctl.swift; sourceTree = "<group>"; };
 		013D8EB024F09F6C005EC4D1 /* ConversationRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationRequestTests.swift; sourceTree = "<group>"; };
 		013D8EB824F5C99B005EC4D1 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Backend.swift; sourceTree = "<group>"; };
+		014D5B18256ED5940030DC90 /* EnjoymentDialogConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogConfiguration.swift; sourceTree = "<group>"; };
+		014D5B22256ED6B80030DC90 /* EnjoymentDialogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogViewModel.swift; sourceTree = "<group>"; };
+		014D5B32256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+AlertViewModel.swift"; sourceTree = "<group>"; };
 		0158976624E5C8C600DF0DC0 /* Apptentive+TemporaryAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Apptentive+TemporaryAPI.swift"; sourceTree = "<group>"; };
 		015A0D3425509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SurveyViewModel+ChoiceQuestion.swift"; sourceTree = "<group>"; };
 		015A0D3525509BB600EF077D /* SurveyViewModel+RangeQuestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SurveyViewModel+RangeQuestion.swift"; sourceTree = "<group>"; };
@@ -205,6 +213,10 @@
 		018A9090247EFFEC004577EB /* SurveyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyViewModel.swift; sourceTree = "<group>"; };
 		018A9099247F09D4004577EB /* Interaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interaction.swift; sourceTree = "<group>"; };
 		019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveFeatureTests.swift; sourceTree = "<group>"; };
+		019E78FD2575AC9B006BD412 /* Test Interactions */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Test Interactions"; sourceTree = "<group>"; };
+		019E79072575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogViewModelTests.swift; sourceTree = "<group>"; };
+		019E79112575AD7D006BD412 /* SpySender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpySender.swift; sourceTree = "<group>"; };
+		019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogUITests.swift; sourceTree = "<group>"; };
 		01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ApptentiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A0916F23FCB4A700AF187E /* ApptentiveKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ApptentiveKit.h; sourceTree = "<group>"; };
 		01A0917023FCB4A700AF187E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -224,7 +236,7 @@
 		01E7985D251C32A300D24A05 /* SurveyResponsePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyResponsePayloadTests.swift; sourceTree = "<group>"; };
 		01EB6C0524773AD90067F4B9 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		1F323D42240EED3000A678BC /* ApptentiveUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		1F323D44240EED3000A678BC /* ApptentiveUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveUITests.swift; sourceTree = "<group>"; };
+		1F323D44240EED3000A678BC /* SurveyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyUITests.swift; sourceTree = "<group>"; };
 		1F323D46240EED3000A678BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F323D4E240EEE0400A678BC /* ApptentiveUITestsApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ApptentiveUITestsApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F323D50240EEE0400A678BC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -298,20 +310,14 @@
 		013D8DDF24EEFA13005EC4D1 /* Interactions */ = {
 			isa = PBXGroup;
 			children = (
-				013D8DE024EEFA13005EC4D1 /* SuveyViewModelTests.swift */,
+				019E78FD2575AC9B006BD412 /* Test Interactions */,
 				013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */,
 				013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */,
-				013D8DE324EEFA13005EC4D1 /* Test Interactions */,
+				019E79072575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift */,
+				013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */,
+				019E79112575AD7D006BD412 /* SpySender.swift */,
 			);
 			path = Interactions;
-			sourceTree = "<group>";
-		};
-		013D8DE324EEFA13005EC4D1 /* Test Interactions */ = {
-			isa = PBXGroup;
-			children = (
-				013D8DE424EEFA13005EC4D1 /* Survey - 3.1.json */,
-			);
-			path = "Test Interactions";
 			sourceTree = "<group>";
 		};
 		013D8E8624F03888005EC4D1 /* Networking */ = {
@@ -342,6 +348,15 @@
 			);
 			path = "Third Party";
 			sourceTree = SOURCE_ROOT;
+		};
+		014D5B17256ED56B0030DC90 /* EnjoymentDialog */ = {
+			isa = PBXGroup;
+			children = (
+				014D5B18256ED5940030DC90 /* EnjoymentDialogConfiguration.swift */,
+				014D5B22256ED6B80030DC90 /* EnjoymentDialogViewModel.swift */,
+			);
+			path = EnjoymentDialog;
+			sourceTree = "<group>";
 		};
 		015A3A3A24DCD4B600DD44A2 /* Default UI */ = {
 			isa = PBXGroup;
@@ -406,6 +421,8 @@
 			children = (
 				018A9099247F09D4004577EB /* Interaction.swift */,
 				015F2A9E24C7A460004B53E2 /* InteractionPresenter.swift */,
+				014D5B32256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift */,
+				014D5B17256ED56B0030DC90 /* EnjoymentDialog */,
 				018A90D82481C73C004577EB /* Survey */,
 				011FF85F252D1AF700073EBC /* ResponseSending.swift */,
 			);
@@ -540,7 +557,8 @@
 		1F323D43240EED3000A678BC /* UI Tests */ = {
 			isa = PBXGroup;
 			children = (
-				1F323D44240EED3000A678BC /* ApptentiveUITests.swift */,
+				019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */,
+				1F323D44240EED3000A678BC /* SurveyUITests.swift */,
 				1F323D46240EED3000A678BC /* Info.plist */,
 			);
 			path = "UI Tests";
@@ -753,8 +771,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				019E78FE2575AC9B006BD412 /* Test Interactions in Resources */,
 				017FC9792531101500C7A47F /* testManifest1.json in Resources */,
-				013D8E0E24EEFA13005EC4D1 /* Survey - 3.1.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -792,6 +810,7 @@
 				017FC93A25310E4700C7A47F /* Targeter.swift in Sources */,
 				015A0D3725509BB600EF077D /* SurveyViewModel+RangeQuestion.swift in Sources */,
 				013D8E9024F039A7005EC4D1 /* HTTPRequesting.swift in Sources */,
+				014D5B19256ED5940030DC90 /* EnjoymentDialogConfiguration.swift in Sources */,
 				018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */,
 				015F2AEA24CA2A88004B53E2 /* SurveyIntroductionView.swift in Sources */,
 				015A0D4125509C0A00EF077D /* SurveyChoiceCell.swift in Sources */,
@@ -817,7 +836,9 @@
 				015F2A9F24C7A460004B53E2 /* InteractionPresenter.swift in Sources */,
 				011FF860252D1AF700073EBC /* ResponseSending.swift in Sources */,
 				013D8EA424F09B01005EC4D1 /* AppRelease.swift in Sources */,
+				014D5B23256ED6B80030DC90 /* EnjoymentDialogViewModel.swift in Sources */,
 				01E7982D251C2EF100D24A05 /* AppReleaseRequest.swift in Sources */,
+				014D5B33256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift in Sources */,
 				013D8EA624F09B01005EC4D1 /* Device.swift in Sources */,
 				015F2ADD24C9EE3A004B53E2 /* SurveyResponse.swift in Sources */,
 				01822BBA2565727D006ADB3B /* SurveyQuestionHeaderView.swift in Sources */,
@@ -855,13 +876,15 @@
 				017231112536769F0095AEAA /* CriteriaTests.swift in Sources */,
 				013D8EB124F09F6C005EC4D1 /* ConversationRequestTests.swift in Sources */,
 				017231102536769F0095AEAA /* TargetingStateTests.swift in Sources */,
+				019E79082575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift in Sources */,
 				015D6BC9250AC0AC00372759 /* AppReleaseTests.swift in Sources */,
 				015D6BCD250AC0AC00372759 /* ConversationTests.swift in Sources */,
 				013D8E0C24EEFA13005EC4D1 /* InteractionPresenterTests.swift in Sources */,
 				013D8E9824F03C13005EC4D1 /* ApptentiveV9APITests.swift in Sources */,
-				013D8E0B24EEFA13005EC4D1 /* SuveyViewModelTests.swift in Sources */,
+				013D8E0B24EEFA13005EC4D1 /* SurveyViewModelTests.swift in Sources */,
 				013D8E0D24EEFA13005EC4D1 /* InteractionTests.swift in Sources */,
 				017FC9922531101500C7A47F /* TargeterTests.swift in Sources */,
+				019E79122575AD7D006BD412 /* SpySender.swift in Sources */,
 				015D6BCB250AC0AC00372759 /* PersonTests.swift in Sources */,
 				010864FF253E22BF00101CFB /* EventPayloadTests.swift in Sources */,
 				017231122536769F0095AEAA /* FieldTests.swift in Sources */,
@@ -873,7 +896,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F323D45240EED3000A678BC /* ApptentiveUITests.swift in Sources */,
+				1F323D45240EED3000A678BC /* SurveyUITests.swift in Sources */,
+				019E79252575B560006BD412 /* EnjoymentDialogUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
