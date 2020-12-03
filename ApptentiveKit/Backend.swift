@@ -228,7 +228,9 @@ class Backend {
                 self.queue.async {
                     switch result {
                     case .success(let engagementManifest):
-                        self.targeter.engagementManifest = engagementManifest
+
+                        // TODO: Remove transformer here when API is updated.
+                        self.targeter.engagementManifest = transformEngagementManifest(engagementManifest)
                     case .failure(let error):
                         print("Failed to download engagement manifest: \(error)")
                     }

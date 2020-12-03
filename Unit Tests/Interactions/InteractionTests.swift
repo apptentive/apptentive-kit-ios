@@ -19,7 +19,7 @@ class InteractionTests: XCTestCase {
         let localFileManager = FileManager()
 
         let resourceKeys = Set<URLResourceKey>([.nameKey])
-        let directoryEnumerator = localFileManager.enumerator(at: directoryURL, includingPropertiesForKeys: Array(resourceKeys), options: .skipsHiddenFiles)!
+        let directoryEnumerator = localFileManager.enumerator(at: directoryURL, includingPropertiesForKeys: Array(resourceKeys))!
 
         for case let fileURL as URL in directoryEnumerator {
             let data = try Data(contentsOf: fileURL)

@@ -37,9 +37,13 @@ open class InteractionPresenter {
             let viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, sender: sender)
             try self.presentEnjoymentDialog(with: viewModel)
 
-        case .survey(let surveyConfiguration):
-            let viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, sender: sender)
+        case .survey(let configuration):
+            let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, sender: sender)
             try self.presentSurvey(with: viewModel)
+
+        case .textModal(let configuration):
+            let viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, sender: sender)
+            try self.presentTextModal(with: viewModel)
 
         default:
             throw InteractionPresenterError.notImplemented(interaction.typeName)
@@ -73,6 +77,21 @@ open class InteractionPresenter {
 
         try self.presentViewController(
             navigationController,
+            completion: {
+                viewModel.launch()
+            })
+    }
+
+    /// Presents a TextModal ("Note") interaction.
+    ///
+    /// Override this method to change the way that notes are presented, such as to use a custom view controller.
+    /// - Parameter viewModel: the love dialog view model that represents the love dialog and handles button taps.
+    /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
+    open func presentTextModal(with viewModel: TextModalViewModel) throws {
+        let viewController = UIAlertController(viewModel: viewModel)
+
+        try self.presentViewController(
+            viewController,
             completion: {
                 viewModel.launch()
             })

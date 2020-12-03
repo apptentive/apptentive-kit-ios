@@ -1,0 +1,35 @@
+{
+  "id": "55e6037a45ce55118900001a",
+  "type": "TextModal",
+  "version": 1,
+  "configuration": {
+    "actions": [
+      {
+        "id": "55e6037a45ce551189000016",
+        "action": "interaction",
+        "label": "Message Center",
+        "event": "button_55e6037a45ce551189000016"
+      },
+      {
+        "id": "55e6037a45ce551189000017",
+        "action": "interaction",
+        "label": "Survey",
+        "event": "button_55e6037a45ce551189000017"
+      },
+      {
+        "id": "55e6037a45ce551189000018",
+        "action": "interaction",
+        "label": "Link",
+        "event": "button_55e6037a45ce551189000018"
+      },
+      {
+        "id": "55e6037a45ce551189000019",
+        "action": "dismiss",
+        "label": "Dismiss"
+      }
+    ],
+    "title": "Message Title",
+    "body": "Message content.",
+    "name": "Message Center 2.0 Note"
+  }
+}

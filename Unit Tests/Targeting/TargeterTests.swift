@@ -11,12 +11,10 @@ import XCTest
 @testable import ApptentiveKit
 
 final class TargeterTests: XCTestCase {
-    static let testResourceDirectory = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Test Manifests")
-
     let targetingState = MockTargetingState()
 
     func testManifest1() throws {
-        guard let manifest = manifest(for: #function) else {
+        guard let manifest = try manifest(for: #function) else {
             return XCTFail()
         }
 
@@ -40,22 +38,18 @@ final class TargeterTests: XCTestCase {
         ("testNoManifest", testNoManifest),
     ]
 
-    private func manifest(for testMethodName: String) -> EngagementManifest? {
+    private func manifest(for testMethodName: String) throws -> EngagementManifest? {
         let testName = String(testMethodName.dropLast(2))  // strip parentheses from method name.
-        let url = Self.testResourceDirectory.appendingPathComponent(testName).appendingPathExtension("json")
-
-        if let data = try? Data(contentsOf: url) {
-            let decoder = JSONDecoder()
-
-            if let manifest = try? decoder.decode(EngagementManifest.self, from: data) {
-                return manifest
-            } else {
-                XCTFail("Manifest parsing failed for \(testName)")
-                return nil
-            }
-        } else {
-            XCTFail("Test json dictionary not found for \(testName)")
-            return nil
+        guard let url = Bundle(for: type(of: self)).url(forResource: testName, withExtension: "json", subdirectory: "Test Manifests") else {
+            throw TargeterTestError.manifestNotFound
         }
+
+        let data = try Data(contentsOf: url)
+
+        return try JSONDecoder().decode(EngagementManifest.self, from: data)
     }
+}
+
+enum TargeterTestError: Error {
+    case manifestNotFound
 }

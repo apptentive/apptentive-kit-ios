@@ -18,48 +18,16 @@ class InteractionPresenterTests: XCTestCase {
         self.interactionPresenter?.sender = SpySender()
     }
 
-    func testPresentSurvey() throws {
-        guard let url = Bundle(for: type(of: self)).url(forResource: "Survey", withExtension: "json", subdirectory: "Test Interactions") else {
-            return XCTFail("Unable to load test survey data")
-        }
-
-        let data = try Data(contentsOf: url)
-        let interaction = try JSONDecoder().decode(Interaction.self, from: data)
-
-        guard let interactionPresenter = self.interactionPresenter as? FakeInteractionPresenter else {
-            return XCTFail("interactionPresenter is nil or not a FakeInteractionPresenter")
-        }
-
-        XCTAssertThrowsError(try interactionPresenter.presentInteraction(interaction, from: nil))
-
-        let viewController = FakePresentingViewController()
-        try interactionPresenter.presentInteraction(interaction, from: viewController)
-
-        XCTAssertNotNil(interactionPresenter.surveyViewModel)
-        XCTAssertEqual(viewController, interactionPresenter.presentingViewController)
-        XCTAssertEqual(viewController.fakePresentedViewController?.view.tag, 333)
+    func testPresentEnjoymentDialog() throws {
+        try self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "EnjoymentDialog"))
     }
 
-    func testPresentEnjoymentDialog() throws {
-        guard let url = Bundle(for: type(of: self)).url(forResource: "EnjoymentDialog", withExtension: "json", subdirectory: "Test Interactions") else {
-            return XCTFail("Unable to load test survey data")
-        }
+    func testPresentSurvey() throws {
+        try self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "Survey"))
+    }
 
-        let data = try Data(contentsOf: url)
-        let interaction = try JSONDecoder().decode(Interaction.self, from: data)
-
-        guard let interactionPresenter = self.interactionPresenter as? FakeInteractionPresenter else {
-            return XCTFail("interactionPresenter is nil or not a FakeInteractionPresenter")
-        }
-
-        XCTAssertThrowsError(try interactionPresenter.presentInteraction(interaction, from: nil))
-
-        let viewController = FakePresentingViewController()
-        try interactionPresenter.presentInteraction(interaction, from: viewController)
-
-        XCTAssertNotNil(interactionPresenter.alertViewModel)
-        XCTAssertEqual(viewController, interactionPresenter.presentingViewController)
-        XCTAssertEqual(viewController.fakePresentedViewController?.view.tag, 333)
+    func testPresentTextModal() throws {
+        try self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "TextModal"))
     }
 
     func testPresentUnimplemented() throws {
@@ -75,19 +43,14 @@ class InteractionPresenterTests: XCTestCase {
 
         let fakeInteraction = try JSONDecoder().decode(Interaction.self, from: fakeInteractionData)
 
-        guard let interactionPresenter = self.interactionPresenter as? FakeInteractionPresenter else {
-            return XCTFail("interactionPresenter is nil or not a FakeInteractionPresenter")
-        }
-
-        XCTAssertThrowsError(try interactionPresenter.presentInteraction(fakeInteraction, from: nil))
+        XCTAssertThrowsError(try self.presentInteraction(fakeInteraction))
     }
 
     class FakeInteractionPresenter: InteractionPresenter {
-        var surveyViewModel: SurveyViewModel?
-        var alertViewModel: AlertViewModel?
+        var viewModel: AnyObject?
 
         override func presentSurvey(with viewModel: SurveyViewModel) throws {
-            self.surveyViewModel = viewModel
+            self.viewModel = viewModel
 
             let fakeSurveyViewController = UIViewController()
             fakeSurveyViewController.view.tag = 333
@@ -96,7 +59,16 @@ class InteractionPresenterTests: XCTestCase {
         }
 
         override func presentEnjoymentDialog(with viewModel: EnjoymentDialogViewModel) throws {
-            self.alertViewModel = viewModel
+            self.viewModel = viewModel
+
+            let fakeAlertController = UIViewController()
+            fakeAlertController.view.tag = 333
+
+            try self.presentViewController(fakeAlertController)
+        }
+
+        override func presentTextModal(with viewModel: TextModalViewModel) throws {
+            self.viewModel = viewModel
 
             let fakeAlertController = UIViewController()
             fakeAlertController.view.tag = 333
@@ -130,5 +102,20 @@ class InteractionPresenterTests: XCTestCase {
         override var window: UIWindow {
             return UIWindow()
         }
+    }
+
+    private func presentInteraction(_ interaction: Interaction) throws {
+        guard let interactionPresenter = self.interactionPresenter as? FakeInteractionPresenter else {
+            return XCTFail("interactionPresenter is nil or not a FakeInteractionPresenter")
+        }
+
+        XCTAssertThrowsError(try interactionPresenter.presentInteraction(interaction, from: nil))
+
+        let viewController = FakePresentingViewController()
+        try interactionPresenter.presentInteraction(interaction, from: viewController)
+
+        XCTAssertNotNil(interactionPresenter.viewModel)
+        XCTAssertEqual(viewController, interactionPresenter.presentingViewController)
+        XCTAssertEqual(viewController.fakePresentedViewController?.view.tag, 333)
     }
 }

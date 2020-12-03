@@ -19,12 +19,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
     var gotSelectionDidChange: Bool = false
 
     override func setUpWithError() throws {
-        guard let surveyURL = Bundle(for: type(of: self)).url(forResource: "Survey", withExtension: "json", subdirectory: "Test Interactions") else {
-            return XCTFail("Unable to load test data")
-        }
-
-        let data = try Data(contentsOf: surveyURL)
-        let interaction = try JSONDecoder().decode(Interaction.self, from: data)
+        let interaction = try InteractionTestHelpers.loadInteraction(named: "Survey")
 
         guard case let Interaction.InteractionConfiguration.survey(surveyConfiguration) = interaction.configuration else {
             return XCTFail("Unable to create view model")

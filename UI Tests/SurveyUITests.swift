@@ -1,6 +1,6 @@
 //
-//  ApptentiveUITests.swift
-//  ApptentiveUITests
+//  SurveyUITests.swift
+//  SurveyUITests
 //
 //  Created by Frank Schmitt on 3/3/20.
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
