@@ -9,7 +9,7 @@
 import UIKit
 
 /// The main interface to the Apptentive SDK.
-public class Apptentive: EnvironmentDelegate, ResponseSending {
+public class Apptentive: EnvironmentDelegate, InteractionDelegate {
     /// The shared instance of the Apptentive SDK.
     ///
     /// This object is created lazily upon access.
@@ -99,10 +99,10 @@ public class Apptentive: EnvironmentDelegate, ResponseSending {
         }
 
         self.backend.frontend = self
-        self.interactionPresenter.sender = self
+        self.interactionPresenter.delegate = self
     }
 
-    // MARK: ResponseSending
+    // MARK: InteractionDelegate
 
     func send(surveyResponse: SurveyResponse) {
         self.backendQueue.async {

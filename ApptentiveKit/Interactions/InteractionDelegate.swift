@@ -8,13 +8,16 @@
 
 import Foundation
 
-/// Describes an object that can send responses from interactions.
-protocol ResponseSending {
+typealias InteractionDelegate = ResponseSending & EventEngaging
 
+/// Describes an object that can send responses from Survey interactions.
+protocol ResponseSending {
     /// Sends the specified survey response to the Apptentive API.
     /// - Parameter surveyResponse: The survey response to send.
     func send(surveyResponse: SurveyResponse)
+}
 
+protocol EventEngaging {
     /// Engages the specified event by including the interaction.
     /// - Parameter event: The event to engage.
     func engage(event: Event)

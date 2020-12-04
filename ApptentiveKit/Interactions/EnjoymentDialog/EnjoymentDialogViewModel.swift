@@ -11,7 +11,7 @@ import Foundation
 /// Describes the values needed to configure a view for the EnjoymentDialog ("Love Dialog") interaction.
 public class EnjoymentDialogViewModel: AlertViewModel {
     let interaction: Interaction
-    let sender: ResponseSending
+    let delegate: EventEngaging
 
     /// The "Do you love this app" question part of the dialog.
     public let title: String?
@@ -22,9 +22,9 @@ public class EnjoymentDialogViewModel: AlertViewModel {
     /// The "yes" and "no" buttons for the dialog.
     public let buttons: [AlertButtonModel]
 
-    init(configuration: EnjoymentDialogConfiguration, interaction: Interaction, sender: ResponseSending) {
+    init(configuration: EnjoymentDialogConfiguration, interaction: Interaction, delegate: EventEngaging) {
         self.interaction = interaction
-        self.sender = sender
+        self.delegate = delegate
 
         self.title = configuration.title
         self.message = nil
@@ -32,24 +32,24 @@ public class EnjoymentDialogViewModel: AlertViewModel {
             AlertButtonModel(
                 title: configuration.yesText, style: .default,
                 action: {
-                    sender.engage(event: .yes(from: interaction))
+                    delegate.engage(event: .yes(from: interaction))
                 }),
             AlertButtonModel(
                 title: configuration.noText, style: .default,
                 action: {
-                    sender.engage(event: .no(from: interaction))
+                    delegate.engage(event: .no(from: interaction))
                 }),
         ]
     }
 
     /// Engages a launch event for the interaction.
     public func launch() {
-        self.sender.engage(event: .launch(from: self.interaction))
+        self.delegate.engage(event: .launch(from: self.interaction))
     }
 
     /// Engages a cancel event for the interaction (not used by the default implementation).
     public func cancel() {
-        self.sender.engage(event: .cancel(from: self.interaction))
+        self.delegate.engage(event: .cancel(from: self.interaction))
     }
 }
 

@@ -8,7 +8,7 @@
 
 @testable import ApptentiveKit
 
-class SpySender: ResponseSending {
+class SpyInteractionDelegate: InteractionDelegate {
     var engagedEvent: Event?
     var sentSurveyResponse: SurveyResponse?
 

@@ -11,7 +11,7 @@ import UIKit
 /// Describes the values needed to configure a view for the TextModal ("Note") interaction.
 public class TextModalViewModel: AlertViewModel {
     let interaction: Interaction
-    let sender: ResponseSending
+    let delegate: EventEngaging
 
     /// The "Do you love this app" question part of the dialog.
     public let title: String?
@@ -22,16 +22,16 @@ public class TextModalViewModel: AlertViewModel {
     /// The "yes" and "no" buttons for the dialog.
     public let buttons: [AlertButtonModel]
 
-    required init(configuration: TextModalConfiguration, interaction: Interaction, sender: ResponseSending) {
+    required init(configuration: TextModalConfiguration, interaction: Interaction, delegate: EventEngaging) {
         self.interaction = interaction
-        self.sender = sender
+        self.delegate = delegate
 
         self.title = configuration.title
         self.message = configuration.body
         self.buttons = configuration.actions.map { action in
             AlertButtonModel(title: action.label, style: .default) {
                 if let event = action.event {
-                    sender.engage(event: Event(internalName: event, interaction: interaction))
+                    delegate.engage(event: Event(internalName: event, interaction: interaction))
                 }
             }
         }
@@ -39,11 +39,11 @@ public class TextModalViewModel: AlertViewModel {
 
     /// Engages a launch event for the interaction.
     public func launch() {
-        self.sender.engage(event: .launch(from: self.interaction))
+        self.delegate.engage(event: .launch(from: self.interaction))
     }
 
     /// Engages a cancel event for the interaction (not used by the default implementation).
     public func cancel() {
-        self.sender.engage(event: .cancel(from: self.interaction))
+        self.delegate.engage(event: .cancel(from: self.interaction))
     }
 }

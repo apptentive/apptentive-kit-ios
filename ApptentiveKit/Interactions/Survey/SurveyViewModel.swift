@@ -17,7 +17,7 @@ public protocol SurveyViewModelDelegate: class {
 
 /// A class that describes the data in a survey interaction and allows reponses to be gathered and transmitted.
 public class SurveyViewModel {
-    let sender: ResponseSending
+    let interactionDelegate: EventEngaging & ResponseSending
 
     let interaction: Interaction
 
@@ -45,7 +45,7 @@ public class SurveyViewModel {
     /// An object, typically a view controller, that implements the `SurveyViewModelDelegate` protocol to receive updates when the survey data changes.
     public weak var delegate: SurveyViewModelDelegate?
 
-    required init(configuration: SurveyConfiguration, interaction: Interaction, sender: ResponseSending) {
+    required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: EventEngaging & ResponseSending) {
         self.interaction = interaction
 
         self.name = configuration.name
@@ -55,7 +55,7 @@ public class SurveyViewModel {
         self.thankYouMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
-        self.sender = sender
+        self.interactionDelegate = interactionDelegate
 
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self
@@ -114,9 +114,9 @@ public class SurveyViewModel {
     /// If one or more answers are invalid, the delegate's `surveyViewModelValidationDidChange(_:)` will be called.
     public func submit() {
         if self.isValid {
-            self.sender.send(surveyResponse: self.response)
+            self.interactionDelegate.send(surveyResponse: self.response)
 
-            self.sender.engage(event: .submit(from: self.interaction))
+            self.interactionDelegate.engage(event: .submit(from: self.interaction))
 
             self.delegate?.surveyViewModelDidSubmit(self)
         } else {
@@ -130,11 +130,11 @@ public class SurveyViewModel {
 
     /// Registers that the survey was successfully presented to the user.
     public func launch() {
-        self.sender.engage(event: .launch(from: self.interaction))
+        self.interactionDelegate.engage(event: .launch(from: self.interaction))
     }
 
     /// Registers that the survey was cancelled by the user.
     public func cancel() {
-        self.sender.engage(event: .cancel(from: self.interaction))
+        self.interactionDelegate.engage(event: .cancel(from: self.interaction))
     }
 }

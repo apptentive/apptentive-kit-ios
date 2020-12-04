@@ -12,7 +12,7 @@ import XCTest
 
 class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
     var viewModel: SurveyViewModel?
-    var spySender: SpySender?
+    var spySender: SpyInteractionDelegate?
 
     var gotDidSubmit: Bool = false
     var gotValidationDidChange: Bool = false
@@ -25,8 +25,8 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
             return XCTFail("Unable to create view model")
         }
 
-        self.spySender = SpySender()
-        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, sender: self.spySender!)
+        self.spySender = SpyInteractionDelegate()
+        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, interactionDelegate: self.spySender!)
         self.viewModel?.delegate = self
     }
 

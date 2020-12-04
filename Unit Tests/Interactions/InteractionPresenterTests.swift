@@ -15,7 +15,7 @@ class InteractionPresenterTests: XCTestCase {
 
     override func setUp() {
         self.interactionPresenter = FakeInteractionPresenter()
-        self.interactionPresenter?.sender = SpySender()
+        self.interactionPresenter?.delegate = SpyInteractionDelegate()
     }
 
     func testPresentEnjoymentDialog() throws {

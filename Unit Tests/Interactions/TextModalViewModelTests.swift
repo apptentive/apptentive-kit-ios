@@ -12,7 +12,7 @@ import XCTest
 
 class TextModalViewModelTests: XCTestCase {
     var viewModel: TextModalViewModel?
-    var spySender: SpySender?
+    var spySender: SpyInteractionDelegate?
 
     var gotDidSubmit: Bool = false
     var gotValidationDidChange: Bool = false
@@ -25,8 +25,8 @@ class TextModalViewModelTests: XCTestCase {
             return XCTFail("Unable to create view model")
         }
 
-        self.spySender = SpySender()
-        self.viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, sender: self.spySender!)
+        self.spySender = SpyInteractionDelegate()
+        self.viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, delegate: self.spySender!)
     }
 
     func testTextModal() {

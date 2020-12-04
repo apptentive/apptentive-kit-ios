@@ -11,7 +11,7 @@
 		010864FF253E22BF00101CFB /* EventPayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010864FE253E22BF00101CFB /* EventPayloadTests.swift */; };
 		01086517253E42FC00101CFB /* PayloadSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01086516253E42FC00101CFB /* PayloadSender.swift */; };
 		010ADF442458F8C3005D63FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 010ADF432458F8C3005D63FE /* Main.storyboard */; };
-		011FF860252D1AF700073EBC /* ResponseSending.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011FF85F252D1AF700073EBC /* ResponseSending.swift */; };
+		011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011FF85F252D1AF700073EBC /* InteractionDelegate.swift */; };
 		013D8E0B24EEFA13005EC4D1 /* SurveyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */; };
 		013D8E0C24EEFA13005EC4D1 /* InteractionPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */; };
 		013D8E0D24EEFA13005EC4D1 /* InteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */; };
@@ -81,7 +81,7 @@
 		01974A9A25770F0800C7D693 /* Test Manifests in Resources */ = {isa = PBXBuildFile; fileRef = 01974A9825770F0800C7D693 /* Test Manifests */; };
 		019E78FE2575AC9B006BD412 /* Test Interactions in Resources */ = {isa = PBXBuildFile; fileRef = 019E78FD2575AC9B006BD412 /* Test Interactions */; };
 		019E79082575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019E79072575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift */; };
-		019E79122575AD7D006BD412 /* SpySender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019E79112575AD7D006BD412 /* SpySender.swift */; };
+		019E79122575AD7D006BD412 /* SpyInteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019E79112575AD7D006BD412 /* SpyInteractionDelegate.swift */; };
 		019E79252575B560006BD412 /* EnjoymentDialogUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */; };
 		01A0917123FCB4A700AF187E /* ApptentiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A0916F23FCB4A700AF187E /* ApptentiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01A0918123FCB4CC00AF187E /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
@@ -158,7 +158,7 @@
 		010864FE253E22BF00101CFB /* EventPayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPayloadTests.swift; sourceTree = "<group>"; };
 		01086516253E42FC00101CFB /* PayloadSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayloadSender.swift; sourceTree = "<group>"; };
 		010ADF432458F8C3005D63FE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
-		011FF85F252D1AF700073EBC /* ResponseSending.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseSending.swift; sourceTree = "<group>"; };
+		011FF85F252D1AF700073EBC /* InteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionDelegate.swift; sourceTree = "<group>"; };
 		013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyViewModelTests.swift; sourceTree = "<group>"; };
 		013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractionPresenterTests.swift; sourceTree = "<group>"; };
 		013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractionTests.swift; sourceTree = "<group>"; };
@@ -228,7 +228,7 @@
 		01974A9825770F0800C7D693 /* Test Manifests */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Test Manifests"; sourceTree = "<group>"; };
 		019E78FD2575AC9B006BD412 /* Test Interactions */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Test Interactions"; sourceTree = "<group>"; };
 		019E79072575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogViewModelTests.swift; sourceTree = "<group>"; };
-		019E79112575AD7D006BD412 /* SpySender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpySender.swift; sourceTree = "<group>"; };
+		019E79112575AD7D006BD412 /* SpyInteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpyInteractionDelegate.swift; sourceTree = "<group>"; };
 		019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogUITests.swift; sourceTree = "<group>"; };
 		01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ApptentiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A0916F23FCB4A700AF187E /* ApptentiveKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ApptentiveKit.h; sourceTree = "<group>"; };
@@ -332,7 +332,7 @@
 				019E79072575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift */,
 				013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */,
 				01ED61802577240A0023208C /* TextModalViewModelTests.swift */,
-				019E79112575AD7D006BD412 /* SpySender.swift */,
+				019E79112575AD7D006BD412 /* SpyInteractionDelegate.swift */,
 				01ED6198257724580023208C /* InteractionTestHelpers.swift */,
 			);
 			path = Interactions;
@@ -438,7 +438,7 @@
 				014D5B17256ED56B0030DC90 /* EnjoymentDialog */,
 				018A90D82481C73C004577EB /* Survey */,
 				01974A682577043400C7D693 /* TextModal */,
-				011FF85F252D1AF700073EBC /* ResponseSending.swift */,
+				011FF85F252D1AF700073EBC /* InteractionDelegate.swift */,
 			);
 			path = Interactions;
 			sourceTree = "<group>";
@@ -861,7 +861,7 @@
 				01974A6D2577043400C7D693 /* TextModalConfiguration.swift in Sources */,
 				01E79845251C30F800D24A05 /* Payload.swift in Sources */,
 				015F2A9F24C7A460004B53E2 /* InteractionPresenter.swift in Sources */,
-				011FF860252D1AF700073EBC /* ResponseSending.swift in Sources */,
+				011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */,
 				013D8EA424F09B01005EC4D1 /* AppRelease.swift in Sources */,
 				014D5B23256ED6B80030DC90 /* EnjoymentDialogViewModel.swift in Sources */,
 				01E7982D251C2EF100D24A05 /* AppReleaseRequest.swift in Sources */,
@@ -914,7 +914,7 @@
 				01ED6193257724250023208C /* TextModalViewModelTests.swift in Sources */,
 				013D8E0D24EEFA13005EC4D1 /* InteractionTests.swift in Sources */,
 				017FC9922531101500C7A47F /* TargeterTests.swift in Sources */,
-				019E79122575AD7D006BD412 /* SpySender.swift in Sources */,
+				019E79122575AD7D006BD412 /* SpyInteractionDelegate.swift in Sources */,
 				015D6BCB250AC0AC00372759 /* PersonTests.swift in Sources */,
 				010864FF253E22BF00101CFB /* EventPayloadTests.swift in Sources */,
 				017231122536769F0095AEAA /* FieldTests.swift in Sources */,

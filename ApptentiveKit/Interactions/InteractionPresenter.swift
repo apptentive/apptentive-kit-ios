@@ -13,7 +13,7 @@ open class InteractionPresenter {
     /// A view controller that can be used to present view-controller-based interactions.
     open var presentingViewController: UIViewController?
 
-    var sender: ResponseSending?
+    var delegate: InteractionDelegate?
 
     /// Creates a new default interaction presenter.
     public init() {}
@@ -24,7 +24,7 @@ open class InteractionPresenter {
     ///   - presentingViewController: The view controller to use to present the interaction.
     /// - Throws: If the `sender` property isn't set, if the interaction isn't recognized, or if the presenting view controller is missing or invalid.
     func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController? = nil) throws {
-        guard let sender = self.sender else {
+        guard let delegate = self.delegate else {
             throw ApptentiveError.internalInconsistency
         }
 
@@ -34,15 +34,15 @@ open class InteractionPresenter {
 
         switch interaction.configuration {
         case .enjoymentDialog(let configuration):
-            let viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, sender: sender)
+            let viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
             try self.presentEnjoymentDialog(with: viewModel)
 
         case .survey(let configuration):
-            let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, sender: sender)
+            let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             try self.presentSurvey(with: viewModel)
 
         case .textModal(let configuration):
-            let viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, sender: sender)
+            let viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
             try self.presentTextModal(with: viewModel)
 
         default:
