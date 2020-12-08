@@ -45,7 +45,9 @@ open class InteractionPresenter {
             let viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
             try self.presentTextModal(with: viewModel)
 
-        default:
+        case .notImplemented:
+            let viewModel = NotImplementedAlertViewModel(interactionTypeName: interaction.typeName)
+            try self.presentViewController(UIAlertController(viewModel: viewModel))
             throw InteractionPresenterError.notImplemented(interaction.typeName)
         }
     }

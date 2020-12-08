@@ -106,6 +106,9 @@
 		1F323D65240F28C200A678BC /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		1F323D66240F28C200A678BC /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1F323D6B240F2F0500A678BC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D6A240F2F0500A678BC /* ViewController.swift */; };
+		EF5FC3A7257FD901003E127B /* NotImplementedAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3A6257FD901003E127B /* NotImplementedAlertViewModel.swift */; };
+		EF5FC3CE25800C62003E127B /* NotImplementedAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3CD25800C62003E127B /* NotImplementedAlertViewModel.swift */; };
+		EF5FC3E125801734003E127B /* NotImplementedAlertUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3DB258013FC003E127B /* NotImplementedAlertUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -261,6 +264,9 @@
 		1F323D5C240EEE0500A678BC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1F323D5E240EEE0500A678BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F323D6A240F2F0500A678BC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		EF5FC3A6257FD901003E127B /* NotImplementedAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertViewModel.swift; sourceTree = "<group>"; };
+		EF5FC3CD25800C62003E127B /* NotImplementedAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertViewModel.swift; sourceTree = "<group>"; };
+		EF5FC3DB258013FC003E127B /* NotImplementedAlertUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -330,6 +336,7 @@
 				013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */,
 				013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */,
 				019E79072575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift */,
+				EF5FC3CD25800C62003E127B /* NotImplementedAlertViewModel.swift */,
 				013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */,
 				01ED61802577240A0023208C /* TextModalViewModelTests.swift */,
 				019E79112575AD7D006BD412 /* SpyInteractionDelegate.swift */,
@@ -433,6 +440,7 @@
 			isa = PBXGroup;
 			children = (
 				018A9099247F09D4004577EB /* Interaction.swift */,
+				EF5FC3A6257FD901003E127B /* NotImplementedAlertViewModel.swift */,
 				015F2A9E24C7A460004B53E2 /* InteractionPresenter.swift */,
 				014D5B32256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift */,
 				014D5B17256ED56B0030DC90 /* EnjoymentDialog */,
@@ -582,6 +590,7 @@
 			children = (
 				019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */,
 				1F323D44240EED3000A678BC /* SurveyUITests.swift */,
+				EF5FC3DB258013FC003E127B /* NotImplementedAlertUITests.swift */,
 				01ED6166257723D20023208C /* TextModalUITests.swift */,
 				1F323D46240EED3000A678BC /* Info.plist */,
 			);
@@ -860,6 +869,7 @@
 				017FC92C25310E2400C7A47F /* Event.swift in Sources */,
 				01974A6D2577043400C7D693 /* TextModalConfiguration.swift in Sources */,
 				01E79845251C30F800D24A05 /* Payload.swift in Sources */,
+				EF5FC3A7257FD901003E127B /* NotImplementedAlertViewModel.swift in Sources */,
 				015F2A9F24C7A460004B53E2 /* InteractionPresenter.swift in Sources */,
 				011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */,
 				013D8EA424F09B01005EC4D1 /* AppRelease.swift in Sources */,
@@ -903,6 +913,7 @@
 				01E7986B251C32F200D24A05 /* SurveyResponsePayloadTests.swift in Sources */,
 				017231112536769F0095AEAA /* CriteriaTests.swift in Sources */,
 				013D8EB124F09F6C005EC4D1 /* ConversationRequestTests.swift in Sources */,
+				EF5FC3CE25800C62003E127B /* NotImplementedAlertViewModel.swift in Sources */,
 				017231102536769F0095AEAA /* TargetingStateTests.swift in Sources */,
 				019E79082575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift in Sources */,
 				015D6BC9250AC0AC00372759 /* AppReleaseTests.swift in Sources */,
@@ -929,6 +940,7 @@
 			files = (
 				01ED61B3257726C60023208C /* TextModalUITests.swift in Sources */,
 				1F323D45240EED3000A678BC /* SurveyUITests.swift in Sources */,
+				EF5FC3E125801734003E127B /* NotImplementedAlertUITests.swift in Sources */,
 				019E79252575B560006BD412 /* EnjoymentDialogUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
