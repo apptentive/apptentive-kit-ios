@@ -114,6 +114,14 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
         self.engage(event: event, from: nil)
     }
 
+    /// Asks the system to open the specified URL.
+    /// - Parameters:
+    ///   - url: The URL to open.
+    ///   - completion: Called with a value indicating whether the URL was successfully opened.
+    func open(_ url: URL, completion: @escaping (Bool) -> Void) {
+        self.environment.open(url, completion: completion)
+    }
+
     // MARK: EnvironmentDelegate
 
     func protectedDataDidBecomeAvailable(_ environment: Environment) {

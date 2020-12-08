@@ -11,6 +11,8 @@
 class SpyInteractionDelegate: InteractionDelegate {
     var engagedEvent: Event?
     var sentSurveyResponse: SurveyResponse?
+    var shouldURLOpeningSucceed = true
+    var openedURL: URL? = nil
 
     func engage(event: Event) {
         self.engagedEvent = event
@@ -18,5 +20,10 @@ class SpyInteractionDelegate: InteractionDelegate {
 
     func send(surveyResponse: SurveyResponse) {
         self.sentSurveyResponse = surveyResponse
+    }
+
+    func open(_ url: URL, completion: @escaping (Bool) -> Void) {
+        self.openedURL = url
+        completion(shouldURLOpeningSucceed)
     }
 }

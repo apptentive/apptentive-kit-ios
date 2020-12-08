@@ -37,6 +37,10 @@ open class InteractionPresenter {
             let viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
             try self.presentEnjoymentDialog(with: viewModel)
 
+        case .navigateToLink(let configuration):
+            let controller = NavigateToLinkController(configuration: configuration, interaction: interaction, delegate: delegate)
+            controller.navigateToLink()
+
         case .survey(let configuration):
             let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             try self.presentSurvey(with: viewModel)

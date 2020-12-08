@@ -27,6 +27,9 @@ public struct Interaction: Decodable {
         case "EnjoymentDialog":
             self.configuration = .enjoymentDialog(try container.decode(EnjoymentDialogConfiguration.self, forKey: .configuration))
 
+        case "NavigateToLink":
+            self.configuration = .navigateToLink(try container.decode(NavigateToLinkConfiguration.self, forKey: .configuration))
+
         case "Survey":
             self.configuration = .survey(try container.decode(SurveyConfiguration.self, forKey: .configuration))
 
@@ -61,6 +64,7 @@ public struct Interaction: Decodable {
 
     enum InteractionConfiguration {
         case enjoymentDialog(EnjoymentDialogConfiguration)
+        case navigateToLink(NavigateToLinkConfiguration)
         case survey(SurveyConfiguration)
         case textModal(TextModalConfiguration)
         case notImplemented

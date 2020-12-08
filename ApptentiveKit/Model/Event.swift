@@ -11,7 +11,7 @@ import Foundation
 /// Describes an event that represents a view or action in your app that you would like to track to help trigger interactions.
 ///
 /// Use the `Apptentive` object's `engage(event:from:)` method to record events in your app.
-public struct Event: ExpressibleByStringLiteral, Decodable, CustomDebugStringConvertible {
+public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
     /// The name of the event as provided by the customer.
     let name: String
 
@@ -20,6 +20,9 @@ public struct Event: ExpressibleByStringLiteral, Decodable, CustomDebugStringCon
 
     /// The interaction, if any, that the event was engaged by (the string `app` will be used in the code point if there is no interaction).
     var interaction: Interaction?
+
+    /// Additional information to be sent along with the event.
+    var userInfo: EventUserInfo?
 
     /// Creates an event with the provided name.
     /// - Parameter name: The name of the event.
@@ -89,4 +92,8 @@ public struct Event: ExpressibleByStringLiteral, Decodable, CustomDebugStringCon
     public var debugDescription: String {
         return "Event(codePoint: \(self.codePointName))"
     }
+}
+
+enum EventUserInfo: Equatable {
+    case navigateToLink(NavigateToLinkResult)
 }

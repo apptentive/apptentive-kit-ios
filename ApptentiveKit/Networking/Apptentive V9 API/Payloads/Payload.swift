@@ -114,7 +114,7 @@ enum AllPossiblePayloadCodingKeys: String, CodingKey {
     // Event keys
     case label
     case interactionID = "interaction_id"
-    case data
+    case userInfo = "data"
     case customData = "custom_data"
     case time
     case location

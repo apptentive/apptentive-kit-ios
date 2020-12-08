@@ -1,16 +1,16 @@
 language: swift
 osx_image: xcode12.2
+os: osx
 
 deploy:
   provider: releases
-  api_key: ${GITHUB_TOKEN}
+  token: ${GITHUB_TOKEN}
   file_glob: true
   file:
     - "./artifacts/**/*"
-  skip_cleanup: true
+  cleanup: false
   on:
     all_branches: true
-  on:
     tags: true
 
 branches:

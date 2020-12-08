@@ -216,6 +216,18 @@ class Environment: ConversationEnvironment {
         return try self.fileManager.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     }
 
+    /// Asks the system to open the specified URL.
+    /// - Parameters:
+    ///   - url: The URL to open.
+    ///   - completion: Called with a value indicating whether the URL was successfully opened.
+    func open(_ url: URL, completion: @escaping (Bool) -> Void) {
+        #if canImport(UIKit)
+            UIApplication.shared.open(url, options: [:], completionHandler: completion)
+        #else
+            completion(false)
+        #endif
+    }
+
     #if canImport(UIKit)
         @objc func protectedDataDidBecomeAvailable(notification: Notification) {
             self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable

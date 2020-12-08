@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias InteractionDelegate = ResponseSending & EventEngaging
+typealias InteractionDelegate = ResponseSending & EventEngaging & URLOpening
 
 /// Describes an object that can send responses from Survey interactions.
 protocol ResponseSending {
@@ -21,4 +21,13 @@ protocol EventEngaging {
     /// Engages the specified event by including the interaction.
     /// - Parameter event: The event to engage.
     func engage(event: Event)
+}
+
+/// Describes an object that can ask the system to open a URL.
+protocol URLOpening {
+    /// Asks the system to open the specified URL.
+    /// - Parameters:
+    ///   - url: The URL to open.
+    ///   - completion: Called with a value indicating whether the URL was successfully opened.
+    func open(_ url: URL, completion: @escaping (Bool) -> Void)
 }
