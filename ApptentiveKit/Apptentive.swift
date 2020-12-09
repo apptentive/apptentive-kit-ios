@@ -114,6 +114,10 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
         self.engage(event: event, from: nil)
     }
 
+    func requestReview(completion: @escaping (Bool) -> Void) {
+        self.environment.requestReview(completion: completion)
+    }
+
     /// Asks the system to open the specified URL.
     /// - Parameters:
     ///   - url: The URL to open.

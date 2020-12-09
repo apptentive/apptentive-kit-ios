@@ -16,6 +16,10 @@ import Foundation
     import CoreTelephony
 #endif
 
+#if canImport(StoreKit)
+    import StoreKit
+#endif
+
 /// The portions of the Environment that provide access to platform features.
 protocol PlatformEnvironment {
     var fileManager: FileManager { get }
@@ -216,6 +220,36 @@ class Environment: ConversationEnvironment {
         return try self.fileManager.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     }
 
+    /// Requests a review using `SKStoreReviewController`.
+    ///
+    /// If no review window appears within 1 second of the request, assume the request was denied.
+    /// - Parameter completion: Called with a value indicating whether the review request was shown.
+    func requestReview(completion: @escaping (Bool) -> Void) {
+        #if canImport(StoreKit)
+            var didShow = false
+
+            // Prepare to observe when a window appears.
+            NotificationCenter.default.addObserver(forName: UIWindow.didBecomeVisibleNotification, object: nil, queue: nil) { (notification) in
+                if let object = notification.object, String(describing: type(of: object)).hasPrefix("SKStoreReview") {
+                    // If the window looks store-review-related, note that the system showed the review request.
+                    didShow = true
+                }
+            }
+
+            // Request a review.
+            SKStoreReviewController.requestReview()
+
+            // Wait up to 1 second for the review window to appear before giving up.
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
+                NotificationCenter.default.removeObserver(self, name: UIWindow.didBecomeVisibleNotification, object: nil)
+
+                completion(didShow)
+            }
+        #else
+            completion(false)
+        #endif
+    }
+  
     /// Asks the system to open the specified URL.
     /// - Parameters:
     ///   - url: The URL to open.

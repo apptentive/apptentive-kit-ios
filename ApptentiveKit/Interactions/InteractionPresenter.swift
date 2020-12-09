@@ -33,6 +33,9 @@ open class InteractionPresenter {
         }
 
         switch interaction.configuration {
+        case .appleRatingDialog:
+            AppleRatingDialogController(interaction: interaction, delegate: delegate).requestReview()
+
         case .enjoymentDialog(let configuration):
             let viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
             try self.presentEnjoymentDialog(with: viewModel)

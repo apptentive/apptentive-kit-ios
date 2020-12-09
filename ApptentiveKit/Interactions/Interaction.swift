@@ -24,6 +24,9 @@ public struct Interaction: Decodable {
         self.typeName = try container.decode(String.self, forKey: .type)
 
         switch self.typeName {
+        case "AppleRatingDialog":
+            self.configuration = .appleRatingDialog
+
         case "EnjoymentDialog":
             self.configuration = .enjoymentDialog(try container.decode(EnjoymentDialogConfiguration.self, forKey: .configuration))
 
@@ -39,7 +42,6 @@ public struct Interaction: Decodable {
         default:
             self.configuration = .notImplemented
         }
-
     }
 
     /// Initializes an interaction with the given parameters.
@@ -63,6 +65,7 @@ public struct Interaction: Decodable {
     }
 
     enum InteractionConfiguration {
+        case appleRatingDialog
         case enjoymentDialog(EnjoymentDialogConfiguration)
         case navigateToLink(NavigateToLinkConfiguration)
         case survey(SurveyConfiguration)

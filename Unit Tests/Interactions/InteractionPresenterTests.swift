@@ -18,6 +18,12 @@ class InteractionPresenterTests: XCTestCase {
         self.interactionPresenter?.delegate = SpyInteractionDelegate()
     }
 
+    func testShowAppleRatingDialog() throws {
+        let interaction = try InteractionTestHelpers.loadInteraction(named: "AppleRatingDialog")
+
+        XCTAssertNoThrow(try self.interactionPresenter?.presentInteraction(interaction))
+    }
+
     func testPresentEnjoymentDialog() throws {
         try self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "EnjoymentDialog"))
     }
