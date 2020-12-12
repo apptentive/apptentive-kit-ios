@@ -42,6 +42,18 @@ public class SurveyViewModel {
     /// The list of questions in the survey.
     public let questions: [Question]
 
+    /// The title text for the alert asking the user if they want to close a partially-completed survey.
+    public let closeConfirmationAlertTitle: String
+
+    /// The message text for the alert asking the user if they want to close a partially-completed survey.
+    public let closeConfirmationAlertMessage: String
+
+    /// The text for the button returning the user to a partially-completed survey.
+    public let closeConfirmationBackButtonLabel: String
+
+    /// The text for the button confirming the closure of a partially-completed survey.
+    public let closeConfirmationCloseButtonLabel: String
+
     /// An object, typically a view controller, that implements the `SurveyViewModelDelegate` protocol to receive updates when the survey data changes.
     public weak var delegate: SurveyViewModelDelegate?
 
@@ -56,6 +68,11 @@ public class SurveyViewModel {
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
         self.interactionDelegate = interactionDelegate
+
+        self.closeConfirmationAlertTitle = NSLocalizedString("Close survey?", comment: "Survey close confirmation alert title")
+        self.closeConfirmationAlertMessage = NSLocalizedString("You will lose your progress if you close this survey.", comment: "Survey close confirmation alert message")
+        self.closeConfirmationBackButtonLabel = NSLocalizedString("Back to Survey", comment: "Survey close confirmation back button")
+        self.closeConfirmationCloseButtonLabel = NSLocalizedString("Close", comment: "Survey close confirmation close button")
 
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self

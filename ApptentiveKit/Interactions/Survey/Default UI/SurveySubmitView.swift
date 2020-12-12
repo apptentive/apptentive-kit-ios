@@ -51,7 +51,12 @@ class SurveySubmitView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        self.submitButton.layer.cornerRadius = self.submitButton.bounds.height / 2.0
+        switch UIButton.apptentiveStyle {
+        case .pill:
+            self.submitButton.layer.cornerRadius = self.submitButton.bounds.height / 2.0
+        case .radius(let radius):
+            self.submitButton.layer.cornerRadius = radius
+        }
     }
 
     override func tintColorDidChange() {

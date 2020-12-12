@@ -31,13 +31,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             case .thankYou:
                 self.submitView.submitLabel.text = self.viewModel.thankYouMessage
-                self.submitView.submitLabel.textColor = self.normalColor
+                self.submitView.submitLabel.textColor = .apptentiveLabel
                 viewToShow = self.submitView.submitLabel
                 viewToHide = self.submitView.submitButton
 
             case .validationError:
                 self.submitView.submitLabel.text = self.viewModel.validationErrorMessage
-                self.submitView.submitLabel.textColor = self.errorColor
+                self.submitView.submitLabel.textColor = .apptentiveError
                 viewToShow = self.submitView.submitLabel
                 viewToHide = self.submitView.submitButton
             }
@@ -56,11 +56,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.introductionView = SurveyIntroductionView(frame: .zero)
         self.submitView = SurveySubmitView(frame: .zero)
 
-        if #available(iOS 13.0, *) {
-            super.init(style: .insetGrouped)
-        } else {
-            super.init(style: .grouped)
-        }
+        super.init(style: .apptentive)
 
         viewModel.delegate = self
     }
@@ -81,11 +77,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.submitView.submitButton.setTitle(self.viewModel.submitButtonText, for: .normal)
         self.submitView.submitButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
-        if #available(iOS 13.0, *) {
-            self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(closeSurvey))
-        } else {
-            self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeSurvey))
-        }
+        self.navigationItem.rightBarButtonItem = .apptentiveClose
+        self.navigationItem.rightBarButtonItem?.target = self
+        self.navigationItem.rightBarButtonItem?.action = #selector(closeSurvey)
 
         self.tableView.allowsMultipleSelection = true
         self.tableView.keyboardDismissMode = .interactive
@@ -168,6 +162,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             singleLineCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
             singleLineCell.textField.tag = self.tag(for: indexPath)
             singleLineCell.textField.accessibilityIdentifier = String(indexPath.section)
+            singleLineCell.tableViewStyle = tableView.style
 
         case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let multiLineCell as SurveyMultiLineCell):
             multiLineCell.textView.text = freeformQuestion.answerText
@@ -176,20 +171,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             multiLineCell.textView.delegate = self
             multiLineCell.textView.tag = self.tag(for: indexPath)
             multiLineCell.textView.accessibilityIdentifier = String(indexPath.section)
+            multiLineCell.tableViewStyle = tableView.style
 
         case (let rangeQuestion as SurveyViewModel.RangeQuestion, let choiceCell):
             choiceCell.textLabel?.text = rangeQuestion.choiceLabels[indexPath.row]
 
-            let imageName = "circle"
-            let highlightedImageName = "smallcircle.fill.circle.fill"
-
-            if #available(iOS 13.0, *) {
-                choiceCell.imageView?.image = UIImage(systemName: imageName)
-                choiceCell.imageView?.highlightedImage = UIImage(systemName: highlightedImageName)
-            } else {
-                choiceCell.imageView?.image = UIImage(named: imageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
-                choiceCell.imageView?.highlightedImage = UIImage(named: highlightedImageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
-            }
+            choiceCell.imageView?.image = .apptentiveRadioButton
+            choiceCell.imageView?.highlightedImage = .apptentiveRadioButtonSelected
 
             if indexPath.row == 0 {
                 choiceCell.detailTextLabel?.text = rangeQuestion.minText
@@ -201,25 +189,15 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell):
             choiceCell.textLabel?.text = choiceQuestion.choiceLabels[indexPath.row]
-
-            var imageName: String
-            var highlightedImageName: String
+            choiceCell.detailTextLabel?.text = nil
 
             switch choiceQuestion.selectionStyle {
             case .radioButton:
-                imageName = "circle"
-                highlightedImageName = "smallcircle.fill.circle.fill"
+                choiceCell.imageView?.image = .apptentiveRadioButton
+                choiceCell.imageView?.highlightedImage = .apptentiveRadioButtonSelected
             case .checkbox:
-                imageName = "square"
-                highlightedImageName = "checkmark.square.fill"
-            }
-
-            if #available(iOS 13.0, *) {
-                choiceCell.imageView?.image = UIImage(systemName: imageName)
-                choiceCell.imageView?.highlightedImage = UIImage(systemName: highlightedImageName)
-            } else {
-                choiceCell.imageView?.image = UIImage(named: imageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
-                choiceCell.imageView?.highlightedImage = UIImage(named: highlightedImageName, in: Bundle(for: type(of: self)), compatibleWith: tableView.traitCollection)?.withRenderingMode(.alwaysTemplate)
+                choiceCell.imageView?.image = .apptentiveCheckbox
+                choiceCell.imageView?.highlightedImage = .apptentiveCheckboxSelected
             }
 
         default:
@@ -243,8 +221,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         header.instructionsLabel.text = instructionsText
         header.instructionsLabel.isHidden = instructionsText.isEmpty
 
-        header.questionLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
-        header.instructionsLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
+        header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
+        header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
 
         return header
     }
@@ -292,7 +270,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
 
         footerView.textLabel?.alpha = 1  // We may have faded this out in `surveyViewModelValidationDidChange(_:)`.
-        footerView.textLabel?.textColor = self.errorColor  // Footers always display an error in the error color.
+        footerView.textLabel?.textColor = .apptentiveError  // Footers always display an error in the error color.
     }
 
     // MARK: - Survey View Model delgate
@@ -333,8 +311,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 UIView.transition(
                     with: header, duration: 0.25, options: .transitionCrossDissolve
                 ) {
-                    header.questionLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
-                    header.instructionsLabel.textColor = question.isMarkedAsInvalid ? self.errorColor : self.normalColor
+                    header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
+                    header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
                 }
             }
 
@@ -452,9 +430,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     private func confirmCancel() {
-        let alertController = UIAlertController(title: "Are you sure you want to close this survey?", message: "You will lose any responses you have entered.", preferredStyle: .actionSheet)
-        alertController.addAction(UIAlertAction(title: "Close Survey", style: .destructive, handler: { _ in self.cancel() }))
-        alertController.addAction(UIAlertAction(title: "Continue Responding", style: .cancel, handler: nil))
+        let alertController = UIAlertController(title: self.viewModel.closeConfirmationAlertTitle, message: self.viewModel.closeConfirmationAlertMessage, preferredStyle: .actionSheet)
+        alertController.addAction(UIAlertAction(title: self.viewModel.closeConfirmationCloseButtonLabel, style: .destructive, handler: { _ in self.cancel() }))
+        alertController.addAction(UIAlertAction(title: self.viewModel.closeConfirmationBackButtonLabel, style: .cancel, handler: nil))
 
         self.present(alertController, animated: true, completion: nil)
     }
@@ -472,17 +450,5 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         if let firstInvalidQuestionIndex = self.viewModel.invalidQuestionIndexes.first {
             self.tableView.scrollToRow(at: IndexPath(row: 0, section: firstInvalidQuestionIndex), at: .middle, animated: true)
         }
-    }
-
-    private var normalColor: UIColor {
-        if #available(iOS 13.0, *) {
-            return .label
-        } else {
-            return .black
-        }
-    }
-
-    private var errorColor: UIColor {
-        return .systemRed
     }
 }

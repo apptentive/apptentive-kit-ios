@@ -82,7 +82,7 @@ open class InteractionPresenter {
     open func presentSurvey(with viewModel: SurveyViewModel) throws {
         let viewController = SurveyViewController(viewModel: viewModel)
 
-        let navigationController = UINavigationController(rootViewController: viewController)
+        let navigationController = ApptentiveNavigationController(rootViewController: viewController)
 
         try self.presentViewController(
             navigationController,

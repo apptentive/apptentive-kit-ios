@@ -18,11 +18,29 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
     /// An object that overrides the `InteractionPresenter` class used to display interactions to the user.
     public var interactionPresenter: InteractionPresenter
 
+    /// The theme to apply to Apptentive UI.
+    ///
+    /// This property must be set before calling `register(credentials:)`.
+    public var theme: UITheme = .apptentive
+
+    /// Indicates a theme that will be applied to Apptentive UI.
+    public enum UITheme {
+        /// Apptentive cross-platform look and feel.
+        case apptentive
+
+        /// iOS default look and feel.
+        case none
+    }
+
     /// Provides the SDK with the credentials necessary to connect to the Apptentive API.
     /// - Parameters:
     ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
     public func register(credentials: AppCredentials, completion: ((Bool) -> Void)? = nil) {
+        if case .apptentive = self.theme {
+            self.applyApptentiveTheme()
+        }
+
         self.backendQueue.async {
             self.backend.connect(appCredentials: credentials) { result in
                 switch result {

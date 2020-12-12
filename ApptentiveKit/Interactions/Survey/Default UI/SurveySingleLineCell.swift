@@ -10,22 +10,31 @@ import UIKit
 
 class SurveySingleLineCell: UITableViewCell {
     let textField: UITextField
+    var tableViewStyle: UITableView.Style {
+        didSet {
+            switch self.tableViewStyle {
+            case .insetGrouped:
+                if #available(iOS 13.0, *) {
+                    self.textField.borderStyle = .none
+                    self.layer.borderColor = UIColor.tertiaryLabel.cgColor
+                    self.layer.borderWidth = 1.0
+                }
+            default:
+                self.textField.borderStyle = .roundedRect
+                self.layer.borderColor = nil
+            }
+        }
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.textField = UITextField(frame: .zero)
+        self.tableViewStyle = .grouped
 
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         self.translatesAutoresizingMaskIntoConstraints = false
         self.contentView.addSubview(self.textField)
         self.configureTextField()
-
-        if #available(iOS 13.0, *) {
-            self.layer.borderColor = UIColor.tertiaryLabel.cgColor
-            self.layer.borderWidth = 1.0
-        } else {
-            self.textField.borderStyle = .roundedRect
-        }
     }
 
     required init?(coder: NSCoder) {

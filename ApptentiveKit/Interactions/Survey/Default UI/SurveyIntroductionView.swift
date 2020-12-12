@@ -25,11 +25,7 @@ class SurveyIntroductionView: UIView {
         self.textLabel.adjustsFontForContentSizeCategory = true
         self.textLabel.textAlignment = .center
 
-        if #available(iOS 13.0, *) {
-            self.textLabel.textColor = .secondaryLabel
-        } else {
-            self.textLabel.textColor = .darkGray
-        }
+        self.textLabel.textColor = .apptentiveSurveyIntroduction
 
         NSLayoutConstraint.activate([
             self.textLabel.topAnchor.constraint(equalToSystemSpacingBelow: self.topAnchor, multiplier: 1.0),
