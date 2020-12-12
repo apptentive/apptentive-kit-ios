@@ -26,7 +26,7 @@ class SpyInteractionDelegate: InteractionDelegate {
     func requestReview(completion: @escaping (Bool) -> Void) {
         completion(shouldRequestReviewSucceed)
     }
-  
+
     func open(_ url: URL, completion: @escaping (Bool) -> Void) {
         self.openedURL = url
         completion(shouldURLOpeningSucceed)

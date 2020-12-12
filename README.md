@@ -1,6 +1,6 @@
 # Apple-SDK
 
-Apptentive SDK for Apple platforms. Currently intended to support UIKit-based apps running on iOS.
+Apptentive SDK for Apple platforms. Currently intended to support UIKit-based apps running on iOS. 
 
 # CI / CD
 

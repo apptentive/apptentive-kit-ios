@@ -9,11 +9,11 @@
 import XCTest
 
 class NotImplementedAlertUITests: XCTestCase {
-    
+
     override func setUp() {
         XCUIApplication().launch()
     }
-    
+
     func testAlert() {
         XCUIApplication().activate()
         let tablesQuery = XCUIApplication().tables

@@ -249,7 +249,7 @@ class Environment: ConversationEnvironment {
             completion(false)
         #endif
     }
-  
+
     /// Asks the system to open the specified URL.
     /// - Parameters:
     ///   - url: The URL to open.
