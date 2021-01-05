@@ -10,7 +10,7 @@ import Foundation
 
 extension SurveyViewModel {
     /// Base class for question view models (should be treated as abstract).
-    public class Question {
+    public class Question: Validating {
         weak var surveyViewModel: SurveyViewModel?
         let questionID: String
 
@@ -46,7 +46,17 @@ extension SurveyViewModel {
         }
 
         /// Whether the UI should show the question as invalid.
-        public var isMarkedAsInvalid = false
+        public var isMarkedAsInvalid = false {
+            didSet {
+                if isMarkedAsInvalid != oldValue {
+                    guard let surveyViewModel = self.surveyViewModel else {
+                        return assertionFailure("Should have a view model set")
+                    }
+
+                    surveyViewModel.delegate?.surveyViewModelValidationDidChange(surveyViewModel)
+                }
+            }
+        }
 
         init(question: SurveyConfiguration.Question, requiredText: String?) {
             self.questionID = question.id
@@ -57,16 +67,29 @@ extension SurveyViewModel {
             self.instructions = question.instructions
         }
 
-        func updateValidation() {
-            if self.isMarkedAsInvalid && self.isValid {
-                self.isMarkedAsInvalid = false
+        func updateSelection() {
+            self.updateMarkedAsInvalid()
 
-                guard let surveyViewModel = self.surveyViewModel else {
-                    return assertionFailure("Should have a view model set")
-                }
-
-                surveyViewModel.delegate?.surveyViewModelValidationDidChange(surveyViewModel)
+            guard let surveyViewModel = self.surveyViewModel else {
+                return assertionFailure("Should have a view model set")
             }
+
+            surveyViewModel.delegate?.surveyViewModelSelectionDidChange(surveyViewModel)
+        }
+    }
+}
+
+protocol Validating: AnyObject {
+    var isMarkedAsInvalid: Bool { get set }
+    var isValid: Bool { get }
+
+    func updateMarkedAsInvalid()
+}
+
+extension Validating {
+    func updateMarkedAsInvalid() {
+        if self.isValid {
+            self.isMarkedAsInvalid = false
         }
     }
 }

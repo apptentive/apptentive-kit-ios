@@ -40,6 +40,15 @@ class SurveyMultiLineCell: UITableViewCell {
             self.updatePlaceholderConstraints()
         }
     }
+    var isMarkedAsInvalid: Bool {
+        didSet {
+            if self.isMarkedAsInvalid {
+                self.textView.layer.borderColor = UIColor.apptentiveError.cgColor
+            } else {
+                self.textView.layer.borderColor = self.textFieldBorderColor.cgColor
+            }
+        }
+    }
 
     // Colors below determined experimentally to match UITextField
     private let textFieldBorderColor = UIColor(red: 180.0 / 255.0, green: 180.0 / 255.0, blue: 180.0 / 255.0, alpha: 0.75)
@@ -57,6 +66,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.textView = UITextView(frame: .zero)
         self.placeholderLabel = UILabel(frame: .zero)
         self.tableViewStyle = .grouped
+        self.isMarkedAsInvalid = false
 
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 

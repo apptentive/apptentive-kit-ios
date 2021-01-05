@@ -10,7 +10,7 @@ import Foundation
 
 extension SurveyViewModel {
     /// Represents a question where the user can select a single value from a contiguous range of integers.
-    public class RangeQuestion: ChoiceQuestion {
+    public class RangeQuestion: Question {
         /// The minimum value that a user can select.
         public let minValue: Int
 
@@ -23,6 +23,23 @@ extension SurveyViewModel {
         /// The text to display alongside the choice having the maximium value.
         public let maxText: String?
 
+        /// The value that was selected by the user, if any.
+        public private(set) var selectedValueIndex: Int?
+
+        /// The text labels to display for each answer choice.
+        public var choiceLabels: [String] {
+            // TODO: Use a number formatter? (for e.g. Arabic)
+            Array(minValue...maxValue).map({ String($0) })
+        }
+
+        /// Used to indicate that the user has selected the choice at the given index.
+        /// - Parameter index: The index of the choice that was selected.
+        public func selectValue(at index: Int) {
+            self.selectedValueIndex = index
+
+            self.updateSelection()
+        }
+
         override init(question: SurveyConfiguration.Question, requiredText: String?) {
             self.minValue = question.rangeMin ?? 0
             self.maxValue = question.rangeMax ?? 10
@@ -32,13 +49,10 @@ extension SurveyViewModel {
             super.init(question: question, requiredText: requiredText)
         }
 
-        /// The text labels to display for each answer choice.
-        public override var choiceLabels: [String] {
-            Array(minValue...maxValue).map({ String($0) })
-        }
-
-        override func responsePart(for index: Int) -> SurveyQuestionResponse {
-            return .range(index + self.minValue)
+        override var response: [SurveyQuestionResponse]? {
+            self.selectedValueIndex.flatMap {
+                [SurveyQuestionResponse.range($0 + self.minValue)]
+            }
         }
     }
 }

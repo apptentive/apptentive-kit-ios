@@ -13,6 +13,17 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     let introductionView: SurveyIntroductionView
     let submitView: SurveySubmitView
 
+    var firstResponderIndexPath: IndexPath? {
+        didSet {
+            if let indexPath = self.firstResponderIndexPath {
+                self.firstResponderCell = self.tableView.cellForRow(at: indexPath)
+            } else {
+                self.firstResponderCell = nil
+            }
+        }
+    }
+    var firstResponderCell: UITableViewCell?
+
     enum FooterMode {
         case submitButton
         case thankYou
@@ -90,6 +101,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.tableView.register(SurveyMultiLineCell.self, forCellReuseIdentifier: "multiLine")
         self.tableView.register(SurveySingleLineCell.self, forCellReuseIdentifier: "singleLine")
         self.tableView.register(SurveyChoiceCell.self, forCellReuseIdentifier: "choice")
+        self.tableView.register(SurveyOtherChoiceCell.self, forCellReuseIdentifier: "other")
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "unimplemented")
 
         self.tableView.register(SurveyQuestionHeaderView.self, forHeaderFooterViewReuseIdentifier: "question")
@@ -122,7 +134,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             return 1
 
         case let choiceQuestion as SurveyViewModel.ChoiceQuestion:
-            return choiceQuestion.choiceLabels.count
+            return choiceQuestion.choices.count
 
         case let rangeQuestion as SurveyViewModel.RangeQuestion:
             return rangeQuestion.choiceLabels.count
@@ -141,8 +153,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         case let freeformQuestion as SurveyViewModel.FreeformQuestion:
             reuseIdentifier = freeformQuestion.allowMultipleLines ? "multiLine" : "singleLine"
 
-        case is SurveyViewModel.ChoiceQuestion:
-            reuseIdentifier = "choice"
+        case let choiceQuestion as SurveyViewModel.ChoiceQuestion:
+            let choice = choiceQuestion.choices[indexPath.row]
+            if choice.supportsOther {
+                reuseIdentifier = "other"
+            } else {
+                reuseIdentifier = "choice"
+            }
 
         case is SurveyViewModel.RangeQuestion:
             reuseIdentifier = "choice"
@@ -163,6 +180,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             singleLineCell.textField.tag = self.tag(for: indexPath)
             singleLineCell.textField.accessibilityIdentifier = String(indexPath.section)
             singleLineCell.tableViewStyle = tableView.style
+            singleLineCell.isMarkedAsInvalid = question.isMarkedAsInvalid
 
         case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let multiLineCell as SurveyMultiLineCell):
             multiLineCell.textView.text = freeformQuestion.answerText
@@ -172,6 +190,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             multiLineCell.textView.tag = self.tag(for: indexPath)
             multiLineCell.textView.accessibilityIdentifier = String(indexPath.section)
             multiLineCell.tableViewStyle = tableView.style
+            multiLineCell.isMarkedAsInvalid = question.isMarkedAsInvalid
 
         case (let rangeQuestion as SurveyViewModel.RangeQuestion, let choiceCell):
             choiceCell.textLabel?.text = rangeQuestion.choiceLabels[indexPath.row]
@@ -187,8 +206,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 choiceCell.detailTextLabel?.text = nil
             }
 
-        case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell):
-            choiceCell.textLabel?.text = choiceQuestion.choiceLabels[indexPath.row]
+        case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell as SurveyChoiceCell):
+            choiceCell.textLabel?.text = choiceQuestion.choices[indexPath.row].label
             choiceCell.detailTextLabel?.text = nil
 
             switch choiceQuestion.selectionStyle {
@@ -198,6 +217,26 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             case .checkbox:
                 choiceCell.imageView?.image = .apptentiveCheckbox
                 choiceCell.imageView?.highlightedImage = .apptentiveCheckboxSelected
+            }
+
+        case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let otherCell as SurveyOtherChoiceCell):
+            let choice = choiceQuestion.choices[indexPath.row]
+
+            otherCell.textLabel?.text = choice.label
+            otherCell.textField.text = choice.otherText
+            otherCell.textField.placeholder = choice.placeholderText ?? choice.label
+            otherCell.textField.delegate = self
+            otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
+            otherCell.textField.tag = self.tag(for: indexPath)
+            otherCell.isMarkedAsInvalid = choice.isMarkedAsInvalid
+
+            switch choiceQuestion.selectionStyle {
+            case .radioButton:
+                otherCell.imageView?.image = .apptentiveRadioButton
+                otherCell.imageView?.highlightedImage = .apptentiveRadioButtonSelected
+            case .checkbox:
+                otherCell.imageView?.image = .apptentiveCheckbox
+                otherCell.imageView?.highlightedImage = .apptentiveCheckboxSelected
             }
 
         default:
@@ -240,7 +279,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             return  // Not a choice question
         }
 
-        cell.isSelected = choiceQuestion.selectedChoiceIndexes.contains(indexPath.row)
+        cell.isSelected = choiceQuestion.choices[indexPath.row].isSelected
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -249,6 +288,15 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
 
         choiceQuestion.toggleChoice(at: indexPath.row)
+
+        // Automatically focus text field in "Other" choice cells.
+        if choiceQuestion.choices[indexPath.row].supportsOther {
+            guard let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell else {
+                return assertionFailure("Expected other cell for other choice")
+            }
+
+            otherCell.textField.becomeFirstResponder()
+        }
     }
 
     override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
@@ -257,10 +305,18 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
 
         choiceQuestion.toggleChoice(at: indexPath.row)
+        let choice = choiceQuestion.choices[indexPath.row]
 
         // Override deselection of a radio button
-        if choiceQuestion.selectedChoiceIndexes.contains(indexPath.row) {
+        if choice.isSelected {
             self.tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+        } else if choice.supportsOther {
+            // Automatically unfocus text field in "Other" choice cells (assuming not a radio button).
+            guard let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell else {
+                return assertionFailure("Expected other cell for other choice")
+            }
+
+            otherCell.textField.resignFirstResponder()
         }
     }
 
@@ -325,7 +381,50 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             }
         })
 
+        self.tableView.indexPathsForVisibleRows?.forEach { indexPath in
+            guard let cell = self.tableView.cellForRow(at: indexPath) else {
+                return  // Cell may already be offscreen
+            }
+
+            let question = self.viewModel.questions[indexPath.section]
+            if let choiceQuestion = question as? SurveyViewModel.ChoiceQuestion, let choiceCell = cell as? SurveyOtherChoiceCell {
+                choiceCell.isMarkedAsInvalid = choiceQuestion.choices[indexPath.row].isMarkedAsInvalid
+            } else if let freeformQuestion = question as? SurveyViewModel.FreeformQuestion {
+                if let singleLineCell = cell as? SurveySingleLineCell {
+                    singleLineCell.isMarkedAsInvalid = freeformQuestion.isMarkedAsInvalid
+                } else if let multiLineCell = cell as? SurveyMultiLineCell {
+                    multiLineCell.isMarkedAsInvalid = freeformQuestion.isMarkedAsInvalid
+                }
+            }
+        }
+
+        if let firstResponderIndexPath = self.firstResponderIndexPath, let firstResponderCell = self.firstResponderCell {
+            if let otherChoiceCell = firstResponderCell as? SurveyOtherChoiceCell,
+                let choiceQuestion = self.viewModel.questions[firstResponderIndexPath.section] as? SurveyViewModel.ChoiceQuestion
+            {
+                otherChoiceCell.isMarkedAsInvalid = choiceQuestion.choices[firstResponderIndexPath.row].isMarkedAsInvalid
+            }
+        }
+
         self.tableView.endUpdates()
+    }
+
+    private func setIsMarkedAsInvalid(at indexPath: IndexPath, cell: UITableViewCell?) {
+        let question = self.viewModel.questions[indexPath.section]
+
+        switch (question, cell) {
+        case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let otherCell as SurveyOtherChoiceCell):
+            otherCell.isMarkedAsInvalid = choiceQuestion.choices[indexPath.row].isMarkedAsInvalid
+
+        case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let singleLineCell as SurveySingleLineCell):
+            singleLineCell.isMarkedAsInvalid = freeformQuestion.isMarkedAsInvalid
+
+        case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let multiLineCell as SurveyMultiLineCell):
+            multiLineCell.isMarkedAsInvalid = freeformQuestion.isMarkedAsInvalid
+
+        default:
+            break
+        }
     }
 
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel) {
@@ -338,11 +437,19 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 return  // Cell may already be offscreen
             }
 
-            guard let choiceCell = cell as? SurveyChoiceCell else {
+            let isSelected = choiceQuestion.choices[indexPath.row].isSelected
+
+            if let choiceCell = cell as? SurveyChoiceCell {
+                choiceCell.isSelected = isSelected
+            } else if let choiceCell = cell as? SurveyOtherChoiceCell {
+                choiceCell.isSelected = isSelected
+
+                if !isSelected {
+                    choiceCell.textField.resignFirstResponder()
+                }
+            } else {
                 return assertionFailure("Should have choice cell for choice question")
             }
-
-            choiceCell.isSelected = choiceQuestion.selectedChoiceIndexes.contains(indexPath.row)
         }
     }
 
@@ -366,12 +473,16 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     @objc func textFieldChanged(_ textField: UITextField) {
         let indexPath = self.indexPath(forTag: textField.tag)
+        let question = self.viewModel.questions[indexPath.section]
 
-        guard let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.FreeformQuestion else {
+        if let freeformQuestion = question as? SurveyViewModel.FreeformQuestion {
+            freeformQuestion.answerText = textField.text
+        } else if let choiceQuestion = question as? SurveyViewModel.ChoiceQuestion {
+            choiceQuestion.choices[indexPath.row].otherText = textField.text
+        } else {
             return assertionFailure("Text field sending events to wrong question")
         }
 
-        question.answerText = textField.text
     }
 
     // MARK: - Text Field Delegate
@@ -380,6 +491,24 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         textField.resignFirstResponder()
 
         return false
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        let indexPath = self.indexPath(forTag: textField.tag)
+
+        guard let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
+            return  // Not a choice question
+        }
+
+        if !question.choices[indexPath.row].isSelected {
+            question.toggleChoice(at: indexPath.row)
+        }
+
+        self.firstResponderIndexPath = indexPath
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        self.firstResponderIndexPath = nil
     }
 
     // MARK: Text View Delegate
@@ -392,6 +521,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
 
         question.answerText = textView.text
+    }
+
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        self.firstResponderIndexPath = self.indexPath(forTag: textView.tag)
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        self.firstResponderIndexPath = nil
     }
 
     // MARK: - Adaptive Presentation Controller Delegate

@@ -64,14 +64,15 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
             return XCTFail("Choice questions have non-radio-button view models")
         }
 
-        XCTAssertEqual(multichoiceOptional.selectedChoiceIndexes, IndexSet())
+        XCTAssertEqual(multichoiceOptional.choices.filter { $0.isSelected }.count, 0)
         multichoiceOptional.toggleChoice(at: 0)
-        XCTAssertEqual(multichoiceOptional.selectedChoiceIndexes, IndexSet(integer: 0))
+        XCTAssertTrue(multichoiceOptional.choices[0].isSelected)
         multichoiceOptional.toggleChoice(at: 1)
         XCTAssertTrue(self.gotSelectionDidChange)
-        XCTAssertEqual(multichoiceOptional.selectedChoiceIndexes, IndexSet(integer: 1))
+        XCTAssertTrue(multichoiceOptional.choices[1].isSelected)
+        XCTAssertFalse(multichoiceOptional.choices[0].isSelected)
         multichoiceOptional.toggleChoice(at: 1)
-        XCTAssertEqual(multichoiceOptional.selectedChoiceIndexes, IndexSet(integer: 1))
+        XCTAssertTrue(multichoiceOptional.choices[1].isSelected)
     }
 
     func testRadioButtonValidation() {
@@ -105,23 +106,24 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
             return XCTFail("Choice questions have non-radio-button view models")
         }
 
-        XCTAssertEqual(question.selectedChoiceIndexes, IndexSet())
+        XCTAssertEqual(question.choices.filter { $0.isSelected }.count, 0)
 
         question.toggleChoice(at: 0)
         XCTAssertTrue(self.gotSelectionDidChange)
-        XCTAssertEqual(question.selectedChoiceIndexes, IndexSet(integer: 0))
+        XCTAssertTrue(question.choices[0].isSelected)
 
         self.gotSelectionDidChange = false
 
         question.toggleChoice(at: 1)
         XCTAssertTrue(self.gotSelectionDidChange)
-        XCTAssertEqual(question.selectedChoiceIndexes, IndexSet(integer: 0).union(IndexSet(integer: 1)))
+        XCTAssertTrue(question.choices[0].isSelected)
+        XCTAssertTrue(question.choices[1].isSelected)
 
         self.gotSelectionDidChange = false
 
         question.toggleChoice(at: 1)
         XCTAssertTrue(self.gotSelectionDidChange)
-        XCTAssertEqual(question.selectedChoiceIndexes, IndexSet(integer: 0))
+        XCTAssertFalse(question.choices[1].isSelected)
     }
 
     func testCheckboxValidation() {
@@ -143,6 +145,8 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 
         XCTAssertFalse(multiselectRequired.isValid)
         multiselectRequired.toggleChoice(at: 0)
+        XCTAssertFalse(multiselectRequired.isValid, "Other text should be required.")
+        multiselectRequired.choices[0].otherText = "Bar"
         XCTAssertTrue(multiselectRequired.isValid, "Implicit minimum of one selection (provided by server)")
 
         XCTAssertTrue(multiselectOptionalWithLimits.isValid, "Multiselect optional limits only enforced if something is selected")
@@ -198,14 +202,14 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
             return XCTFail("Weird view models")
         }
 
-        XCTAssertEqual(rangeNPS.selectedChoiceIndexes, IndexSet())
-        rangeNPS.toggleChoice(at: 0)
-        XCTAssertEqual(rangeNPS.selectedChoiceIndexes, IndexSet(integer: 0))
-        rangeNPS.toggleChoice(at: 1)
+        XCTAssertEqual(rangeNPS.selectedValueIndex, nil)
+        rangeNPS.selectValue(at: 0)
+        XCTAssertEqual(rangeNPS.selectedValueIndex, 0)
+        rangeNPS.selectValue(at: 1)
         XCTAssertTrue(self.gotSelectionDidChange)
-        XCTAssertEqual(rangeNPS.selectedChoiceIndexes, IndexSet(integer: 1))
-        rangeNPS.toggleChoice(at: 1)
-        XCTAssertEqual(rangeNPS.selectedChoiceIndexes, IndexSet(integer: 1))
+        XCTAssertEqual(rangeNPS.selectedValueIndex, 1)
+        rangeNPS.selectValue(at: 1)
+        XCTAssertEqual(rangeNPS.selectedValueIndex, 1)
 
     }
 
@@ -221,13 +225,13 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         }
 
         XCTAssertTrue(rangeNPS.isValid)
-        rangeNPS.toggleChoice(at: 0)
+        rangeNPS.selectValue(at: 0)
         XCTAssertTrue(rangeNPS.isValid)
 
         XCTAssertFalse(rangeHowDoYouFeel.isValid)
-        rangeHowDoYouFeel.toggleChoice(at: 0)
+        rangeHowDoYouFeel.selectValue(at: 0)
         XCTAssertTrue(rangeHowDoYouFeel.isValid)
-        rangeHowDoYouFeel.toggleChoice(at: 0)
+        rangeHowDoYouFeel.selectValue(at: 0)
         XCTAssertTrue(rangeHowDoYouFeel.isValid)
     }
 
@@ -302,6 +306,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 
         self.gotValidationDidChange = false
         multiselectRequired.toggleChoice(at: 0)
+        multiselectRequired.choices[0].otherText = "Foo"
         XCTAssertTrue(self.gotValidationDidChange)
         XCTAssertFalse(multiselectRequired.isMarkedAsInvalid)
         self.gotValidationDidChange = false
@@ -339,7 +344,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertFalse(freeformLongRequired.isMarkedAsInvalid, "Should not re-validate until submit")
 
         self.gotValidationDidChange = false
-        rangeHowDoYouFeel.toggleChoice(at: 4)
+        rangeHowDoYouFeel.selectValue(at: 4)
         XCTAssertTrue(self.gotValidationDidChange)
         XCTAssertFalse(rangeHowDoYouFeel.isMarkedAsInvalid)
     }
@@ -377,21 +382,23 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         multiselectOptional.toggleChoice(at: 0)
         multiselectOptional.toggleChoice(at: 2)
         multiselectRequired.toggleChoice(at: 0)
+        multiselectRequired.choices[0].otherText = "Bar"
         multiselectOptionalWithLimits.toggleChoice(at: 0)
         multiselectRequiredWithLimits.toggleChoice(at: 0)
         multiselectRequiredWithLimits.toggleChoice(at: 2)
+        multiselectRequiredWithLimits.choices[2].otherText = "Foo"
 
         freeformShortOptional.answerText = " "
         freeformShortRequired.answerText = "Foo"
         freeformLongOptional.answerText = "\n"
         freeformLongRequired.answerText = "Bar"
 
-        rangeNPS.toggleChoice(at: 10)
-        rangeHowDoYouFeel.toggleChoice(at: 1)
-        rangeHowCloseToZero.toggleChoice(at: 2)
-        rangeMissingLabels.toggleChoice(at: 3)
-        rangeEmptyLabels.toggleChoice(at: 4)
-        rangeMissingMinMax.toggleChoice(at: 5)
+        rangeNPS.selectValue(at: 10)
+        rangeHowDoYouFeel.selectValue(at: 1)
+        rangeHowCloseToZero.selectValue(at: 2)
+        rangeMissingLabels.selectValue(at: 3)
+        rangeEmptyLabels.selectValue(at: 4)
+        rangeMissingMinMax.selectValue(at: 5)
 
         viewModel.submit()
 
@@ -403,9 +410,9 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
                 "2": [SurveyQuestionResponse.choice("3")],
                 "6": [SurveyQuestionResponse.choice("8")],
                 "11": [SurveyQuestionResponse.choice("12"), SurveyQuestionResponse.choice("14")],
-                "15": [SurveyQuestionResponse.choice("16")],
+                "15": [SurveyQuestionResponse.other("16", "Bar")],
                 "18": [SurveyQuestionResponse.choice("19")],
-                "25": [SurveyQuestionResponse.choice("26"), SurveyQuestionResponse.choice("28")],
+                "25": [SurveyQuestionResponse.choice("26"), SurveyQuestionResponse.other("28", "Foo")],
                 "56e0b5d9c7199274f700001b": [SurveyQuestionResponse.freeform("Foo")],
                 "56e0b5d9c7199274f700001d": [SurveyQuestionResponse.freeform("Bar")],
                 "R1": [SurveyQuestionResponse.range(10)],

@@ -139,6 +139,12 @@ public class SurveyViewModel {
         } else {
             self.questions.forEach { question in
                 question.isMarkedAsInvalid = !question.isValid
+
+                if let choiceQuestion = question as? ChoiceQuestion {
+                    choiceQuestion.choices.forEach { choice in
+                        choice.isMarkedAsInvalid = !choice.isValid
+                    }
+                }
             }
 
             self.delegate?.surveyViewModelValidationDidChange(self)

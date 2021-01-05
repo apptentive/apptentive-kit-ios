@@ -20,7 +20,7 @@ extension SurveyViewModel {
         /// The text of the user's current answer to the question.
         public var answerText: String? {
             didSet {
-                self.updateValidation()
+                self.updateMarkedAsInvalid()
             }
         }
 

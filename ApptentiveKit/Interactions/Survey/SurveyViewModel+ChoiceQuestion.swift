@@ -11,46 +11,8 @@ import Foundation
 extension SurveyViewModel {
     /// Represents a question where the user can select from a collection of predefined answers.
     public class ChoiceQuestion: Question {
-        private let choices: [SurveyConfiguration.Question.Choice]
-        private let type: SurveyConfiguration.Question.QuestionType
-        private let minSelections: Int
-        private let maxSelections: Int
-
-        /// An `IndexSet` containing the indexes of the choice(s) selected by the user.
-        ///
-        /// To alter this value, see `toggleChoice(at:)`.
-        public private(set) var selectedChoiceIndexes: IndexSet {
-            didSet {
-                if selectedChoiceIndexes != oldValue {
-                    self.updateSelection()
-                }
-            }
-        }
-
-        override init(question: SurveyConfiguration.Question, requiredText: String?) {
-            self.choices = question.answerChoices ?? []
-            self.type = question.type
-
-            if question.type == .radio || question.type == .range {
-                self.minSelections = question.required ? 1 : 0
-                self.maxSelections = 1
-            } else {
-                self.minSelections = question.minSelections ?? 0
-                self.maxSelections = question.maxSelections ?? Int.max
-            }
-
-            self.selectedChoiceIndexes = IndexSet()
-
-            super.init(question: question, requiredText: requiredText)
-        }
-
-        override var isValid: Bool {
-            let doesNotExceedMaxCount = self.selectedChoiceIndexes.count <= self.maxSelections
-            let meetsMinCount = self.selectedChoiceIndexes.count >= self.minSelections
-            let isOptional = !self.isRequired
-
-            return doesNotExceedMaxCount && (meetsMinCount || isOptional)
-        }
+        /// An array of Choice view models representing the answer choices.
+        public let choices: [Choice]
 
         /// Toggles the answer choice at the specified index.
         ///
@@ -59,18 +21,18 @@ extension SurveyViewModel {
         public func toggleChoice(at index: Int) {
             switch self.selectionStyle {
             case .checkbox:
-                self.selectedChoiceIndexes.toggle(index)
+                self.choices[index].isSelected.toggle()
 
             case .radioButton:
-                self.selectedChoiceIndexes.choose(index)
+                self.choices.forEach { $0.isSelected = false }
+                self.choices[index].isSelected = true
             }
 
-            self.updateValidation()
-        }
+            self.choices.forEach { (choice) in
+                choice.updateMarkedAsInvalid()
+            }
 
-        /// The text labels to display for each answer choice.
-        public var choiceLabels: [String] {
-            return choices.map({ $0.value })
+            self.updateSelection()
         }
 
         /// The selection behavior of the answer choices.
@@ -95,39 +57,140 @@ extension SurveyViewModel {
             ///
             /// Initially no choices are selected.
             /// Selecting another choice de-selects the currently selected choice.
-            /// Attempting to de-select the currently-selected choice has no effect.f
+            /// Attempting to de-select the currently-selected choice has no effect.
             case radioButton
         }
 
-        func responsePart(for index: Int) -> SurveyQuestionResponse {
-            return .choice(self.choices[index].id)
+        private let type: SurveyConfiguration.Question.QuestionType
+        private let minSelections: Int
+        private let maxSelections: Int
+
+        override init(question: SurveyConfiguration.Question, requiredText: String?) {
+            self.choices = (question.answerChoices ?? []).map({ (choice) in
+                Choice(choice: choice)
+            })
+            self.type = question.type
+
+            if question.type == .radio || question.type == .range {
+                self.minSelections = question.required ? 1 : 0
+                self.maxSelections = 1
+            } else {
+                self.minSelections = question.minSelections ?? 0
+                self.maxSelections = question.maxSelections ?? Int.max
+            }
+
+            super.init(question: question, requiredText: requiredText)
+
+            self.choices.forEach { (choice) in
+                choice.questionViewModel = self
+            }
+        }
+
+        override var isValid: Bool {
+            let selectedChoiceCount = self.choices.filter({ $0.isSelected }).count
+
+            let doesNotExceedMaxCount = selectedChoiceCount <= self.maxSelections
+            let meetsMinCount = selectedChoiceCount >= self.minSelections
+            let choicesAreValid = self.choices.allSatisfy { $0.isValid }
+            let isOptional = !self.isRequired
+
+            return doesNotExceedMaxCount && choicesAreValid && (meetsMinCount || isOptional)
         }
 
         override var response: [SurveyQuestionResponse]? {
-            return selectedChoiceIndexes.isEmpty ? nil : self.selectedChoiceIndexes.map({ self.responsePart(for: $0) })
+            let result = self.choices.compactMap { $0.responsePart }
+
+            return result.isEmpty ? nil : result
         }
 
-        private func updateSelection() {
-            guard let surveyViewModel = self.surveyViewModel else {
-                return assertionFailure("Should have a view model set")
+        /// Describes a choice that can be selected for a choice question type.
+        public class Choice: Validating {
+            /// The label to be shown as part of the choice user interface.
+            public let label: String
+
+            /// The placeholder text for the "Other" text field.
+            public let placeholderText: String?
+
+            /// Indicates whether a freeform "Other" text field should be shown for the choice.
+            public let supportsOther: Bool
+
+            /// Indicates whether the user has selected this choice.
+            ///
+            /// This should not be modified by the view controller. Use the
+            /// question's `toggleChoice(at:)` method instead.
+            public internal(set) var isSelected: Bool
+
+            /// Whether the user interface should indicate this choice as having an invalid response.
+            ///
+            /// This should not be modified by the view controller.
+            public internal(set) var isMarkedAsInvalid: Bool {
+                didSet {
+                    guard let question = self.questionViewModel else {
+                        return assertionFailure("Should have a choice question set.")
+                    }
+
+                    question.updateMarkedAsInvalid()
+                }
             }
 
-            surveyViewModel.delegate?.surveyViewModelSelectionDidChange(surveyViewModel)
-        }
-    }
-}
+            /// The freeform "Other" text entered by the user for this choice.
+            public var otherText: String? {
+                didSet {
+                    self.updateMarkedAsInvalid()
+                }
+            }
 
-extension IndexSet {
-    fileprivate mutating func choose(_ index: Int) {
-        self.removeAll()
-        self.update(with: index)
-    }
+            init(choice: SurveyConfiguration.Question.Choice) {
+                self.label = choice.value
+                self.id = choice.id
+                self.placeholderText = choice.placeholderText
+                self.isSelected = false
+                self.isMarkedAsInvalid = false
 
-    fileprivate mutating func toggle(_ index: Int) {
-        if self.contains(index) {
-            self.remove(index)
-        } else {
-            self.update(with: index)
+                switch choice.type {
+                case .other:
+                    self.supportsOther = true
+
+                default:
+                    self.supportsOther = false
+                }
+            }
+
+            weak var questionViewModel: SurveyViewModel.ChoiceQuestion?
+
+            var isValid: Bool {
+                if self.supportsOther && self.isSelected {
+                    return self.trimmedOtherText != nil
+                } else {
+                    return true
+                }
+            }
+
+            var responsePart: SurveyQuestionResponse? {
+                if self.isSelected {
+                    if self.supportsOther {
+                        guard let otherText = self.otherText else {
+                            return nil
+                        }
+
+                        return .other(self.id, otherText)
+                    } else {
+                        return .choice(self.id)
+                    }
+                } else {
+                    return nil
+                }
+            }
+
+            private let id: String
+
+            private var trimmedOtherText: String? {
+                if let trimmed = self.otherText?.trimmingCharacters(in: .whitespacesAndNewlines), trimmed.count > 0 {
+                    return trimmed
+                } else {
+                    return nil
+                }
+            }
         }
     }
 }
