@@ -61,7 +61,6 @@ class SurveySubmitView: UIView {
 
     override func tintColorDidChange() {
         super.tintColorDidChange()
-
         self.submitButton.backgroundColor = self.tintColor
     }
 

@@ -36,7 +36,6 @@ extension SurveyViewModel {
         /// - Parameter index: The index of the choice that was selected.
         public func selectValue(at index: Int) {
             self.selectedValueIndex = index
-
             self.updateSelection()
         }
 

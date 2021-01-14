@@ -104,6 +104,7 @@ extension SurveyViewModel {
         }
 
         /// Describes a choice that can be selected for a choice question type.
+
         public class Choice: Validating {
             /// The label to be shown as part of the choice user interface.
             public let label: String
@@ -115,6 +116,7 @@ extension SurveyViewModel {
             public let supportsOther: Bool
 
             /// Indicates whether the user has selected this choice.
+
             ///
             /// This should not be modified by the view controller. Use the
             /// question's `toggleChoice(at:)` method instead.

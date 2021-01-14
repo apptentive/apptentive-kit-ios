@@ -102,12 +102,15 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.tableView.register(SurveySingleLineCell.self, forCellReuseIdentifier: "singleLine")
         self.tableView.register(SurveyChoiceCell.self, forCellReuseIdentifier: "choice")
         self.tableView.register(SurveyOtherChoiceCell.self, forCellReuseIdentifier: "other")
+        self.tableView.register(SurveyRangeCell.self, forCellReuseIdentifier: "rangeControl")
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "unimplemented")
 
         self.tableView.register(SurveyQuestionHeaderView.self, forHeaderFooterViewReuseIdentifier: "question")
 
         self.tableView.sectionHeaderHeight = UITableView.automaticDimension
+        self.tableView.rowHeight = UITableView.automaticDimension
         self.tableView.estimatedSectionHeaderHeight = 66.0
+        self.tableView.estimatedRowHeight = 66.0
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -132,12 +135,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         switch self.viewModel.questions[section] {
         case is SurveyViewModel.FreeformQuestion:
             return 1
-
         case let choiceQuestion as SurveyViewModel.ChoiceQuestion:
             return choiceQuestion.choices.count
 
-        case let rangeQuestion as SurveyViewModel.RangeQuestion:
-            return rangeQuestion.choiceLabels.count
+        case is SurveyViewModel.RangeQuestion:
+            return 1
 
         default:
             return 1
@@ -162,7 +164,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             }
 
         case is SurveyViewModel.RangeQuestion:
-            reuseIdentifier = "choice"
+            reuseIdentifier = "rangeControl"
 
         default:
             reuseIdentifier = "unimplemented"
@@ -192,19 +194,18 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             multiLineCell.tableViewStyle = tableView.style
             multiLineCell.isMarkedAsInvalid = question.isMarkedAsInvalid
 
-        case (let rangeQuestion as SurveyViewModel.RangeQuestion, let choiceCell):
-            choiceCell.textLabel?.text = rangeQuestion.choiceLabels[indexPath.row]
+        case (let rangeQuestion as SurveyViewModel.RangeQuestion, let rangeChoiceCell as SurveyRangeCell):
+            rangeChoiceCell.choiceLabels = rangeQuestion.choiceLabels
+            rangeChoiceCell.segmentedControl?.addTarget(self, action: #selector(rangeControlValueDidChange(_:)), for: .valueChanged)
+            rangeChoiceCell.segmentedControl?.tag = self.tag(for: indexPath)
 
-            choiceCell.imageView?.image = .apptentiveRadioButton
-            choiceCell.imageView?.highlightedImage = .apptentiveRadioButtonSelected
-
-            if indexPath.row == 0 {
-                choiceCell.detailTextLabel?.text = rangeQuestion.minText
-            } else if indexPath.row == rangeQuestion.choiceLabels.count - 1 {
-                choiceCell.detailTextLabel?.text = rangeQuestion.maxText
+            if let selectedIndex = rangeQuestion.selectedValueIndex {
+                rangeChoiceCell.segmentedControl?.selectedSegmentIndex = selectedIndex
             } else {
-                choiceCell.detailTextLabel?.text = nil
+                rangeChoiceCell.segmentedControl?.selectedSegmentIndex = UISegmentedControl.noSegment
             }
+            rangeChoiceCell.minLabel.text = rangeQuestion.minText
+            rangeChoiceCell.maxLabel.text = rangeQuestion.maxText
 
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell as SurveyChoiceCell):
             choiceCell.textLabel?.text = choiceQuestion.choices[indexPath.row].label
@@ -261,7 +262,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         header.instructionsLabel.isHidden = instructionsText.isEmpty
 
         header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
-        header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
+        header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
 
         return header
     }
@@ -308,6 +309,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let choice = choiceQuestion.choices[indexPath.row]
 
         // Override deselection of a radio button
+
         if choice.isSelected {
             self.tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
         } else if choice.supportsOther {
@@ -368,7 +370,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                     with: header, duration: 0.25, options: .transitionCrossDissolve
                 ) {
                     header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
-                    header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
+                    header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
                 }
             }
 
@@ -483,6 +485,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             return assertionFailure("Text field sending events to wrong question")
         }
 
+    }
+
+    @objc func rangeControlValueDidChange(_ segmentedControl: UISegmentedControl) {
+        let indexPath = self.indexPath(forTag: segmentedControl.tag)
+        let question = self.viewModel.questions[indexPath.section]
+        let rangeQuestion = question as? SurveyViewModel.RangeQuestion
+        rangeQuestion?.selectValue(at: segmentedControl.selectedSegmentIndex)
     }
 
     // MARK: - Text Field Delegate

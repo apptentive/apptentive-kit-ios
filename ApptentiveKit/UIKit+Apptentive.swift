@@ -83,6 +83,7 @@ extension UIImage {
 }
 
 extension UIColor {
+
     /// The color to use for labels in a non-error state.
     public static var apptentiveLabel: UIColor = {
         if #available(iOS 13.0, *) {
@@ -95,6 +96,20 @@ extension UIColor {
     /// The color to use for UI elements to indicate an error state.
     public static var apptentiveError: UIColor = {
         .systemRed
+    }()
+
+    /// An alternative to 'apptentiveLabel' in gray.
+    public static var apptentiveSecondaryLabel: UIColor = {
+        if #available(iOS 13.0, *) {
+            return .secondaryLabel
+        } else {
+            return .gray
+        }
+    }()
+
+    /// The border color to use for the segmented control for range surveys.
+    public static var apptentiveRangeControlBorder: UIColor = {
+        return .clear
     }()
 
     /// The color to use for the survey introduction text.

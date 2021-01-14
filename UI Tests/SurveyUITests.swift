@@ -72,6 +72,32 @@ class SurveyUITests: XCTestCase {
         XCTAssertFalse(oneA.isSelected, "First radio button is deselected after tap on other one")
     }
 
+    func testRangeQuestion() {
+        XCUIApplication().activate()
+
+        let tablesQuery = XCUIApplication().tables
+
+        tablesQuery.staticTexts["SurveyRange"].tap()
+
+        XCTAssertTrue(XCUIApplication().segmentedControls.buttons["10"].firstMatch.exists)
+
+        let npsSurvey10 = XCUIApplication().segmentedControls.buttons["10"].firstMatch
+        XCTAssertFalse(npsSurvey10.isSelected, "No segment selected at first.")
+
+        npsSurvey10.tap()
+        XCTAssertTrue(npsSurvey10.isSelected)
+
+        let missingMinMaxSurvey10 = XCUIApplication().segmentedControls.buttons.matching(identifier: "10").element(boundBy: 1)
+        XCTAssertFalse(missingMinMaxSurvey10.isSelected, "No segment selected at first.")
+
+        missingMinMaxSurvey10.tap()
+        XCTAssertTrue(missingMinMaxSurvey10.isSelected)
+
+        // Make sure this is still selected
+        XCTAssertTrue(npsSurvey10.isSelected)
+
+    }
+
     func testCheckboxQuestion() {
         XCUIApplication().activate()
 

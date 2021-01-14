@@ -14,15 +14,23 @@ extension Apptentive {
         // UIAppearance-based overrides
 
         let bundle = Bundle(for: Apptentive.self)
-
         guard let barTintColor = UIColor(named: "barTint", in: bundle, compatibleWith: nil),
             let barForegroundColor = UIColor(named: "barForeground", in: bundle, compatibleWith: nil),
-            let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil)
+            let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil),
+            let apptentiveRangeControlBorder = UIColor(named: "apptentiveRangeControlBorder", in: bundle, compatibleWith: nil)
         else {
             assertionFailure("Unable to locate color asset(s).")
             return
         }
+        if #available(iOS 13.0, *) {
+            let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: apptentiveRangeControlBorder, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17.0, weight: .medium)] as [NSAttributedString.Key: Any]
+            let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17.0, weight: .medium)] as [NSAttributedString.Key: Any]
 
+            let segmentedControlAppearance = UISegmentedControl.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
+            segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesOnLoad, for: .normal)
+            segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesWhenSelected, for: .selected)
+            segmentedControlAppearance.selectedSegmentTintColor = buttonTintColor
+        }
         let barTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor]
 
         let navigationBarAppearance = UINavigationBar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
@@ -49,8 +57,9 @@ extension Apptentive {
         tableViewAppearance.separatorColor = backgroundColor
 
         // Apptentive UIKit extensions overrides
-
         UITableView.Style.apptentive = .grouped
+
+        UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
 
         UIBarButtonItem.apptentiveClose = {
             let systemClose: UIBarButtonItem = {

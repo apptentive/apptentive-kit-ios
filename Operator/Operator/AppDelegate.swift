@@ -40,7 +40,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         self.apptentive = Apptentive(apiBaseURL: url)
-
         apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature), completion: completion)
     }
 }
