@@ -69,6 +69,7 @@
 		017231102536769F0095AEAA /* TargetingStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017231022536768B0095AEAA /* TargetingStateTests.swift */; };
 		017231112536769F0095AEAA /* CriteriaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017231002536768B0095AEAA /* CriteriaTests.swift */; };
 		017231122536769F0095AEAA /* FieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017231012536768B0095AEAA /* FieldTests.swift */; };
+		0173EA4325B2035F009740F5 /* ApptentiveLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */; };
 		017FC92C25310E2400C7A47F /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC92B25310E2400C7A47F /* Event.swift */; };
 		017FC93A25310E4700C7A47F /* Targeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC93425310E4700C7A47F /* Targeter.swift */; };
 		017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC95325310E9400C7A47F /* EngagementManifest.swift */; };
@@ -230,6 +231,7 @@
 		017231002536768B0095AEAA /* CriteriaTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CriteriaTests.swift; sourceTree = "<group>"; };
 		017231012536768B0095AEAA /* FieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FieldTests.swift; sourceTree = "<group>"; };
 		017231022536768B0095AEAA /* TargetingStateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TargetingStateTests.swift; sourceTree = "<group>"; };
+		0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveLogger.swift; sourceTree = "<group>"; };
 		017FC92B25310E2400C7A47F /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		017FC93425310E4700C7A47F /* Targeter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Targeter.swift; sourceTree = "<group>"; };
 		017FC95325310E9400C7A47F /* EngagementManifest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EngagementManifest.swift; sourceTree = "<group>"; };
@@ -554,6 +556,7 @@
 				01A0917023FCB4A700AF187E /* Info.plist */,
 				0165B7FB25816EC8001DF54E /* UIKit+Apptentive.swift */,
 				0165B80B258181CF001DF54E /* Apptentive+Theme.swift */,
+				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
 			);
 			path = ApptentiveKit;
 			sourceTree = "<group>";
@@ -902,6 +905,7 @@
 				015D6BC22509A34D00372759 /* FileRepository.swift in Sources */,
 				015F2AE124C9FEBF004B53E2 /* SurveyMultiLineCell.swift in Sources */,
 				015A0D3625509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift in Sources */,
+				0173EA4325B2035F009740F5 /* ApptentiveLogger.swift in Sources */,
 				01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */,
 				01974A592577025C00C7D693 /* EngagementManifestShim.swift in Sources */,
 				01ED6271257B0AA90023208C /* NavigateToLinkController.swift in Sources */,

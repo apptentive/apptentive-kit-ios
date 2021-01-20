@@ -137,9 +137,10 @@ class Backend {
                             self.conversation.interactions.invoke(for: interaction.id)
                         }
                     } catch InteractionPresenterError.notImplemented(let interactionTypeName) {
-                        print("Interaction type \(interactionTypeName) is not implemented.")
+                        ApptentiveLogger.default.warning("Interaction type \(interactionTypeName) is not implemented.")
                     } catch let error {
                         completion?(false)
+                        ApptentiveLogger.default.error("Interaction presentation error: \(error)")
                         assertionFailure("Interaction presentation error: \(error)")
                     }
                 }
@@ -152,6 +153,7 @@ class Backend {
         } catch let error {
             DispatchQueue.main.async {
                 completion?(false)
+                ApptentiveLogger.default.error("Targeting error: \(error)")
                 assertionFailure("Targeting error: \(error)")
             }
         }
@@ -232,7 +234,7 @@ class Backend {
                         // TODO: Remove transformer here when API is updated.
                         self.targeter.engagementManifest = transformEngagementManifest(engagementManifest)
                     case .failure(let error):
-                        print("Failed to download engagement manifest: \(error)")
+                        ApptentiveLogger.network.error("Failed to download engagement manifest: \(error)")
                     }
 
                     self.getInteractionsTask = nil

@@ -55,17 +55,17 @@ class PayloadSender {
     /// Send any queued payloads to the API.
     func sendPayloads() {
         guard let credentials = self.credentials else {
-            print("Payload sender not active")
+            ApptentiveLogger.network.debug("Payload sender not active")
             return
         }
 
         guard currentPayloadTask == nil else {
-            print("Already sending a payload")
+            ApptentiveLogger.network.debug("Already sending a payload")
             return
         }
 
         guard let firstPayload = self.payloads.first else {
-            print("No payloads waiting to be sent")
+            ApptentiveLogger.network.debug("No payloads waiting to be sent")
             return
         }
 
@@ -75,11 +75,11 @@ class PayloadSender {
             self.queue.async {
                 switch result {
                 case .success:
-                    print("Successfully sent payload")
+                    ApptentiveLogger.network.debug("Successfully sent payload")
                     self.payloads.removeFirst()
 
                 case .failure(let error):
-                    print("Error sending payload: \(error.localizedDescription)")
+                    ApptentiveLogger.network.error("Error sending payload: \(error.localizedDescription)")
                     // Either here or somewhere in the HTTP client, it should retry the request if the error isn't a client error.
                     // For now, we'll just discard the payload.
                     self.payloads.removeFirst()

@@ -64,11 +64,11 @@ class Targeter {
             if let invocation = try invocations.first(where: { try $0.criteria.isSatisfied(for: state) }) {
                 return invocation.interactionID
             } else {
-                print("No interactions targeting event \(event) have criteria met by active conversation.")
+                ApptentiveLogger.engagement.info("No interactions targeting event \(event) have criteria met by active conversation.")
                 return nil
             }
         } else {
-            print("No interactions target the event \(event).")
+            ApptentiveLogger.engagement.info("No interactions target the event \(event).")
             return nil
         }
     }

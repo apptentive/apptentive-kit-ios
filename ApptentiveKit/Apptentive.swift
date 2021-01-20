@@ -45,10 +45,11 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
             self.backend.connect(appCredentials: credentials) { result in
                 switch result {
                 case .success:
+                    ApptentiveLogger.default.info("Apptentive SDK registered successfully.")
                     completion?(true)
 
                 case .failure(let error):
-                    print("Connection failed with error: \(error)")
+                    ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
                     completion?(false)
                 }
             }
