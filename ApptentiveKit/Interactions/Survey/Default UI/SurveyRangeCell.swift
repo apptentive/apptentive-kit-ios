@@ -9,6 +9,7 @@
 import UIKit
 
 class SurveyRangeCell: UITableViewCell {
+
     var choiceLabels: [String]? {
         didSet {
             setupViews()
@@ -36,9 +37,10 @@ class SurveyRangeCell: UITableViewCell {
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false
             segmentedControl.layer.borderColor = UIColor.apptentiveRangeControlBorder.cgColor
             segmentedControl.layer.borderWidth = 1
+    
             NSLayoutConstraint.activate([
                 segmentedControl.heightAnchor.constraint(equalToConstant: 44),
-                segmentedControl.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 10),
+                segmentedControl.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 7),
                 segmentedControl.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -10),
                 segmentedControl.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
             ])

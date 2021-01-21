@@ -22,15 +22,17 @@ extension Apptentive {
             assertionFailure("Unable to locate color asset(s).")
             return
         }
+
         if #available(iOS 13.0, *) {
-            let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: apptentiveRangeControlBorder, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17.0, weight: .medium)] as [NSAttributedString.Key: Any]
-            let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17.0, weight: .medium)] as [NSAttributedString.Key: Any]
+            let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: apptentiveRangeControlBorder, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16.0, weight: .medium)] as [NSAttributedString.Key: Any]
+            let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16.0, weight: .medium)] as [NSAttributedString.Key: Any]
 
             let segmentedControlAppearance = UISegmentedControl.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesOnLoad, for: .normal)
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesWhenSelected, for: .selected)
             segmentedControlAppearance.selectedSegmentTintColor = buttonTintColor
         }
+
         let barTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor]
 
         let navigationBarAppearance = UINavigationBar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
@@ -59,7 +61,11 @@ extension Apptentive {
         // Apptentive UIKit extensions overrides
         UITableView.Style.apptentive = .grouped
 
-        UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
+        if #available(iOS 13.0, *) {
+            UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
+        } else {
+            UIColor.apptentiveRangeControlBorder = .clear
+        }
 
         UIBarButtonItem.apptentiveClose = {
             let systemClose: UIBarButtonItem = {
