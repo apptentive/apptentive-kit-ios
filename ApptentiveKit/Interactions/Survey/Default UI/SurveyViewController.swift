@@ -44,13 +44,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 self.submitView.submitLabel.text = self.viewModel.thankYouMessage
                 self.submitView.submitLabel.textColor = .apptentiveLabel
                 viewToShow = self.submitView.submitLabel
-                viewToHide = self.submitView.submitButton
 
             case .validationError:
+
                 self.submitView.submitLabel.text = self.viewModel.validationErrorMessage
                 self.submitView.submitLabel.textColor = .apptentiveError
                 viewToShow = self.submitView.submitLabel
-                viewToHide = self.submitView.submitButton
             }
 
             UIView.transition(

@@ -31,7 +31,6 @@ class SurveySubmitView: UIView {
         NSLayoutConstraint.activate([
             self.submitButton.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             self.submitButton.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: self.topAnchor, multiplier: 1.0),
-            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.submitButton.bottomAnchor, multiplier: 1.0),
         ])
 
         self.submitLabel.font = .preferredFont(forTextStyle: .headline)
@@ -43,8 +42,8 @@ class SurveySubmitView: UIView {
 
         NSLayoutConstraint.activate([
             self.submitLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            self.submitLabel.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: self.topAnchor, multiplier: 1.0),
-            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.submitButton.bottomAnchor, multiplier: 1.0),
+            self.submitLabel.topAnchor.constraint(equalTo: self.submitButton.bottomAnchor, constant: 10),
+            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.submitButton.bottomAnchor, multiplier: 5.0),
         ])
     }
 
