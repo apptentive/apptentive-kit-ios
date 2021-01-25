@@ -221,8 +221,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let otherCell as SurveyOtherChoiceCell):
             let choice = choiceQuestion.choices[indexPath.row]
-
-            otherCell.textLabel?.text = choice.label
+            //Setting static text to a space is temporary
+            otherCell.textLabel?.text = " "
             otherCell.textField.text = choice.otherText
             otherCell.textField.placeholder = choice.placeholderText ?? choice.label
             otherCell.textField.delegate = self
