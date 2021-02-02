@@ -40,6 +40,10 @@ extension Apptentive {
         navigationBarAppearance.titleTextAttributes = barTextAttributes
         navigationBarAppearance.isTranslucent = false
 
+        let toolBarAppearance = UIToolbar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
+        toolBarAppearance.barTintColor = barTintColor
+        toolBarAppearance.isTranslucent = false
+
         let barButtonItemAppearance = UIBarButtonItem.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
         barButtonItemAppearance.setTitleTextAttributes(barTextAttributes, for: .normal)
         barButtonItemAppearance.tintColor = barForegroundColor
