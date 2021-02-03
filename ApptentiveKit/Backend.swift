@@ -123,28 +123,7 @@ class Backend {
 
         do {
             if let interaction = try self.targeter.interactionData(for: event, state: self.conversation) {
-                guard let frontend = self.frontend else {
-                    throw ApptentiveError.internalInconsistency
-                }
-
-                DispatchQueue.main.async {
-                    do {
-                        try frontend.interactionPresenter.presentInteraction(interaction)
-
-                        completion?(true)
-
-                        self.queue.async {
-                            self.conversation.interactions.invoke(for: interaction.id)
-                        }
-                    } catch InteractionPresenterError.notImplemented(let interactionTypeName) {
-                        ApptentiveLogger.default.warning("Interaction type \(interactionTypeName) is not implemented.")
-                    } catch let error {
-                        completion?(false)
-                        ApptentiveLogger.default.error("Interaction presentation error: \(error)")
-                        assertionFailure("Interaction presentation error: \(error)")
-                    }
-                }
-
+                try self.presentInteraction(interaction, completion: completion)
             } else {
                 DispatchQueue.main.async {
                     completion?(false)
@@ -163,6 +142,58 @@ class Backend {
     /// - Parameter surveyResponse: The survey response to send to the API.
     func send(surveyResponse: SurveyResponse) {
         self.payloadSender.send(Payload(wrapping: surveyResponse), for: self.conversation)
+    }
+
+    /// Evaluates a list of invocations and presents an interaction, if needed.
+    /// - Parameters:
+    ///   - invocations: The invocations to evaluate.
+    ///   - completion: A completion handler called with the ID of the presented interaction, if any.
+    func invoke(_ invocations: [EngagementManifest.Invocation], completion: @escaping (String?) -> Void) {
+        do {
+            guard let destinationInteraction = try self.targeter.interactionData(for: invocations, state: self.conversation) else {
+                throw ApptentiveError.internalInconsistency
+            }
+
+            try self.presentInteraction(destinationInteraction) { (success) in
+                if success {
+                    completion(destinationInteraction.id)
+                } else {
+                    ApptentiveLogger.default.error("TextModal button had no invocations with matching criteria.")
+                    assertionFailure("TextModal button had no invocations with matching criteria.")
+                }
+            }
+        } catch let error {
+            DispatchQueue.main.async {
+                completion(nil)
+            }
+
+            ApptentiveLogger.default.error("TextModal button targeting error: \(error)")
+            assertionFailure("TextModal button targeting error: \(error)")
+        }
+    }
+
+    private func presentInteraction(_ interaction: Interaction, completion: ((Bool) -> Void)?) throws {
+        guard let frontend = self.frontend else {
+            throw ApptentiveError.internalInconsistency
+        }
+
+        DispatchQueue.main.async {
+            do {
+                try frontend.interactionPresenter.presentInteraction(interaction)
+
+                completion?(true)
+
+                self.queue.async {
+                    self.conversation.interactions.invoke(for: interaction.id)
+                }
+            } catch InteractionPresenterError.notImplemented(let interactionTypeName) {
+                ApptentiveLogger.default.warning("Interaction type \(interactionTypeName) is not implemented.")
+            } catch let error {
+                completion?(false)
+                ApptentiveLogger.default.error("Interaction presentation error: \(error)")
+                assertionFailure("Interaction presentation error: \(error)")
+            }
+        }
     }
 
     /// Reacts to any changes in the conversation.
@@ -230,9 +261,8 @@ class Backend {
                 self.queue.async {
                     switch result {
                     case .success(let engagementManifest):
+                        self.targeter.engagementManifest = engagementManifest
 
-                        // TODO: Remove transformer here when API is updated.
-                        self.targeter.engagementManifest = transformEngagementManifest(engagementManifest)
                     case .failure(let error):
                         ApptentiveLogger.network.error("Failed to download engagement manifest: \(error)")
                     }

@@ -145,6 +145,12 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
         self.environment.open(url, completion: completion)
     }
 
+    func invoke(_ invocations: [EngagementManifest.Invocation], completion: @escaping (String?) -> Void) {
+        self.backendQueue.async {
+            self.backend.invoke(invocations, completion: completion)
+        }
+    }
+
     // MARK: EnvironmentDelegate
 
     func protectedDataDidBecomeAvailable(_ environment: Environment) {

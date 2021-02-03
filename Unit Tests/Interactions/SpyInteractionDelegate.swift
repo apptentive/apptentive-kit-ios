@@ -24,11 +24,15 @@ class SpyInteractionDelegate: InteractionDelegate {
     }
 
     func requestReview(completion: @escaping (Bool) -> Void) {
-        completion(shouldRequestReviewSucceed)
+        completion(self.shouldRequestReviewSucceed)
     }
 
     func open(_ url: URL, completion: @escaping (Bool) -> Void) {
         self.openedURL = url
-        completion(shouldURLOpeningSucceed)
+        completion(self.shouldURLOpeningSucceed)
+    }
+
+    func invoke(_ invocations: [EngagementManifest.Invocation], completion: @escaping (String?) -> Void) {
+        completion(invocations.first?.interactionID)
     }
 }

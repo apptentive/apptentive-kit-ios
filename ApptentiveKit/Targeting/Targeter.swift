@@ -48,6 +48,14 @@ class Targeter {
         }
     }
 
+    func interactionData(for invocations: [EngagementManifest.Invocation], state: TargetingState) throws -> Interaction? {
+        if let identifier = try interactionIdentifier(for: invocations, state: state) {
+            return interactionIndex[identifier]
+        } else {
+            return nil
+        }
+    }
+
     /// Builds a dictionary of interactions indexed by interaction ID.
     private func buildInteractionIndex() {
         interactionIndex = Dictionary(uniqueKeysWithValues: engagementManifest.interactions.map { ($0.id, $0) })
@@ -61,8 +69,8 @@ class Targeter {
     /// - Returns: The interaction to present, if any.
     private func interactionIdentifier(for event: Event, state: TargetingState) throws -> String? {
         if let invocations = engagementManifest.targets[event.codePointName] {
-            if let invocation = try invocations.first(where: { try $0.criteria.isSatisfied(for: state) }) {
-                return invocation.interactionID
+            if let interactionID = try self.interactionIdentifier(for: invocations, state: state) {
+                return interactionID
             } else {
                 ApptentiveLogger.engagement.info("No interactions targeting event \(event) have criteria met by active conversation.")
                 return nil
@@ -71,6 +79,12 @@ class Targeter {
             ApptentiveLogger.engagement.info("No interactions target the event \(event).")
             return nil
         }
+    }
+
+    private func interactionIdentifier(for invocations: [EngagementManifest.Invocation], state: TargetingState) throws -> String? {
+        let invocation = try invocations.first(where: { try $0.criteria.isSatisfied(for: state) })
+
+        return invocation?.interactionID
     }
 
     private var interactionIndex = [String: Interaction]()

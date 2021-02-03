@@ -33,8 +33,11 @@ struct EventContents: Equatable, Decodable, PayloadEncodable {
         try container.encodeIfPresent(self.interactionID, forKey: .interactionID)
 
         switch self.userInfo {
-        case .navigateToLink(let result):
-            try container.encode(result, forKey: .userInfo)
+        case .navigateToLink(let link):
+            try container.encode(link, forKey: .userInfo)
+
+        case .textModalAction(let action):
+            try container.encode(action, forKey: .userInfo)
 
         case .none:
             break

@@ -116,7 +116,6 @@ extension SurveyViewModel {
             public let supportsOther: Bool
 
             /// Indicates whether the user has selected this choice.
-
             ///
             /// This should not be modified by the view controller. Use the
             /// question's `toggleChoice(at:)` method instead.

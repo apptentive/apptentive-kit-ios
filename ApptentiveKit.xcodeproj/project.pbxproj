@@ -79,10 +79,8 @@
 		018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9090247EFFEC004577EB /* SurveyViewModel.swift */; };
 		018A909A247F09D4004577EB /* Interaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9099247F09D4004577EB /* Interaction.swift */; };
 		019121812404581B00FFE0F4 /* ApptentiveFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */; };
-		01974A592577025C00C7D693 /* EngagementManifestShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01974A582577025C00C7D693 /* EngagementManifestShim.swift */; };
 		01974A6D2577043400C7D693 /* TextModalConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01974A692577043400C7D693 /* TextModalConfiguration.swift */; };
 		01974A6F2577043400C7D693 /* TextModalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01974A6C2577043400C7D693 /* TextModalViewModel.swift */; };
-		01974A8A25770EBF00C7D693 /* EngagementManifestShimTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01974A8025770EBB00C7D693 /* EngagementManifestShimTests.swift */; };
 		01974A9925770F0800C7D693 /* Test Criteria in Resources */ = {isa = PBXBuildFile; fileRef = 01974A9725770F0800C7D693 /* Test Criteria */; };
 		01974A9A25770F0800C7D693 /* Test Manifests in Resources */ = {isa = PBXBuildFile; fileRef = 01974A9825770F0800C7D693 /* Test Manifests */; };
 		019E78FE2575AC9B006BD412 /* Test Interactions in Resources */ = {isa = PBXBuildFile; fileRef = 019E78FD2575AC9B006BD412 /* Test Interactions */; };
@@ -241,10 +239,8 @@
 		018A9090247EFFEC004577EB /* SurveyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyViewModel.swift; sourceTree = "<group>"; };
 		018A9099247F09D4004577EB /* Interaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interaction.swift; sourceTree = "<group>"; };
 		019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveFeatureTests.swift; sourceTree = "<group>"; };
-		01974A582577025C00C7D693 /* EngagementManifestShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementManifestShim.swift; sourceTree = "<group>"; };
 		01974A692577043400C7D693 /* TextModalConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextModalConfiguration.swift; sourceTree = "<group>"; };
 		01974A6C2577043400C7D693 /* TextModalViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextModalViewModel.swift; sourceTree = "<group>"; };
-		01974A8025770EBB00C7D693 /* EngagementManifestShimTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementManifestShimTests.swift; sourceTree = "<group>"; };
 		01974A9725770F0800C7D693 /* Test Criteria */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Test Criteria"; sourceTree = "<group>"; };
 		01974A9825770F0800C7D693 /* Test Manifests */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Test Manifests"; sourceTree = "<group>"; };
 		019E78FD2575AC9B006BD412 /* Test Interactions */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Test Interactions"; sourceTree = "<group>"; };
@@ -452,7 +448,6 @@
 				017230E8253673960095AEAA /* Criteria+Decodable.swift */,
 				017230E7253673960095AEAA /* Field.swift */,
 				017FC93425310E4700C7A47F /* Targeter.swift */,
-				01974A582577025C00C7D693 /* EngagementManifestShim.swift */,
 			);
 			path = Targeting;
 			sourceTree = "<group>";
@@ -467,7 +462,6 @@
 				017231022536768B0095AEAA /* TargetingStateTests.swift */,
 				017FC9752531101500C7A47F /* TargeterTests.swift */,
 				017FC9772531101500C7A47F /* EventTests.swift */,
-				01974A8025770EBB00C7D693 /* EngagementManifestShimTests.swift */,
 			);
 			path = Targeting;
 			sourceTree = "<group>";
@@ -907,7 +901,6 @@
 				015A0D3625509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift in Sources */,
 				0173EA4325B2035F009740F5 /* ApptentiveLogger.swift in Sources */,
 				01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */,
-				01974A592577025C00C7D693 /* EngagementManifestShim.swift in Sources */,
 				01ED6271257B0AA90023208C /* NavigateToLinkController.swift in Sources */,
 				015F2ADF24C9F85D004B53E2 /* SurveySingleLineCell.swift in Sources */,
 				017230ED253673960095AEAA /* Criteria+Decodable.swift in Sources */,
@@ -992,7 +985,6 @@
 				017231122536769F0095AEAA /* FieldTests.swift in Sources */,
 				01ED6280257B0F200023208C /* NavigateToLinkControllerTests.swift in Sources */,
 				015D6BCA250AC0AC00372759 /* DeviceTests.swift in Sources */,
-				01974A8A25770EBF00C7D693 /* EngagementManifestShimTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

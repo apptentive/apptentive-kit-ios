@@ -18,7 +18,6 @@ struct TextModalConfiguration: Decodable {
         let label: String
         let actionType: ActionType
         let invocations: [EngagementManifest.Invocation]?
-        let event: String?
 
         enum ActionType: String, Decodable {
             case dismiss
@@ -30,7 +29,6 @@ struct TextModalConfiguration: Decodable {
             case label
             case actionType = "action"
             case invocations = "invokes"
-            case event
         }
     }
 }

@@ -8,19 +8,34 @@
         "id": "55e6037a45ce551189000016",
         "action": "interaction",
         "label": "Message Center",
-        "event": "button_55e6037a45ce551189000016"
+        "invokes": [
+          {
+            "interaction_id": "55c94045a71b52ea570054d6",
+            "criteria": {}
+          }
+        ]
       },
       {
         "id": "55e6037a45ce551189000017",
         "action": "interaction",
         "label": "Survey",
-        "event": "button_55e6037a45ce551189000017"
+        "invokes": [
+          {
+            "interaction_id": "55e6033045ce5551eb00000b",
+            "criteria": {}
+          }
+        ]
       },
       {
         "id": "55e6037a45ce551189000018",
         "action": "interaction",
         "label": "Link",
-        "event": "button_55e6037a45ce551189000018"
+        "invokes": [
+          {
+            "interaction_id": "56b248fac21f96e6700001d3",
+            "criteria": {}
+          }
+        ]
       },
       {
         "id": "55e6037a45ce551189000019",

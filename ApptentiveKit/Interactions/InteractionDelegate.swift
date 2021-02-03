@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening
+typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking
 
 /// Describes an object that can send responses from Survey interactions.
 protocol ResponseSending {
@@ -22,6 +22,11 @@ protocol EventEngaging {
     /// Engages the specified event by including the interaction.
     /// - Parameter event: The event to engage.
     func engage(event: Event)
+}
+
+/// Describes an object that can process invocations and potentially display interactions.
+protocol InvocationInvoking {
+    func invoke(_ invocations: [EngagementManifest.Invocation], completion: @escaping (String?) -> Void)
 }
 
 /// Describes an object that can request an App Store review.

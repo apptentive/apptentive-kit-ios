@@ -45,24 +45,45 @@ class TextModalViewModelTests: XCTestCase {
     func testMessageCenterButton() {
         viewModel?.buttons[0].action?()
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#button_55e6037a45ce551189000016")
+        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#interaction")
+        switch self.spySender?.engagedEvent?.userInfo {
+        case .textModalAction(let textModalAction):
+            XCTAssertEqual(textModalAction.invokedInteractionID, "55c94045a71b52ea570054d6")
+
+        default:
+            XCTFail("Expected event data of type textModalAction")
+        }
     }
 
     func testSurveyButton() {
         viewModel?.buttons[1].action?()
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#button_55e6037a45ce551189000017")
+        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#interaction")
+        switch self.spySender?.engagedEvent?.userInfo {
+        case .textModalAction(let textModalAction):
+            XCTAssertEqual(textModalAction.invokedInteractionID, "55e6033045ce5551eb00000b")
+
+        default:
+            XCTFail("Expected event data of type textModalAction")
+        }
     }
 
     func testLinkButton() {
         viewModel?.buttons[2].action?()
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#button_55e6037a45ce551189000018")
+        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#interaction")
+        switch self.spySender?.engagedEvent?.userInfo {
+        case .textModalAction(let textModalAction):
+            XCTAssertEqual(textModalAction.invokedInteractionID, "56b248fac21f96e6700001d3")
+
+        default:
+            XCTFail("Expected event data of type textModalAction")
+        }
     }
 
     func testDismissButton() {
         viewModel?.buttons[3].action?()
 
-        XCTAssertNil(self.spySender?.engagedEvent)
+        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#dismiss")
     }
 }

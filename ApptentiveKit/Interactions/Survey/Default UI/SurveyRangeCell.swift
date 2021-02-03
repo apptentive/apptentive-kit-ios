@@ -37,7 +37,7 @@ class SurveyRangeCell: UITableViewCell {
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false
             segmentedControl.layer.borderColor = UIColor.apptentiveRangeControlBorder.cgColor
             segmentedControl.layer.borderWidth = 1
-    
+
             NSLayoutConstraint.activate([
                 segmentedControl.heightAnchor.constraint(equalToConstant: 44),
                 segmentedControl.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 7),
