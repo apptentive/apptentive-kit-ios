@@ -53,7 +53,7 @@ class SurveySingleLineCell: UITableViewCell {
 
     private func configureTextField() {
         self.textField.borderStyle = .none
-
+        self.textField.backgroundColor = UIColor.textInputBackground
         // Set up additional border to display validation state
         self.textField.layer.borderWidth = 1.0 / self.traitCollection.displayScale
         self.textField.layer.borderColor = UIColor.clear.cgColor

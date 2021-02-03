@@ -120,4 +120,24 @@ extension UIColor {
             return .darkGray
         }
     }()
+
+    /// The color to use for text fields and text views.
+    public static var textInputBackground: UIColor {
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+
+                    return .black
+                default:
+
+                    return .white
+                }
+
+            }
+        } else {
+            return .white
+        }
+    }
 }

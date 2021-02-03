@@ -20,7 +20,6 @@ class SurveyMultiLineCell: UITableViewCell {
                 if #available(iOS 13.0, *) {
                     self.layer.borderColor = UIColor.tertiaryLabel.cgColor
                     self.layer.borderWidth = 1.0
-
                     // The following determined experimentally to match UITextField
                     self.textView.textContainerInset = UIEdgeInsets(top: 1.0, left: -5.0, bottom: 1.0, right: -5.0)
                 }
@@ -81,12 +80,11 @@ class SurveyMultiLineCell: UITableViewCell {
     }
 
     private func configureTextView() {
+        self.textView.backgroundColor = UIColor.textInputBackground
         self.textView.translatesAutoresizingMaskIntoConstraints = false
         self.textView.adjustsFontForContentSizeCategory = true
-
         self.textView.font = .preferredFont(forTextStyle: .body)
         self.textView.returnKeyType = .default
-
         NSLayoutConstraint.activate([
             self.textView.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
             self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textView.bottomAnchor, multiplier: 1.0),
