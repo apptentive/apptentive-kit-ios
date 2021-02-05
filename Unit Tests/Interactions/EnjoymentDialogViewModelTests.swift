@@ -36,19 +36,19 @@ class EnjoymentDialogViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.title, "Do you love this app?")
         XCTAssertNil(viewModel.message)
-        XCTAssertEqual(viewModel.buttons[0].title, "Yes")
-        XCTAssertEqual(viewModel.buttons[1].title, "No")
+        XCTAssertEqual(viewModel.buttons[0].title, "No")
+        XCTAssertEqual(viewModel.buttons[1].title, "Yes")
     }
 
     func testYesButton() {
         viewModel?.buttons[0].action?()
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#yes")
+        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#no")
     }
 
     func testNoButton() {
         viewModel?.buttons[1].action?()
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#no")
+        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#yes")
     }
 }

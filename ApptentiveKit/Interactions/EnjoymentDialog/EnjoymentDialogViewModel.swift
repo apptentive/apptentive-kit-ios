@@ -30,14 +30,14 @@ public class EnjoymentDialogViewModel: AlertViewModel {
         self.message = nil
         self.buttons = [
             AlertButtonModel(
-                title: configuration.yesText, style: .default,
-                action: {
-                    delegate.engage(event: .yes(from: interaction))
-                }),
-            AlertButtonModel(
                 title: configuration.noText, style: .default,
                 action: {
                     delegate.engage(event: .no(from: interaction))
+                }),
+            AlertButtonModel(
+                title: configuration.yesText, style: .default,
+                action: {
+                    delegate.engage(event: .yes(from: interaction))
                 }),
         ]
     }
