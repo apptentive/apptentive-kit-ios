@@ -10,6 +10,7 @@ import UIKit
 
 class SurveyOtherChoiceCell: UITableViewCell {
     let textField: UITextField
+   
     var isMarkedAsInvalid: Bool {
         didSet {
             if self.isMarkedAsInvalid {
@@ -22,12 +23,14 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.textField = UITextField(frame: .zero)
+
         self.isMarkedAsInvalid = false
 
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
 
         self.textLabel?.numberOfLines = 0
         self.textLabel?.lineBreakMode = .byWordWrapping
+        
 
         self.translatesAutoresizingMaskIntoConstraints = false
         self.contentView.addSubview(self.textField)
@@ -68,10 +71,19 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
         self.textField.translatesAutoresizingMaskIntoConstraints = false
         self.textField.adjustsFontForContentSizeCategory = true
+        let sizeCategory = UIApplication.shared.preferredContentSizeCategory
 
+        //Very large text (accessibility) is causing the placeholder label to overlap the image button. This helps keep the placeholder in place as the size scales.
+        if sizeCategory >= .accessibilityMedium {
+            let spacerView = UIView(frame: CGRect(x: 0, y: 0, width: 75, height: self.frame.size.height))
+            self.textField.leftView = spacerView
+            self.textField.leftViewMode = .always
+        }
+    
         self.textField.font = .preferredFont(forTextStyle: .body)
         self.textField.returnKeyType = .done
-
+        
+       
         guard let textLabel = self.textLabel else {
             return
         }
@@ -84,3 +96,4 @@ class SurveyOtherChoiceCell: UITableViewCell {
         ])
     }
 }
+

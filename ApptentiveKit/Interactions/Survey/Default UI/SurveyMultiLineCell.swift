@@ -11,7 +11,7 @@ import UIKit
 class SurveyMultiLineCell: UITableViewCell {
     let textView: UITextView
     let placeholderLabel: UILabel
-
+    var placeholderWidthConstraint: NSLayoutConstraint?
     var heightConstraint: NSLayoutConstraint?
     var tableViewStyle: UITableView.Style {
         didSet {
@@ -96,11 +96,12 @@ class SurveyMultiLineCell: UITableViewCell {
         self.heightConstraint?.isActive = true
 
         self.textView.addSubview(self.placeholderLabel)
-
+    
         self.placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
         self.placeholderLabel.adjustsFontForContentSizeCategory = true
         self.placeholderLabel.isUserInteractionEnabled = false
-
+        self.placeholderLabel.adjustsFontSizeToFitWidth = true
+        self.placeholderLabel.minimumScaleFactor = 0.1
         self.placeholderLabel.font = .preferredFont(forTextStyle: .body)
         self.placeholderLabel.textColor = self.placholderTextColor
 
@@ -112,10 +113,17 @@ class SurveyMultiLineCell: UITableViewCell {
     private func updatePlaceholderConstraints() {
         NSLayoutConstraint.deactivate(self.placeholderLayoutConstraints)
 
+        // For some reason we need to constrain placeholder width as well as leading/trailing
+        // to keep Dynamic Type from growing the label beyond where the trailing constraint
+        // should be keeping it from growing. Below we manually calculate the width to set a constraint.
+        let additionalPlaceholderInset: CGFloat = 5.0
+        let placeholderWidthInset = self.textView.textContainerInset.right + self.textView.textContainerInset.left + additionalPlaceholderInset * 2
+
         self.placeholderLayoutConstraints = [
             self.placeholderLabel.topAnchor.constraint(equalTo: self.textView.topAnchor, constant: self.textView.textContainerInset.top),
-            self.placeholderLabel.leadingAnchor.constraint(equalTo: self.textView.leadingAnchor, constant: self.textView.textContainerInset.left + 5.0),
-            self.textView.trailingAnchor.constraint(equalTo: self.placeholderLabel.trailingAnchor, constant: self.textView.textContainerInset.right + 5.0),
+            self.placeholderLabel.leadingAnchor.constraint(equalTo: self.textView.leadingAnchor, constant: self.textView.textContainerInset.left + additionalPlaceholderInset),
+            self.textView.trailingAnchor.constraint(equalTo: self.placeholderLabel.trailingAnchor, constant: self.textView.textContainerInset.right + additionalPlaceholderInset),
+            self.textView.widthAnchor.constraint(equalTo: self.placeholderLabel.widthAnchor, multiplier: 1, constant: placeholderWidthInset)
         ]
 
         NSLayoutConstraint.activate(self.placeholderLayoutConstraints)
