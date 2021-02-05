@@ -28,7 +28,8 @@ class NotImplementedAlertViewModelTests: XCTestCase {
             return XCTFail("Unable to load interaction")
         }
         XCTAssertEqual(viewModel.title, "Interaction Presenter Error")
-        XCTAssertEqual(viewModel.message, "Interaction: '\(interaction.typeName)' is not implemented.")
+        let message = String(format: "Interaction '%@' is not implemented.", interaction.typeName)
+        XCTAssertEqual(viewModel.message, message)
 
     }
 

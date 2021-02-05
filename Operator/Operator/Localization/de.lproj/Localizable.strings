@@ -1,0 +1,29 @@
+/* The title for the 'Not Implemented' alert */
+"NotImplementedAlertTitle" = "Interaction Presenter-Fehler";
+
+/* The message for the 'Not Implemented' alert */
+"NotImplementedAlertMessage" =  "Interaktion '%@' ist nicht implementiert";
+
+/* The confimation message on the button for the 'Not Implemented' alert */
+"NotImplementedAlertConfirmation" = "Klara";
+
+/* Survey submit button title */
+"SurveySubmitButtonText" = "Einreichen";
+
+/* Survey error validation message */
+"SurveyErrorMessage" = "Es gibt Probleme mit Ihren Antworten.";
+
+/* Survey close confirmation alert title */
+"CloseSurveyAlertTitle" = "Umfrage schließen?";
+
+/* Survey close confirmation alert message */
+"CloseConfirmationAlertMessage" = "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schließen.";
+
+/* Survey close confirmation back button  */
+"CloseConfirmationBackButton" = "Zurück zur Umfrage";
+
+/* Survey close confirmation close button */
+"CloseConfirmationCloseButton" = "Schließen";
+
+/* Text indicating survey is required */
+"SurveyRequiredText" =  "Erforderlich";
