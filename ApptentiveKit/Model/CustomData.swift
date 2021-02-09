@@ -9,10 +9,19 @@
 import Foundation
 import UIKit
 
+/// Groups the different data types that we can store/transmit/evaluate in custom data.
+public protocol CustomDataCompatible {}
+
+extension String: CustomDataCompatible {}
+extension Double: CustomDataCompatible {}
+extension Float: CustomDataCompatible {}
+extension Int: CustomDataCompatible {}
+extension Bool: CustomDataCompatible {}
+
 /// Represents device or person custom data.
-struct CustomData: Equatable, Codable {
+public struct CustomData: Equatable, Codable {
     /// The internal representation of the custom data.
-    var customData: [String: Codable]
+    var customData: [String: CustomDataCompatible]
 
     /// Initializes a new empty custom data object.
     init() {
@@ -27,7 +36,10 @@ struct CustomData: Equatable, Codable {
         }
     }
 
-    subscript(key: String) -> Codable? {
+    /// Accesses the custom data entry with the given key.
+    /// - Parameter key: The key corresponding to the custom data entry.
+    /// - Returns The value associated with the key.
+    public subscript(key: String) -> CustomDataCompatible? {
         get {
             return self.customData[key]
         }
@@ -36,7 +48,8 @@ struct CustomData: Equatable, Codable {
         }
     }
 
-    func encode(to encoder: Encoder) throws {
+    // swift-format-ignore
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try self.customData.keys.forEach { (key) in
@@ -46,8 +59,8 @@ struct CustomData: Equatable, Codable {
             switch value {
             case let string as String:
                 try container.encode(string, forKey: codingKey)
-            case let float as Float:
-                try container.encode(float, forKey: codingKey)
+            case let double as Double:
+                try container.encode(double, forKey: codingKey)
             case let int as Int:
                 try container.encode(int, forKey: codingKey)
             case let bool as Bool:
@@ -58,15 +71,16 @@ struct CustomData: Equatable, Codable {
         }
     }
 
-    init(from decoder: Decoder) throws {
+    // swift-format-ignore
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.customData = [:]
 
         try container.allKeys.forEach { codingKey in
             if let int = try? container.decode(Int.self, forKey: codingKey) {
                 self.customData[codingKey.stringValue] = int
-            } else if let float = try? container.decode(Float.self, forKey: codingKey) {
-                self.customData[codingKey.stringValue] = float
+            } else if let double = try? container.decode(Double.self, forKey: codingKey) {
+                self.customData[codingKey.stringValue] = double
             } else if let bool = try? container.decode(Bool.self, forKey: codingKey) {
                 self.customData[codingKey.stringValue] = bool
             } else if let string = try? container.decode(String.self, forKey: codingKey) {
@@ -77,7 +91,8 @@ struct CustomData: Equatable, Codable {
         }
     }
 
-    static func == (lhs: CustomData, rhs: CustomData) -> Bool {
+    // swift-format-ignore
+    public static func == (lhs: CustomData, rhs: CustomData) -> Bool {
         lhs.customData.keys.allSatisfy({ (key) -> Bool in
             switch (lhs.customData[key], rhs.customData[key]) {
             case let (lhFloat, rhFloat) as (Float, Float):

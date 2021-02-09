@@ -35,7 +35,7 @@ class Backend {
     /// the temporary conversation is merged into the saved conversation. This allows the SDK to function
     /// regardless of the order in which `load(containerURL:fileManager:)` and `connect(appCredentials:baseURL:completion:)`
     /// are called.
-    private var conversation: Conversation {
+    var conversation: Conversation {
         didSet {
             self.processChanges()
         }
@@ -66,7 +66,7 @@ class Backend {
     ///   - queue: The dispatch queue on which the backend instance should run.
     ///   - environment: The environment object used to initialize the conversation.
     ///   - baseURL: The URL where the Apptentive API is based.
-    init(queue: DispatchQueue, environment: Environment, baseURL: URL) {
+    init(queue: DispatchQueue, environment: GlobalEnvironment, baseURL: URL) {
         self.queue = queue
         self.conversation = Conversation(environment: environment)
         self.targeter = Targeter()

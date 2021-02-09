@@ -10,7 +10,7 @@ import UIKit
 
 @testable import ApptentiveKit
 
-struct MockEnvironment: DeviceEnvironment, AppEnvironment {
+struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
     var identifierForVendor: UUID? = UUID(uuidString: "A230943F-14C7-4C57-BEA2-39EFC51F284C")
     var osName: String = "iOS"
     var osVersion: Version = "12.0"
@@ -40,4 +40,23 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment {
         "DTXcode": "1160",
         "DTXcodeBuild": "11E703a",
     ]
+
+    var fileManager = FileManager.default
+    var isInForeground = true
+    var isProtectedDataAvailable = true
+    var delegate: EnvironmentDelegate?
+
+    func applicationSupportURL() throws -> URL {
+        return URL(string: "file:///tmp/")!
+    }
+
+    var shouldOpenURLSucceed = true
+    func open(_ url: URL, completion: @escaping (Bool) -> Void) {
+        completion(self.shouldOpenURLSucceed)
+    }
+
+    var shouldRequestReviewSucceed = true
+    func requestReview(completion: @escaping (Bool) -> Void) {
+        completion(shouldRequestReviewSucceed)
+    }
 }

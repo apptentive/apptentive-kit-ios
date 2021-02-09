@@ -23,6 +23,58 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
     /// This property must be set before calling `register(credentials:)`.
     public var theme: UITheme = .apptentive
 
+    /// The name of the person using the app, if available.
+    public var personName: String? {
+        get {
+            self.person.name
+        }
+        set {
+            self.person.name = newValue
+
+            self.updateConversationPerson()
+        }
+    }
+
+    /// The email address of the person using the app, if available.
+    public var personEmailAddress: String? {
+        get {
+            self.person.emailAddress
+        }
+        set {
+            self.person.emailAddress = newValue
+
+            self.updateConversationPerson()
+        }
+    }
+
+    /// The custom data assocated with the person using the app.
+    ///
+    /// Supported types are `String`, `Bool`, and numbers.
+    public var personCustomData: CustomData {
+        get {
+            self.person.customData
+        }
+        set {
+            self.person.customData = newValue
+
+            self.updateConversationPerson()
+        }
+    }
+
+    /// The custom data associated with the device running the app.
+    ///
+    /// Supported types are `String`, `Bool`, and numbers.
+    public var deviceCustomData: CustomData {
+        get {
+            self.device.customData
+        }
+        set {
+            self.device.customData = newValue
+
+            self.updateConversationDevice()
+        }
+    }
+
     /// Indicates a theme that will be applied to Apptentive UI.
     public enum UITheme {
         /// Apptentive cross-platform look and feel.
@@ -96,7 +148,13 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
 
     // MARK: - Internal
 
-    init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: Environment? = nil) {
+    let baseURL: URL
+    let backendQueue: DispatchQueue
+    let backend: Backend
+    var environment: GlobalEnvironment
+    let containerDirectory: String
+
+    init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: GlobalEnvironment? = nil) {
         // swift-format-ignore
         self.baseURL = baseURL ?? URL(string: "https://api.apptentive.com/")!
         self.backendQueue = backendQueue ?? DispatchQueue(label: "Apptentive Backend")
@@ -105,6 +163,9 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
 
         self.backend = Backend(queue: self.backendQueue, environment: self.environment, baseURL: self.baseURL)
         self.interactionPresenter = InteractionPresenter()
+
+        self.person = self.backend.conversation.person
+        self.device = self.backend.conversation.device
 
         self.environment.delegate = self
         if self.environment.isProtectedDataAvailable {
@@ -153,27 +214,30 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
 
     // MARK: EnvironmentDelegate
 
-    func protectedDataDidBecomeAvailable(_ environment: Environment) {
+    func protectedDataDidBecomeAvailable(_ environment: GlobalEnvironment) {
         self.backendQueue.async {
             do {
                 let containerURL = try environment.applicationSupportURL().appendingPathComponent(self.containerDirectory)
 
                 try self.backend.load(containerURL: containerURL, fileManager: environment.fileManager)
+
+                self.person.merge(with: self.backend.conversation.person)
+                self.device.merge(with: self.backend.conversation.device)
             } catch let error {
                 assertionFailure("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error)")
             }
         }
     }
 
-    func applicationWillEnterForeground(_ environment: Environment) {
+    func applicationWillEnterForeground(_ environment: GlobalEnvironment) {
         self.engage(event: .launch())
     }
 
-    func applicationDidEnterBackground(_ environment: Environment) {
+    func applicationDidEnterBackground(_ environment: GlobalEnvironment) {
         self.engage(event: .exit())
     }
 
-    func applicationWillTerminate(_ environment: Environment) {
+    func applicationWillTerminate(_ environment: GlobalEnvironment) {
         if environment.isInForeground {
             self.engage(event: .exit())
         }
@@ -181,11 +245,25 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
 
     // MARK: - Private
 
-    private let baseURL: URL
-    private let backendQueue: DispatchQueue
-    private let backend: Backend
-    private let environment: Environment
-    private let containerDirectory: String
+    /// Shadow of the conversation's `person` property, but accessible on the main thread.
+    private var person: Person
+
+    /// Shadow of the conversation's `device` property, but accessible on the main thread.
+    private var device: Device
+
+    /// Sync changes from the local `person` property to the conversation.
+    private func updateConversationPerson() {
+        self.backendQueue.async {
+            self.backend.conversation.person.merge(with: self.person)
+        }
+    }
+
+    /// Sync changes from the local `device` property to the conversation.
+    private func updateConversationDevice() {
+        self.backendQueue.async {
+            self.backend.conversation.device.merge(with: self.device)
+        }
+    }
 }
 
 enum ApptentiveError: Error {

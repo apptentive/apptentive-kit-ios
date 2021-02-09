@@ -25,8 +25,11 @@ protocol PlatformEnvironment {
     var fileManager: FileManager { get }
     var isInForeground: Bool { get }
     var isProtectedDataAvailable: Bool { get }
+    var delegate: EnvironmentDelegate? { get set }
 
     func applicationSupportURL() throws -> URL
+    func requestReview(completion: @escaping (Bool) -> Void)
+    func open(_ url: URL, completion: @escaping (Bool) -> Void)
 }
 
 /// The portions of the Environment that provide information about the app.
@@ -57,30 +60,32 @@ protocol DeviceEnvironment {
     #endif
 }
 
+typealias GlobalEnvironment = DeviceEnvironment & AppEnvironment & PlatformEnvironment
+
 /// Allows the Environment to communicate changes.
 protocol EnvironmentDelegate: AnyObject {
 
     /// Notifies the receiver that access to protected data (from the encrypted filesystem) is now available.
     /// - Parameter environment: The environment calling the method.
-    func protectedDataDidBecomeAvailable(_ environment: Environment)
+    func protectedDataDidBecomeAvailable(_ environment: GlobalEnvironment)
 
     /// Notifies the receiver that the application will enter the foreground.
     /// - Parameter environment: The environment calling the method.
-    func applicationWillEnterForeground(_ environment: Environment)
+    func applicationWillEnterForeground(_ environment: GlobalEnvironment)
 
     /// Notifies the receiver that the application did enter the background.
     /// - Parameter environment: The environment calling the method.
-    func applicationDidEnterBackground(_ environment: Environment)
+    func applicationDidEnterBackground(_ environment: GlobalEnvironment)
 
     /// Notifies the receiver that the application will terminate.
     /// - Parameter environment: The environment calling the method.
-    func applicationWillTerminate(_ environment: Environment)
+    func applicationWillTerminate(_ environment: GlobalEnvironment)
 }
 
 /// Provides access to platform, device, and operating system information.
 ///
 /// Allows these values to be injected as a dependency to aid in testing.
-class Environment: ConversationEnvironment {
+class Environment: GlobalEnvironment {
 
     /// The file manager that should be used when interacting with the filesystem.
     let fileManager: FileManager
