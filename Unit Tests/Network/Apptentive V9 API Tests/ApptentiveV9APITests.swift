@@ -126,7 +126,9 @@ class ApptentiveV9APITests: XCTestCase {
         conversation.conversationCredentials = Conversation.ConversationCredentials(token: "456", id: "def")
 
         let client = HTTPClient<ApptentiveV9API>(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
-        let payloadSender = PayloadSender(queue: DispatchQueue.main, client: client)
+        let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
 
         let surveyResponse = SurveyResponse(surveyID: "789", answers: ["1": [SurveyQuestionResponse.freeform("foo")]])
 
@@ -155,7 +157,9 @@ class ApptentiveV9APITests: XCTestCase {
         conversation.conversationCredentials = Conversation.ConversationCredentials(token: "456", id: "def")
 
         let client = HTTPClient<ApptentiveV9API>(requestor: requestor, baseURL: baseURL)
-        let payloadSender = PayloadSender(queue: DispatchQueue.main, client: client)
+        let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
 
         let event = Event(name: "Foobar")
 
@@ -175,32 +179,8 @@ class ApptentiveV9APITests: XCTestCase {
         payloadSender.send(Payload(wrapping: event), for: conversation)
     }
 
-    class SpyRequestor: HTTPRequesting {
-        var request: URLRequest?
-        var responseData: Data
-        var extraCompletion: (() -> Void)?
-
-        init(responseData: Data) {
-            self.responseData = responseData
-        }
-
-        func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> HTTPCancellable {
-            self.request = request
-
-            let stubReponse = HTTPURLResponse(url: request.url!, statusCode: 201, httpVersion: "1.1", headerFields: [:])
-            completion(responseData, stubReponse, nil)
-            extraCompletion?()
-
-            return FakeHTTPCancellable()
-        }
-    }
-
     struct MockEncodable: Encodable {
         let foo: String
         let bar: String
-    }
-
-    struct FakeHTTPCancellable: HTTPCancellable {
-        func cancel() {}
     }
 }

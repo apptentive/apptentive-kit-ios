@@ -26,7 +26,7 @@ extension URLSession: HTTPRequesting {
 
 /// A protocol describing an HTTP request that can be cancelled.
 protocol HTTPCancellable {
-    func cancel()
+    mutating func cancel()
 }
 
 /// An implementation of the `HTTPCancellable` protocol using a `URLSessionTask`.

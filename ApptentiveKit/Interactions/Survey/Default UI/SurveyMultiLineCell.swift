@@ -96,7 +96,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.heightConstraint?.isActive = true
 
         self.textView.addSubview(self.placeholderLabel)
-    
+
         self.placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
         self.placeholderLabel.adjustsFontForContentSizeCategory = true
         self.placeholderLabel.isUserInteractionEnabled = false
@@ -123,7 +123,7 @@ class SurveyMultiLineCell: UITableViewCell {
             self.placeholderLabel.topAnchor.constraint(equalTo: self.textView.topAnchor, constant: self.textView.textContainerInset.top),
             self.placeholderLabel.leadingAnchor.constraint(equalTo: self.textView.leadingAnchor, constant: self.textView.textContainerInset.left + additionalPlaceholderInset),
             self.textView.trailingAnchor.constraint(equalTo: self.placeholderLabel.trailingAnchor, constant: self.textView.textContainerInset.right + additionalPlaceholderInset),
-            self.textView.widthAnchor.constraint(equalTo: self.placeholderLabel.widthAnchor, multiplier: 1, constant: placeholderWidthInset)
+            self.textView.widthAnchor.constraint(equalTo: self.placeholderLabel.widthAnchor, multiplier: 1, constant: placeholderWidthInset),
         ]
 
         NSLayoutConstraint.activate(self.placeholderLayoutConstraints)

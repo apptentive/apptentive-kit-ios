@@ -41,9 +41,9 @@ jobs:
       name: lint
       addons:
         homebrew:
-          taps: apptentive/travis
           packages:
-          - swift-format-5.3
+          - swift-format
+          update: true
       script:
         - bundle exec fastlane lint
     - stage: framework

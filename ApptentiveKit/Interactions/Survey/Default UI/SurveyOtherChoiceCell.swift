@@ -10,7 +10,7 @@ import UIKit
 
 class SurveyOtherChoiceCell: UITableViewCell {
     let textField: UITextField
-   
+
     var isMarkedAsInvalid: Bool {
         didSet {
             if self.isMarkedAsInvalid {
@@ -30,7 +30,6 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
         self.textLabel?.numberOfLines = 0
         self.textLabel?.lineBreakMode = .byWordWrapping
-        
 
         self.translatesAutoresizingMaskIntoConstraints = false
         self.contentView.addSubview(self.textField)
@@ -79,11 +78,10 @@ class SurveyOtherChoiceCell: UITableViewCell {
             self.textField.leftView = spacerView
             self.textField.leftViewMode = .always
         }
-    
+
         self.textField.font = .preferredFont(forTextStyle: .body)
         self.textField.returnKeyType = .done
-        
-       
+
         guard let textLabel = self.textLabel else {
             return
         }
@@ -96,4 +94,3 @@ class SurveyOtherChoiceCell: UITableViewCell {
         ])
     }
 }
-

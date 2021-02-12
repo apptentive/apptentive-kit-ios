@@ -52,11 +52,7 @@ class Backend {
 
     private var payloadSender: PayloadSender
 
-    /// The network task used to create a conversation.
-    private var createConversationTask: HTTPCancellable?
-
-    /// The network task used to retrive the engagement manifest.
-    private var getInteractionsTask: HTTPCancellable?
+    private var requestRetrier: HTTPRequestRetrier<ApptentiveV9API>
 
     /// The completion handler that should be called when conversation credentials are loaded/retrieved.
     private var connectCompletion: ((Result<ConnectionType, Error>) -> Void)?
@@ -71,7 +67,8 @@ class Backend {
         self.conversation = Conversation(environment: environment)
         self.targeter = Targeter()
         self.client = HTTPClient(requestor: URLSession.shared, baseURL: baseURL)
-        self.payloadSender = PayloadSender(queue: queue, client: self.client)
+        self.requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: self.client, queue: queue)
+        self.payloadSender = PayloadSender(requestRetrier: self.requestRetrier)
     }
 
     /// Connects the backend to the Apptentive API.
@@ -234,40 +231,30 @@ class Backend {
 
     /// Creates a conversation on the Apptentive server using the API.
     private func createConversationOnServer() {
-        // Make sure we don't have a request in flight already.
-        if self.createConversationTask == nil {
-            self.createConversationTask = self.client.request(.createConversation(self.conversation)) { (result: Result<ConversationResponse, Error>) in
-                self.queue.async {
-                    switch result {
-                    case .success(let conversationResponse):
-                        self.conversation.conversationCredentials = Conversation.ConversationCredentials(token: conversationResponse.token, id: conversationResponse.id)
-                        self.connectCompletion?(.success(.new))
-                    case .failure(let error):
-                        self.connectCompletion?(.failure(error))
-                    }
-
-                    self.createConversationTask = nil
-                    self.connectCompletion = nil
-                }
+        self.requestRetrier.startUnlessUnderway(.createConversation(self.conversation), identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
+            switch result {
+            case .success(let conversationResponse):
+                self.conversation.conversationCredentials = Conversation.ConversationCredentials(token: conversationResponse.token, id: conversationResponse.id)
+                self.connectCompletion?(.success(.new))
+            case .failure(let error):
+                self.connectCompletion?(.failure(error))
             }
+
+            self.connectCompletion = nil
         }
     }
 
     /// Retrieves an engagement manifest from the Apptentive API if the current one is missing or expired.
     private func getInteractionsIfNeeded() {
         // Make sure we don't have a request in flight already, and that the engagement manifest in memory (if any) is expired.
-        if self.getInteractionsTask == nil && (self.targeter.engagementManifest.expiry ?? Date.distantPast) < Date() {
-            self.getInteractionsTask = self.client.request(.getInteractions(with: self.conversation)) { (result: Result<EngagementManifest, Error>) in
-                self.queue.async {
-                    switch result {
-                    case .success(let engagementManifest):
-                        self.targeter.engagementManifest = engagementManifest
+        if (self.targeter.engagementManifest.expiry ?? Date.distantPast) < Date() {
+            self.requestRetrier.startUnlessUnderway(.getInteractions(with: self.conversation), identifier: "get interactions") { (result: Result<EngagementManifest, Error>) in
+                switch result {
+                case .success(let engagementManifest):
+                    self.targeter.engagementManifest = engagementManifest
 
-                    case .failure(let error):
-                        ApptentiveLogger.network.error("Failed to download engagement manifest: \(error)")
-                    }
-
-                    self.getInteractionsTask = nil
+                case .failure(let error):
+                    ApptentiveLogger.network.error("Failed to download engagement manifest: \(error)")
                 }
             }
         }

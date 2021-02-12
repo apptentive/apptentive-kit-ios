@@ -12,6 +12,8 @@
 		01086517253E42FC00101CFB /* PayloadSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01086516253E42FC00101CFB /* PayloadSender.swift */; };
 		010ADF442458F8C3005D63FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 010ADF432458F8C3005D63FE /* Main.storyboard */; };
 		011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011FF85F252D1AF700073EBC /* InteractionDelegate.swift */; };
+		0130E80C25D326CF004B2895 /* HTTPRequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0130E80B25D326CF004B2895 /* HTTPRequestRetrierTests.swift */; };
+		0130E81225D327B9004B2895 /* SpyRequestor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0130E81125D327B9004B2895 /* SpyRequestor.swift */; };
 		013D8E0B24EEFA13005EC4D1 /* SurveyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */; };
 		013D8E0C24EEFA13005EC4D1 /* InteractionPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */; };
 		013D8E0D24EEFA13005EC4D1 /* InteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */; };
@@ -70,6 +72,8 @@
 		017231112536769F0095AEAA /* CriteriaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017231002536768B0095AEAA /* CriteriaTests.swift */; };
 		017231122536769F0095AEAA /* FieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017231012536768B0095AEAA /* FieldTests.swift */; };
 		0173EA4325B2035F009740F5 /* ApptentiveLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */; };
+		0176159B25D1F9F900BB85C6 /* HTTPRequestRetrier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0176159A25D1F9F900BB85C6 /* HTTPRequestRetrier.swift */; };
+		017615AA25D2234F00BB85C6 /* HTTPRetryPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017615A925D2234F00BB85C6 /* HTTPRetryPolicy.swift */; };
 		017FC92C25310E2400C7A47F /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC92B25310E2400C7A47F /* Event.swift */; };
 		017FC93A25310E4700C7A47F /* Targeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC93425310E4700C7A47F /* Targeter.swift */; };
 		017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC95325310E9400C7A47F /* EngagementManifest.swift */; };
@@ -174,6 +178,8 @@
 		01086516253E42FC00101CFB /* PayloadSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayloadSender.swift; sourceTree = "<group>"; };
 		010ADF432458F8C3005D63FE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		011FF85F252D1AF700073EBC /* InteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionDelegate.swift; sourceTree = "<group>"; };
+		0130E80B25D326CF004B2895 /* HTTPRequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestRetrierTests.swift; sourceTree = "<group>"; };
+		0130E81125D327B9004B2895 /* SpyRequestor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpyRequestor.swift; sourceTree = "<group>"; };
 		013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyViewModelTests.swift; sourceTree = "<group>"; };
 		013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractionPresenterTests.swift; sourceTree = "<group>"; };
 		013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractionTests.swift; sourceTree = "<group>"; };
@@ -233,6 +239,8 @@
 		017231012536768B0095AEAA /* FieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FieldTests.swift; sourceTree = "<group>"; };
 		017231022536768B0095AEAA /* TargetingStateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TargetingStateTests.swift; sourceTree = "<group>"; };
 		0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveLogger.swift; sourceTree = "<group>"; };
+		0176159A25D1F9F900BB85C6 /* HTTPRequestRetrier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestRetrier.swift; sourceTree = "<group>"; };
+		017615A925D2234F00BB85C6 /* HTTPRetryPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRetryPolicy.swift; sourceTree = "<group>"; };
 		017FC92B25310E2400C7A47F /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		017FC93425310E4700C7A47F /* Targeter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Targeter.swift; sourceTree = "<group>"; };
 		017FC95325310E9400C7A47F /* EngagementManifest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EngagementManifest.swift; sourceTree = "<group>"; };
@@ -381,6 +389,8 @@
 				013D8E8F24F039A7005EC4D1 /* HTTPRequesting.swift */,
 				013D8E8A24F038D3005EC4D1 /* HTTPEndpoint.swift */,
 				013D8E8824F038D3005EC4D1 /* HTTPClient.swift */,
+				0176159A25D1F9F900BB85C6 /* HTTPRequestRetrier.swift */,
+				017615A925D2234F00BB85C6 /* HTTPRetryPolicy.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -390,6 +400,8 @@
 			children = (
 				01E79854251C325100D24A05 /* Apptentive V9 API Tests */,
 				013D8E9524F03C04005EC4D1 /* HTTPClientTests.swift */,
+				0130E80B25D326CF004B2895 /* HTTPRequestRetrierTests.swift */,
+				0130E81125D327B9004B2895 /* SpyRequestor.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -924,6 +936,7 @@
 				017230ED253673960095AEAA /* Criteria+Decodable.swift in Sources */,
 				013D8E8B24F038D3005EC4D1 /* ApptentiveV9API.swift in Sources */,
 				017230EF253673960095AEAA /* Conversation+TargetingState.swift in Sources */,
+				017615AA25D2234F00BB85C6 /* HTTPRetryPolicy.swift in Sources */,
 				01E79821251C2E9D00D24A05 /* ConversationRequest.swift in Sources */,
 				013D8EA324F09B01005EC4D1 /* CustomData.swift in Sources */,
 				01E7984B251C312200D24A05 /* SurveyResponseContents.swift in Sources */,
@@ -947,6 +960,7 @@
 				014D5B33256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift in Sources */,
 				EF69E0BC258962DA00FA0636 /* SurveyRangeCell.swift in Sources */,
 				013D8EA624F09B01005EC4D1 /* Device.swift in Sources */,
+				0176159B25D1F9F900BB85C6 /* HTTPRequestRetrier.swift in Sources */,
 				01974A6F2577043400C7D693 /* TextModalViewModel.swift in Sources */,
 				015F2ADD24C9EE3A004B53E2 /* SurveyResponse.swift in Sources */,
 				01822BBA2565727D006ADB3B /* SurveyQuestionHeaderView.swift in Sources */,
@@ -979,9 +993,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				017FC9942531101500C7A47F /* EventTests.swift in Sources */,
+				0130E81225D327B9004B2895 /* SpyRequestor.swift in Sources */,
 				013D8E9924F03C13005EC4D1 /* HTTPClientTests.swift in Sources */,
 				01C7958425C1082800FD28F1 /* PersonAndDeviceTests.swift in Sources */,
 				015D6BCF250AC7AD00372759 /* MockEnvironment.swift in Sources */,
+				0130E80C25D326CF004B2895 /* HTTPRequestRetrierTests.swift in Sources */,
 				01E7986B251C32F200D24A05 /* SurveyResponsePayloadTests.swift in Sources */,
 				017231112536769F0095AEAA /* CriteriaTests.swift in Sources */,
 				013D8EB124F09F6C005EC4D1 /* ConversationRequestTests.swift in Sources */,

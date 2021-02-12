@@ -38,7 +38,7 @@ class ApptentiveFeatureTests: XCTestCase {
     }
 
     func testSDKRegistrationFailsWithNegativeConfirmation() {
-        let credentials = Apptentive.AppCredentials(key: "", signature: "")
+        let credentials = Apptentive.AppCredentials(key: "invalid", signature: "invalid")
 
         self.sdkRegistrationWithConfirmation(credentials: credentials) {
             XCTAssertFalse($0)
