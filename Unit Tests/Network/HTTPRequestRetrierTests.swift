@@ -27,7 +27,7 @@ class HTTPRequestRetrierTests: XCTestCase {
         self.requestor = SpyRequestor(responseData: responseString.data(using: .utf8)!)
 
         let retryPolicy = HTTPRetryPolicy(initialDelay: 1.0, multiplier: 1.0, useJitter: false)
-        let client = HTTPClient<ApptentiveV9API>(requestor: self.requestor, baseURL: URL(string: "https://www.example.com")!)
+        let client = HTTPClient<ApptentiveV9API>(requestor: self.requestor, baseURL: URL(string: "https://www.example.com")!, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
         self.requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
     }
 

@@ -12,7 +12,7 @@ import Foundation
 struct SurveyResponseContents: Equatable, Decodable, PayloadEncodable {
     let answers: SurveyAnswersRequestPart
 
-    init(response: SurveyResponse) {
+    init(with response: SurveyResponse) {
         self.answers = SurveyAnswersRequestPart(answers: response.answers)
     }
 

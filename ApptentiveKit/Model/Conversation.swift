@@ -18,6 +18,8 @@ protocol APICredentialsProviding {
 
     /// The token and conversation ID used when communicating with the Apptentive API.
     var conversationCredentials: Conversation.ConversationCredentials? { get }
+
+    var acceptLanguage: String? { get }
 }
 
 /// A object describing the state of the SDK, used for targeting and overall state management.
@@ -97,5 +99,11 @@ struct Conversation: Equatable, Codable, APICredentialsProviding {
         try copy.merge(with: newer)
 
         return copy
+    }
+
+    // MARK: APICredentialsProviding
+
+    var acceptLanguage: String? {
+        return self.device.localeLanguageCode
     }
 }

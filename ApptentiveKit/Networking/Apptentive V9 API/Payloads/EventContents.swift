@@ -22,7 +22,7 @@ struct EventContents: Equatable, Decodable, PayloadEncodable {
 
     /// Creates a new payload encodable object to represent an event.
     /// - Parameter event: The event to represent.
-    init(event: Event) {
+    init(with event: Event) {
         self.label = event.codePointName
         self.interactionID = event.interaction?.id
         self.userInfo = event.userInfo

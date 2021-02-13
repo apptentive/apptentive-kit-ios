@@ -172,7 +172,9 @@ class Environment: GlobalEnvironment {
         #if canImport(CoreTelephony)
             self.telephonyNetworkInfo = CTTelephonyNetworkInfo()
             if #available(iOS 12.0, *) {
-                self.carrier = telephonyNetworkInfo.serviceSubscriberCellularProviders?.values.compactMap({ $0.carrierName }).joined(separator: ", ")
+                if let carriers = telephonyNetworkInfo.serviceSubscriberCellularProviders, carriers.count > 0 {
+                    self.carrier = carriers.values.compactMap({ $0.carrierName }).joined(separator: ", ")
+                }
             } else {
                 self.carrier = telephonyNetworkInfo.subscriberCellularProvider?.carrierName
             }
@@ -216,6 +218,9 @@ class Environment: GlobalEnvironment {
 
             NotificationCenter.default.addObserver(self, selector: #selector(applicationWillTerminate(notification:)), name: UIApplication.willTerminateNotification, object: nil)
         #endif
+
+        self.distributionName = "source"
+        self.distributionVersion = self.sdkVersion
     }
 
     /// Retrieves URL of the Application Support directory in the app's data container.

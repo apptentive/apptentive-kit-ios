@@ -135,6 +135,15 @@ extension ApptentiveLogMessage: ExpressibleByStringInterpolation {
                     }, privacy
                 ))
         }
+
+        mutating func appendInterpolation(_ argumentObject: @autoclosure @escaping () -> Int, privacy: ApptentiveLogPrivacy = .auto) {
+            self.segments.append(
+                (
+                    {
+                        String(argumentObject())
+                    }, privacy
+                ))
+        }
     }
 }
 

@@ -65,6 +65,8 @@ class PayloadSender {
 
         let apiRequest = ApptentiveV9API(credentials: credentials, path: firstPayload.path, method: firstPayload.method, bodyObject: ApptentiveV9API.HTTPBodyEncodable(value: firstPayload))
 
+        self.currentlySendingPayload = true
+
         self.requestRetrier.start(apiRequest, identifier: UUID().uuidString) { (result: Result<PayloadResponse, Error>) in
             switch result {
             case .success:

@@ -27,8 +27,8 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
     /// - Parameters:
     ///   - requestor: The object conforming to `HTTPRequesting` that will be used to make requests.
     ///   - baseURL: The URL relative to which requests should be built.
-    ///   - userAgent: The string to send for the user agent header, or nil to use the default one for the requestor.
-    init(requestor: HTTPRequesting, baseURL: URL, userAgent: String? = nil) {
+    ///   - userAgent: The string to send for the user agent header.
+    init(requestor: HTTPRequesting, baseURL: URL, userAgent: String) {
         self.requestor = requestor
         self.baseURL = baseURL
         self.userAgent = userAgent
@@ -43,6 +43,8 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
     func request<T: Decodable>(_ endpoint: Endpoint, completion: @escaping (Result<T, Error>) -> Void) -> HTTPCancellable? {
         do {
             let request = try endpoint.buildRequest(baseURL: self.baseURL, userAgent: self.userAgent)
+
+            Self.log(request)
 
             let task = requestor.sendRequest(request) { (data, response, error) in
                 completion(
@@ -92,6 +94,19 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
             throw HTTPClientError.serverError(httpResponse, data)
         default:
             throw HTTPClientError.unhandledStatusCode(httpResponse, data)
+        }
+    }
+
+    static func log(_ request: URLRequest) {
+        ApptentiveLogger.network.debug("API \(request.httpMethod ?? "<no method>") to \(request.url?.absoluteString ?? "<no URL>")")
+
+        ApptentiveLogger.network.debug("API request headers:")
+        request.allHTTPHeaderFields?.forEach({ (header, value) in
+            ApptentiveLogger.network.debug("  \(header): \(value, privacy: .auto)")
+        })
+
+        request.httpBody.flatMap {
+            ApptentiveLogger.network.debug("Body: \(String(data: $0, encoding: .utf8) ?? "<encoding error>")")
         }
     }
 }

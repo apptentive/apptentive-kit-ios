@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */; };
 		015F2ACA24C8EBB2004B53E2 /* Interactions in Resources */ = {isa = PBXBuildFile; fileRef = 015F2AC924C8EBB1004B53E2 /* Interactions */; };
+		0176156925D1D48700BB85C6 /* DataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0176156825D1D48700BB85C6 /* DataTableViewController.swift */; };
 		018B099A24577B15007450EA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018B099924577B15007450EA /* AppDelegate.swift */; };
 		018B09A324577B15007450EA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 018B09A124577B15007450EA /* Main.storyboard */; };
 		018B09A524577B17007450EA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 018B09A424577B17007450EA /* Assets.xcassets */; };
@@ -76,6 +77,7 @@
 /* Begin PBXFileReference section */
 		015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionsViewController.swift; sourceTree = "<group>"; };
 		015F2AC924C8EBB1004B53E2 /* Interactions */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Interactions; sourceTree = "<group>"; };
+		0176156825D1D48700BB85C6 /* DataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTableViewController.swift; sourceTree = "<group>"; };
 		018B099624577B15007450EA /* Operator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Operator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		018B099924577B15007450EA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		018B09A224577B15007450EA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 				01EB6C072477409C0067F4B9 /* README.md */,
 				018B099924577B15007450EA /* AppDelegate.swift */,
 				015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */,
+				0176156825D1D48700BB85C6 /* DataTableViewController.swift */,
 				01C060AC251E44C7006B4B30 /* EventsViewController.swift */,
 				EF5F381C25C3B2D8007F823E /* Localization */,
 				01C060B3251E48EC006B4B30 /* AddEventCell.swift */,
@@ -287,6 +290,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0176156925D1D48700BB85C6 /* DataTableViewController.swift in Sources */,
 				01C060B4251E48EC006B4B30 /* AddEventCell.swift in Sources */,
 				015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */,
 				018B099A24577B15007450EA /* AppDelegate.swift in Sources */,

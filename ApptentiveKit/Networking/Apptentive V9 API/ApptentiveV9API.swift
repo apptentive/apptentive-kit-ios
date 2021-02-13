@@ -94,6 +94,9 @@ struct ApptentiveV9API: HTTPEndpoint {
         return Self.buildHeaders(
             appCredentials: appCredentials,
             contentType: ContentType.json,
+            accept: ContentType.json,
+            acceptCharset: "UTF-8",
+            acceptLanguage: self.credentials.acceptLanguage ?? "en",
             apiVersion: Self.apiVersion,
             token: token)
     }
@@ -172,12 +175,18 @@ struct ApptentiveV9API: HTTPEndpoint {
     /// - Parameters:
     ///   - appCredentials: The app key and app signature for the request.
     ///   - contentType: The content type for the request.
+    ///   - accept: The content type that the request expects to receive in response.
+    ///   - acceptCharset: The character set that the request expects the response to be encoded with.
+    ///   - acceptLanguage: The (natural) language that the request expects the response to be in.
     ///   - apiVersion: The API version for the request.
     ///   - token: The JWT for the request, if any.
     /// - Returns: A dictionary whose keys are header names and whose values are the corresponding header values.
     static func buildHeaders(
         appCredentials: Apptentive.AppCredentials,
         contentType: String,
+        accept: String,
+        acceptCharset: String,
+        acceptLanguage: String,
         apiVersion: String,
         token: String?
     ) -> [String: String] {
@@ -186,6 +195,9 @@ struct ApptentiveV9API: HTTPEndpoint {
             Headers.apiVersion: apiVersion,
             Headers.apptentiveKey: appCredentials.key,
             Headers.apptentiveSignature: appCredentials.signature,
+            Headers.accept: accept,
+            Headers.acceptCharset: acceptCharset,
+            Headers.acceptLanguage: acceptLanguage,
         ]
 
         if let token = token {
@@ -216,6 +228,9 @@ struct ApptentiveV9API: HTTPEndpoint {
         static let apiVersion = "X-API-Version"
         static let contentType = "Content-Type"
         static let authorization = "Authorization"
+        static let acceptCharset = "Accept-Charset"
+        static let acceptLanguage = "Accept-Language"
+        static let accept = "Accept"
     }
 
     /// The content type of the request.

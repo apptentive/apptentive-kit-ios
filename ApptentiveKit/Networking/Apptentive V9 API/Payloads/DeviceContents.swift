@@ -1,15 +1,14 @@
 //
-//  DeviceRequest.swift
+//  DeviceContents.swift
 //  ApptentiveKit
 //
-//  Created by Frank Schmitt on 9/23/20.
-//  Copyright © 2020 Apptentive, Inc. All rights reserved.
+//  Created by Frank Schmitt on 2/3/21.
+//  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
 import Foundation
 
-/// The HTTP request body object used when creating or updating a device on the server.
-struct DeviceRequest: Codable, Equatable {
+struct DeviceContents: Equatable, Codable, PayloadEncodable {
     let uuid: UUID?
     let osName: String?
     let osVersion: String?
@@ -25,7 +24,7 @@ struct DeviceRequest: Codable, Equatable {
     let advertisingIdentifier: UUID?
     let customData: CustomData
 
-    init(device: Device) {
+    internal init(with device: Device) {
         self.uuid = device.uuid
         self.osName = device.osName
         self.osVersion = device.osVersion?.versionString
@@ -42,13 +41,30 @@ struct DeviceRequest: Codable, Equatable {
         self.customData = device.customData
     }
 
+    func encodeContents(to container: inout KeyedEncodingContainer<AllPossiblePayloadCodingKeys>) throws {
+        try container.encode(self.uuid, forKey: .uuid)
+        try container.encode(self.osName, forKey: .osName)
+        try container.encode(self.osVersion, forKey: .osVersion)
+        try container.encode(self.osBuild, forKey: .osBuild)
+        try container.encode(self.hardware, forKey: .hardware)
+        try container.encode(self.carrier, forKey: .carrier)
+        try container.encode(self.contentSizeCategory, forKey: .contentSizeCategory)
+        try container.encode(self.localeRaw, forKey: .localeRaw)
+        try container.encode(self.localeCountryCode, forKey: .localeCountryCode)
+        try container.encode(self.localeLanguageCode, forKey: .localeLanguageCode)
+        try container.encode(self.utcOffset, forKey: .utcOffset)
+        try container.encode(self.integrationConfiguration, forKey: .integrationConfiguration)
+        try container.encode(self.advertisingIdentifier, forKey: .advertisingIdentifier)
+        try container.encode(self.customData, forKey: .customData)
+    }
+
     enum CodingKeys: String, CodingKey {
-        case uuid = "uuid"
+        case uuid
         case osName = "os_name"
         case osVersion = "os_version"
         case osBuild = "os_build"
-        case hardware = "hardware"
-        case carrier = "carrier"
+        case hardware
+        case carrier
         case contentSizeCategory = "content_size_category"
         case localeRaw = "locale_raw"
         case localeCountryCode = "locale_country_code"

@@ -51,10 +51,12 @@ class ConversationRequestTests: XCTestCase {
                 "debug": true,
                 "sdk_author_name": "Apptentive, Inc.",
                 "dt_platform_build": "17E218",
-                "sdk_platform": "Apple",
+                "sdk_platform": "iOS",
                 "cf_bundle_identifier": "com.apptentive.test",
                 "cf_bundle_short_version_string": "0.0.0",
-                "app_store_receipt": false,
+                "app_store_receipt": {
+                    "has_receipt": false
+                },
                 "sdk_programming_language": "Swift",
                 "cf_bundle_version": "1",
                 "dt_platform_name": "iphonesimulator"

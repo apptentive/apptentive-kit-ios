@@ -254,14 +254,14 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
     /// Sync changes from the local `person` property to the conversation.
     private func updateConversationPerson() {
         self.backendQueue.async {
-            self.backend.conversation.person.merge(with: self.person)
+            self.backend.conversation.person = self.person
         }
     }
 
     /// Sync changes from the local `device` property to the conversation.
     private func updateConversationDevice() {
         self.backendQueue.async {
-            self.backend.conversation.device.merge(with: self.device)
+            self.backend.conversation.device = self.device
         }
     }
 }

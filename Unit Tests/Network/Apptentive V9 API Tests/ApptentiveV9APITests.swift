@@ -17,8 +17,12 @@ class ApptentiveV9APITests: XCTestCase {
         let headers = ApptentiveV9API.buildHeaders(
             appCredentials: appCredentials,
             contentType: "foo/bar",
+            accept: "foo/bar",
+            acceptCharset: "utf-123",
+            acceptLanguage: "en",
             apiVersion: "9",
-            token: "foobar")
+            token: "foobar"
+            )
 
         let expectedHeaders = [
             "APPTENTIVE-KEY": "123",
@@ -26,6 +30,9 @@ class ApptentiveV9APITests: XCTestCase {
             "X-API-Version": "9",
             "Content-Type": "foo/bar",
             "Authorization": "Bearer foobar",
+            "Accept": "foo/bar",
+            "Accept-Charset": "utf-123",
+            "Accept-Language": "en"
         ]
 
         XCTAssertEqual(headers, expectedHeaders)
@@ -51,6 +58,9 @@ class ApptentiveV9APITests: XCTestCase {
             "User-Agent": "Apptentive/1.2.3 (Apple)",
             "Content-Type": "application/json",
             "Authorization": "Bearer def",
+            "Accept": "application/json",
+            "Accept-Charset": "UTF-8",
+            "Accept-Language": "en"
         ]
 
         XCTAssertEqual(request.url, URL(string: "https://api.example.com/conversations/456/foo")!)
@@ -156,7 +166,7 @@ class ApptentiveV9APITests: XCTestCase {
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
         conversation.conversationCredentials = Conversation.ConversationCredentials(token: "456", id: "def")
 
-        let client = HTTPClient<ApptentiveV9API>(requestor: requestor, baseURL: baseURL)
+        let client = HTTPClient<ApptentiveV9API>(requestor: requestor, baseURL: baseURL, userAgent: "foo")
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
         let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier)

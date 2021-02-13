@@ -37,12 +37,9 @@ class Backend {
     /// are called.
     var conversation: Conversation {
         didSet {
-            self.processChanges()
+            self.processChanges(from: oldValue)
         }
     }
-
-    /// The REST client used to communicate with the Apptentive API.
-    private var client: HTTPClient<ApptentiveV9API>
 
     /// The file repository used to load and save the conversation from/to persistent storage.
     private var conversationRepository: PropertyListRepository<Conversation>?
@@ -62,13 +59,28 @@ class Backend {
     ///   - queue: The dispatch queue on which the backend instance should run.
     ///   - environment: The environment object used to initialize the conversation.
     ///   - baseURL: The URL where the Apptentive API is based.
-    init(queue: DispatchQueue, environment: GlobalEnvironment, baseURL: URL) {
+    convenience init(queue: DispatchQueue, environment: ConversationEnvironment, baseURL: URL) {
+        let conversation = Conversation(environment: environment)
+        let client = HTTPClient<ApptentiveV9API>(requestor: URLSession.shared, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: environment.sdkVersion))
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
+
+        self.init(queue: queue, conversation: conversation, targeter: Targeter(), requestRetrier: requestRetrier, payloadSender: payloadSender)
+    }
+
+    /// This initializer intended for testing only.
+    /// - Parameters:
+    ///   - queue: The dispatch queue on which the backend instance should run.
+    ///   - conversation: The conversation that the backend should start with.
+    ///   - targeter: The targeter to use to determine if events should show an interaction.
+    ///   - requestRetrier: The Apptentive API request retrier to use to send API requests.
+    ///   - payloadSender: The payload sender to use to send updates to the API.
+    init(queue: DispatchQueue, conversation: Conversation, targeter: Targeter, requestRetrier: HTTPRequestRetrier<ApptentiveV9API>, payloadSender: PayloadSender) {
         self.queue = queue
-        self.conversation = Conversation(environment: environment)
-        self.targeter = Targeter()
-        self.client = HTTPClient(requestor: URLSession.shared, baseURL: baseURL)
-        self.requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: self.client, queue: queue)
-        self.payloadSender = PayloadSender(requestRetrier: self.requestRetrier)
+        self.conversation = conversation
+        self.targeter = targeter
+        self.requestRetrier = requestRetrier
+        self.payloadSender = payloadSender
     }
 
     /// Connects the backend to the Apptentive API.
@@ -196,8 +208,8 @@ class Backend {
     /// Reacts to any changes in the conversation.
     ///
     /// This is the main "event loop" of the SDK, and centralizes the behavior in response to changes in the conversation.
-    private func processChanges() {
-
+    /// - Parameter oldValue: The previous value of the conversation.
+    private func processChanges(from oldValue: Conversation) {
         // Determine whether we have conversation credentials.
         if let _ = conversation.conversationCredentials {
 
@@ -214,6 +226,18 @@ class Backend {
 
             // Retrieve a new engagement manifest if the previous one is missing or expired.
             self.getInteractionsIfNeeded()
+
+            if self.conversation.person != oldValue.person {
+                self.payloadSender.send(Payload(wrapping: self.conversation.person), for: self.conversation)
+            }
+
+            if self.conversation.device != oldValue.device {
+                self.payloadSender.send(Payload(wrapping: self.conversation.device), for: self.conversation)
+            }
+
+            if self.conversation.appRelease != oldValue.appRelease {
+                self.payloadSender.send(Payload(wrapping: self.conversation.appRelease), for: self.conversation)
+            }
         } else if let _ = conversation.appCredentials {
             // App credentials allow us to retrieve conversation credentials from the API.
             self.createConversationOnServer()

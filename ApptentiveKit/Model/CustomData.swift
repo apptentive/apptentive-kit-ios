@@ -93,7 +93,9 @@ public struct CustomData: Equatable, Codable {
 
     // swift-format-ignore
     public static func == (lhs: CustomData, rhs: CustomData) -> Bool {
-        lhs.customData.keys.allSatisfy({ (key) -> Bool in
+        let allKeys = Array(lhs.customData.keys) + Array(rhs.customData.keys)
+
+        return allKeys.allSatisfy({ (key) -> Bool in
             switch (lhs.customData[key], rhs.customData[key]) {
             case let (lhFloat, rhFloat) as (Float, Float):
                 return lhFloat == rhFloat
