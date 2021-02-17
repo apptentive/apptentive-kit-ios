@@ -231,10 +231,18 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
 
     func applicationWillEnterForeground(_ environment: GlobalEnvironment) {
         self.engage(event: .launch())
+
+        self.backendQueue.async {
+            self.backend.willEnterForeground()
+        }
     }
 
     func applicationDidEnterBackground(_ environment: GlobalEnvironment) {
         self.engage(event: .exit())
+
+        self.backendQueue.async {
+            self.backend.didEnterBackground()
+        }
     }
 
     func applicationWillTerminate(_ environment: GlobalEnvironment) {

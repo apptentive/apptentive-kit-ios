@@ -24,10 +24,39 @@ class PayloadSender {
     }
 
     /// The payloads waiting to be sent.
-    var payloads: [Payload]
+    var payloads: [Payload] {
+        didSet {
+            if self.payloads != oldValue {
+                self.payloadsNeedSaving = true
+            }
+        }
+    }
+
+    var payloadsNeedSaving: Bool = false
+
+    var isSuspended: Bool = false
 
     /// The currently in-flight API request, if any.
-    var currentlySendingPayload = false
+    var currentPayloadIdentifier: String? = nil
+
+    var repository: PropertyListRepository<[Payload]>? {
+        didSet {
+            do {
+                guard let repository = repository, repository.fileExists else {
+                    ApptentiveLogger.default.debug("No payload queue in persistent storage. Starting from scratch.")
+                    return
+                }
+
+                let savedPayloads = try repository.load()
+
+                ApptentiveLogger.default.debug("Merging \(savedPayloads.count) saved payloads into in-memory queue.")
+                self.payloads = savedPayloads + self.payloads
+            } catch let error {
+                ApptentiveLogger.default.error("Unable to load payload queue: \(error).")
+                assertionFailure("Payload queue file exists but can't be read (error: \(error.localizedDescription)).")
+            }
+        }
+    }
 
     /// Creates a new payload sender.
     /// - Parameter requestRetrier: The HTTPRequestRetrier instance to use to connect to the API.
@@ -40,20 +69,35 @@ class PayloadSender {
     /// - Parameters:
     ///   - payload: The payload to send.
     ///   - conversation: The conversation associated with the payload.
-    func send(_ payload: Payload, for conversation: Conversation) {
+    ///   - persistEagerly: Whether the pay load should be saved to persistent storage ASAP.
+    func send(_ payload: Payload, for conversation: Conversation, persistEagerly: Bool = false) {
         self.payloads.append(payload)
+
+        if persistEagerly {
+            do {
+                try self.savePayloadsIfNeeded()
+            } catch let error {
+                ApptentiveLogger.network.error("Unable to save important payload: \(error).")
+                assertionFailure("Unable to save important payload: \(error).")
+            }
+        }
 
         self.sendPayloads()
     }
 
     /// Send any queued payloads to the API.
     func sendPayloads() {
+        guard !isSuspended else {
+            ApptentiveLogger.network.debug("Payload sender is suspended")
+            return
+        }
+
         guard let credentials = self.credentials else {
             ApptentiveLogger.network.debug("Payload sender not active")
             return
         }
 
-        guard !currentlySendingPayload else {
+        guard currentPayloadIdentifier == nil else {
             ApptentiveLogger.network.debug("Already sending a payload")
             return
         }
@@ -65,9 +109,10 @@ class PayloadSender {
 
         let apiRequest = ApptentiveV9API(credentials: credentials, path: firstPayload.path, method: firstPayload.method, bodyObject: ApptentiveV9API.HTTPBodyEncodable(value: firstPayload))
 
-        self.currentlySendingPayload = true
+        let identifier = UUID().uuidString
+        self.currentPayloadIdentifier = identifier
 
-        self.requestRetrier.start(apiRequest, identifier: UUID().uuidString) { (result: Result<PayloadResponse, Error>) in
+        self.requestRetrier.start(apiRequest, identifier: identifier) { (result: Result<PayloadResponse, Error>) in
             switch result {
             case .success:
                 ApptentiveLogger.network.debug("Successfully sent payload")
@@ -78,9 +123,32 @@ class PayloadSender {
                 self.payloads.removeFirst()
             }
 
-            self.currentlySendingPayload = false
+            self.currentPayloadIdentifier = nil
 
             self.sendPayloads()
         }
+    }
+
+    func savePayloadsIfNeeded() throws {
+        if let repository = self.repository, self.payloadsNeedSaving {
+            try repository.save(self.payloads)
+            self.payloadsNeedSaving = false
+        }
+    }
+
+    func suspend() {
+        self.isSuspended = true
+
+        if let identifier = self.currentPayloadIdentifier {
+            self.requestRetrier.cancel(identifier: identifier)
+        }
+    }
+
+    func resume() {
+        self.isSuspended = false
+    }
+
+    static func createRepository(containerURL: URL, filename: String, fileManager: FileManager) -> PropertyListRepository<[Payload]> {
+        return PropertyListRepository<[Payload]>(containerURL: containerURL, filename: filename, fileManager: fileManager)
     }
 }

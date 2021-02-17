@@ -54,6 +54,11 @@ class Backend {
     /// The completion handler that should be called when conversation credentials are loaded/retrieved.
     private var connectCompletion: ((Result<ConnectionType, Error>) -> Void)?
 
+    /// Whether the conversation has changes that need to be saved to persistent storage.
+    private var conversationNeedsSaving: Bool = false
+
+    private var persistenceTimer: DispatchSourceTimer?
+
     /// Initializes a new backend instance.
     /// - Parameters:
     ///   - queue: The dispatch queue on which the backend instance should run.
@@ -81,6 +86,12 @@ class Backend {
         self.targeter = targeter
         self.requestRetrier = requestRetrier
         self.payloadSender = payloadSender
+    }
+
+    deinit {
+        self.persistenceTimer?.setEventHandler(handler: nil)
+        self.persistenceTimer?.cancel()
+        self.persistenceTimer?.resume()
     }
 
     /// Connects the backend to the Apptentive API.
@@ -114,6 +125,24 @@ class Backend {
 
             self.conversation = try savedConversation.merged(with: self.conversation)
         }
+
+        self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: fileManager)
+
+        self.startPeristenceTimer()
+    }
+
+    func willEnterForeground() {
+        self.payloadSender.resume()
+
+        self.persistenceTimer?.resume()
+    }
+
+    func didEnterBackground() {
+        self.payloadSender.suspend()
+
+        self.persistenceTimer?.suspend()
+
+        self.saveToPersistentStorageIfNeeded()
     }
 
     /// Engages an event.
@@ -150,7 +179,7 @@ class Backend {
     /// Sends a survey response to the Apptentive API.
     /// - Parameter surveyResponse: The survey response to send to the API.
     func send(surveyResponse: SurveyResponse) {
-        self.payloadSender.send(Payload(wrapping: surveyResponse), for: self.conversation)
+        self.payloadSender.send(Payload(wrapping: surveyResponse), for: self.conversation, persistEagerly: true)
     }
 
     /// Evaluates a list of invocations and presents an interaction, if needed.
@@ -243,14 +272,40 @@ class Backend {
             self.createConversationOnServer()
         }  // else we can't really do anything because we can't talk to the API.
 
-        // If we have disk access, save the conversation.
-        if let repository = self.conversationRepository {
-            do {
-                try repository.save(self.conversation)
-            } catch let error {
-                assertionFailure("Unable to save conversation: \(error)")
-            }
+        // Mark the conversation as needing to be saved.
+        self.conversationNeedsSaving = true
+    }
+
+    /// Saves the conversation and payload queue to persistent storage if needed.
+    func saveToPersistentStorageIfNeeded() {
+        do {
+            try self.saveConversationIfNeeded()
+            try self.payloadSender.savePayloadsIfNeeded()
+        } catch let error {
+            ApptentiveLogger.default.error("Unable to save files to persistent storage: \(error).")
+            assertionFailure("Unable to save files to persistent storage: \(error.localizedDescription)")
         }
+    }
+
+    /// Saves the conversation to persistent storage.
+    private func saveConversationIfNeeded() throws {
+        if let repository = self.conversationRepository, self.conversationNeedsSaving {
+            try repository.save(self.conversation)
+            self.conversationNeedsSaving = false
+        }
+    }
+
+    private func startPeristenceTimer() {
+        let persistenceTimer = DispatchSource.makeTimerSource(flags: [], queue: self.queue)
+        persistenceTimer.schedule(deadline: .now(), repeating: .seconds(10), leeway: .seconds(1))
+        persistenceTimer.setEventHandler { [weak self] in
+            ApptentiveLogger.default.debug("Running periodic persistence task")
+            self?.saveToPersistentStorageIfNeeded()
+        }
+
+        persistenceTimer.resume()
+
+        self.persistenceTimer = persistenceTimer
     }
 
     /// Creates a conversation on the Apptentive server using the API.

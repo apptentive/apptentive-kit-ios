@@ -9,7 +9,7 @@
 import Foundation
 
 /// An HTTP request body object that wraps updates that are sent to the Apptentive API.
-struct Payload: Codable {
+struct Payload: Codable, Equatable {
 
     /// The payload contents that should be wrapped.
     let contents: PayloadContents

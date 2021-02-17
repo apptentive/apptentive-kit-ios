@@ -152,6 +152,8 @@ class PersonAndDeviceTests: XCTestCase {
         // By scheduling subsequent operations on the same (serial) queue.
 
         self.dispatchQueue.async {
+            self.apptentive.backend.saveToPersistentStorageIfNeeded()
+
             DispatchQueue.main.async {
                 // Here we replace the Apptentive property with a new instance with no person/device properties set.
                 self.apptentive = Apptentive(baseURL: URL(string: "https://localhost"), containerDirectory: "com.apptentive.feedback", backendQueue: self.dispatchQueue, environment: self.environment)
