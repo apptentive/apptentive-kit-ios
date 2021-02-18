@@ -71,6 +71,8 @@ class PayloadSender {
     ///   - conversation: The conversation associated with the payload.
     ///   - persistEagerly: Whether the pay load should be saved to persistent storage ASAP.
     func send(_ payload: Payload, for conversation: Conversation, persistEagerly: Bool = false) {
+        ApptentiveLogger.payload.debug("Enqueuing new \(payload).")
+
         self.payloads.append(payload)
 
         if persistEagerly {
@@ -93,7 +95,7 @@ class PayloadSender {
         }
 
         guard let credentials = self.credentials else {
-            ApptentiveLogger.network.debug("Payload sender not active")
+            ApptentiveLogger.payload.debug("Payload sender not active.")
             return
         }
 
@@ -103,9 +105,11 @@ class PayloadSender {
         }
 
         guard let firstPayload = self.payloads.first else {
-            ApptentiveLogger.network.debug("No payloads waiting to be sent")
+            ApptentiveLogger.payload.debug("No payloads waiting to be sent.")
             return
         }
+
+        ApptentiveLogger.payload.debug("Sending \(firstPayload).")
 
         let apiRequest = ApptentiveV9API(credentials: credentials, path: firstPayload.path, method: firstPayload.method, bodyObject: ApptentiveV9API.HTTPBodyEncodable(value: firstPayload))
 
@@ -115,11 +119,13 @@ class PayloadSender {
         self.requestRetrier.start(apiRequest, identifier: identifier) { (result: Result<PayloadResponse, Error>) in
             switch result {
             case .success:
-                ApptentiveLogger.network.debug("Successfully sent payload")
+                ApptentiveLogger.payload.debug("Successfully sent \(firstPayload). Removing from queue.")
+
                 self.payloads.removeFirst()
 
             case .failure(let error):
-                ApptentiveLogger.network.error("Error sending payload: \(error.localizedDescription)")
+                ApptentiveLogger.payload.error("Permanent failure when sending \(firstPayload): \(error.localizedDescription). Removing from queue.")
+
                 self.payloads.removeFirst()
             }
 

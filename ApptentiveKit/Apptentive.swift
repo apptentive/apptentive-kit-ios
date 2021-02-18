@@ -31,6 +31,8 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
         set {
             self.person.name = newValue
 
+            ApptentiveLogger.default.debug("Setting person name to “\(newValue)”.")
+
             self.updateConversationPerson()
         }
     }
@@ -42,6 +44,8 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
         }
         set {
             self.person.emailAddress = newValue
+
+            ApptentiveLogger.default.debug("Setting person email address to “\(newValue)”.")
 
             self.updateConversationPerson()
         }
@@ -57,6 +61,8 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
         set {
             self.person.customData = newValue
 
+            ApptentiveLogger.default.debug("Setting person custom data to \(String(describing: newValue)).")
+
             self.updateConversationPerson()
         }
     }
@@ -70,6 +76,8 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
         }
         set {
             self.device.customData = newValue
+
+            ApptentiveLogger.default.debug("Setting device custom data to \(String(describing: newValue)).")
 
             self.updateConversationDevice()
         }
@@ -89,7 +97,10 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
     ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
     public func register(credentials: AppCredentials, completion: ((Bool) -> Void)? = nil) {
+        ApptentiveLogger.default.debug("Registering Apptentive SDK with key: \(credentials.key) and signature: \(credentials.signature).")
+
         if case .apptentive = self.theme {
+            ApptentiveLogger.interaction.info("Using Apptentive theme for interaction UI.")
             self.applyApptentiveTheme()
         }
 
@@ -101,7 +112,7 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
                     completion?(true)
 
                 case .failure(let error):
-                    ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
+                    ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error).")
                     completion?(false)
                 }
             }
@@ -129,6 +140,8 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
     ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
     ///   - completion: A completion handler that is called with a boolean indicating whether or not an interaction was presented.
     public func engage(event: Event, from viewController: UIViewController? = nil, completion: ((Bool) -> Void)? = nil) {
+        ApptentiveLogger.engagement.info("Engaging event \(String(describing: event), privacy: .public).")
+
         if let presentingViewController = viewController {
             self.interactionPresenter.presentingViewController = presentingViewController
         }
@@ -180,11 +193,15 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
 
         self.backend.frontend = self
         self.interactionPresenter.delegate = self
+
+        ApptentiveLogger.default.info("Apptentive SDK Initialized.")
     }
 
     // MARK: InteractionDelegate
 
     func send(surveyResponse: SurveyResponse) {
+        ApptentiveLogger.interaction.info("Enqueueing survey response.")
+
         self.backendQueue.async {
             self.backend.send(surveyResponse: surveyResponse)
         }
@@ -195,6 +212,8 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
     }
 
     func requestReview(completion: @escaping (Bool) -> Void) {
+        ApptentiveLogger.interaction.info("Requesting review from SKStoreReviewController.")
+
         self.environment.requestReview(completion: completion)
     }
 
@@ -203,6 +222,8 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
     ///   - url: The URL to open.
     ///   - completion: Called with a value indicating whether the URL was successfully opened.
     func open(_ url: URL, completion: @escaping (Bool) -> Void) {
+        ApptentiveLogger.interaction.info("Attempting to open URL \(url).")
+
         self.environment.open(url, completion: completion)
     }
 
@@ -224,6 +245,7 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
                 self.person.merge(with: self.backend.conversation.person)
                 self.device.merge(with: self.backend.conversation.device)
             } catch let error {
+                ApptentiveLogger.default.error("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error).")
                 assertionFailure("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error)")
             }
         }

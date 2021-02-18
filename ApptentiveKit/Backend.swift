@@ -121,6 +121,8 @@ class Backend {
         self.conversationRepository = conversationRepository
 
         if conversationRepository.fileExists {
+            ApptentiveLogger.default.info("Loading previously-saved conversation.")
+
             let savedConversation = try conversationRepository.load()
 
             self.conversation = try savedConversation.merged(with: self.conversation)
@@ -170,7 +172,7 @@ class Backend {
         } catch let error {
             DispatchQueue.main.async {
                 completion?(false)
-                ApptentiveLogger.default.error("Targeting error: \(error)")
+                ApptentiveLogger.engagement.error("Targeting error: \(error).")
                 assertionFailure("Targeting error: \(error)")
             }
         }
@@ -196,7 +198,7 @@ class Backend {
                 if success {
                     completion(destinationInteraction.id)
                 } else {
-                    ApptentiveLogger.default.error("TextModal button had no invocations with matching criteria.")
+                    ApptentiveLogger.interaction.error("TextModal button had no invocations with matching criteria.")
                     assertionFailure("TextModal button had no invocations with matching criteria.")
                 }
             }
@@ -205,12 +207,14 @@ class Backend {
                 completion(nil)
             }
 
-            ApptentiveLogger.default.error("TextModal button targeting error: \(error)")
-            assertionFailure("TextModal button targeting error: \(error)")
+            ApptentiveLogger.interaction.error("TextModal button targeting error: \(error).")
+            assertionFailure("TextModal button targeting error: \(error).")
         }
     }
 
     private func presentInteraction(_ interaction: Interaction, completion: ((Bool) -> Void)?) throws {
+        ApptentiveLogger.interaction.info("Attempting to present \(interaction.typeName) interaction.")
+
         guard let frontend = self.frontend else {
             throw ApptentiveError.internalInconsistency
         }
@@ -224,12 +228,10 @@ class Backend {
                 self.queue.async {
                     self.conversation.interactions.invoke(for: interaction.id)
                 }
-            } catch InteractionPresenterError.notImplemented(let interactionTypeName) {
-                ApptentiveLogger.default.warning("Interaction type \(interactionTypeName) is not implemented.")
             } catch let error {
                 completion?(false)
-                ApptentiveLogger.default.error("Interaction presentation error: \(error)")
-                assertionFailure("Interaction presentation error: \(error)")
+                ApptentiveLogger.default.error("Interaction presentation error: \(error).")
+                assertionFailure("Interaction presentation error: \(error).")
             }
         }
     }
@@ -250,6 +252,8 @@ class Backend {
 
             // Supply the payload sender with necessary credentials
             if payloadSender.credentials == nil {
+                ApptentiveLogger.network.debug("Activating payload sender.")
+
                 self.payloadSender.credentials = self.conversation
             }
 
@@ -257,14 +261,20 @@ class Backend {
             self.getInteractionsIfNeeded()
 
             if self.conversation.person != oldValue.person {
+                ApptentiveLogger.network.debug("Person data changed. Enqueueing update.")
+
                 self.payloadSender.send(Payload(wrapping: self.conversation.person), for: self.conversation)
             }
 
             if self.conversation.device != oldValue.device {
+                ApptentiveLogger.network.debug("Device data changed. Enqueueing update.")
+
                 self.payloadSender.send(Payload(wrapping: self.conversation.device), for: self.conversation)
             }
 
             if self.conversation.appRelease != oldValue.appRelease {
+                ApptentiveLogger.network.debug("App release data changed. Enqueueing update.")
+
                 self.payloadSender.send(Payload(wrapping: self.conversation.appRelease), for: self.conversation)
             }
         } else if let _ = conversation.appCredentials {
@@ -310,6 +320,8 @@ class Backend {
 
     /// Creates a conversation on the Apptentive server using the API.
     private func createConversationOnServer() {
+        ApptentiveLogger.default.info("Requesting a new conversation via Apptentive API.")
+
         self.requestRetrier.startUnlessUnderway(.createConversation(self.conversation), identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
             switch result {
             case .success(let conversationResponse):
@@ -327,13 +339,17 @@ class Backend {
     private func getInteractionsIfNeeded() {
         // Make sure we don't have a request in flight already, and that the engagement manifest in memory (if any) is expired.
         if (self.targeter.engagementManifest.expiry ?? Date.distantPast) < Date() {
+            ApptentiveLogger.default.info("Requesting new engagement manifest via Apptentive API (current one is absent or stale).")
+
             self.requestRetrier.startUnlessUnderway(.getInteractions(with: self.conversation), identifier: "get interactions") { (result: Result<EngagementManifest, Error>) in
                 switch result {
                 case .success(let engagementManifest):
+                    ApptentiveLogger.default.debug("New engagement manifest received.")
+
                     self.targeter.engagementManifest = engagementManifest
 
                 case .failure(let error):
-                    ApptentiveLogger.network.error("Failed to download engagement manifest: \(error)")
+                    ApptentiveLogger.network.error("Failed to download engagement manifest: \(error).")
                 }
             }
         }
@@ -348,6 +364,8 @@ class Backend {
         var isDirectory: ObjCBool = false
 
         if !fileManager.fileExists(atPath: containerURL.path, isDirectory: &isDirectory) {
+            ApptentiveLogger.default.debug("Creating directory for Apptentive SDK data at \(containerURL).")
+
             try fileManager.createDirectory(at: containerURL, withIntermediateDirectories: true, attributes: [:])
         } else if !isDirectory.boolValue {
             throw ApptentiveError.fileExistsAtContainerDirectoryPath

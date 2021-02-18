@@ -9,8 +9,7 @@
 import Foundation
 
 /// An HTTP request body object that wraps updates that are sent to the Apptentive API.
-struct Payload: Codable, Equatable {
-
+struct Payload: Codable, Equatable, CustomDebugStringConvertible {
     /// The payload contents that should be wrapped.
     let contents: PayloadContents
 
@@ -120,6 +119,10 @@ struct Payload: Codable, Equatable {
         try nestedContainer.encode(self.creationUTCOffset, forKey: .creationUTCOffset)
 
         try self.contents.encodeContents(to: &nestedContainer)
+    }
+
+    var debugDescription: String {
+        return "Payload(type: \(self.contents.containerKey.rawValue), nonce: \(self.nonce))"
     }
 }
 

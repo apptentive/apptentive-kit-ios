@@ -60,6 +60,8 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
     ///   - completion: A completion handler to call when the request either succeeds or fails permanently.
     func startUnlessUnderway<T: Decodable>(_ endpoint: Endpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
         if self.requests[identifier] != nil {
+            ApptentiveLogger.network.info("A request with identifier \(identifier) is already underway. Skipping.")
+
             return
         }
 
@@ -69,6 +71,8 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
     /// Cancels the specified request.
     /// - Parameter identifier: The identifier of the request to cancel.
     func cancel(identifier: String) {
+        ApptentiveLogger.network.info("Cancelling request with identifier \(identifier).")
+
         requests[identifier]?.request?.cancel()
 
         self.requests[identifier] = nil
@@ -94,9 +98,11 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
                 self.retryPolicy.incrementRetryDelay()
                 let retryDelayMilliseconds = Int(self.retryPolicy.retryDelay / 1000.0)
 
+                ApptentiveLogger.network.info("Retriable error sending API request with identifier ”\(identifier)”: \(error.localizedDescription). Retrying in \(retryDelayMilliseconds) ms.")
+
                 self.dispatchQueue.asyncAfter(deadline: .now() + .milliseconds(retryDelayMilliseconds)) {
                     guard let wrapper = self.requests[identifier] else {
-                        // Request must have been cancelled in the meantime
+                        ApptentiveLogger.network.warning("Request with identifier \(identifier) cancelled or missing when attempting to retry.")
                         return
                     }
 
@@ -107,6 +113,7 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
                         })
                 }
             } else {
+                ApptentiveLogger.network.info("Permanent failure when sending request with identifier “\(identifier)”: \(error.localizedDescription).")
                 fallthrough
             }
 

@@ -101,6 +101,7 @@
 		01B91FC425CCAFB800B8AFEE /* DevicePayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91FC325CCAFB800B8AFEE /* DevicePayloadTests.swift */; };
 		01B91FCA25CCAFC600B8AFEE /* AppReleasePayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91FC925CCAFC600B8AFEE /* AppReleasePayloadTests.swift */; };
 		01B91FD025CCB85500B8AFEE /* BackendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91FCF25CCB85500B8AFEE /* BackendTests.swift */; };
+		01C0218A25DC891A00547059 /* Criteria+Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C0218925DC891A00547059 /* Criteria+Logging.swift */; };
 		01C54076258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */; };
 		01C7958425C1082800FD28F1 /* PersonAndDeviceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C7958325C1082800FD28F1 /* PersonAndDeviceTests.swift */; };
 		01D739282405CB630000EE52 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
@@ -206,7 +207,6 @@
 		014D5B22256ED6B80030DC90 /* EnjoymentDialogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogViewModel.swift; sourceTree = "<group>"; };
 		014D5B32256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+AlertViewModel.swift"; sourceTree = "<group>"; };
 		0158976624E5C8C600DF0DC0 /* Apptentive+TemporaryAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Apptentive+TemporaryAPI.swift"; sourceTree = "<group>"; };
-		01592EAB25C0982900BA26E9 /* PersonAndDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonAndDeviceTests.swift; sourceTree = "<group>"; };
 		015A0D3425509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SurveyViewModel+ChoiceQuestion.swift"; sourceTree = "<group>"; };
 		015A0D3525509BB600EF077D /* SurveyViewModel+RangeQuestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SurveyViewModel+RangeQuestion.swift"; sourceTree = "<group>"; };
 		015A0D4025509C0A00EF077D /* SurveyChoiceCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyChoiceCell.swift; sourceTree = "<group>"; };
@@ -277,6 +277,7 @@
 		01B91FC325CCAFB800B8AFEE /* DevicePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicePayloadTests.swift; sourceTree = "<group>"; };
 		01B91FC925CCAFC600B8AFEE /* AppReleasePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReleasePayloadTests.swift; sourceTree = "<group>"; };
 		01B91FCF25CCB85500B8AFEE /* BackendTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendTests.swift; sourceTree = "<group>"; };
+		01C0218925DC891A00547059 /* Criteria+Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Criteria+Logging.swift"; sourceTree = "<group>"; };
 		01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyOtherChoiceCell.swift; sourceTree = "<group>"; };
 		01C7958325C1082800FD28F1 /* PersonAndDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonAndDeviceTests.swift; sourceTree = "<group>"; };
 		01D739232405CB630000EE52 /* ApptentiveUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -474,6 +475,7 @@
 				017230E8253673960095AEAA /* Criteria+Decodable.swift */,
 				017230E7253673960095AEAA /* Field.swift */,
 				017FC93425310E4700C7A47F /* Targeter.swift */,
+				01C0218925DC891A00547059 /* Criteria+Logging.swift */,
 			);
 			path = Targeting;
 			sourceTree = "<group>";
@@ -972,6 +974,7 @@
 				013D8EA624F09B01005EC4D1 /* Device.swift in Sources */,
 				0176159B25D1F9F900BB85C6 /* HTTPRequestRetrier.swift in Sources */,
 				01974A6F2577043400C7D693 /* TextModalViewModel.swift in Sources */,
+				01C0218A25DC891A00547059 /* Criteria+Logging.swift in Sources */,
 				015F2ADD24C9EE3A004B53E2 /* SurveyResponse.swift in Sources */,
 				01822BBA2565727D006ADB3B /* SurveyQuestionHeaderView.swift in Sources */,
 				015AF83C24E7437A000DF8B0 /* SurveyViewModel+FreeformQuestion.swift in Sources */,

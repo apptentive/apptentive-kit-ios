@@ -10,7 +10,7 @@ import Foundation
 import OSLog
 
 /// Intended to be not exactly a drop-in replacement, but pretty close to the iOS 14 `Logger` class.
-struct ApptentiveLogger {
+public struct ApptentiveLogger {
     private let log: OSLog
 
     /// Creates a logger with the specified subsystem.
@@ -18,26 +18,28 @@ struct ApptentiveLogger {
         self.log = OSLog(subsystem: subsystem, category: .pointsOfInterest)
     }
 
-    private func log(_ message: ApptentiveLogMessage, type: OSLogType) {
-        os_log(type, log: self.log, "%@", message.description)
+    private func log(_ message: ApptentiveLogMessage, level: LogLevel) {
+        if level >= self.logLevel {
+            os_log(level.logType, log: self.log, "%@", message.description)
+        }
     }
 
     /// Logs a debug message.
     /// - Parameter message: The message to log.
     func debug(_ message: ApptentiveLogMessage) {
-        self.log(message, type: .debug)
+        self.log(message, level: .debug)
     }
 
     /// Log an info message.
     /// - Parameter message: The message to log.
     func info(_ message: ApptentiveLogMessage) {
-        self.log(message, type: .info)
+        self.log(message, level: .info)
     }
 
     /// Log a message at the default level.
     /// - Parameter message: The message to log.
     func notice(_ message: ApptentiveLogMessage) {
-        self.log(message, type: .default)
+        self.log(message, level: .notice)
     }
 
     /// Log a message at the error level.
@@ -45,13 +47,13 @@ struct ApptentiveLogger {
     /// Provided for compatability with the `Logger` class.
     /// - Parameter message: The message to log.
     func warning(_ message: ApptentiveLogMessage) {
-        self.log(message, type: .error)
+        self.log(message, level: .warning)
     }
 
     /// Log a message at the error level.
     /// - Parameter message: The message to log.
     func error(_ message: ApptentiveLogMessage) {
-        self.log(message, type: .error)
+        self.log(message, level: .error)
     }
 
     /// Log a message at the fault level.
@@ -59,14 +61,19 @@ struct ApptentiveLogger {
     /// Provided for compatability with the `Logger` class.
     /// - Parameter message: The message to log.
     func critcal(_ message: ApptentiveLogMessage) {
-        self.log(message, type: .fault)
+        self.log(message, level: .critical)
     }
 
     /// Log a message at the fault level.
     /// - Parameter message: The message to log.
     func fault(_ message: ApptentiveLogMessage) {
-        self.log(message, type: .fault)
+        self.log(message, level: .fault)
     }
+
+    /// Sets the log level for the log.
+    ///
+    /// Log messages at a level below this value will be silenced.
+    public var logLevel: LogLevel = .notice
 }
 
 struct ApptentiveLogMessage: LosslessStringConvertible {
@@ -127,7 +134,7 @@ extension ApptentiveLogMessage: ExpressibleByStringInterpolation {
             self.segments.append((argumentObject, privacy))
         }
 
-        mutating func appendInterpolation(_ argumentObject: @autoclosure @escaping () -> Error, privacy: ApptentiveLogPrivacy = .auto) {
+        mutating func appendInterpolation(_ argumentObject: @autoclosure @escaping () -> Error, privacy: ApptentiveLogPrivacy = .public) {
             self.segments.append(
                 (
                     {
@@ -136,11 +143,29 @@ extension ApptentiveLogMessage: ExpressibleByStringInterpolation {
                 ))
         }
 
-        mutating func appendInterpolation(_ argumentObject: @autoclosure @escaping () -> Int, privacy: ApptentiveLogPrivacy = .auto) {
+        mutating func appendInterpolation(_ argumentObject: @autoclosure @escaping () -> URL, privacy: ApptentiveLogPrivacy = .public) {
+            self.segments.append(
+                (
+                    {
+                        argumentObject().absoluteString
+                    }, privacy
+                ))
+        }
+
+        mutating func appendInterpolation(_ argumentObject: @autoclosure @escaping () -> Int, privacy: ApptentiveLogPrivacy = .public) {
             self.segments.append(
                 (
                     {
                         String(argumentObject())
+                    }, privacy
+                ))
+        }
+
+        mutating func appendInterpolation(_ argumentObject: @autoclosure @escaping () -> Bool, privacy: ApptentiveLogPrivacy = .public) {
+            self.segments.append(
+                (
+                    {
+                        argumentObject() ? "true" : "false"
                     }, privacy
                 ))
         }
@@ -163,11 +188,73 @@ extension ApptentiveLogger {
     private static let subsystemPrefix = (Bundle.main.bundleIdentifier ?? "com.apptentive") + ".apptentive"
 
     /// Logger for things that aren't really part of any other subsystem.
-    static let `default` = ApptentiveLogger(subsystem: subsystemPrefix)
+    public static var `default` = ApptentiveLogger(subsystem: subsystemPrefix)
 
     /// Logger for engaging event and targeting.
-    static let engagement = ApptentiveLogger(subsystem: subsystemPrefix + ".engagement")
+    public static var engagement = ApptentiveLogger(subsystem: subsystemPrefix + ".engagement")
+
+    /// Logger for interaction-related activity.
+    public static var interaction = ApptentiveLogger(subsystem: subsystemPrefix + ".interaction")
 
     /// Logger for network-related activity.
-    static let network = ApptentiveLogger(subsystem: subsystemPrefix + ".network")
+    public static var network = ApptentiveLogger(subsystem: subsystemPrefix + ".network")
+
+    /// Logger for payload sender activity.
+    public static var payload = ApptentiveLogger(subsystem: subsystemPrefix + ".payload")
+
+    /// Logger for targeting activity.
+    public static var targeting = ApptentiveLogger(subsystem: subsystemPrefix + ".targeting")
+
+    /// The overall log level.
+    ///
+    /// Reading this value returns the log level of the default log.
+    /// Setting this value sets the log level for all logs.
+    public static var logLevel: LogLevel {
+        get {
+            return self.default.logLevel
+        }
+        set {
+            self.default.logLevel = newValue
+            self.engagement.logLevel = newValue
+            self.interaction.logLevel = newValue
+            self.network.logLevel = newValue
+            self.payload.logLevel = newValue
+            self.targeting.logLevel = newValue
+        }
+    }
+}
+
+/// The log levels.
+public enum LogLevel: Int, Comparable {
+    case debug
+    case info
+    case notice
+    case warning
+    case error
+    case critical
+    case fault
+
+    var logType: OSLogType {
+        switch self {
+        case .debug:
+            return .debug
+
+        case .info:
+            return .info
+
+        case .notice:
+            return .default
+
+        case .warning, .error:
+            return .error
+
+        case .critical, .fault:
+            return .fault
+        }
+    }
+
+    // swift-format-ignore
+    public static func < (lhs: LogLevel, rhs: LogLevel) -> Bool {
+        return lhs.rawValue < rhs.rawValue
+    }
 }

@@ -15,7 +15,6 @@ protocol CriteriaClause {
 
 /// The top-level clause of the criteria is a dictionary that represents an implicit AND operation for each key/value pair.
 struct ImplicitAndClause: CriteriaClause {
-
     /// The clauses, one per key-value pair, present in the top-level criteria.
     let subClauses: [CriteriaClause]
 
@@ -24,7 +23,13 @@ struct ImplicitAndClause: CriteriaClause {
     /// - Throws: An error in case of an invalid field.
     /// - Returns: Whether the clause is satisfied.
     func isSatisfied(for state: TargetingState) throws -> Bool {
-        try subClauses.allSatisfy { try $0.isSatisfied(for: state) }
+        self.preLog()
+
+        let result = try subClauses.allSatisfy { try $0.isSatisfied(for: state) }
+
+        self.postLog(result)
+
+        return result
     }
 }
 
@@ -43,7 +48,13 @@ struct LogicalClause: CriteriaClause {
     /// - Throws: An error in case of an invalid field.
     /// - Returns: Whether the clause is satisfied.
     func isSatisfied(for state: TargetingState) throws -> Bool {
-        try logicalOperator.evaluate(subClauses, for: state)
+        self.preLog()
+
+        let result = try logicalOperator.evaluate(subClauses, for: state)
+
+        self.postLog(result)
+
+        return result
     }
 }
 
@@ -60,7 +71,13 @@ struct ConditionalClause: CriteriaClause {
     /// - Throws: An error in case of an invalid field.
     /// - Returns: Whether the clause is satisfied.
     func isSatisfied(for state: TargetingState) throws -> Bool {
-        return try conditionalTests.allSatisfy { try $0.isSatisfied(for: field, of: state) }
+        self.preLog()
+
+        let result = try conditionalTests.allSatisfy { try $0.isSatisfied(for: field, of: state) }
+
+        self.postLog(result)
+
+        return result
     }
 }
 
@@ -80,13 +97,17 @@ struct ConditionalTest {
     /// - Throws: An error in case of an invalid field.
     /// - Returns: The result of the test.
     func isSatisfied(for field: Field, of state: TargetingState) throws -> Bool {
-        return conditionalOperator.evaluate(try state.value(for: field), with: parameter)
+        let value = try state.value(for: field)
+        let result = conditionalOperator.evaluate(value, with: parameter)
+
+        self.log(field: field, value: value, result: result)
+
+        return result
     }
 }
 
 /// Describes a logical operation on subclauses.
 enum LogicalOperator: String {
-
     /// Operator that requires all subclauses to pass to make the clause pass.
     case and = "$and"
 
