@@ -48,6 +48,11 @@ public struct CustomData: Equatable, Codable {
         }
     }
 
+    /// Lists the keys for existing custom data items.
+    public var keys: Dictionary<String, CustomDataCompatible>.Keys {
+        return self.customData.keys
+    }
+
     // swift-format-ignore
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

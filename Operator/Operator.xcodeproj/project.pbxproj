@@ -15,6 +15,10 @@
 		018B09A524577B17007450EA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 018B09A424577B17007450EA /* Assets.xcassets */; };
 		018B09A824577B17007450EA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 018B09A624577B17007450EA /* LaunchScreen.storyboard */; };
 		018B09C62457AEF7007450EA /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 018B09C52457AEF7007450EA /* Defaults.plist */; };
+		01A26B7725DDF5C9002EFA74 /* CustomCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A26B7625DDF5C9002EFA74 /* CustomCells.swift */; };
+		01A26B7E25DDF5D4002EFA74 /* PersonDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A26B7D25DDF5D4002EFA74 /* PersonDataSource.swift */; };
+		01A26B8025DDF610002EFA74 /* DeviceDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A26B7F25DDF610002EFA74 /* DeviceDataSource.swift */; };
+		01C021A925DDF56400547059 /* DataDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C021A825DDF56400547059 /* DataDataSource.swift */; };
 		01C060AD251E44C7006B4B30 /* EventsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C060AC251E44C7006B4B30 /* EventsViewController.swift */; };
 		01C060B4251E48EC006B4B30 /* AddEventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C060B3251E48EC006B4B30 /* AddEventCell.swift */; };
 		01D762A3246358FD007A5AD5 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; };
@@ -85,6 +89,10 @@
 		018B09A724577B17007450EA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		018B09A924577B17007450EA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		018B09C52457AEF7007450EA /* Defaults.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
+		01A26B7625DDF5C9002EFA74 /* CustomCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCells.swift; sourceTree = "<group>"; };
+		01A26B7D25DDF5D4002EFA74 /* PersonDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonDataSource.swift; sourceTree = "<group>"; };
+		01A26B7F25DDF610002EFA74 /* DeviceDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataSource.swift; sourceTree = "<group>"; };
+		01C021A825DDF56400547059 /* DataDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataDataSource.swift; sourceTree = "<group>"; };
 		01C060AC251E44C7006B4B30 /* EventsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsViewController.swift; sourceTree = "<group>"; };
 		01C060B3251E48EC006B4B30 /* AddEventCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEventCell.swift; sourceTree = "<group>"; };
 		01D76280246358E4007A5AD5 /* ApptentiveKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ApptentiveKit.xcodeproj; path = ../../ApptentiveKit.xcodeproj; sourceTree = "<group>"; };
@@ -129,8 +137,8 @@
 				01EB6C072477409C0067F4B9 /* README.md */,
 				018B099924577B15007450EA /* AppDelegate.swift */,
 				015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */,
-				0176156825D1D48700BB85C6 /* DataTableViewController.swift */,
 				01C060AC251E44C7006B4B30 /* EventsViewController.swift */,
+				01C021A225DDF54600547059 /* Data Tab */,
 				EF5F381C25C3B2D8007F823E /* Localization */,
 				01C060B3251E48EC006B4B30 /* AddEventCell.swift */,
 				018B09A124577B15007450EA /* Main.storyboard */,
@@ -148,6 +156,18 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		01C021A225DDF54600547059 /* Data Tab */ = {
+			isa = PBXGroup;
+			children = (
+				0176156825D1D48700BB85C6 /* DataTableViewController.swift */,
+				01C021A825DDF56400547059 /* DataDataSource.swift */,
+				01A26B7F25DDF610002EFA74 /* DeviceDataSource.swift */,
+				01A26B7D25DDF5D4002EFA74 /* PersonDataSource.swift */,
+				01A26B7625DDF5C9002EFA74 /* CustomCells.swift */,
+			);
+			path = "Data Tab";
 			sourceTree = "<group>";
 		};
 		01D76292246358EA007A5AD5 /* Products */ = {
@@ -290,8 +310,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01C021A925DDF56400547059 /* DataDataSource.swift in Sources */,
 				0176156925D1D48700BB85C6 /* DataTableViewController.swift in Sources */,
+				01A26B8025DDF610002EFA74 /* DeviceDataSource.swift in Sources */,
 				01C060B4251E48EC006B4B30 /* AddEventCell.swift in Sources */,
+				01A26B7E25DDF5D4002EFA74 /* PersonDataSource.swift in Sources */,
+				01A26B7725DDF5C9002EFA74 /* CustomCells.swift in Sources */,
 				015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */,
 				018B099A24577B15007450EA /* AppDelegate.swift in Sources */,
 				01C060AD251E44C7006B4B30 /* EventsViewController.swift in Sources */,
