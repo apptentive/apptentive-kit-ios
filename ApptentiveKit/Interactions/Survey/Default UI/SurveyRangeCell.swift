@@ -25,6 +25,7 @@ class SurveyRangeCell: UITableViewCell {
     }
 
     private func setupViews() {
+        self.contentView.backgroundColor = .apptentiveGroupSecondary
         self.configureSegmentedControl()
         self.configureMinMaxLabels()
     }
@@ -49,15 +50,15 @@ class SurveyRangeCell: UITableViewCell {
 
     private func configureMinMaxLabels() {
         if let segmentedControl = self.segmentedControl {
-            self.minLabel.textColor = .gray
-            self.minLabel.font = .preferredFont(forTextStyle: .caption2)
+            self.minLabel.textColor = .apptentiveMinMaxLabel
+            self.minLabel.font = .apptentiveMinMaxLabel
             self.minLabel.numberOfLines = 0
             self.minLabel.lineBreakMode = .byWordWrapping
             self.minLabel.adjustsFontForContentSizeCategory = true
             self.minLabel.textAlignment = .left
 
-            self.maxLabel.textColor = .gray
-            self.maxLabel.font = .preferredFont(forTextStyle: .caption2)
+            self.maxLabel.textColor = .apptentiveMinMaxLabel
+            self.maxLabel.font = .apptentiveMinMaxLabel
             self.maxLabel.numberOfLines = 0
             self.maxLabel.lineBreakMode = .byWordWrapping
             self.maxLabel.adjustsFontForContentSizeCategory = true
@@ -65,6 +66,7 @@ class SurveyRangeCell: UITableViewCell {
 
             let stackView = UIStackView(arrangedSubviews: [self.minLabel, self.maxLabel])
             stackView.axis = .horizontal
+
             self.contentView.addSubview(stackView)
             stackView.translatesAutoresizingMaskIntoConstraints = false
 

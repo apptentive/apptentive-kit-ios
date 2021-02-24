@@ -77,6 +77,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .apptentiveGroupPrimary
         self.navigationController?.setToolbarHidden(false, animated: true)
 
         self.navigationController?.presentationController?.delegate = self

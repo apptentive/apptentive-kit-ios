@@ -21,7 +21,7 @@ class SurveyIntroductionView: UIView {
         self.textLabel.translatesAutoresizingMaskIntoConstraints = false
         self.textLabel.numberOfLines = 0
         self.textLabel.lineBreakMode = .byWordWrapping
-        self.textLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        self.textLabel.font = .apptentiveSurveyIntroductionLabel
         self.textLabel.adjustsFontForContentSizeCategory = true
         self.textLabel.textAlignment = .center
 

@@ -17,9 +17,8 @@ class SurveyQuestionHeaderView: UITableViewHeaderFooterView {
         self.questionLabel = UILabel(frame: .zero)
         self.instructionsLabel = UILabel(frame: .zero)
         self.stackView = UIStackView(arrangedSubviews: [self.questionLabel, self.instructionsLabel])
-
         super.init(reuseIdentifier: reuseIdentifier)
-
+        self.contentView.backgroundColor = .apptentiveGroupSecondary
         self.contentView.addSubview(self.stackView)
 
         self.configureLabels()
@@ -34,12 +33,14 @@ class SurveyQuestionHeaderView: UITableViewHeaderFooterView {
         self.questionLabel.adjustsFontForContentSizeCategory = true
         self.questionLabel.numberOfLines = 0
         self.questionLabel.lineBreakMode = .byWordWrapping
-        self.questionLabel.font = .preferredFont(forTextStyle: .body)
+        self.questionLabel.font = .apptentiveQuestionLabel
+        self.questionLabel.textColor = .apptentiveLabel
 
         self.instructionsLabel.adjustsFontForContentSizeCategory = true
         self.instructionsLabel.numberOfLines = 0
         self.instructionsLabel.lineBreakMode = .byWordWrapping
-        self.instructionsLabel.font = .preferredFont(forTextStyle: .footnote)
+        self.instructionsLabel.font = .apptentiveInstructionsLabel
+        self.instructionsLabel.textColor = .apptentiveLabel
     }
 
     private func configureStackView() {

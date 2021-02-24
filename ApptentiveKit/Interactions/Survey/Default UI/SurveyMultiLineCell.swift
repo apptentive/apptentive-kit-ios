@@ -66,9 +66,8 @@ class SurveyMultiLineCell: UITableViewCell {
         self.placeholderLabel = UILabel(frame: .zero)
         self.tableViewStyle = .grouped
         self.isMarkedAsInvalid = false
-
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
+        self.contentView.backgroundColor = .apptentiveGroupSecondary
         self.translatesAutoresizingMaskIntoConstraints = false
         self.contentView.addSubview(self.textView)
 
@@ -80,10 +79,11 @@ class SurveyMultiLineCell: UITableViewCell {
     }
 
     private func configureTextView() {
-        self.textView.backgroundColor = UIColor.textInputBackground
+        self.textView.backgroundColor = .apptentiveTextInputBackground
+        self.textView.textColor = .apptentiveTextInput
         self.textView.translatesAutoresizingMaskIntoConstraints = false
         self.textView.adjustsFontForContentSizeCategory = true
-        self.textView.font = .preferredFont(forTextStyle: .body)
+        self.textView.font = .apptentiveQuestionLabel
         self.textView.returnKeyType = .default
         NSLayoutConstraint.activate([
             self.textView.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
@@ -102,7 +102,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.placeholderLabel.isUserInteractionEnabled = false
         self.placeholderLabel.adjustsFontSizeToFitWidth = true
         self.placeholderLabel.minimumScaleFactor = 0.1
-        self.placeholderLabel.font = .preferredFont(forTextStyle: .body)
+        self.placeholderLabel.font = .apptentiveQuestionLabel
         self.placeholderLabel.textColor = self.placholderTextColor
 
         self.updatePlaceholderConstraints()

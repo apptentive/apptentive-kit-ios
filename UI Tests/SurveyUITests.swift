@@ -27,7 +27,7 @@ class SurveyUITests: XCTestCase {
 
         XCTAssertTrue(tablesQuery.otherElements["Multichoice Optional"].exists, "First questions title should exist")
         XCTAssertTrue(tablesQuery.otherElements["Multichoice Optional"].staticTexts["select one"].exists, "First question's instructions should exist")
-
+ 
         tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["1A"] /*[[".cells.staticTexts[\"1A\"]",".staticTexts[\"1A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
         tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["3A"] /*[[".cells.staticTexts[\"3A\"]",".staticTexts[\"3A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
         tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["4B"] /*[[".cells.staticTexts[\"4B\"]",".staticTexts[\"4B\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()

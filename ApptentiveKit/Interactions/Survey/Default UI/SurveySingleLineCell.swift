@@ -39,9 +39,8 @@ class SurveySingleLineCell: UITableViewCell {
         self.textField = UITextField(frame: .zero)
         self.tableViewStyle = .grouped
         self.isMarkedAsInvalid = false
-
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
+        self.contentView.backgroundColor = .apptentiveGroupSecondary
         self.translatesAutoresizingMaskIntoConstraints = false
         self.contentView.addSubview(self.textField)
         self.configureTextField()
@@ -53,7 +52,8 @@ class SurveySingleLineCell: UITableViewCell {
 
     private func configureTextField() {
         self.textField.borderStyle = .none
-        self.textField.backgroundColor = UIColor.textInputBackground
+        self.textField.backgroundColor = .apptentiveTextInputBackground
+        self.textField.textColor = .apptentiveTextInput
         // Set up additional border to display validation state
         self.textField.layer.borderWidth = 1.0 / self.traitCollection.displayScale
         self.textField.layer.borderColor = UIColor.clear.cgColor
@@ -62,7 +62,7 @@ class SurveySingleLineCell: UITableViewCell {
         self.textField.translatesAutoresizingMaskIntoConstraints = false
         self.textField.adjustsFontForContentSizeCategory = true
 
-        self.textField.font = .preferredFont(forTextStyle: .body)
+        self.textField.font = .apptentiveQuestionLabel
         self.textField.returnKeyType = .done
 
         NSLayoutConstraint.activate([

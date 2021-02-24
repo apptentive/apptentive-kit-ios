@@ -14,7 +14,6 @@ class InteractionsViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         self.loadInteractions()
     }
 

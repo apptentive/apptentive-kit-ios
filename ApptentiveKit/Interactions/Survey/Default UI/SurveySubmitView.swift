@@ -21,9 +21,10 @@ class SurveySubmitView: UIView {
         self.addSubview(self.submitButton)
         self.addSubview(self.submitLabel)
 
+        //
         self.submitButton.backgroundColor = self.tintColor
         self.submitButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
-        self.submitButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
+        self.submitButton.titleLabel?.font = .apptentiveSubmitLabel
         self.submitButton.titleLabel?.adjustsFontForContentSizeCategory = true
 
         self.submitButton.translatesAutoresizingMaskIntoConstraints = false
@@ -33,7 +34,7 @@ class SurveySubmitView: UIView {
             self.submitButton.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: self.topAnchor, multiplier: 1.0),
         ])
 
-        self.submitLabel.font = .preferredFont(forTextStyle: .headline)
+        self.submitLabel.font = .apptentiveSubmitLabel
         self.submitLabel.adjustsFontForContentSizeCategory = true
         self.submitLabel.textAlignment = .center
         self.submitLabel.isHidden = true

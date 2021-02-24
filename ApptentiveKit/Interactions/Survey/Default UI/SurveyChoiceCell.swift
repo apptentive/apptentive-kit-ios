@@ -11,7 +11,9 @@ import UIKit
 class SurveyChoiceCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .value1, reuseIdentifier: reuseIdentifier)
-
+        self.contentView.backgroundColor = .apptentiveGroupSecondary
+        self.textLabel?.font = .apptentiveQuestionLabel
+        self.textLabel?.textColor = .apptentiveLabel
         self.textLabel?.numberOfLines = 0
         self.textLabel?.lineBreakMode = .byWordWrapping
     }

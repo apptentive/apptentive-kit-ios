@@ -122,7 +122,7 @@ extension UIColor {
     }()
 
     /// The color to use for text fields and text views.
-    public static var textInputBackground: UIColor {
+    public static var apptentiveTextInputBackground: UIColor = {
         if #available(iOS 13.0, *) {
             return UIColor { traitCollection in
 
@@ -139,5 +139,95 @@ extension UIColor {
         } else {
             return .white
         }
-    }
+    }()
+
+    /// The color to use for text within text fields and text views.
+    public static var apptentiveTextInput: UIColor = {
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+
+                    return .white
+                default:
+
+                    return .black
+                }
+
+            }
+        } else {
+            return .black
+        }
+    }()
+    /// The color used for min and max labels for the range survey.
+    public static var apptentiveMinMaxLabel: UIColor = {
+        return .gray
+    }()
+
+    /// The color used for the background of the entire survey.
+    public static var apptentiveGroupPrimary: UIColor = {
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+
+                    return .black
+                default:
+
+                    return .systemGroupedBackground
+                }
+
+            }
+        } else {
+            return .white
+        }
+    }()
+
+    /// The color used for the cell where the survey question is located.
+    public static var apptentiveGroupSecondary: UIColor = {
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+
+                    return .black
+                default:
+
+                    return .systemGroupedBackground
+                }
+
+            }
+        } else {
+            return .white
+        }
+    }()
+}
+
+extension UIFont {
+    /// The font used for all survey question labels.
+    public static var apptentiveQuestionLabel: UIFont = {
+        return .preferredFont(forTextStyle: .body)
+    }()
+
+    /// The font used for the min and max labels for the range survey.
+    public static var apptentiveMinMaxLabel: UIFont = {
+        return .preferredFont(forTextStyle: .caption2)
+    }()
+
+    /// The font used for the instructions label for surveys.
+    public static var apptentiveInstructionsLabel: UIFont = {
+        return .preferredFont(forTextStyle: .footnote)
+    }()
+    /// The font used for the survey introduction label.
+    public static var apptentiveSurveyIntroductionLabel: UIFont = {
+        return .preferredFont(forTextStyle: .subheadline)
+    }()
+    /// The font used for the survey confirmation label and the survey submit button.
+    public static var apptentiveSubmitLabel: UIFont = {
+        return .preferredFont(forTextStyle: .headline)
+    }()
+
 }
