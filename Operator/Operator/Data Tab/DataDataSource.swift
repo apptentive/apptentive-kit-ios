@@ -20,15 +20,20 @@ class DataDataSource: NSObject, UITableViewDataSource {
     }
 
     func setEditing(_ editing: Bool, for tableView: UITableView) {
+        let rangeStart = self.keys.count == 0 ? 1 : 0
         let wasEditing = isEditing
 
-        let editIndexPaths = (0..<Self.editRowReuseIdentifiers.count).map {
+        let editIndexPaths = (rangeStart..<Self.editRowReuseIdentifiers.count).map {
             return IndexPath(row: self.keys.count + $0, section: 0)
         }
 
         tableView.beginUpdates()
 
         self.isEditing = editing
+
+        if rangeStart == 1 {
+            tableView.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        }
 
         if editing && !wasEditing {
             tableView.insertRows(at: editIndexPaths, with: .automatic)

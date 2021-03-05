@@ -19,6 +19,12 @@ class PersonDataSource: DataDataSource {
         }
     }
 
+    override func setEditing(_ editing: Bool, for tableView: UITableView) {
+        super.setEditing(editing, for: tableView)
+
+        tableView.reloadSections(IndexSet(integer: 1), with: .automatic)
+    }
+
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 2
     }
