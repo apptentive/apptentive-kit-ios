@@ -66,7 +66,7 @@ class Backend {
     ///   - baseURL: The URL where the Apptentive API is based.
     convenience init(queue: DispatchQueue, environment: ConversationEnvironment, baseURL: URL) {
         let conversation = Conversation(environment: environment)
-        let client = HTTPClient<ApptentiveV9API>(requestor: URLSession.shared, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: environment.sdkVersion))
+        let client = HTTPClient<ApptentiveV9API>(requestor: URLSession(configuration: Self.urlSessionConfiguration), baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: environment.sdkVersion))
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier)
 
@@ -371,4 +371,14 @@ class Backend {
             throw ApptentiveError.fileExistsAtContainerDirectoryPath
         }
     }
+
+    private static let urlSessionConfiguration: URLSessionConfiguration = {
+        let configuration = URLSessionConfiguration.default
+
+        configuration.timeoutIntervalForRequest = 60 // Default is 60
+        configuration.timeoutIntervalForResource = 600 // Default is 7 days (!)
+        configuration.waitsForConnectivity = true
+
+        return configuration
+    }()
 }
