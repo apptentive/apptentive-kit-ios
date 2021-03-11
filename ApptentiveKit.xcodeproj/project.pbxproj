@@ -53,7 +53,6 @@
 		015F2ADD24C9EE3A004B53E2 /* SurveyResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2ADC24C9EE3A004B53E2 /* SurveyResponse.swift */; };
 		015F2ADF24C9F85D004B53E2 /* SurveySingleLineCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2ADE24C9F85D004B53E2 /* SurveySingleLineCell.swift */; };
 		015F2AE124C9FEBF004B53E2 /* SurveyMultiLineCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AE024C9FEBF004B53E2 /* SurveyMultiLineCell.swift */; };
-		015F2AE624CA1DC4004B53E2 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 015F2AE524CA1DC3004B53E2 /* Media.xcassets */; };
 		015F2AEA24CA2A88004B53E2 /* SurveyIntroductionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */; };
 		015F2AEC24CA2A94004B53E2 /* SurveySubmitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */; };
 		0165B7C4258042D3001DF54E /* AppleRatingDialogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0165B7C3258042D3001DF54E /* AppleRatingDialogController.swift */; };
@@ -61,6 +60,8 @@
 		0165B7EA25804388001DF54E /* AppleRatingDialogControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0165B7D725804341001DF54E /* AppleRatingDialogControllerTests.swift */; };
 		0165B7FC25816EC8001DF54E /* UIKit+Apptentive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0165B7FB25816EC8001DF54E /* UIKit+Apptentive.swift */; };
 		0165B80C258181CF001DF54E /* Apptentive+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0165B80B258181CF001DF54E /* Apptentive+Theme.swift */; };
+		016E6D8625F83E6900151E29 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 016E6D8525F83E6900151E29 /* Media.xcassets */; };
+		016E6DC525F8477200151E29 /* Bundle+Apptentive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E6DC425F8477200151E29 /* Bundle+Apptentive.swift */; };
 		0170A04E24DA2D9300234BE6 /* Interactions in Resources */ = {isa = PBXBuildFile; fileRef = 0170A04D24DA2D9300234BE6 /* Interactions */; };
 		017230EB253673960095AEAA /* Criteria.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017230E6253673960095AEAA /* Criteria.swift */; };
 		017230EC253673960095AEAA /* Field.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017230E7253673960095AEAA /* Field.swift */; };
@@ -224,7 +225,6 @@
 		015F2ADC24C9EE3A004B53E2 /* SurveyResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyResponse.swift; sourceTree = "<group>"; };
 		015F2ADE24C9F85D004B53E2 /* SurveySingleLineCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveySingleLineCell.swift; sourceTree = "<group>"; };
 		015F2AE024C9FEBF004B53E2 /* SurveyMultiLineCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyMultiLineCell.swift; sourceTree = "<group>"; };
-		015F2AE524CA1DC3004B53E2 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Media.xcassets; path = ApptentiveKit/Media.xcassets; sourceTree = "<group>"; };
 		015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyIntroductionView.swift; sourceTree = "<group>"; };
 		015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveySubmitView.swift; sourceTree = "<group>"; };
 		0165B7C3258042D3001DF54E /* AppleRatingDialogController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppleRatingDialogController.swift; sourceTree = "<group>"; };
@@ -232,6 +232,10 @@
 		0165B7D725804341001DF54E /* AppleRatingDialogControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppleRatingDialogControllerTests.swift; sourceTree = "<group>"; };
 		0165B7FB25816EC8001DF54E /* UIKit+Apptentive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIKit+Apptentive.swift"; sourceTree = "<group>"; };
 		0165B80B258181CF001DF54E /* Apptentive+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Apptentive+Theme.swift"; sourceTree = "<group>"; };
+		016E6D8525F83E6900151E29 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
+		016E6DC425F8477200151E29 /* Bundle+Apptentive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Apptentive.swift"; sourceTree = "<group>"; };
+		016E6DD825F9493300151E29 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		016E6DD925F9493300151E29 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		0170A04D24DA2D9300234BE6 /* Interactions */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Interactions; sourceTree = "<group>"; };
 		017230E6253673960095AEAA /* Criteria.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Criteria.swift; sourceTree = "<group>"; };
 		017230E7253673960095AEAA /* Field.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Field.swift; sourceTree = "<group>"; };
@@ -268,7 +272,6 @@
 		01A0917C23FCB4CC00AF187E /* ApptentiveFeatureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveFeatureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A0918023FCB4CC00AF187E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01A0918723FCB5D600AF187E /* Apptentive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Apptentive.swift; sourceTree = "<group>"; };
-		01AFFAA5245A1786000353C0 /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .travis.yml; sourceTree = "<group>"; };
 		01AFFAA6245A1786000353C0 /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fastlane; sourceTree = "<group>"; };
 		01B91F9425CB830C00B8AFEE /* PersonContents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonContents.swift; sourceTree = "<group>"; };
 		01B91F9A25CB834500B8AFEE /* DeviceContents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceContents.swift; sourceTree = "<group>"; };
@@ -293,7 +296,7 @@
 		01ED6262257B02050023208C /* NavigateToLinkConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigateToLinkConfiguration.swift; sourceTree = "<group>"; };
 		01ED6270257B0AA90023208C /* NavigateToLinkController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigateToLinkController.swift; sourceTree = "<group>"; };
 		01ED6276257B0F0E0023208C /* NavigateToLinkControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigateToLinkControllerTests.swift; sourceTree = "<group>"; };
-		01ED6285257B113E0023208C /* NavigateToLinkUITests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NavigateToLinkUITests.swift; path = "UI Tests/NavigateToLinkUITests.swift"; sourceTree = SOURCE_ROOT; };
+		01ED6285257B113E0023208C /* NavigateToLinkUITests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NavigateToLinkUITests.swift; path = "Tests/ApptentiveKit/UI Tests/NavigateToLinkUITests.swift"; sourceTree = SOURCE_ROOT; };
 		1F323D42240EED3000A678BC /* ApptentiveUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F323D44240EED3000A678BC /* SurveyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyUITests.swift; sourceTree = "<group>"; };
 		1F323D46240EED3000A678BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -420,7 +423,8 @@
 			children = (
 				013D8EAE24F09B63005EC4D1 /* CwlSysctl.swift */,
 			);
-			path = "Third Party";
+			name = "Third Party";
+			path = "Sources/ApptentiveKit/Third Party";
 			sourceTree = SOURCE_ROOT;
 		};
 		014D5B17256ED56B0030DC90 /* EnjoymentDialog */ = {
@@ -465,6 +469,41 @@
 				0165B7C3258042D3001DF54E /* AppleRatingDialogController.swift */,
 			);
 			path = AppleRatingDialog;
+			sourceTree = "<group>";
+		};
+		016E6D7825F83D1C00151E29 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				01A0916E23FCB4A700AF187E /* ApptentiveKit */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		016E6D8125F83D3000151E29 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				016E6D8325F83D6F00151E29 /* ApptentiveKit */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		016E6D8325F83D6F00151E29 /* ApptentiveKit */ = {
+			isa = PBXGroup;
+			children = (
+				1F323D4F240EEE0400A678BC /* ApptentiveUITestsApp */,
+				1F323D43240EED3000A678BC /* UI Tests */,
+				01D739242405CB630000EE52 /* Unit Tests */,
+				01A0917D23FCB4CC00AF187E /* Integration Tests */,
+			);
+			path = ApptentiveKit;
+			sourceTree = "<group>";
+		};
+		016E6D8425F83DB900151E29 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				016E6D8525F83E6900151E29 /* Media.xcassets */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		017FC93125310E4700C7A47F /* Targeting */ = {
@@ -538,14 +577,11 @@
 		01A0916223FCB4A700AF187E = {
 			isa = PBXGroup;
 			children = (
-				015F2AE524CA1DC3004B53E2 /* Media.xcassets */,
-				01AFFAA5245A1786000353C0 /* .travis.yml */,
+				016E6DD925F9493300151E29 /* Package.swift */,
+				016E6DD825F9493300151E29 /* README.md */,
+				016E6D7825F83D1C00151E29 /* Sources */,
+				016E6D8125F83D3000151E29 /* Tests */,
 				01AFFAA6245A1786000353C0 /* fastlane */,
-				01A0916E23FCB4A700AF187E /* ApptentiveKit */,
-				01A0917D23FCB4CC00AF187E /* Integration Tests */,
-				01D739242405CB630000EE52 /* Unit Tests */,
-				1F323D43240EED3000A678BC /* UI Tests */,
-				1F323D4F240EEE0400A678BC /* ApptentiveUITestsApp */,
 				01A0916D23FCB4A700AF187E /* Products */,
 				1F323D64240F28C200A678BC /* Frameworks */,
 			);
@@ -566,6 +602,8 @@
 		01A0916E23FCB4A700AF187E /* ApptentiveKit */ = {
 			isa = PBXGroup;
 			children = (
+				01A0917023FCB4A700AF187E /* Info.plist */,
+				016E6D8425F83DB900151E29 /* Resources */,
 				013D8EAD24F09B63005EC4D1 /* Third Party */,
 				01A0918723FCB5D600AF187E /* Apptentive.swift */,
 				013D8EB824F5C99B005EC4D1 /* Backend.swift */,
@@ -575,11 +613,11 @@
 				011E2999246DE23E000BDEE6 /* Model */,
 				01A0916F23FCB4A700AF187E /* ApptentiveKit.h */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+TemporaryAPI.swift */,
-				01A0917023FCB4A700AF187E /* Info.plist */,
 				0165B7FB25816EC8001DF54E /* UIKit+Apptentive.swift */,
 				EF5F381B25C3B2C6007F823E /* Localization */,
 				0165B80B258181CF001DF54E /* Apptentive+Theme.swift */,
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
+				016E6DC425F8477200151E29 /* Bundle+Apptentive.swift */,
 			);
 			path = ApptentiveKit;
 			sourceTree = "<group>";
@@ -877,7 +915,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				015F2AE624CA1DC4004B53E2 /* Media.xcassets in Resources */,
+				016E6D8625F83E6900151E29 /* Media.xcassets in Resources */,
 				EF5F37FA25C3712F007F823E /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -939,6 +977,7 @@
 				014D5B19256ED5940030DC90 /* EnjoymentDialogConfiguration.swift in Sources */,
 				018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */,
 				015F2AEA24CA2A88004B53E2 /* SurveyIntroductionView.swift in Sources */,
+				016E6DC525F8477200151E29 /* Bundle+Apptentive.swift in Sources */,
 				015A0D4125509C0A00EF077D /* SurveyChoiceCell.swift in Sources */,
 				015D6BC22509A34D00372759 /* FileRepository.swift in Sources */,
 				015F2AE124C9FEBF004B53E2 /* SurveyMultiLineCell.swift in Sources */,
@@ -1248,7 +1287,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 0;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = ApptentiveKit/Info.plist;
+				INFOPLIST_FILE = Sources/ApptentiveKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1275,7 +1314,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 0;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = ApptentiveKit/Info.plist;
+				INFOPLIST_FILE = Sources/ApptentiveKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1296,7 +1335,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 86WML2UN43;
-				INFOPLIST_FILE = "Integration Tests/Info.plist";
+				INFOPLIST_FILE = "Tests/ApptentiveKit/Integration Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1315,7 +1354,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 86WML2UN43;
-				INFOPLIST_FILE = "Integration Tests/Info.plist";
+				INFOPLIST_FILE = "Tests/ApptentiveKit/Integration Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1333,7 +1372,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 86WML2UN43;
-				INFOPLIST_FILE = "Unit Tests/Info.plist";
+				INFOPLIST_FILE = "Tests/ApptentiveKit/Unit Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1351,7 +1390,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 86WML2UN43;
-				INFOPLIST_FILE = "Unit Tests/Info.plist";
+				INFOPLIST_FILE = "Tests/ApptentiveKit/Unit Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1368,7 +1407,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				INFOPLIST_FILE = "UI Tests/Info.plist";
+				INFOPLIST_FILE = "Tests/ApptentiveKit/UI Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1386,7 +1425,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				INFOPLIST_FILE = "UI Tests/Info.plist";
+				INFOPLIST_FILE = "Tests/ApptentiveKit/UI Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1405,9 +1444,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_ASSET_PATHS = "\"ApptentiveUITestsApp/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Tests/ApptentiveKit/ApptentiveUITestsApp/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = ApptentiveUITestsApp/Info.plist;
+				INFOPLIST_FILE = Tests/ApptentiveKit/ApptentiveUITestsApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1424,9 +1463,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_ASSET_PATHS = "\"ApptentiveUITestsApp/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Tests/ApptentiveKit/ApptentiveUITestsApp/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = ApptentiveUITestsApp/Info.plist;
+				INFOPLIST_FILE = Tests/ApptentiveKit/ApptentiveUITestsApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

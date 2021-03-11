@@ -22,7 +22,7 @@ class ApptentiveV9APITests: XCTestCase {
             acceptLanguage: "en",
             apiVersion: "9",
             token: "foobar"
-            )
+        )
 
         let expectedHeaders = [
             "APPTENTIVE-KEY": "123",
@@ -32,7 +32,7 @@ class ApptentiveV9APITests: XCTestCase {
             "Authorization": "Bearer foobar",
             "Accept": "foo/bar",
             "Accept-Charset": "utf-123",
-            "Accept-Language": "en"
+            "Accept-Language": "en",
         ]
 
         XCTAssertEqual(headers, expectedHeaders)
@@ -60,7 +60,7 @@ class ApptentiveV9APITests: XCTestCase {
             "Authorization": "Bearer def",
             "Accept": "application/json",
             "Accept-Charset": "UTF-8",
-            "Accept-Language": "en"
+            "Accept-Language": "en",
         ]
 
         XCTAssertEqual(request.url, URL(string: "https://api.example.com/conversations/456/foo")!)

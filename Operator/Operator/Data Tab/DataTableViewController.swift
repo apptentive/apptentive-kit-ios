@@ -6,8 +6,8 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import UIKit
 import ApptentiveKit
+import UIKit
 
 class DataTableViewController: UITableViewController {
     @IBOutlet var modeControl: UISegmentedControl!
@@ -20,7 +20,7 @@ class DataTableViewController: UITableViewController {
 
         self.dataSources = [
             PersonDataSource(self.apptentive),
-            DeviceDataSource(self.apptentive)
+            DeviceDataSource(self.apptentive),
         ]
 
         self.tableView.dataSource = self.dataSources[self.modeControl.selectedSegmentIndex]

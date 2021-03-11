@@ -6,8 +6,8 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import UIKit
 import ApptentiveKit
+import UIKit
 
 class PersonDataSource: DataDataSource {
     override var customData: CustomData {

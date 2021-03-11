@@ -77,7 +77,7 @@ extension UIImage {
         if #available(iOS 13.0, *) {
             return UIImage(systemName: imageName)
         } else {
-            return UIImage(named: imageName, in: Bundle(for: Apptentive.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            return UIImage(named: imageName, in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
         }
     }
 }

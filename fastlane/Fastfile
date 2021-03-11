@@ -25,10 +25,10 @@ platform :ios do
   desc "Run integration tests (requires internet)"
   private_lane :integration_test do |options|
     # Convert template Defaults.plist file to the real deal
-    File.rename "../Integration Tests/Defaults-Template.plist", "../Integration Tests/Defaults.plist" unless File.exists? "../Integration Tests/Defaults.plist"
+    File.rename "../Tests/ApptentiveKit/Integration Tests/Defaults-Template.plist", "../Tests/ApptentiveKit/Integration Tests/Defaults.plist" unless File.exists? "../Tests/ApptentiveKit/Integration Tests/Defaults.plist"
 
     update_plist(
-      plist_path: "Integration Tests/Defaults.plist",
+      plist_path: "Tests/ApptentiveKit/Integration Tests/Defaults.plist",
       block: proc do |plist|
         plist[:Key] = options[:apptentive_key]
         plist[:Signature] = options[:apptentive_signature]
@@ -71,7 +71,7 @@ platform :ios do
 
   desc "Runs the swift-format linter on ApptentiveKit"
   lane :lint do
-    sh('swift-format -m lint --configuration ../.swift-format -r ../ApptentiveKit')
+    sh('swift-format -m lint --configuration ../.swift-format -r ../Sources/ApptentiveKit')
   end
 
   desc "Runs the swift-format linter on all swift files in repo"

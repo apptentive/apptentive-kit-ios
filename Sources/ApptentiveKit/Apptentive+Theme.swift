@@ -13,7 +13,7 @@ extension Apptentive {
     func applyApptentiveTheme() {
         // UIAppearance-based overrides
 
-        let bundle = Bundle(for: Apptentive.self)
+        let bundle = Bundle.module
         guard let barTintColor = UIColor(named: "barTint", in: bundle, compatibleWith: nil),
             let barForegroundColor = UIColor(named: "barForeground", in: bundle, compatibleWith: nil),
             let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil),

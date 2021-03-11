@@ -61,24 +61,24 @@ public class SurveyViewModel {
         self.interaction = interaction
 
         self.name = configuration.name
-        self.submitButtonText = configuration.submitText ?? NSLocalizedString("SurveySubmitButtonText", tableName: "Localizable", bundle: Bundle(for: Apptentive.self), value: "Submit", comment: "Survey submit button title")
+        self.submitButtonText = configuration.submitText ?? NSLocalizedString("SurveySubmitButtonText", tableName: "Localizable", bundle: Bundle.module, value: "Submit", comment: "Survey submit button title")
 
         self.validationErrorMessage =
-            configuration.validationError ?? NSLocalizedString("SurveyErrorMessage", tableName: "Localizable", bundle: Bundle(for: Apptentive.self), value: "There are issues with your responses.", comment: "Survey error validation message")
+            configuration.validationError ?? NSLocalizedString("SurveyErrorMessage", tableName: "Localizable", bundle: Bundle.module, value: "There are issues with your responses.", comment: "Survey error validation message")
         self.introduction = configuration.introduction
         self.thankYouMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
         self.interactionDelegate = interactionDelegate
 
-        self.closeConfirmationAlertTitle = NSLocalizedString("CloseSurveyAlertTitle", tableName: "Localizable", bundle: Bundle(for: Apptentive.self), value: "Close survey?", comment: "Survey close confirmation alert title")
+        self.closeConfirmationAlertTitle = NSLocalizedString("CloseSurveyAlertTitle", tableName: "Localizable", bundle: Bundle.module, value: "Close survey?", comment: "Survey close confirmation alert title")
 
         self.closeConfirmationAlertMessage = NSLocalizedString(
-            "CloseConfirmationAlertMessage", tableName: "Localizable", bundle: Bundle(for: Apptentive.self), value: "You will lose your progress if you close this survey.", comment: "Survey close confirmation alert message")
+            "CloseConfirmationAlertMessage", tableName: "Localizable", bundle: Bundle.module, value: "You will lose your progress if you close this survey.", comment: "Survey close confirmation alert message")
 
-        self.closeConfirmationBackButtonLabel = NSLocalizedString("CloseConfirmationBackButton", tableName: "Localizable", bundle: Bundle(for: Apptentive.self), value: "Back to Survey", comment: "Survey close confirmation back button")
+        self.closeConfirmationBackButtonLabel = NSLocalizedString("CloseConfirmationBackButton", tableName: "Localizable", bundle: Bundle.module, value: "Back to Survey", comment: "Survey close confirmation back button")
 
-        self.closeConfirmationCloseButtonLabel = NSLocalizedString("CloseConfirmationCloseButton", tableName: "Localizable", bundle: Bundle(for: Apptentive.self), value: "Close", comment: "Survey close confirmation close button")
+        self.closeConfirmationCloseButtonLabel = NSLocalizedString("CloseConfirmationCloseButton", tableName: "Localizable", bundle: Bundle.module, value: "Close", comment: "Survey close confirmation close button")
 
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self

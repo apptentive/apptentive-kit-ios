@@ -58,6 +58,7 @@ class Backend {
     private var conversationNeedsSaving: Bool = false
 
     private var persistenceTimer: DispatchSourceTimer?
+    private var persistenceTimerActive = false
 
     /// Initializes a new backend instance.
     /// - Parameters:
@@ -130,19 +131,19 @@ class Backend {
 
         self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: fileManager)
 
-        self.startPeristenceTimer()
+        self.startPersistenceTimer()
     }
 
     func willEnterForeground() {
         self.payloadSender.resume()
 
-        self.persistenceTimer?.resume()
+        self.resumePersistenceTimer()
     }
 
     func didEnterBackground() {
         self.payloadSender.suspend()
 
-        self.persistenceTimer?.suspend()
+        self.suspendPersistenceTimer()
 
         self.saveToPersistentStorageIfNeeded()
     }
@@ -305,7 +306,7 @@ class Backend {
         }
     }
 
-    private func startPeristenceTimer() {
+    private func startPersistenceTimer() {
         let persistenceTimer = DispatchSource.makeTimerSource(flags: [], queue: self.queue)
         persistenceTimer.schedule(deadline: .now(), repeating: .seconds(10), leeway: .seconds(1))
         persistenceTimer.setEventHandler { [weak self] in
@@ -316,6 +317,21 @@ class Backend {
         persistenceTimer.resume()
 
         self.persistenceTimer = persistenceTimer
+        self.persistenceTimerActive = true
+    }
+
+    private func resumePersistenceTimer() {
+        if !persistenceTimerActive {
+            self.persistenceTimer?.resume()
+            self.persistenceTimerActive = true
+        }
+    }
+
+    private func suspendPersistenceTimer() {
+        if persistenceTimerActive {
+            self.persistenceTimer?.suspend()
+            self.persistenceTimerActive = false
+        }
     }
 
     /// Creates a conversation on the Apptentive server using the API.
