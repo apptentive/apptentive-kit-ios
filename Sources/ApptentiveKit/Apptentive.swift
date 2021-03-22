@@ -9,11 +9,11 @@
 import UIKit
 
 /// The main interface to the Apptentive SDK.
-public class Apptentive: EnvironmentDelegate, InteractionDelegate {
+public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     /// The shared instance of the Apptentive SDK.
     ///
     /// This object is created lazily upon access.
-    public static let shared = Apptentive()
+    @objc public static let shared = Apptentive()
 
     /// An object that overrides the `InteractionPresenter` class used to display interactions to the user.
     public var interactionPresenter: InteractionPresenter
@@ -24,7 +24,7 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
     public var theme: UITheme = .apptentive
 
     /// The name of the person using the app, if available.
-    public var personName: String? {
+    @objc public var personName: String? {
         get {
             self.person.name
         }
@@ -38,7 +38,7 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
     }
 
     /// The email address of the person using the app, if available.
-    public var personEmailAddress: String? {
+    @objc public var personEmailAddress: String? {
         get {
             self.person.emailAddress
         }
@@ -179,6 +179,8 @@ public class Apptentive: EnvironmentDelegate, InteractionDelegate {
 
         self.person = self.backend.conversation.person
         self.device = self.backend.conversation.device
+
+        super.init()
 
         self.environment.delegate = self
         if self.environment.isProtectedDataAvailable {

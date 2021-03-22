@@ -391,8 +391,8 @@ class Backend {
     private static let urlSessionConfiguration: URLSessionConfiguration = {
         let configuration = URLSessionConfiguration.default
 
-        configuration.timeoutIntervalForRequest = 60 // Default is 60
-        configuration.timeoutIntervalForResource = 600 // Default is 7 days (!)
+        configuration.timeoutIntervalForRequest = 60  // Default is 60
+        configuration.timeoutIntervalForResource = 600  // Default is 7 days (!)
         configuration.waitsForConnectivity = true
 
         return configuration

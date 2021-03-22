@@ -37,8 +37,8 @@ protocol AppEnvironment {
     var infoDictionary: [String: Any]? { get }
     var appStoreReceiptURL: URL? { get }
     var sdkVersion: Version { get }
-    var distributionName: String? { get }
-    var distributionVersion: Version? { get }
+    var distributionName: String? { get set }
+    var distributionVersion: Version? { get set }
     var isDebugBuild: Bool { get }
 }
 
