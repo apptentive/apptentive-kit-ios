@@ -13,6 +13,8 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+build_directory = ".build"
+
 default_platform(:ios)
 setup_travis
 
@@ -22,51 +24,24 @@ platform :ios do
     build_number = '0'
   end
 
-  desc "Run integration tests (requires internet)"
-  private_lane :integration_test do |options|
-    # Convert template Defaults.plist file to the real deal
+  desc "Run tests"
+  lane :test do
+    # Update the Defaults.plist for integration tests using environment variables
     File.rename "../Tests/ApptentiveKit/Integration Tests/Defaults-Template.plist", "../Tests/ApptentiveKit/Integration Tests/Defaults.plist" unless File.exists? "../Tests/ApptentiveKit/Integration Tests/Defaults.plist"
-
     update_plist(
       plist_path: "Tests/ApptentiveKit/Integration Tests/Defaults.plist",
       block: proc do |plist|
-        plist[:Key] = options[:apptentive_key]
-        plist[:Signature] = options[:apptentive_signature]
-        plist[:ServerURL] = options[:apptentive_url]
+        plist[:Key] = ENV["APPTENTIVE_PROD_KEY"]
+        plist[:Signature] = ENV["APPTENTIVE_PROD_SIGNATURE"]
       end
     )
-    
-    run_tests(scheme: "ApptentiveFeatureTests")
-  end
 
-  desc "Run integration tests against production"
-  lane :integration_test_production do
-    integration_test(apptentive_url: "https://api.apptentive.com", apptentive_key: ENV['APPTENTIVE_PROD_KEY'], apptentive_signature: ENV['APPTENTIVE_PROD_SIGNATURE'])
+    run_tests(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", code_coverage: true)
   end
-
-  desc "Run integration tests against staging"
-  lane :integration_test_staging do
-    integration_test(server_env: "staging")
-  end
-
-  desc "Run integration tests against dev"
-  lane :integration_test_dev do
-    integration_test(server_env: "dev")
-  end
-
-  desc "Run integration tests against localhost"
-  lane :integration_test_local do
-    integration_test()
-  end
-
-  desc "Run unit tests (standalone)"
-  lane :unit_test do
-    run_tests(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveUnitTests")
-  end
-
-  desc "Run UI tests (standalone)"
-  lane :ui_test do
-    run_tests(scheme: "ApptentiveUITestsApp", device: "iPhone 12 mini")
+  
+  desc "Generates a code coverage report"
+  lane :coverage do
+    xcov(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", output_directory: ".fastlane/test_output", exclude_targets: "ApptentiveUITestsApp.app", minimum_coverage_percentage: 80.0)
   end
 
   desc "Runs the swift-format linter on ApptentiveKit"

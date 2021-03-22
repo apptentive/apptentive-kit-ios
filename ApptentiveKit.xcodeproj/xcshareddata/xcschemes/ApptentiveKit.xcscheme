@@ -26,7 +26,8 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      codeCoverageEnabled = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -39,12 +40,24 @@
             </BuildableReference>
          </TestableReference>
          <TestableReference
-            skipped = "NO">
+            skipped = "NO"
+            parallelizable = "YES"
+            testExecutionOrdering = "random">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "01D739222405CB630000EE52"
                BuildableName = "ApptentiveUnitTests.xctest"
                BlueprintName = "ApptentiveUnitTests"
+               ReferencedContainer = "container:ApptentiveKit.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "1F323D41240EED3000A678BC"
+               BuildableName = "ApptentiveUITests.xctest"
+               BlueprintName = "ApptentiveUITests"
                ReferencedContainer = "container:ApptentiveKit.xcodeproj">
             </BuildableReference>
          </TestableReference>

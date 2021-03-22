@@ -16,36 +16,16 @@ or alternatively using `brew install fastlane`
 
 # Available Actions
 ## iOS
-### ios integration_test_production
+### ios test
 ```
-fastlane ios integration_test_production
+fastlane ios test
 ```
-Run integration tests against production
-### ios integration_test_staging
+Run tests
+### ios coverage
 ```
-fastlane ios integration_test_staging
+fastlane ios coverage
 ```
-Run integration tests against staging
-### ios integration_test_dev
-```
-fastlane ios integration_test_dev
-```
-Run integration tests against dev
-### ios integration_test_local
-```
-fastlane ios integration_test_local
-```
-Run integration tests against localhost
-### ios unit_test
-```
-fastlane ios unit_test
-```
-Run unit tests (standalone)
-### ios ui_test
-```
-fastlane ios ui_test
-```
-Run UI tests (standalone)
+Generates a code coverage report
 ### ios lint
 ```
 fastlane ios lint
