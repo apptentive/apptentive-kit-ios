@@ -16,6 +16,8 @@ class SurveyChoiceCell: UITableViewCell {
         self.textLabel?.textColor = .apptentiveLabel
         self.textLabel?.numberOfLines = 0
         self.textLabel?.lineBreakMode = .byWordWrapping
+
+        self.accessibilityTraits = .button
     }
 
     required init?(coder: NSCoder) {

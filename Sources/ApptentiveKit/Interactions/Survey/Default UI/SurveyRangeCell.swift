@@ -9,12 +9,12 @@
 import UIKit
 
 class SurveyRangeCell: UITableViewCell {
-
     var choiceLabels: [String]? {
         didSet {
             setupViews()
         }
     }
+
     var segmentedControl: UISegmentedControl?
     let minLabel = UILabel()
     let maxLabel = UILabel()
@@ -46,6 +46,8 @@ class SurveyRangeCell: UITableViewCell {
                 segmentedControl.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
             ])
         }
+
+        self.contentView.isAccessibilityElement = false
     }
 
     private func configureMinMaxLabels() {
@@ -56,6 +58,7 @@ class SurveyRangeCell: UITableViewCell {
             self.minLabel.lineBreakMode = .byWordWrapping
             self.minLabel.adjustsFontForContentSizeCategory = true
             self.minLabel.textAlignment = .left
+            self.minLabel.isAccessibilityElement = false
 
             self.maxLabel.textColor = .apptentiveMinMaxLabel
             self.maxLabel.font = .apptentiveMinMaxLabel
@@ -63,6 +66,7 @@ class SurveyRangeCell: UITableViewCell {
             self.maxLabel.lineBreakMode = .byWordWrapping
             self.maxLabel.adjustsFontForContentSizeCategory = true
             self.maxLabel.textAlignment = .right
+            self.maxLabel.isAccessibilityElement = false
 
             let stackView = UIStackView(arrangedSubviews: [self.minLabel, self.maxLabel])
             stackView.axis = .horizontal

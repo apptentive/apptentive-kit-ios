@@ -65,7 +65,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.viewModel = viewModel
         self.introductionView = SurveyIntroductionView(frame: .zero)
         self.submitView = SurveySubmitView(frame: .zero)
-
         super.init(style: .apptentive)
 
         viewModel.delegate = self
@@ -192,6 +191,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             multiLineCell.textView.delegate = self
             multiLineCell.textView.tag = self.tag(for: indexPath)
             multiLineCell.textView.accessibilityIdentifier = String(indexPath.section)
+            multiLineCell.textView.accessibilityLabel = freeformQuestion.placeholderText
             multiLineCell.tableViewStyle = tableView.style
             multiLineCell.isMarkedAsInvalid = question.isMarkedAsInvalid
 
@@ -199,6 +199,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             rangeChoiceCell.choiceLabels = rangeQuestion.choiceLabels
             rangeChoiceCell.segmentedControl?.addTarget(self, action: #selector(rangeControlValueDidChange(_:)), for: .valueChanged)
             rangeChoiceCell.segmentedControl?.tag = self.tag(for: indexPath)
+            for (index, subview) in rangeChoiceCell.segmentedControl!.subviews.enumerated() {
+                let segmentLabel = rangeChoiceCell.segmentedControl?.titleForSegment(at: index)
+                subview.accessibilityLabel = segmentLabel
+                subview.accessibilityHint = rangeQuestion.accessibilityHintForSegment()
+                subview.accessibilityTraits = .none
+            }
 
             if let selectedIndex = rangeQuestion.selectedValueIndex {
                 rangeChoiceCell.segmentedControl?.selectedSegmentIndex = selectedIndex
@@ -211,7 +217,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell as SurveyChoiceCell):
             choiceCell.textLabel?.text = choiceQuestion.choices[indexPath.row].label
             choiceCell.detailTextLabel?.text = nil
-
+            choiceCell.accessibilityLabel = choiceQuestion.choices[indexPath.row].label
             switch choiceQuestion.selectionStyle {
             case .radioButton:
                 choiceCell.imageView?.image = .apptentiveRadioButton
@@ -261,16 +267,15 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         header.questionLabel.text = question.text
         header.instructionsLabel.text = instructionsText
         header.instructionsLabel.isHidden = instructionsText.isEmpty
-
         header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
         header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
-
+        header.contentView.accessibilityLabel = question.accessibilityLabel
+        header.contentView.accessibilityHint = question.accessibilityHint
         return header
     }
 
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         let question = self.viewModel.questions[section]
-
         return question.isMarkedAsInvalid ? question.errorMessage : nil
     }
 
@@ -332,6 +337,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         footerView.textLabel?.textColor = .apptentiveError  // Footers always display an error in the error color.
     }
 
+    override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        if let firstIndex = self.viewModel.invalidQuestionIndexes.min() {
+            if let header = self.tableView.headerView(forSection: firstIndex) as? SurveyQuestionHeaderView {
+                UIAccessibility.post(notification: UIAccessibility.Notification.layoutChanged, argument: header)
+            }
+        }
+    }
+
     // MARK: - Survey View Model delgate
 
     func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {
@@ -373,6 +386,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                     header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
                     header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
                 }
+                header.contentView.accessibilityLabel = question.accessibilityLabel
+                header.contentView.accessibilityHint = question.accessibilityHint
+
             }
 
             // The footer's position animates properly when a question is un-marked,

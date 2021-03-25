@@ -21,6 +21,9 @@ class SurveyQuestionHeaderView: UITableViewHeaderFooterView {
         self.contentView.backgroundColor = .apptentiveGroupSecondary
         self.contentView.addSubview(self.stackView)
 
+        self.contentView.isAccessibilityElement = true
+        self.contentView.accessibilityTraits = .header
+
         self.configureLabels()
         self.configureStackView()
     }

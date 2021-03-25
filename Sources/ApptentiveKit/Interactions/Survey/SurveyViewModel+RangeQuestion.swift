@@ -53,5 +53,11 @@ extension SurveyViewModel {
                 [SurveyQuestionResponse.range($0 + self.minValue)]
             }
         }
+        public func accessibilityHintForSegment() -> String {
+            let minValue = String(self.minValue)
+            let maxValue = String(self.maxValue)
+
+            return "Where \(minValue) is \(minText ?? "the least") and \(maxValue) is \(maxText ?? "the most")"
+        }
     }
 }

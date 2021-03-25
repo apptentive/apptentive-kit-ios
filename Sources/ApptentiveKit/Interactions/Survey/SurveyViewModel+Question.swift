@@ -58,6 +58,28 @@ extension SurveyViewModel {
             }
         }
 
+        /// Returns the accessibility label for question/instructions/error.
+        public var accessibilityLabel: String {
+            var result = [String]()
+
+            if self.isMarkedAsInvalid {
+                result.append(self.errorMessage)
+            }
+
+            result.append(self.text)
+
+            if self.isRequired, let requiredText = self.requiredText {
+                result.append(". \(requiredText)")
+            }
+
+            return result.joined(separator: " ")
+        }
+
+        /// Returns the accessibility hint for the header.
+        public var accessibilityHint: String? {
+            return self.instructions
+        }
+
         init(question: SurveyConfiguration.Question, requiredText: String?) {
             self.questionID = question.id
             self.text = question.text

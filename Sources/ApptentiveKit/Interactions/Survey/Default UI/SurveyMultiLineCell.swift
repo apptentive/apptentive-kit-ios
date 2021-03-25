@@ -96,7 +96,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.heightConstraint?.isActive = true
 
         self.textView.addSubview(self.placeholderLabel)
-
+        self.placeholderLabel.isAccessibilityElement = false
         self.placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
         self.placeholderLabel.adjustsFontForContentSizeCategory = true
         self.placeholderLabel.isUserInteractionEnabled = false
