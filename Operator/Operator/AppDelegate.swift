@@ -19,7 +19,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.registerDefaults()
 
         self.connect { result in
-            print("Apptentive registration \(result ? "succeded" : "failed")")
+            switch result {
+            case .success(true):
+                print("Apptenitve registration successful")
+            case .success(false):
+                print("Apptentive registration not successful.")
+            case .failure(let error):
+                print("Apptentive registration failed: \(error)")
+            }
+
         }
 
         return true
@@ -33,9 +41,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserDefaults.standard.register(defaults: defaultDefaults)
     }
 
-    fileprivate func connect(_ completion: @escaping (Bool) -> Void) {
+    fileprivate func connect(_ completion: @escaping ((Result<Bool, Error>)) -> Void) {
         guard let key = UserDefaults.standard.string(forKey: "Key"), let signature = UserDefaults.standard.string(forKey: "Signature"), let urlString = UserDefaults.standard.string(forKey: "ServerURL"), let url = URL(string: urlString) else {
-            completion(false)
+            completion(.failure(AppError.credentialsError))
             return
         }
 
@@ -43,9 +51,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature), completion: completion)
     }
 }
-
 extension UIViewController {
     var apptentive: Apptentive {
         (UIApplication.shared.delegate as! AppDelegate).apptentive!
     }
+}
+
+public enum AppError: Error {
+    case credentialsError
 }

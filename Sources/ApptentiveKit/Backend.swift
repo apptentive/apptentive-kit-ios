@@ -157,7 +157,7 @@ class Backend {
     /// - Parameters:
     ///   - event: The `Event` object to be engaged.
     ///   - completion: A completion handler whose argument indicates whether engaging the event resulted in the presentation of an interaction.
-    func engage(event: Event, completion: ((Bool) -> Void)?) {
+    func engage(event: Event, completion: ((Result<Bool, Error>) -> Void)?) {
         self.payloadSender.send(Payload(wrapping: event), for: self.conversation)
 
         self.conversation.codePoints.invoke(for: event.codePointName)
@@ -167,13 +167,13 @@ class Backend {
                 try self.presentInteraction(interaction, completion: completion)
             } else {
                 DispatchQueue.main.async {
-                    completion?(false)
+                    completion?(.success(false))
                 }
             }
         } catch let error {
             DispatchQueue.main.async {
-                completion?(false)
-                ApptentiveLogger.engagement.error("Targeting error: \(error).")
+                completion?(.failure(error))
+                ApptentiveLogger.default.error("Targeting error: \(error)")
                 assertionFailure("Targeting error: \(error)")
             }
         }
@@ -195,12 +195,15 @@ class Backend {
                 throw ApptentiveError.internalInconsistency
             }
 
-            try self.presentInteraction(destinationInteraction) { (success) in
-                if success {
+            try self.presentInteraction(destinationInteraction) { (result) in
+                switch result {
+                case .success(true):
                     completion(destinationInteraction.id)
-                } else {
-                    ApptentiveLogger.interaction.error("TextModal button had no invocations with matching criteria.")
+                case .success(false):
+                    ApptentiveLogger.default.error("TextModal button had no invocations with matching criteria.")
                     assertionFailure("TextModal button had no invocations with matching criteria.")
+                case .failure(let error):
+                    ApptentiveLogger.default.error("Failure presenting interaction based on invocations: \(error).")
                 }
             }
         } catch let error {
@@ -213,9 +216,7 @@ class Backend {
         }
     }
 
-    private func presentInteraction(_ interaction: Interaction, completion: ((Bool) -> Void)?) throws {
-        ApptentiveLogger.interaction.info("Attempting to present \(interaction.typeName) interaction.")
-
+    private func presentInteraction(_ interaction: Interaction, completion: ((Result<Bool, Error>) -> Void)?) throws {
         guard let frontend = self.frontend else {
             throw ApptentiveError.internalInconsistency
         }
@@ -224,15 +225,15 @@ class Backend {
             do {
                 try frontend.interactionPresenter.presentInteraction(interaction)
 
-                completion?(true)
+                completion?(.success(true))
 
                 self.queue.async {
                     self.conversation.interactions.invoke(for: interaction.id)
                 }
             } catch let error {
-                completion?(false)
-                ApptentiveLogger.default.error("Interaction presentation error: \(error).")
-                assertionFailure("Interaction presentation error: \(error).")
+                completion?(.failure(error))
+                ApptentiveLogger.default.error("Interaction presentation error: \(error)")
+                assertionFailure("Interaction presentation error: \(error)")
             }
         }
     }

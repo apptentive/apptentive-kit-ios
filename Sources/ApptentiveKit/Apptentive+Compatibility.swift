@@ -73,8 +73,14 @@ extension Apptentive {
     }
 
     @objc(engage:fromViewController:completion:) public func engage(_ event: String, fromViewController viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
-        self.engage(event: Event(name: event), from: viewController) { (success) in
-            completion?(success)
+        self.engage(event: Event(name: event), from: viewController) { (result) in
+            switch result {
+            case .success:
+                completion?(true)
+
+            case .failure:
+                completion?(false)
+            }
         }
     }
 
@@ -87,7 +93,15 @@ extension Apptentive {
     @available(*, deprecated, message: "Event custom data are no longer supported. Event will be engaged without custom data.")
     @objc(engage:withCustomData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
         ApptentiveLogger.engagement.error("Event custom data are no longer supported. Event will be engaged without custom data.")
-        self.engage(event: Event(name: event), from: viewController, completion: completion)
+        self.engage(event: Event(name: event), from: viewController) { (result) in
+            switch result {
+            case .success:
+                completion?(true)
+
+            case .failure:
+                completion?(false)
+            }
+        }
     }
 
     @available(*, deprecated, message: "Event custom and extended data are no longer supported. Event will be engaged without custom or extended data.")
@@ -99,7 +113,15 @@ extension Apptentive {
     @available(*, deprecated, message: "Event custom and extended data are no longer supported. Event will be engaged without custom or extended data.")
     @objc(engage:withCustomData:withExtendedData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, withExtendedData extendedData: [[AnyHashable: Any]]?, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
         ApptentiveLogger.engagement.error("Event custom and extended data are no longer supported. Event will be engaged without custom or extended data.")
-        self.engage(event: Event(name: event), from: viewController, completion: completion)
+        self.engage(event: Event(name: event), from: viewController) { (result) in
+            switch result {
+            case .success:
+                completion?(true)
+
+            case .failure:
+                completion?(false)
+            }
+        }
     }
 
     @available(*, deprecated, message: "This feature is not implemented and will always result in false.")

@@ -58,7 +58,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
         self.imageView?.isHighlighted = highlighted || self.isSelected
     }
-
+ 
     private func configureTextField() {
         self.textField.borderStyle = .roundedRect
 

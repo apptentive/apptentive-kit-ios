@@ -96,9 +96,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     /// - Parameters:
     ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
-    public func register(credentials: AppCredentials, completion: ((Bool) -> Void)? = nil) {
-        ApptentiveLogger.default.debug("Registering Apptentive SDK with key: \(credentials.key) and signature: \(credentials.signature).")
 
+    public func register(credentials: AppCredentials, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         if case .apptentive = self.theme {
             ApptentiveLogger.interaction.info("Using Apptentive theme for interaction UI.")
             self.applyApptentiveTheme()
@@ -108,12 +107,13 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
             self.backend.connect(appCredentials: credentials) { result in
                 switch result {
                 case .success:
+                    completion?(.success(true))
                     ApptentiveLogger.default.info("Apptentive SDK registered successfully.")
-                    completion?(true)
 
                 case .failure(let error):
-                    ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error).")
-                    completion?(false)
+                    completion?(.failure(error))
+                    ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
+
                 }
             }
         }
@@ -139,9 +139,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     ///   - event: The event to engage.
     ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
     ///   - completion: A completion handler that is called with a boolean indicating whether or not an interaction was presented.
-    public func engage(event: Event, from viewController: UIViewController? = nil, completion: ((Bool) -> Void)? = nil) {
-        ApptentiveLogger.engagement.info("Engaging event \(String(describing: event), privacy: .public).")
-
+    public func engage(event: Event, from viewController: UIViewController? = nil, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         if let presentingViewController = viewController {
             self.interactionPresenter.presentingViewController = presentingViewController
         }
