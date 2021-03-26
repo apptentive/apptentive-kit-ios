@@ -24,7 +24,6 @@ class SurveyOtherChoiceCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.textField = UITextField(frame: .zero)
         self.isMarkedAsInvalid = false
-
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
         self.contentView.backgroundColor = .apptentiveGroupSecondary
         self.textLabel?.numberOfLines = 0

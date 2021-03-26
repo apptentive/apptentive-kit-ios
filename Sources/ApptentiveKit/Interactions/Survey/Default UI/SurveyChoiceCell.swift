@@ -28,6 +28,11 @@ class SurveyChoiceCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         self.imageView?.isHighlighted = selected
+        if !self.isSelected {
+            self.imageView?.tintColor = .gray
+        } else {
+            self.imageView?.tintColor = self.tintColor
+        }
     }
 
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
