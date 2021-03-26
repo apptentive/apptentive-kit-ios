@@ -85,12 +85,17 @@ extension UIImage {
 extension UIColor {
 
     /// The color to use for labels in a non-error state.
-    public static var apptentiveLabel: UIColor = {
+    public static var apptentiveQuestionLabel: UIColor = {
         if #available(iOS 13.0, *) {
             return .label
         } else {
             return .black
         }
+    }()
+    
+    /// The color to use for choice labels.
+    public static var apptentiveChoiceLabel: UIColor = {
+        return .darkGray
     }()
 
     /// The color to use for UI elements to indicate an error state.
@@ -209,6 +214,11 @@ extension UIColor {
 extension UIFont {
     /// The font used for all survey question labels.
     public static var apptentiveQuestionLabel: UIFont = {
+        return .preferredFont(forTextStyle: .headline)
+    }()
+    
+    /// the font used for all survey answer choice labels.
+    public static var apptentiveChoiceLabel: UIFont = {
         return .preferredFont(forTextStyle: .body)
     }()
 

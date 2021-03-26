@@ -42,7 +42,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             case .thankYou:
                 self.submitView.submitLabel.text = self.viewModel.thankYouMessage
-                self.submitView.submitLabel.textColor = .apptentiveLabel
+                self.submitView.submitLabel.textColor = .apptentiveQuestionLabel
                 viewToShow = self.submitView.submitLabel
 
             case .validationError:
@@ -267,7 +267,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         header.questionLabel.text = question.text
         header.instructionsLabel.text = instructionsText
         header.instructionsLabel.isHidden = instructionsText.isEmpty
-        header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
+        header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveQuestionLabel
         header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
         header.contentView.accessibilityLabel = question.accessibilityLabel
         header.contentView.accessibilityHint = question.accessibilityHint
@@ -383,7 +383,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 UIView.transition(
                     with: header, duration: 0.25, options: .transitionCrossDissolve
                 ) {
-                    header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveLabel
+                    header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveQuestionLabel
                     header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
                 }
                 header.contentView.accessibilityLabel = question.accessibilityLabel

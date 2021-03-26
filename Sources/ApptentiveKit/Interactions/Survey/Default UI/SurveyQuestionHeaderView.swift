@@ -37,13 +37,13 @@ class SurveyQuestionHeaderView: UITableViewHeaderFooterView {
         self.questionLabel.numberOfLines = 0
         self.questionLabel.lineBreakMode = .byWordWrapping
         self.questionLabel.font = .apptentiveQuestionLabel
-        self.questionLabel.textColor = .apptentiveLabel
+        self.questionLabel.textColor = .apptentiveQuestionLabel
 
         self.instructionsLabel.adjustsFontForContentSizeCategory = true
         self.instructionsLabel.numberOfLines = 0
         self.instructionsLabel.lineBreakMode = .byWordWrapping
         self.instructionsLabel.font = .apptentiveInstructionsLabel
-        self.instructionsLabel.textColor = .apptentiveLabel
+        self.instructionsLabel.textColor = .apptentiveQuestionLabel
     }
 
     private func configureStackView() {

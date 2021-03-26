@@ -74,7 +74,7 @@ class PersonDataSource: DataDataSource {
 
                 cell.textLabel?.text = key
                 cell.detailTextLabel?.text = value ?? "Not Set"
-                cell.detailTextLabel?.textColor = value == nil ? UIColor.apptentiveSecondaryLabel : UIColor.apptentiveLabel
+                cell.detailTextLabel?.textColor = value == nil ? UIColor.apptentiveSecondaryLabel : UIColor.apptentiveQuestionLabel
 
                 return cell
             }
