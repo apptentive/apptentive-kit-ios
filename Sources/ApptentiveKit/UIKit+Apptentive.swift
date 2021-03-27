@@ -120,9 +120,9 @@ extension UIColor {
     /// The color to use for the survey introduction text.
     public static var apptentiveSurveyIntroduction: UIColor = {
         if #available(iOS 13.0, *) {
-            return .secondaryLabel
+            return .label
         } else {
-            return .darkGray
+            return .black
         }
     }()
 
