@@ -154,7 +154,16 @@ class Environment: GlobalEnvironment {
 
     /// The version of the SDK (read from the SDK framework's Info.plist).
     lazy var sdkVersion: Version = {
-        guard let versionString = Bundle(for: type(of: self)).infoDictionary?["CFBundleShortVersionString"] as? String else {
+        // First look for Version.plist, which is a workaround for Swift Package Manager.
+        if let url = Bundle.module.url(forResource: "Version", withExtension: "plist"),
+            let data = try? Data(contentsOf: url),
+            let infoDictionary = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
+            let versionString = infoDictionary["CFBundleShortVersionString"] as? String
+        {
+            return Version(string: versionString)
+        }
+
+        guard let versionString = Bundle.module.infoDictionary?["CFBundleShortVersionString"] as? String else {
             assertionFailure("Unable to read SDK version from ApptentiveKit's Info.plist file")
             return "Unavailable"
         }
@@ -219,7 +228,16 @@ class Environment: GlobalEnvironment {
             NotificationCenter.default.addObserver(self, selector: #selector(applicationWillTerminate(notification:)), name: UIApplication.willTerminateNotification, object: nil)
         #endif
 
-        self.distributionName = "source"
+        #if COCOAPODS
+            self.distributionName = "CocoaPods"
+        #else
+            if let _ = Bundle.module.url(forResource: "Version", withExtension: "plist") {
+                self.distributionName = "SPM"
+            } else {
+                self.distributionName = "source"
+            }
+        #endif
+
         self.distributionVersion = self.sdkVersion
     }
 

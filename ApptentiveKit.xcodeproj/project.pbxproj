@@ -284,6 +284,7 @@
 		01B91FC325CCAFB800B8AFEE /* DevicePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicePayloadTests.swift; sourceTree = "<group>"; };
 		01B91FC925CCAFC600B8AFEE /* AppReleasePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReleasePayloadTests.swift; sourceTree = "<group>"; };
 		01B91FCF25CCB85500B8AFEE /* BackendTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendTests.swift; sourceTree = "<group>"; };
+		01BA40B0260BEC4900C555E8 /* Version.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Version.plist; sourceTree = "<group>"; };
 		01C0218925DC891A00547059 /* Criteria+Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Criteria+Logging.swift"; sourceTree = "<group>"; };
 		01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyOtherChoiceCell.swift; sourceTree = "<group>"; };
 		01C7958325C1082800FD28F1 /* PersonAndDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonAndDeviceTests.swift; sourceTree = "<group>"; };
@@ -506,6 +507,7 @@
 			isa = PBXGroup;
 			children = (
 				016E6D8525F83E6900151E29 /* Media.xcassets */,
+				01BA40B0260BEC4900C555E8 /* Version.plist */,
 			);
 			path = Resources;
 			sourceTree = "<group>";

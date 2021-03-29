@@ -20,7 +20,8 @@ let package = Package(
         .target(
             name: "ApptentiveKit",
             dependencies: [],
-            exclude: ["Info.plist", "Bundle+Apptentive.swift"]
+            exclude: ["Info.plist", "Bundle+Apptentive.swift"],
+            resources: [.copy("Resources/Version.plist")]
         )
     ]
 )

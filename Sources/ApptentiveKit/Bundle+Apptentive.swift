@@ -9,5 +9,9 @@
 import Foundation
 
 extension Bundle {
-    static let module = Bundle(for: Apptentive.self)
+    #if COCOAPODS
+        static let module: Bundle = Bundle.main.url(forResource: "ApptentiveKit", withExtension: "bundle").flatMap { Bundle(url: $0) } ?? Bundle(for: Apptentive.self)
+    #else
+        static let module: Bundle = Bundle(for: Apptentive.self)
+    #endif
 }
