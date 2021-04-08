@@ -82,6 +82,8 @@ extension UIImage {
     }
 }
 
+//TODO: PUT THE
+
 extension UIColor {
 
     /// The color to use for labels in a non-error state.
@@ -209,6 +211,19 @@ extension UIColor {
             return .white
         }
     }()
+    
+    /// The color to use for images in a selected state for surveys.
+    public static var apptentiveImageSelected: UIColor = {
+        let bundle = Bundle.module
+        guard let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil) else {return .systemBlue}
+        return buttonTintColor
+    }()
+    
+    /// The color to use for images in a non-selected state for surveys.
+    public static var apptentiveImageNotSelected: UIColor = {
+        return .gray
+    }()
+
 }
 
 extension UIFont {

@@ -29,9 +29,9 @@ class SurveyChoiceCell: UITableViewCell {
 
         self.imageView?.isHighlighted = selected
         if !self.isSelected {
-            self.imageView?.tintColor = .gray
+            self.imageView?.tintColor = .apptentiveImageNotSelected
         } else {
-            self.imageView?.tintColor = self.tintColor
+            self.imageView?.tintColor = .apptentiveImageSelected
         }
     }
 
