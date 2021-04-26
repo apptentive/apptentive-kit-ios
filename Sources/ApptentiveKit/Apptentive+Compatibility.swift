@@ -155,17 +155,17 @@ extension Apptentive {
     }
 
     @available(*, deprecated, message: "Message Center is not implemented and this method will always result in false.")
-    @objc func presentMessageCenter(from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
+    @objc public func presentMessageCenter(from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
         completion?(false)
     }
 
     @available(*, deprecated, message: "Message Center is not implemented and this method will always result in false.")
-    @objc func presentMessageCenter(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?, completion: ((Bool) -> Void)? = nil) {
+    @objc public func presentMessageCenter(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?, completion: ((Bool) -> Void)? = nil) {
         completion?(false)
     }
 
     @available(*, deprecated, message: "Message Center is not implemented and this method will always result in false.")
-    @objc func dismissMessageCenter(animated: Bool, completion: (() -> Void)? = nil) {
+    @objc public func dismissMessageCenter(animated: Bool, completion: (() -> Void)? = nil) {
         completion?()
     }
 
@@ -411,9 +411,9 @@ public class ApptentiveConfiguration: NSObject {
     @available(*, deprecated, message: "This feature is currently not implemented.")
     @objc public var surveyTermsAndConditions: TermsAndConditions? = nil
 
-    required init(key: String, signature: String) {
-        self.apptentiveKey = key
-        self.apptentiveSignature = signature
+    public required init?(apptentiveKey: String, apptentiveSignature: String) {
+        self.apptentiveKey = apptentiveKey
+        self.apptentiveSignature = apptentiveSignature
     }
 
     /// Returns an instance of the `ApptentiveConfiguration` class initialized with the specified parameters.
@@ -423,7 +423,7 @@ public class ApptentiveConfiguration: NSObject {
     /// - Returns: A configuration object initalized with the key and signature.
     // TODO: Figure out if this can be a convenience initializer instead.
     @objc public static func configuration(apptentiveKey key: String, apptentiveSignature signature: String) -> ApptentiveConfiguration {
-        Self.init(key: key, signature: signature)
+        Self.init(apptentiveKey: key, apptentiveSignature: signature)!
     }
 }
 
@@ -499,9 +499,9 @@ public class TermsAndConditions: NSObject {
         self.linkURL = linkURL
     }
 
-    let bodyText: String?
-    let linkText: String?
-    let linkURL: URL?
+    public let bodyText: String?
+    public let linkText: String?
+    public let linkURL: URL?
 }
 
 @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
