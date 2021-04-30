@@ -59,7 +59,7 @@ class FileRepository<T> {
     /// Loads the raw encoded data from the filesystem.
     /// - Throws: An error if the data could not be loaded.
     /// - Returns: The encoded data read from the filesystem.
-    fileprivate func loadData() throws -> Data {
+    func loadData() throws -> Data {
         return try Data(contentsOf: self.url)
     }
 

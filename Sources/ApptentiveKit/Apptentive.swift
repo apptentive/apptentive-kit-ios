@@ -240,7 +240,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
             do {
                 let containerURL = try environment.applicationSupportURL().appendingPathComponent(self.containerDirectory)
 
-                try self.backend.load(containerURL: containerURL, fileManager: environment.fileManager)
+                try self.backend.load(containerURL: containerURL, environment: environment)
 
                 self.person.merge(with: self.backend.conversation.person)
                 self.device.merge(with: self.backend.conversation.device)

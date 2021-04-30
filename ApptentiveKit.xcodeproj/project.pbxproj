@@ -12,8 +12,14 @@
 		01086517253E42FC00101CFB /* PayloadSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01086516253E42FC00101CFB /* PayloadSender.swift */; };
 		010ADF442458F8C3005D63FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 010ADF432458F8C3005D63FE /* Main.storyboard */; };
 		011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011FF85F252D1AF700073EBC /* InteractionDelegate.swift */; };
+		012A1B60263A219500EBC073 /* LegacyConversationRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012A1B5F263A219500EBC073 /* LegacyConversationRepositoryTests.swift */; };
+		012A1B62263A21C400EBC073 /* Legacy Data in Resources */ = {isa = PBXBuildFile; fileRef = 012A1B61263A21C400EBC073 /* Legacy Data */; };
+		012A1B68263A27D100EBC073 /* LegacyEngagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012A1B66263A27CD00EBC073 /* LegacyEngagement.swift */; };
+		012A1B69263A27D400EBC073 /* LegacyConversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012A1B63263A250300EBC073 /* LegacyConversation.swift */; };
+		012A1B6B263A282B00EBC073 /* LegacyCount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012A1B6A263A282B00EBC073 /* LegacyCount.swift */; };
 		0130E80C25D326CF004B2895 /* HTTPRequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0130E80B25D326CF004B2895 /* HTTPRequestRetrierTests.swift */; };
 		0130E81225D327B9004B2895 /* SpyRequestor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0130E81125D327B9004B2895 /* SpyRequestor.swift */; };
+		01382FAE2638EAEB000F20BE /* LegacyConversationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01382FAD2638EAEB000F20BE /* LegacyConversationRepository.swift */; };
 		013877C82603002100F3462A /* Apptentive+TemporaryAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */; };
 		013D8E0B24EEFA13005EC4D1 /* SurveyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */; };
 		013D8E0C24EEFA13005EC4D1 /* InteractionPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */; };
@@ -96,6 +102,8 @@
 		01A0917123FCB4A700AF187E /* ApptentiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A0916F23FCB4A700AF187E /* ApptentiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01A0918123FCB4CC00AF187E /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A0918723FCB5D600AF187E /* Apptentive.swift */; };
+		01A1BC87263B7676003DC51B /* LegacyConversationMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A1BC86263B7676003DC51B /* LegacyConversationMetadata.swift */; };
+		01A1BC8A263B78D7003DC51B /* LegacyConversationMetadataItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A1BC89263B78D7003DC51B /* LegacyConversationMetadataItem.swift */; };
 		01B074BA26094885004874AC /* ObjectiveCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B074B926094885004874AC /* ObjectiveCTests.m */; };
 		01B91F9525CB830C00B8AFEE /* PersonContents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91F9425CB830C00B8AFEE /* PersonContents.swift */; };
 		01B91F9B25CB834500B8AFEE /* DeviceContents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91F9A25CB834500B8AFEE /* DeviceContents.swift */; };
@@ -186,8 +194,14 @@
 		01086516253E42FC00101CFB /* PayloadSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayloadSender.swift; sourceTree = "<group>"; };
 		010ADF432458F8C3005D63FE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		011FF85F252D1AF700073EBC /* InteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionDelegate.swift; sourceTree = "<group>"; };
+		012A1B5F263A219500EBC073 /* LegacyConversationRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConversationRepositoryTests.swift; sourceTree = "<group>"; };
+		012A1B61263A21C400EBC073 /* Legacy Data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Legacy Data"; sourceTree = "<group>"; };
+		012A1B63263A250300EBC073 /* LegacyConversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConversation.swift; sourceTree = "<group>"; };
+		012A1B66263A27CD00EBC073 /* LegacyEngagement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyEngagement.swift; sourceTree = "<group>"; };
+		012A1B6A263A282B00EBC073 /* LegacyCount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyCount.swift; sourceTree = "<group>"; };
 		0130E80B25D326CF004B2895 /* HTTPRequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestRetrierTests.swift; sourceTree = "<group>"; };
 		0130E81125D327B9004B2895 /* SpyRequestor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpyRequestor.swift; sourceTree = "<group>"; };
+		01382FAD2638EAEB000F20BE /* LegacyConversationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConversationRepository.swift; sourceTree = "<group>"; };
 		013877BD2602FFBF00F3462A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Apptentive+TemporaryAPI.swift"; sourceTree = "<group>"; };
 		013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyViewModelTests.swift; sourceTree = "<group>"; };
@@ -275,6 +289,8 @@
 		01A0917C23FCB4CC00AF187E /* ApptentiveFeatureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveFeatureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A0918023FCB4CC00AF187E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01A0918723FCB5D600AF187E /* Apptentive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Apptentive.swift; sourceTree = "<group>"; };
+		01A1BC86263B7676003DC51B /* LegacyConversationMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConversationMetadata.swift; sourceTree = "<group>"; };
+		01A1BC89263B78D7003DC51B /* LegacyConversationMetadataItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConversationMetadataItem.swift; sourceTree = "<group>"; };
 		01AFFAA6245A1786000353C0 /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fastlane; sourceTree = "<group>"; };
 		01B074B926094885004874AC /* ObjectiveCTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCTests.m; sourceTree = "<group>"; };
 		01B91F9425CB830C00B8AFEE /* PersonContents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonContents.swift; sourceTree = "<group>"; };
@@ -378,6 +394,28 @@
 				015D6BC12509A34D00372759 /* FileRepository.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		012A1B5E263A217200EBC073 /* Migration */ = {
+			isa = PBXGroup;
+			children = (
+				012A1B61263A21C400EBC073 /* Legacy Data */,
+				012A1B5F263A219500EBC073 /* LegacyConversationRepositoryTests.swift */,
+			);
+			path = Migration;
+			sourceTree = "<group>";
+		};
+		01382FAC2638EAD4000F20BE /* Migration */ = {
+			isa = PBXGroup;
+			children = (
+				01382FAD2638EAEB000F20BE /* LegacyConversationRepository.swift */,
+				012A1B63263A250300EBC073 /* LegacyConversation.swift */,
+				012A1B66263A27CD00EBC073 /* LegacyEngagement.swift */,
+				012A1B6A263A282B00EBC073 /* LegacyCount.swift */,
+				01A1BC86263B7676003DC51B /* LegacyConversationMetadata.swift */,
+				01A1BC89263B78D7003DC51B /* LegacyConversationMetadataItem.swift */,
+			);
+			path = Migration;
 			sourceTree = "<group>";
 		};
 		013D8DDF24EEFA13005EC4D1 /* Interactions */ = {
@@ -608,6 +646,7 @@
 		01A0916E23FCB4A700AF187E /* ApptentiveKit */ = {
 			isa = PBXGroup;
 			children = (
+				01382FAC2638EAD4000F20BE /* Migration */,
 				016E6D8425F83DB900151E29 /* Resources */,
 				013D8EAD24F09B63005EC4D1 /* Third Party */,
 				018A908D247EFFC7004577EB /* Interactions */,
@@ -643,6 +682,7 @@
 		01D739242405CB630000EE52 /* Unit Tests */ = {
 			isa = PBXGroup;
 			children = (
+				012A1B5E263A217200EBC073 /* Migration */,
 				015D6BC3250AC0AC00372759 /* Conversation */,
 				013D8E9324F03C04005EC4D1 /* Network */,
 				013D8DDF24EEFA13005EC4D1 /* Interactions */,
@@ -943,6 +983,7 @@
 			files = (
 				01974A9925770F0800C7D693 /* Test Criteria in Resources */,
 				01974A9A25770F0800C7D693 /* Test Manifests in Resources */,
+				012A1B62263A21C400EBC073 /* Legacy Data in Resources */,
 				019E78FE2575AC9B006BD412 /* Test Interactions in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -991,14 +1032,17 @@
 				015D6BC22509A34D00372759 /* FileRepository.swift in Sources */,
 				015F2AE124C9FEBF004B53E2 /* SurveyMultiLineCell.swift in Sources */,
 				015A0D3625509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift in Sources */,
+				012A1B6B263A282B00EBC073 /* LegacyCount.swift in Sources */,
 				0173EA4325B2035F009740F5 /* ApptentiveLogger.swift in Sources */,
 				01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */,
 				01ED6271257B0AA90023208C /* NavigateToLinkController.swift in Sources */,
 				015F2ADF24C9F85D004B53E2 /* SurveySingleLineCell.swift in Sources */,
 				017230ED253673960095AEAA /* Criteria+Decodable.swift in Sources */,
 				013D8E8B24F038D3005EC4D1 /* ApptentiveV9API.swift in Sources */,
+				01A1BC8A263B78D7003DC51B /* LegacyConversationMetadataItem.swift in Sources */,
 				017230EF253673960095AEAA /* Conversation+TargetingState.swift in Sources */,
 				017615AA25D2234F00BB85C6 /* HTTPRetryPolicy.swift in Sources */,
+				01382FAE2638EAEB000F20BE /* LegacyConversationRepository.swift in Sources */,
 				01E79821251C2E9D00D24A05 /* ConversationRequest.swift in Sources */,
 				013D8EA324F09B01005EC4D1 /* CustomData.swift in Sources */,
 				01E7984B251C312200D24A05 /* SurveyResponseContents.swift in Sources */,
@@ -1007,6 +1051,7 @@
 				017230EB253673960095AEAA /* Criteria.swift in Sources */,
 				013877C82603002100F3462A /* Apptentive+TemporaryAPI.swift in Sources */,
 				017230EC253673960095AEAA /* Field.swift in Sources */,
+				012A1B69263A27D400EBC073 /* LegacyConversation.swift in Sources */,
 				015AF83724E739C0000DF8B0 /* SurveyViewModel+Question.swift in Sources */,
 				01C54076258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift in Sources */,
 				017FC92C25310E2400C7A47F /* Event.swift in Sources */,
@@ -1023,8 +1068,10 @@
 				013D8EA624F09B01005EC4D1 /* Device.swift in Sources */,
 				0176159B25D1F9F900BB85C6 /* HTTPRequestRetrier.swift in Sources */,
 				01974A6F2577043400C7D693 /* TextModalViewModel.swift in Sources */,
+				012A1B68263A27D100EBC073 /* LegacyEngagement.swift in Sources */,
 				01C0218A25DC891A00547059 /* Criteria+Logging.swift in Sources */,
 				015F2ADD24C9EE3A004B53E2 /* SurveyResponse.swift in Sources */,
+				01A1BC87263B7676003DC51B /* LegacyConversationMetadata.swift in Sources */,
 				01822BBA2565727D006ADB3B /* SurveyQuestionHeaderView.swift in Sources */,
 				015AF83C24E7437A000DF8B0 /* SurveyViewModel+FreeformQuestion.swift in Sources */,
 				013D8E8E24F038D3005EC4D1 /* HTTPEndpoint.swift in Sources */,
@@ -1087,6 +1134,7 @@
 				015D6BCB250AC0AC00372759 /* PersonTests.swift in Sources */,
 				010864FF253E22BF00101CFB /* EventPayloadTests.swift in Sources */,
 				017231122536769F0095AEAA /* FieldTests.swift in Sources */,
+				012A1B60263A219500EBC073 /* LegacyConversationRepositoryTests.swift in Sources */,
 				01ED6280257B0F200023208C /* NavigateToLinkControllerTests.swift in Sources */,
 				015D6BCA250AC0AC00372759 /* DeviceTests.swift in Sources */,
 			);

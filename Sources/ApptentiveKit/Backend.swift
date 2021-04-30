@@ -115,11 +115,13 @@ class Backend {
     ///   - containerURL: A file URL corresponding to the container directory for Apptentive files.
     ///   - fileManager: The `FileManager` instance to use when accessing the filesystem.
     /// - Throws: An error if the conversation file exists but can't be read, or if the saved conversation can't be merged with the in-memory conversation.
-    func load(containerURL: URL, fileManager: FileManager) throws {
-        try self.createContainerDirectoryIfNeeded(containerURL: containerURL, fileManager: fileManager)
+    func load(containerURL: URL, environment: GlobalEnvironment) throws {
+        try self.createContainerDirectoryIfNeeded(containerURL: containerURL, fileManager: environment.fileManager)
 
-        let conversationRepository = PropertyListRepository<Conversation>(containerURL: containerURL, filename: "Conversation", fileManager: fileManager)
+        let conversationRepository = PropertyListRepository<Conversation>(containerURL: containerURL, filename: "Conversation", fileManager: environment.fileManager)
         self.conversationRepository = conversationRepository
+
+        let legacyConversationRepository = LegacyConversationRepository(containerURL: containerURL, filename: "conversation-v1.meta", environment: environment)
 
         if conversationRepository.fileExists {
             ApptentiveLogger.default.info("Loading previously-saved conversation.")
@@ -127,9 +129,15 @@ class Backend {
             let savedConversation = try conversationRepository.load()
 
             self.conversation = try savedConversation.merged(with: self.conversation)
+        } else if legacyConversationRepository.fileExists {
+            ApptentiveLogger.default.info("Loading legacy conversation.")
+
+            let legacyConversation = try legacyConversationRepository.load()
+
+            self.conversation = try legacyConversation.merged(with: self.conversation)
         }
 
-        self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: fileManager)
+        self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: environment.fileManager)
 
         self.startPersistenceTimer()
     }
@@ -244,7 +252,7 @@ class Backend {
     /// - Parameter oldValue: The previous value of the conversation.
     private func processChanges(from oldValue: Conversation) {
         // Determine whether we have conversation credentials.
-        if let _ = conversation.conversationCredentials {
+        if let _ = conversation.conversationCredentials, let _ = conversation.appCredentials {
 
             // If we have credentials but we have not called the completion block, do so.
             if let connectCompletion = self.connectCompletion {

@@ -104,6 +104,12 @@ struct EngagementMetrics: Equatable, Codable {
 
 /// Records the number of invocations for the current version, current build, and all time, along with the date of the last invocation.
 struct EngagementMetric: Equatable, Codable {
+    init(totalCount: Int = 0, versionCount: Int = 0, buildCount: Int = 0, lastInvoked: Date? = nil) {
+        self.totalCount = totalCount
+        self.versionCount = versionCount
+        self.buildCount = buildCount
+        self.lastInvoked = lastInvoked
+    }
 
     /// The total number of invocations.
     private(set) var totalCount: Int = 0
