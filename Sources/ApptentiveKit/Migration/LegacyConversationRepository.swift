@@ -23,9 +23,10 @@ class LegacyConversationRepository: FileRepository<Conversation> {
 
         // Look for an anonymous conversation's metadata item.
         guard let activeConversationMetadataItem = legacyConversationMetadata?.items.first(where: { $0.state == .anonymous }),
-              let token = activeConversationMetadataItem.jwt,
-              let id = activeConversationMetadataItem.identifier,
-              let directory = activeConversationMetadataItem.directoryName else {
+            let token = activeConversationMetadataItem.jwt,
+            let id = activeConversationMetadataItem.identifier,
+            let directory = activeConversationMetadataItem.directoryName
+        else {
             throw ApptentiveMigrationError.noActiveAnonymousConversation
         }
 

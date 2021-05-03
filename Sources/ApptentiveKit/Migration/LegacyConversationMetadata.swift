@@ -22,4 +22,3 @@ class LegacyConversationMetadata: NSObject, NSSecureCoding {
         self.items = coder.decodeObject(of: [NSMutableArray.self, LegacyConversationMetadataItem.self], forKey: "items") as? [LegacyConversationMetadataItem] ?? []
     }
 }
-

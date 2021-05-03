@@ -50,7 +50,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         self.imageView?.isHighlighted = selected
-        
+
         if !self.isSelected {
             self.imageView?.tintColor = .apptentiveImageNotSelected
         } else {
@@ -63,7 +63,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
         self.imageView?.isHighlighted = highlighted || self.isSelected
     }
- 
+
     private func configureTextField() {
         self.textField.borderStyle = .roundedRect
 

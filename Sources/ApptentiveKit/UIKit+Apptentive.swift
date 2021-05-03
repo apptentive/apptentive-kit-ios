@@ -94,7 +94,7 @@ extension UIColor {
             return .black
         }
     }()
-    
+
     /// The color to use for choice labels.
     public static var apptentiveChoiceLabel: UIColor = {
         return .darkGray
@@ -211,17 +211,31 @@ extension UIColor {
             return .white
         }
     }()
-    
+
     /// The color to use for images in a selected state for surveys.
     public static var apptentiveImageSelected: UIColor = {
         let bundle = Bundle.module
-        guard let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil) else {return .systemBlue}
+        guard let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil) else { return .systemBlue }
         return buttonTintColor
     }()
-    
+
     /// The color to use for images in a non-selected state for surveys.
     public static var apptentiveImageNotSelected: UIColor = {
         return .gray
+    }()
+
+    /// The color to use for the footer label text for surveys.
+    public static var apptentiveSubmitLabel: UIColor = {
+        if #available(iOS 13.0, *) {
+            return .label
+        } else {
+            return .black
+        }
+    }()
+
+    /// The color to use for the terms of service label.
+    public static var apptentiveTermsOfServiceLabel: UIColor = {
+        return .white
     }()
 
 }
@@ -231,7 +245,12 @@ extension UIFont {
     public static var apptentiveQuestionLabel: UIFont = {
         return .preferredFont(forTextStyle: .headline)
     }()
-    
+
+    /// The font used for the terms of service.
+    public static var apptentiveTermsOfServiceLabel: UIFont = {
+        return .preferredFont(forTextStyle: .footnote)
+    }()
+
     /// the font used for all survey answer choice labels.
     public static var apptentiveChoiceLabel: UIFont = {
         return .preferredFont(forTextStyle: .body)

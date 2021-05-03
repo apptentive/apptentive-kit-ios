@@ -19,9 +19,9 @@ extension Bundle {
         // If neither is found, fall back to non-nested resources in the Apptentive framework
         // (this will likely fail, and we'll catch it in UIKit+Apptentive with an assertionFailure).
         static let module: Bundle =
-            Bundle.main.url(forResource: "ApptentiveKit", withExtension: "bundle").flatMap { Bundle(url: $0) } ?? // resource bundle nested in main bundle.
-            Bundle(for: Apptentive.self).url(forResource: "ApptentiveKit", withExtension: "bundle").flatMap { Bundle(url: $0) } ?? // resource bundle nested in Apptentive framework.
-            Bundle(for: Apptentive.self) // no resource bundle.
+            Bundle.main.url(forResource: "ApptentiveKit", withExtension: "bundle").flatMap { Bundle(url: $0) }  // resource bundle nested in main bundle.
+            ?? Bundle(for: Apptentive.self).url(forResource: "ApptentiveKit", withExtension: "bundle").flatMap { Bundle(url: $0) }  // resource bundle nested in Apptentive framework.
+            ?? Bundle(for: Apptentive.self)  // no resource bundle.
     #else
         // The SDK was integrated by including the XCFramework (using Carthage or manual download).
         // Look for resources in the Apptentive framework.

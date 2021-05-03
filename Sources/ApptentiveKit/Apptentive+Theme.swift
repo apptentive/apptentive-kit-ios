@@ -17,7 +17,8 @@ extension Apptentive {
         guard let barTintColor = UIColor(named: "barTint", in: bundle, compatibleWith: nil),
             let barForegroundColor = UIColor(named: "barForeground", in: bundle, compatibleWith: nil),
             let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil),
-            let apptentiveRangeControlBorder = UIColor(named: "apptentiveRangeControlBorder", in: bundle, compatibleWith: nil)
+            let apptentiveRangeControlBorder = UIColor(named: "apptentiveRangeControlBorder", in: bundle, compatibleWith: nil),
+            let termsOfServiceColor = UIColor(named: "termsOfService", in: bundle, compatibleWith: nil)
         else {
             assertionFailure("Unable to locate color asset(s).")
             return
@@ -71,6 +72,7 @@ extension Apptentive {
             UIColor.apptentiveRangeControlBorder = .clear
         }
 
+        UIColor.apptentiveTermsOfServiceLabel = termsOfServiceColor
         UIBarButtonItem.apptentiveClose = {
             let systemClose: UIBarButtonItem = {
                 if #available(iOS 13.0, *) {

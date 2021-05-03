@@ -32,4 +32,3 @@ class LegacyConversation: NSObject, NSSecureCoding {
         static let engagement = "engagement"
     }
 }
-

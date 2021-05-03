@@ -61,9 +61,9 @@ class ApptentiveFeatureTests: XCTestCase {
             case .failure(_):
                 asserts(false)
             }
-            
+
             // asserts(success)
-           
+
             expectation.fulfill()
         }
 

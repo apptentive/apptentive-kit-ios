@@ -42,7 +42,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             case .thankYou:
                 self.submitView.submitLabel.text = self.viewModel.thankYouMessage
-                self.submitView.submitLabel.textColor = .apptentiveQuestionLabel
+                self.submitView.submitLabel.textColor = .apptentiveSubmitLabel
                 viewToShow = self.submitView.submitLabel
 
             case .validationError:
@@ -78,7 +78,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         super.viewDidLoad()
         view.backgroundColor = .apptentiveGroupPrimary
         self.navigationController?.setToolbarHidden(false, animated: true)
-
+        self.configureTermsOfService()
         self.navigationController?.presentationController?.delegate = self
 
         self.navigationItem.title = self.viewModel.name
@@ -481,6 +481,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.cancel()
         }
     }
+    @objc func termsOfServiceTapped() {
+        let termsOfService = Apptentive.shared.termsOfService
+        if let url = termsOfService?.linkURL {
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
+    }
 
     @objc func submitSurvey() {
         self.viewModel.submit()
@@ -586,6 +594,19 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     private func indexPath(forTag tag: Int) -> IndexPath {
         return IndexPath(row: tag & 0xFFFF, section: tag >> 16)
+    }
+
+    private func configureTermsOfService() {
+
+        if let terms = Apptentive.shared.termsOfService {
+
+            let flexible = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+            let barButtonItem = UIBarButtonItem(title: terms.bodyText, style: .plain, target: self, action: #selector(termsOfServiceTapped))
+
+            barButtonItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.apptentiveTermsOfServiceLabel, NSAttributedString.Key.foregroundColor: UIColor.apptentiveTermsOfServiceLabel, NSAttributedString.Key.underlineStyle: 1], for: .normal)
+            barButtonItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.apptentiveTermsOfServiceLabel, NSAttributedString.Key.foregroundColor: UIColor.apptentiveTermsOfServiceLabel, NSAttributedString.Key.underlineStyle: 1], for: .selected)
+            self.setToolbarItems([flexible, barButtonItem, flexible], animated: false)
+        }
     }
 
     private func tag(for indexPath: IndexPath) -> Int {

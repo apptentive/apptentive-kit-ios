@@ -6,6 +6,7 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import ApptentiveKit
 import XCTest
 
 class SurveyUITests: XCTestCase {
@@ -81,22 +82,22 @@ class SurveyUITests: XCTestCase {
         // Due to a quirk in UISegmentedControl, we have to muck with the accessibility features
         // to a point where the UI tests don't work anymore.
         // At some point we'll be using a custom control and can re-enable these.
-//        XCTAssertTrue(XCUIApplication().segmentedControls.buttons["10"].firstMatch.exists, "There should be a 10 button")
-//
-//        let npsSurvey10 = XCUIApplication().segmentedControls.buttons["10"].firstMatch
-//        XCTAssertFalse(npsSurvey10.isSelected, "No segment selected at first.")
-//
-//        npsSurvey10.tap()
-//        XCTAssertTrue(npsSurvey10.isSelected, "NPS 10 should be selected")
-//
-//        let missingMinMaxSurvey10 = XCUIApplication().segmentedControls.buttons.matching(identifier: "10").element(boundBy: 1)
-//        XCTAssertFalse(missingMinMaxSurvey10.isSelected, "No segment selected at first.")
-//
-//        missingMinMaxSurvey10.tap()
-//        XCTAssertTrue(missingMinMaxSurvey10.isSelected,  "10 should be selected")
-//
-//        // Make sure this is still selected
-//        XCTAssertTrue(npsSurvey10.isSelected, "10 should still be selected")
+        //        XCTAssertTrue(XCUIApplication().segmentedControls.buttons["10"].firstMatch.exists, "There should be a 10 button")
+        //
+        //        let npsSurvey10 = XCUIApplication().segmentedControls.buttons["10"].firstMatch
+        //        XCTAssertFalse(npsSurvey10.isSelected, "No segment selected at first.")
+        //
+        //        npsSurvey10.tap()
+        //        XCTAssertTrue(npsSurvey10.isSelected, "NPS 10 should be selected")
+        //
+        //        let missingMinMaxSurvey10 = XCUIApplication().segmentedControls.buttons.matching(identifier: "10").element(boundBy: 1)
+        //        XCTAssertFalse(missingMinMaxSurvey10.isSelected, "No segment selected at first.")
+        //
+        //        missingMinMaxSurvey10.tap()
+        //        XCTAssertTrue(missingMinMaxSurvey10.isSelected,  "10 should be selected")
+        //
+        //        // Make sure this is still selected
+        //        XCTAssertTrue(npsSurvey10.isSelected, "10 should still be selected")
     }
 
     func testCheckboxQuestion() {
@@ -132,5 +133,20 @@ class SurveyUITests: XCTestCase {
         tablesQuery.buttons["Boom"].tap()
 
         XCTAssertTrue(XCUIApplication().navigationBars["Every Question Type"].exists, "Survey doesn't dismiss if it's not valid")
+    }
+
+    func testTermsOfService() {
+        XCUIApplication().activate()
+        let tablesQuery = XCUIApplication().tables
+        tablesQuery.staticTexts["Survey"].tap()
+
+        let toolbar = XCUIApplication().toolbars
+
+        let termsOfServiceBarButtonItem = toolbar.buttons["Terms of Service"]
+        XCTAssertTrue(termsOfServiceBarButtonItem.exists, "The ToS button is not showing.")
+
+        termsOfServiceBarButtonItem.tap()
+
+        XCTAssertFalse(termsOfServiceBarButtonItem.isHittable, "The ToS button is still hittable which means the webview is not showing when the ToS button is tapped.")
     }
 }
