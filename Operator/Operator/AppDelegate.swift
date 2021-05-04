@@ -46,9 +46,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             completion(.failure(AppError.credentialsError))
             return
         }
-
         self.apptentive = Apptentive(apiBaseURL: url)
-        apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature), completion: completion)
+        apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature))
     }
 }
 extension UIViewController {

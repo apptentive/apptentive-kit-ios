@@ -189,8 +189,10 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
 
         // Typically we will be initialized too late to receive the ApplicationWillEnterForeground
         // notification, so we have to manually record a launch event here.
+        // We are engaging the launch event inside the invalidateEngagementManifestForDebug method, and then refreshing the engagement manifest.
         if self.environment.isInForeground {
             self.engage(event: .launch())
+            self.backend.invalidateEngagementManifestForDebug(environment: self.environment)
         }
 
         self.backend.frontend = self
@@ -257,7 +259,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         self.engage(event: .launch())
 
         self.backendQueue.async {
-            self.backend.willEnterForeground()
+            self.backend.willEnterForeground(environment: environment)
         }
     }
 
@@ -265,7 +267,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         self.engage(event: .exit())
 
         self.backendQueue.async {
-            self.backend.didEnterBackground()
+            self.backend.didEnterBackground(environment: environment)
         }
     }
 

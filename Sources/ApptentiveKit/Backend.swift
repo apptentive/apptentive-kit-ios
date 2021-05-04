@@ -142,18 +142,25 @@ class Backend {
         self.startPersistenceTimer()
     }
 
-    func willEnterForeground() {
+    func willEnterForeground(environment: GlobalEnvironment) {
+        self.invalidateEngagementManifestForDebug(environment: environment)
         self.payloadSender.resume()
-
         self.resumePersistenceTimer()
     }
 
-    func didEnterBackground() {
+    func didEnterBackground(environment: GlobalEnvironment) {
         self.payloadSender.suspend()
 
         self.suspendPersistenceTimer()
 
         self.saveToPersistentStorageIfNeeded()
+    }
+    
+    func invalidateEngagementManifestForDebug(environment: GlobalEnvironment)  {
+        if environment.isDebugBuild == true {
+            self.targeter.engagementManifest.expiry = .distantPast
+            self.getInteractionsIfNeeded()
+        }
     }
 
     /// Engages an event.

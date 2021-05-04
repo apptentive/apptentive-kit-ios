@@ -80,6 +80,7 @@ protocol EnvironmentDelegate: AnyObject {
     /// Notifies the receiver that the application will terminate.
     /// - Parameter environment: The environment calling the method.
     func applicationWillTerminate(_ environment: GlobalEnvironment)
+
 }
 
 /// Provides access to platform, device, and operating system information.
@@ -220,7 +221,6 @@ class Environment: GlobalEnvironment {
 
         #if canImport(UIKit)
             NotificationCenter.default.addObserver(self, selector: #selector(protectedDataDidBecomeAvailable(notification:)), name: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil)
-
             NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(notification:)), name: UIApplication.willEnterForegroundNotification, object: nil)
 
             NotificationCenter.default.addObserver(self, selector: #selector(applicationDidEnterBackground(notification:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -291,6 +291,7 @@ class Environment: GlobalEnvironment {
     }
 
     #if canImport(UIKit)
+
         @objc func protectedDataDidBecomeAvailable(notification: Notification) {
             self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
             delegate?.protectedDataDidBecomeAvailable(self)
