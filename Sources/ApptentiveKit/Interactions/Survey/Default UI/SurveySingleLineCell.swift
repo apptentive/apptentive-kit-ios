@@ -30,7 +30,7 @@ class SurveySingleLineCell: UITableViewCell {
             if self.isMarkedAsInvalid {
                 self.textField.layer.borderColor = UIColor.apptentiveError.cgColor
             } else {
-                self.textField.layer.borderColor = UIColor.clear.cgColor
+                self.textField.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
             }
         }
     }

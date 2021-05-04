@@ -82,8 +82,6 @@ extension UIImage {
     }
 }
 
-//TODO: PUT THE
-
 extension UIColor {
 
     /// The color to use for labels in a non-error state.
@@ -94,7 +92,12 @@ extension UIColor {
             return .black
         }
     }()
-
+    
+    /// The color to use for instruction labels.
+    public static var apptentiveInstructionsLabel: UIColor = {
+        return .lightGray
+    }()
+    
     /// The color to use for choice labels.
     public static var apptentiveChoiceLabel: UIColor = {
         return .darkGray
@@ -126,6 +129,11 @@ extension UIColor {
         } else {
             return .black
         }
+    }()
+    
+    /// The color to use for the borders of text fields and text views.
+    public static var apptentiveTextInputBorder: UIColor = {
+        return lightGray
     }()
 
     /// The color to use for text fields and text views.
@@ -211,17 +219,26 @@ extension UIColor {
             return .white
         }
     }()
-
+    
+    
+ 
     /// The color to use for images in a selected state for surveys.
     public static var apptentiveImageSelected: UIColor = {
-        let bundle = Bundle.module
-        guard let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil) else { return .systemBlue }
-        return buttonTintColor
+        return .systemBlue
     }()
 
     /// The color to use for images in a non-selected state for surveys.
     public static var apptentiveImageNotSelected: UIColor = {
-        return .gray
+        return .lightGray
+    }()
+    
+    /// The background color to use for the submit button on surveys.
+    public static var apptentiveSubmitButton: UIColor = {
+        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
+            return tintColor
+        } else {
+            return .systemBlue
+        }
     }()
 
     /// The color to use for the footer label text for surveys.
@@ -263,7 +280,7 @@ extension UIFont {
 
     /// The font used for the instructions label for surveys.
     public static var apptentiveInstructionsLabel: UIFont = {
-        return .preferredFont(forTextStyle: .footnote)
+        return .preferredFont(forTextStyle: .caption1)
     }()
     /// The font used for the survey introduction label.
     public static var apptentiveSurveyIntroductionLabel: UIFont = {

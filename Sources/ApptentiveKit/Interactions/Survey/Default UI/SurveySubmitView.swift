@@ -21,8 +21,7 @@ class SurveySubmitView: UIView {
         self.addSubview(self.submitButton)
         self.addSubview(self.submitLabel)
 
-        //
-        self.submitButton.backgroundColor = self.tintColor
+        self.submitButton.backgroundColor = UIColor.apptentiveSubmitButton
         self.submitButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
         self.submitButton.titleLabel?.font = .apptentiveSubmitLabel
         self.submitButton.titleLabel?.adjustsFontForContentSizeCategory = true
@@ -61,7 +60,7 @@ class SurveySubmitView: UIView {
 
     override func tintColorDidChange() {
         super.tintColorDidChange()
-        self.submitButton.backgroundColor = self.tintColor
+        self.submitButton.backgroundColor = UIColor.apptentiveSubmitButton
     }
 
     required init?(coder: NSCoder) {

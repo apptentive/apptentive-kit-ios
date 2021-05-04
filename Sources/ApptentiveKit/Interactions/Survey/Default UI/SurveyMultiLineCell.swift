@@ -24,7 +24,7 @@ class SurveyMultiLineCell: UITableViewCell {
                     self.textView.textContainerInset = UIEdgeInsets(top: 1.0, left: -5.0, bottom: 1.0, right: -5.0)
                 }
             default:
-                self.textView.layer.borderColor = self.textFieldBorderColor.cgColor
+                self.textView.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
                 self.textView.layer.borderWidth = 1.0 / self.traitCollection.displayScale
                 self.textView.layer.cornerRadius = 6.0
 
@@ -44,13 +44,12 @@ class SurveyMultiLineCell: UITableViewCell {
             if self.isMarkedAsInvalid {
                 self.textView.layer.borderColor = UIColor.apptentiveError.cgColor
             } else {
-                self.textView.layer.borderColor = self.textFieldBorderColor.cgColor
+                self.textView.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
             }
         }
     }
 
     // Colors below determined experimentally to match UITextField
-    private let textFieldBorderColor = UIColor(red: 180.0 / 255.0, green: 180.0 / 255.0, blue: 180.0 / 255.0, alpha: 0.75)
     private let placholderTextColor: UIColor = {
         if #available(iOS 13.0, *) {
             return .placeholderText

@@ -18,6 +18,14 @@ extension Apptentive {
             let barForegroundColor = UIColor(named: "barForeground", in: bundle, compatibleWith: nil),
             let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil),
             let apptentiveRangeControlBorder = UIColor(named: "apptentiveRangeControlBorder", in: bundle, compatibleWith: nil),
+            let imageNotSelectedColor = UIColor(named: "imageNotSelected", in: bundle, compatibleWith: nil),
+            let textInputBorderColor = UIColor(named: "textInputBorder", in: bundle, compatibleWith: nil),
+            let textInputColor = UIColor(named: "textInput", in: bundle, compatibleWith: nil),
+            let instructionsLabelColor = UIColor(named: "instructionsLabel", in: bundle, compatibleWith: nil),
+            let choiceLabelColor = UIColor(named: "choiceLabel", in: bundle, compatibleWith: nil),
+            let apptentiveGroupPrimaryColor = UIColor(named: "apptentiveGroupPrimary", in: bundle, compatibleWith: nil),
+            let apptentiveGroupSecondaryColor = UIColor(named: "apptentiveGroupSecondary", in: bundle, compatibleWith: nil),
+            let textInputBackgroundColor = UIColor(named: "textInputBackground", in: bundle, compatibleWith: nil),
             let termsOfServiceColor = UIColor(named: "termsOfService", in: bundle, compatibleWith: nil)
         else {
             assertionFailure("Unable to locate color asset(s).")
@@ -65,6 +73,17 @@ extension Apptentive {
 
         // Apptentive UIKit extensions overrides
         UITableView.Style.apptentive = .grouped
+        
+        UIColor.apptentiveInstructionsLabel = instructionsLabelColor
+        UIColor.apptentiveImageNotSelected = imageNotSelectedColor
+        UIColor.apptentiveTextInputBorder = textInputBorderColor
+        UIColor.apptentiveTextInput = textInputColor
+        UIColor.apptentiveChoiceLabel = choiceLabelColor
+        UIColor.apptentiveGroupPrimary = apptentiveGroupPrimaryColor
+        UIColor.apptentiveGroupSecondary = apptentiveGroupSecondaryColor
+        UIColor.apptentiveTextInputBackground = textInputBackgroundColor
+        UIColor.apptentiveImageSelected = buttonTintColor
+        UIColor.apptentiveSubmitButton = buttonTintColor
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
