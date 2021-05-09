@@ -135,6 +135,25 @@ class SurveyUITests: XCTestCase {
         XCTAssertTrue(XCUIApplication().navigationBars["Every Question Type"].exists, "Survey doesn't dismiss if it's not valid")
     }
 
+    func testOtherQuestion() {
+        XCUIApplication().activate()
+        let tablesQuery = XCUIApplication().tables
+
+        tablesQuery.staticTexts["Survey"].tap()
+        let otherCell = tablesQuery.cells.containing(.staticText, identifier: "Other").firstMatch
+        XCTAssertFalse(otherCell.isSelected, "Other option not setelcted at first.")
+
+        otherCell.tap()
+        XCTAssertTrue(otherCell.isSelected, "Other cell is selected after tap.")
+
+        let otherTextField = XCUIApplication().textFields["OtherCell"]
+        XCTAssertTrue(otherTextField.exists)
+
+        let threeA = tablesQuery.cells.containing(.staticText, identifier: "1A").firstMatch
+        threeA.tap()
+        XCTAssertFalse(otherTextField.isHittable)
+    }
+
     func testTermsOfService() {
         XCUIApplication().activate()
         let tablesQuery = XCUIApplication().tables

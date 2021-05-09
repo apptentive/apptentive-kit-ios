@@ -164,7 +164,7 @@ extension UIColor {
                 switch traitCollection.userInterfaceStyle {
                 case .dark:
 
-                    return .white
+                    return .secondaryLabel
                 default:
 
                     return .black

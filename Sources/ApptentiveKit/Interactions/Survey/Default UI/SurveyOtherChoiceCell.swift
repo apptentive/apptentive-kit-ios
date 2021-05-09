@@ -10,6 +10,8 @@ import UIKit
 
 class SurveyOtherChoiceCell: UITableViewCell {
     let textField: UITextField
+    var otherTextLabel: UILabel
+    var contentViewBottomConstraint, splitterConstraint: NSLayoutConstraint
 
     var isMarkedAsInvalid: Bool {
         didSet {
@@ -23,19 +25,24 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.textField = UITextField(frame: .zero)
+        self.otherTextLabel = UILabel(frame: .zero)
+        self.contentViewBottomConstraint = NSLayoutConstraint()
+        self.splitterConstraint = NSLayoutConstraint()
         self.isMarkedAsInvalid = false
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
         self.contentView.backgroundColor = .apptentiveGroupSecondary
-        self.textLabel?.numberOfLines = 0
-        self.textLabel?.lineBreakMode = .byWordWrapping
-
+        self.contentViewBottomConstraint = self.contentView.bottomAnchor.constraint(greaterThanOrEqualTo: self.otherTextLabel.bottomAnchor, constant: 12)
+        self.splitterConstraint = self.textField.topAnchor.constraint(equalTo: self.otherTextLabel.bottomAnchor, constant: 10)
         self.translatesAutoresizingMaskIntoConstraints = false
+        self.textField.isHidden = false
+        self.textField.alpha = 0.0
         self.contentView.addSubview(self.textField)
-        self.configureTextField()
+        self.contentView.addSubview(self.otherTextLabel)
+        self.setupViews()
     }
 
     func setMarkedAsInvalid(_ markedAsInvalid: Bool, animated: Bool) {
-        let animationDuration = animated ? 0.25 : 0
+        let animationDuration = animated ? SurveyViewController.animationDuration : 0
 
         UIView.animate(withDuration: animationDuration) {
             self.isMarkedAsInvalid = markedAsInvalid
@@ -51,10 +58,20 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
         self.imageView?.isHighlighted = selected
 
-        if !self.isSelected {
-            self.imageView?.tintColor = .apptentiveImageNotSelected
-        } else {
+        if self.isSelected {
             self.imageView?.tintColor = .apptentiveImageSelected
+            self.setExpandedConstraints()
+
+            UIView.animate(withDuration: SurveyViewController.animationDuration) {
+                self.textField.alpha = 1
+            }
+        } else {
+            self.imageView?.tintColor = .apptentiveImageNotSelected
+            self.setCollapsedConstraints()
+
+            UIView.animate(withDuration: SurveyViewController.animationDuration) {
+                self.textField.alpha = 0
+            }
         }
     }
 
@@ -64,8 +81,20 @@ class SurveyOtherChoiceCell: UITableViewCell {
         self.imageView?.isHighlighted = highlighted || self.isSelected
     }
 
-    private func configureTextField() {
+    private func setupViews() {
+        //otherTextLabel
+        self.otherTextLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.otherTextLabel.numberOfLines = 0
+        self.otherTextLabel.lineBreakMode = .byWordWrapping
+        self.otherTextLabel.font = .apptentiveChoiceLabel
+        self.otherTextLabel.textColor = .apptentiveChoiceLabel
+        self.otherTextLabel.adjustsFontForContentSizeCategory = true
+
+        //textField
+        self.textField.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        self.textField.translatesAutoresizingMaskIntoConstraints = false
         self.textField.borderStyle = .roundedRect
+        self.textField.accessibilityIdentifier = "OtherCell"
 
         // Set up additional border to display validation state
         self.textField.layer.borderWidth = 1.0 / self.traitCollection.displayScale
@@ -73,29 +102,31 @@ class SurveyOtherChoiceCell: UITableViewCell {
         self.textField.layer.cornerRadius = 6.0
 
         self.textField.translatesAutoresizingMaskIntoConstraints = false
+        self.textField.font = .apptentiveChoiceLabel
         self.textField.adjustsFontForContentSizeCategory = true
-        let sizeCategory = UIApplication.shared.preferredContentSizeCategory
         self.textField.backgroundColor = .apptentiveTextInputBackground
-        self.textField.textColor = .apptentiveTextInput
-        //Very large text (accessibility) is causing the placeholder label to overlap the image button. This helps keep the placeholder in place as the size scales.
-        if sizeCategory >= .accessibilityMedium {
-            let spacerView = UIView(frame: CGRect(x: 0, y: 0, width: 75, height: self.frame.size.height))
-            self.textField.leftView = spacerView
-            self.textField.leftViewMode = .always
-        }
-
-        self.textField.font = .apptentiveQuestionLabel
+        self.textField.textColor = .apptentiveChoiceLabel
         self.textField.returnKeyType = .done
-
-        guard let textLabel = self.textLabel else {
-            return
-        }
-
+        
         NSLayoutConstraint.activate([
-            self.textField.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
-            self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textField.bottomAnchor, multiplier: 1.0),
-            self.textField.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor, constant: -7.0),
+            self.otherTextLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 55.5),
+            self.otherTextLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -20),
             self.contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: self.textField.trailingAnchor, multiplier: 1.0),
+            self.textField.leadingAnchor.constraint(equalTo: self.otherTextLabel.leadingAnchor, constant: -7),
+
+            self.otherTextLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 12),
+            self.textField.topAnchor.constraint(greaterThanOrEqualTo: self.contentView.topAnchor, constant: 4.5),
+            self.contentView.bottomAnchor.constraint(equalTo: self.textField.bottomAnchor, constant: 5.5),
         ])
+    }
+
+     func setCollapsedConstraints() {
+        self.contentViewBottomConstraint.isActive = true
+        self.splitterConstraint.isActive = false
+    }
+
+     func setExpandedConstraints() {
+        self.contentViewBottomConstraint.isActive = false
+        self.splitterConstraint.isActive = true
     }
 }
