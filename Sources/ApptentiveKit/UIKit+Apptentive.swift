@@ -254,6 +254,11 @@ extension UIColor {
     public static var apptentiveTermsOfServiceLabel: UIColor = {
         return .white
     }()
+    
+    /// The color to use for the submit button text color.
+    public static var apptentiveSubmitButtonTitle: UIColor = {
+        return .white
+    }()
 
 }
 
@@ -288,6 +293,11 @@ extension UIFont {
     }()
     /// The font used for the survey confirmation label and the survey submit button.
     public static var apptentiveSubmitLabel: UIFont = {
+        return .preferredFont(forTextStyle: .headline)
+    }()
+    
+    /// The font used for the submit button at the end of surveys.
+    public static var apptentiveSubmitButtonTitle: UIFont = {
         return .preferredFont(forTextStyle: .headline)
     }()
 

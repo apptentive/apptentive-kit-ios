@@ -22,7 +22,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     ///
     /// This property must be set before calling `register(credentials:)`.
     public var theme: UITheme = .apptentive
-
+        
+    /// The object representing the terms of service at the bottom of surveys.
     public var termsOfService: TermsOfService? = nil
 
     /// The name of the person using the app, if available.

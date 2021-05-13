@@ -61,8 +61,8 @@ public class SurveyViewModel {
         self.interaction = interaction
 
         self.name = configuration.name
+     
         self.submitButtonText = configuration.submitText ?? NSLocalizedString("SurveySubmitButtonText", tableName: "Localizable", bundle: Bundle.module, value: "Submit", comment: "Survey submit button title")
-
         self.validationErrorMessage =
             configuration.validationError ?? NSLocalizedString("SurveyErrorMessage", tableName: "Localizable", bundle: Bundle.module, value: "There are issues with your responses.", comment: "Survey error validation message")
         self.introduction = configuration.introduction
