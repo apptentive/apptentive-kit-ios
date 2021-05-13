@@ -140,7 +140,7 @@ class ApptentiveV9APITests: XCTestCase {
         let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier)
 
-        let surveyResponse = SurveyResponse(surveyID: "789", answers: ["1": [SurveyQuestionResponse.freeform("foo")]])
+        let surveyResponse = SurveyResponse(surveyID: "789", answers: ["1": [Answer.freeform("foo")]])
 
         let expectation = XCTestExpectation()
 

@@ -9,7 +9,7 @@
 import Foundation
 
 /// Describes the interface that users of the view model should conform to to receive updates in response to user actions.
-public protocol SurveyViewModelDelegate: class {
+public protocol SurveyViewModelDelegate: AnyObject {
     func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel)
     func surveyViewModelValidationDidChange(_ viewModel: SurveyViewModel)
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel)
@@ -17,7 +17,7 @@ public protocol SurveyViewModelDelegate: class {
 
 /// A class that describes the data in a survey interaction and allows reponses to be gathered and transmitted.
 public class SurveyViewModel {
-    let interactionDelegate: EventEngaging & ResponseSending
+    let interactionDelegate: EventEngaging & ResponseSending & ResponseRecording
 
     let interaction: Interaction
 
@@ -57,7 +57,7 @@ public class SurveyViewModel {
     /// An object, typically a view controller, that implements the `SurveyViewModelDelegate` protocol to receive updates when the survey data changes.
     public weak var delegate: SurveyViewModelDelegate?
 
-    required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: EventEngaging & ResponseSending) {
+    required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: EventEngaging & ResponseSending & ResponseRecording) {
         self.interaction = interaction
 
         self.name = configuration.name
@@ -140,6 +140,10 @@ public class SurveyViewModel {
             self.interactionDelegate.send(surveyResponse: self.response)
 
             self.interactionDelegate.engage(event: .submit(from: self.interaction))
+
+            self.response.answers.forEach { questionID, responses in
+                self.interactionDelegate.recordResponse(responses, for: questionID)
+            }
 
             self.delegate?.surveyViewModelDidSubmit(self)
         } else {

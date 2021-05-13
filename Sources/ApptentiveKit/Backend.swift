@@ -231,6 +231,10 @@ class Backend {
         }
     }
 
+    func recordResponse(_ answers: [Answer], for questionID: String) {
+        self.conversation.interactions.invoke(for: questionID, with: answers)
+    }
+
     private func presentInteraction(_ interaction: Interaction, completion: ((Result<Bool, Error>) -> Void)?) throws {
         guard let frontend = self.frontend else {
             throw ApptentiveError.internalInconsistency

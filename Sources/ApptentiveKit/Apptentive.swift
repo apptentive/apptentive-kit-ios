@@ -238,6 +238,12 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
     }
 
+    func recordResponse(_ answers: [Answer], for questionID: String) {
+        self.backendQueue.async {
+            self.backend.recordResponse(answers, for: questionID)
+        }
+    }
+
     // MARK: EnvironmentDelegate
 
     func protectedDataDidBecomeAvailable(_ environment: GlobalEnvironment) {

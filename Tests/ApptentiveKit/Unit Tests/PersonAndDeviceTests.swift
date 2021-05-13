@@ -193,6 +193,6 @@ class PersonAndDeviceTests: XCTestCase {
             }
         }
 
-        wait(for: [expect], timeout: 1.0)
+        wait(for: [expect], timeout: 30.0)
     }
 }

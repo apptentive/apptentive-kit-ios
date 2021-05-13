@@ -23,16 +23,16 @@ struct SurveyResponseContents: Equatable, Decodable, PayloadEncodable {
 
 /// The survey response payload part corresponding to the survey answers.
 struct SurveyAnswersRequestPart: Codable, Equatable {
-    let answers: [String: [SurveyQuestionResponse]]
+    let answers: [String: [Answer]]
 
-    init(answers: [String: [SurveyQuestionResponse]]) {
+    init(answers: [String: [Answer]]) {
         self.answers = answers
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: QuestionIDCodingKeys.self)
 
-        try self.answers.forEach { (key: String, questionResponses: [SurveyQuestionResponse]) in
+        try self.answers.forEach { (key: String, questionResponses: [Answer]) in
             guard let questionIDCodingKey = QuestionIDCodingKeys.init(stringValue: key) else {
                 return assertionFailure("Should always be able to create a QuestionIDCodingKeys instance with a string")
             }
@@ -58,12 +58,12 @@ struct SurveyAnswersRequestPart: Codable, Equatable {
     }
 
     init(from decoder: Decoder) throws {
-        var keyedQuestionResponses = [String: [SurveyQuestionResponse]]()
+        var keyedQuestionResponses = [String: [Answer]]()
 
         let container = try decoder.container(keyedBy: QuestionIDCodingKeys.self)
 
         try container.allKeys.forEach { (questionIDCodingKey) in
-            var questionResponses = [SurveyQuestionResponse]()
+            var questionResponses = [Answer]()
 
             var questionContainer = try container.nestedUnkeyedContainer(forKey: questionIDCodingKey)
 

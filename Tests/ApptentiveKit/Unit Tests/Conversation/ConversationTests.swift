@@ -31,4 +31,27 @@ class ConversationTests: XCTestCase {
 
         XCTAssertTrue(merged.appRelease.isUpdatedVersion)
     }
+
+    func testCoding() throws {
+        let environment = MockEnvironment()
+
+        var conversation = Conversation(environment: environment)
+
+        conversation.interactions.invoke(for: "abcwer", with: [
+            .choice("id1"),
+            .other("id2", "value2"),
+            .freeform("value3"),
+            .range(5)
+        ])
+
+        let encoder = PropertyListEncoder()
+
+        let data = try encoder.encode(conversation)
+
+        let decoder = PropertyListDecoder()
+
+        let conversation2 = try decoder.decode(Conversation.self, from: data)
+
+        XCTAssertEqual(conversation, conversation2)
+    }
 }

@@ -374,7 +374,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
             return XCTFail("Freeform questions have non-freeform view models")
         }
 
-        XCTAssertEqual(viewModel.response.answers, [String: [SurveyQuestionResponse]]())
+        XCTAssertEqual(viewModel.response.answers, [String: [Answer]]())
 
         multichoiceOptional.toggleChoice(at: 0)
         multichoiceRequired.toggleChoice(at: 1)
@@ -407,22 +407,39 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertEqual(
             self.spySender?.sentSurveyResponse?.answers,
             [
-                "2": [SurveyQuestionResponse.choice("3")],
-                "6": [SurveyQuestionResponse.choice("8")],
-                "11": [SurveyQuestionResponse.choice("12"), SurveyQuestionResponse.choice("14")],
-                "15": [SurveyQuestionResponse.other("16", "Bar")],
-                "18": [SurveyQuestionResponse.choice("19")],
-                "25": [SurveyQuestionResponse.choice("26"), SurveyQuestionResponse.other("28", "Foo")],
-                "56e0b5d9c7199274f700001b": [SurveyQuestionResponse.freeform("Foo")],
-                "56e0b5d9c7199274f700001d": [SurveyQuestionResponse.freeform("Bar")],
-                "R1": [SurveyQuestionResponse.range(10)],
-                "R2": [SurveyQuestionResponse.range(2)],
-                "R3": [SurveyQuestionResponse.range(-3)],
-                "R4": [SurveyQuestionResponse.range(4)],
-                "R5": [SurveyQuestionResponse.range(5)],
-                "R6": [SurveyQuestionResponse.range(5)],
+                "2": [Answer.choice("3")],
+                "6": [Answer.choice("8")],
+                "11": [Answer.choice("12"), Answer.choice("14")],
+                "15": [Answer.other("16", "Bar")],
+                "18": [Answer.choice("19")],
+                "25": [Answer.choice("26"), Answer.other("28", "Foo")],
+                "56e0b5d9c7199274f700001b": [Answer.freeform("Foo")],
+                "56e0b5d9c7199274f700001d": [Answer.freeform("Bar")],
+                "R1": [Answer.range(10)],
+                "R2": [Answer.range(2)],
+                "R3": [Answer.range(-3)],
+                "R4": [Answer.range(4)],
+                "R5": [Answer.range(5)],
+                "R6": [Answer.range(5)],
             ])
         XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#Survey#submit")
+        XCTAssertEqual(self.spySender?.responses,
+           [
+            "2": [Answer.choice("3")],
+            "6": [Answer.choice("8")],
+            "11": [Answer.choice("12"), Answer.choice("14")],
+            "15": [Answer.other("16", "Bar")],
+            "18": [Answer.choice("19")],
+            "25": [Answer.choice("26"), Answer.other("28", "Foo")],
+            "56e0b5d9c7199274f700001b": [Answer.freeform("Foo")],
+            "56e0b5d9c7199274f700001d": [Answer.freeform("Bar")],
+            "R1": [Answer.range(10)],
+            "R2": [Answer.range(2)],
+            "R3": [Answer.range(-3)],
+            "R4": [Answer.range(4)],
+            "R5": [Answer.range(5)],
+            "R6": [Answer.range(5)],
+           ])
     }
 
     func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {

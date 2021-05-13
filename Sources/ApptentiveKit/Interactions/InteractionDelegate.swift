@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking
+typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording
 
 /// Describes an object that can send responses from Survey interactions.
 protocol ResponseSending {
@@ -43,4 +43,11 @@ protocol URLOpening {
     ///   - url: The URL to open.
     ///   - completion: Called with a value indicating whether the URL was successfully opened.
     func open(_ url: URL, completion: @escaping (Bool) -> Void)
+}
+
+/// Describes an object that can record a response to an interaction.
+protocol ResponseRecording {
+    /// Records the specified response for later querying in the targeter.
+    /// - Parameter answers: The answers included in the interaction response.
+    func recordResponse(_ answers: [Answer], for questionID: String)
 }

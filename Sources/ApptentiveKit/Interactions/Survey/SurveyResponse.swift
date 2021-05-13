@@ -18,15 +18,5 @@ struct SurveyResponse: Equatable {
     ///
     /// The keys are the identifiers for the question, and the values are an array of question response objects.
     /// Freeform, single-choice, and range responses will have one element in the array.
-    let answers: [String: [SurveyQuestionResponse]]
-}
-
-/// An object describing a particular response.
-///
-/// Questions that accept multiple answers will have more than one question response in the array for a particular question.
-enum SurveyQuestionResponse: Equatable {
-    case choice(String)
-    case freeform(String)
-    case range(Int)
-    case other(String, String)
+    let answers: [String: [Answer]]
 }

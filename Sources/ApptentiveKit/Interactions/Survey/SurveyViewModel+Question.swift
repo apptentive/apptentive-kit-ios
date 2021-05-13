@@ -30,7 +30,7 @@ extension SurveyViewModel {
         public let instructions: String?
 
         /// The response object that will make up part of the survey response API request.
-        var response: [SurveyQuestionResponse]? {
+        var response: [Answer]? {
             assertionFailure("Abstract method called")
             return nil
         }

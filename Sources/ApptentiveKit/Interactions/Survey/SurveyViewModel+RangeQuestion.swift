@@ -48,9 +48,9 @@ extension SurveyViewModel {
             super.init(question: question, requiredText: requiredText)
         }
 
-        override var response: [SurveyQuestionResponse]? {
+        override var response: [Answer]? {
             self.selectedValueIndex.flatMap {
-                [SurveyQuestionResponse.range($0 + self.minValue)]
+                [Answer.range($0 + self.minValue)]
             }
         }
         public func accessibilityHintForSegment() -> String {

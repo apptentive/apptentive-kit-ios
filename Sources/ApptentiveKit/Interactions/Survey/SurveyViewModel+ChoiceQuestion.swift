@@ -97,7 +97,7 @@ extension SurveyViewModel {
             return doesNotExceedMaxCount && choicesAreValid && (meetsMinCount || isOptional)
         }
 
-        override var response: [SurveyQuestionResponse]? {
+        override var response: [Answer]? {
             let result = self.choices.compactMap { $0.responsePart }
 
             return result.isEmpty ? nil : result
@@ -167,7 +167,7 @@ extension SurveyViewModel {
                 }
             }
 
-            var responsePart: SurveyQuestionResponse? {
+            var responsePart: Answer? {
                 if self.isSelected {
                     if self.supportsOther {
                         guard let otherText = self.otherText else {

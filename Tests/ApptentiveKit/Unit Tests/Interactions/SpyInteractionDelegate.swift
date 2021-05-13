@@ -14,6 +14,7 @@ class SpyInteractionDelegate: InteractionDelegate {
     var shouldRequestReviewSucceed = true
     var shouldURLOpeningSucceed = true
     var openedURL: URL? = nil
+    var responses: [String: [Answer]] = [:]
 
     func engage(event: Event) {
         self.engagedEvent = event
@@ -34,5 +35,9 @@ class SpyInteractionDelegate: InteractionDelegate {
 
     func invoke(_ invocations: [EngagementManifest.Invocation], completion: @escaping (String?) -> Void) {
         completion(invocations.first?.interactionID)
+    }
+
+    func recordResponse(_ answers: [Answer], for questionID: String) {
+        responses[questionID] = answers
     }
 }
