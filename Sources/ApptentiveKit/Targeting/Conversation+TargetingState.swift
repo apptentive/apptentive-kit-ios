@@ -119,6 +119,20 @@ extension EngagementMetric: TargetingState {
                 throw TargetingError.unrecognizedField(subfield.fullPath)
             }
 
+        case "answers":
+            let subfield = try field.nextComponent()
+
+            switch subfield.keys.first {
+            case "value":
+                return Set(self.answers.compactMap { $0.value })
+
+            case "id":
+                return Set(self.answers.compactMap { $0.id })
+
+            default:
+                throw TargetingError.unrecognizedField(field.fullPath)
+            }
+
         default:
             throw TargetingError.unrecognizedField(field.fullPath)
         }
@@ -207,5 +221,59 @@ extension CustomData: TargetingState {
         }
 
         return self[key]
+    }
+}
+
+/// Adds the ability to query the interaction response for the values of fields.
+extension Answer {
+    var id: String? {
+        switch self {
+
+        case .choice(let id):
+            return id
+
+        case .other(let id, _):
+            return id
+
+        default:
+            return nil
+        }
+    }
+
+    var value: Value? {
+        switch self {
+        case .freeform(let value):
+            return .string(value)
+
+        case .range(let value):
+            return .int(value)
+
+        case .other(_, let value):
+            return .string(value)
+
+        default:
+            return nil
+        }
+    }
+
+    enum Value: Equatable, Hashable {
+        case int(Int)
+        case string(String)
+        
+        var intValue: Int? {
+            if case .int(let int) = self {
+                return int
+            } else {
+                return nil
+            }
+        }
+        
+        var stringValue: String? {
+            if case .string(let string) = self {
+                return string
+            } else {
+                return nil
+            }
+        }
     }
 }

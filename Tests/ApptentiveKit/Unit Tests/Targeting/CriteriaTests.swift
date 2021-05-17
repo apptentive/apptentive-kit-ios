@@ -89,27 +89,9 @@ final class CriteriaTests: XCTestCase {
         XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
     }
 
-    static var allTests = [
-        ("testCornerCasesThatShouldBeFalse", testCornerCasesThatShouldBeFalse),
-        ("testCornerCasesThatShouldBeTrue", testCornerCasesThatShouldBeTrue),
-        ("testCriteriaDecoding", testCriteriaDecoding),
-        ("testDefaultValues", testDefaultValues),
-        ("testOperatorAfter", testOperatorAfter),
-        ("testOperatorBefore", testOperatorBefore),
-        ("testOperatorContains", testOperatorContains),
-        ("testOperatorEndsWith", testOperatorEndsWith),
-        ("testOperatorExists", testOperatorExists),
-        ("testOperatorGreaterThan", testOperatorGreaterThan),
-        ("testOperatorGreaterThanOrEqual", testOperatorGreaterThanOrEqual),
-        ("testOperatorLessThan", testOperatorLessThan),
-        ("testOperatorLessThanOrEqual", testOperatorLessThanOrEqual),
-        ("testOperatorNot", testOperatorNot),
-        ("testOperatorStartsWith", testOperatorStartsWith),
-        ("testOperatorStringEquals", testOperatorStringEquals),
-        ("testOperatorStringNotEquals", testOperatorStringNotEquals),
-        ("testV7Criteria", testV7Criteria),
-        ("testWhitespaceTrimming", testWhitespaceTrimming),
-    ]
+    func testInteractionResponses() throws {
+        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
+    }
 
     private func criteria(for testMethodName: String) -> Criteria? {
         let testName = String(testMethodName.dropLast(2))  // strip parentheses from method name.
@@ -155,6 +137,21 @@ struct MockTargetingState: TargetingState {
             return Date(timeIntervalSince1970: 1000)
         case "device/custom_data/boolean_true":
             return true
+        case "interactions/did_not_respond/answers/value":
+            return Set<Answer.Value>()
+        case "interactions/did_not_respond/answers/id":
+            return Set<Answer.Value>()
+        case "interactions/range_question/answers/value":
+            return Set([-2, 0, 2].map { Answer.Value.int($0) })
+        case "interactions/freeform_question/answers/value":
+            return Set(["yah", "sure", "youbetcha"].map { Answer.Value.string($0) })
+        case "interactions/choice_question/answers/id":
+            return Set(["abc123", "def456"])
+        case "interactions/other_question/answers/id":
+            return Set(["ghi123", "jkl456"])
+        case "interactions/other_question/answers/value":
+            return Set(["Gee", "Just Kidding"].map { Answer.Value.string($0) })
+
         default:
             return nil
         }
