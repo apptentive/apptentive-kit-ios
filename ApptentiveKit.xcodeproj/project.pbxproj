@@ -139,7 +139,6 @@
 		1F323D66240F28C200A678BC /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1F323D6B240F2F0500A678BC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D6A240F2F0500A678BC /* ViewController.swift */; };
 		EF425863263A74BA0094E1DC /* TermsOfService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF425862263A74BA0094E1DC /* TermsOfService.swift */; };
-		EF5F37FA25C3712F007F823E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EF5F37FC25C3712F007F823E /* Localizable.strings */; };
 		EF5FC3A7257FD901003E127B /* NotImplementedAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3A6257FD901003E127B /* NotImplementedAlertViewModel.swift */; };
 		EF5FC3CE25800C62003E127B /* NotImplementedAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3CD25800C62003E127B /* NotImplementedAlertViewModel.swift */; };
 		EF5FC3E125801734003E127B /* NotImplementedAlertUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3DB258013FC003E127B /* NotImplementedAlertUITests.swift */; };
@@ -334,8 +333,6 @@
 		1F323D5E240EEE0500A678BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F323D6A240F2F0500A678BC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		EF425862263A74BA0094E1DC /* TermsOfService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfService.swift; sourceTree = "<group>"; };
-		EF5F37FB25C3712F007F823E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		EF5F380125C37141007F823E /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		EF5FC3A6257FD901003E127B /* NotImplementedAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertViewModel.swift; sourceTree = "<group>"; };
 		EF5FC3CD25800C62003E127B /* NotImplementedAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertViewModel.swift; sourceTree = "<group>"; };
 		EF5FC3DB258013FC003E127B /* NotImplementedAlertUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertUITests.swift; sourceTree = "<group>"; };
@@ -662,7 +659,6 @@
 				011E2999246DE23E000BDEE6 /* Model */,
 				013D8E8624F03888005EC4D1 /* Networking */,
 				017FC93125310E4700C7A47F /* Targeting */,
-				EF5F381B25C3B2C6007F823E /* Localization */,
 				01A0918723FCB5D600AF187E /* Apptentive.swift */,
 				01A0916F23FCB4A700AF187E /* ApptentiveKit.h */,
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
@@ -800,14 +796,6 @@
 			children = (
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		EF5F381B25C3B2C6007F823E /* Localization */ = {
-			isa = PBXGroup;
-			children = (
-				EF5F37FC25C3712F007F823E /* Localizable.strings */,
-			);
-			path = Localization;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -953,6 +941,23 @@
 				en,
 				Base,
 				de,
+				ar,
+				"zh-Hans",
+				"zh-Hant",
+				da,
+				fr,
+				"fr-CA",
+				el,
+				it,
+				ja,
+				ko,
+				pl,
+				"pt-PT",
+				"pt-BR",
+				ru,
+				es,
+				sv,
+				tr,
 			);
 			mainGroup = 01A0916223FCB4A700AF187E;
 			productRefGroup = 01A0916D23FCB4A700AF187E /* Products */;
@@ -974,7 +979,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				016E6D8625F83E6900151E29 /* Media.xcassets in Resources */,
-				EF5F37FA25C3712F007F823E /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1206,15 +1210,6 @@
 				1F323D5C240EEE0500A678BC /* Base */,
 			);
 			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		EF5F37FC25C3712F007F823E /* Localizable.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				EF5F37FB25C3712F007F823E /* en */,
-				EF5F380125C37141007F823E /* de */,
-			);
-			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

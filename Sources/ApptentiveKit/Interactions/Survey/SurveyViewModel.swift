@@ -61,24 +61,23 @@ public class SurveyViewModel {
         self.interaction = interaction
 
         self.name = configuration.name
-     
-        self.submitButtonText = configuration.submitText ?? NSLocalizedString("SurveySubmitButtonText", tableName: "Localizable", bundle: Bundle.module, value: "Submit", comment: "Survey submit button title")
+        self.submitButtonText = configuration.submitText ?? "Submit"
         self.validationErrorMessage =
-            configuration.validationError ?? NSLocalizedString("SurveyErrorMessage", tableName: "Localizable", bundle: Bundle.module, value: "There are issues with your responses.", comment: "Survey error validation message")
+            configuration.validationError ?? "There are issues with your responses."
         self.introduction = configuration.introduction
         self.thankYouMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
         self.interactionDelegate = interactionDelegate
 
-        self.closeConfirmationAlertTitle = NSLocalizedString("CloseSurveyAlertTitle", tableName: "Localizable", bundle: Bundle.module, value: "Close survey?", comment: "Survey close confirmation alert title")
-
-        self.closeConfirmationAlertMessage = NSLocalizedString(
-            "CloseConfirmationAlertMessage", tableName: "Localizable", bundle: Bundle.module, value: "You will lose your progress if you close this survey.", comment: "Survey close confirmation alert message")
-
-        self.closeConfirmationBackButtonLabel = NSLocalizedString("CloseConfirmationBackButton", tableName: "Localizable", bundle: Bundle.module, value: "Back to Survey", comment: "Survey close confirmation back button")
-
-        self.closeConfirmationCloseButtonLabel = NSLocalizedString("CloseConfirmationCloseButton", tableName: "Localizable", bundle: Bundle.module, value: "Close", comment: "Survey close confirmation close button")
+        self.closeConfirmationAlertTitle =
+            configuration.closeConfirmationTitle ?? "Close survey?"
+        self.closeConfirmationAlertMessage =
+            configuration.closeConfirmationMessage ?? "You will lose your progress if you close this survey."
+        self.closeConfirmationBackButtonLabel =
+            configuration.closeConfirmationBackButtonText ?? "Back to Survey"
+        self.closeConfirmationCloseButtonLabel =
+            configuration.closeConfirmationCloseButtonText ?? "Close"
 
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self

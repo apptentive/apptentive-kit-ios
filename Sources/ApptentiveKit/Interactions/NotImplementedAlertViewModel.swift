@@ -20,14 +20,10 @@ struct NotImplementedAlertViewModel: AlertViewModel {
     var buttons: [AlertButtonModel]
 
     init(interactionTypeName: String) {
-        self.title = NSLocalizedString("NotImplementedAlertTitle", tableName: "Localizable", bundle: Bundle.module, value: "Interaction Presenter Error", comment: "The title for the 'Not Implemented' alert.")
-        self.message = String(
-            format: NSLocalizedString("NotImplementedAlertMessage", tableName: "Localizable", bundle: Bundle.module, value: "Interaction '%@' is not implemented.", comment: "The message for the 'Not Implemented' alert."),
-            interactionTypeName)
+        self.title = "Interaction Presenter Error"
+        self.message = "Interaction '\(interactionTypeName)' is not implemented."
         self.buttons = [
-            AlertButtonModel(
-                title: NSLocalizedString("NotImplementedAlertConfirmation", tableName: "Localizable", bundle: Bundle.module, value: "Ok", comment: "The confimation message on the button for the 'Not Implemented' alert."), style: .default,
-                action: nil)
+            AlertButtonModel(title: "OK", style: .default, action: nil)
         ]
     }
 }

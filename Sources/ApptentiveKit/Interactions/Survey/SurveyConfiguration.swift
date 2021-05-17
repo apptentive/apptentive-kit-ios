@@ -24,6 +24,10 @@ struct SurveyConfiguration: Decodable {
     let shouldShowThankYou: Bool
     let requiredText: String?
     let required: Bool?
+    let closeConfirmationTitle: String?
+    let closeConfirmationMessage: String?
+    let closeConfirmationCloseButtonText: String?
+    let closeConfirmationBackButtonText: String?
     let questions: [Question]
 
     enum CodingKeys: String, CodingKey {
@@ -35,6 +39,10 @@ struct SurveyConfiguration: Decodable {
         case shouldShowThankYou = "show_success_message"
         case requiredText = "required_text"
         case required
+        case closeConfirmationTitle = "close_confirm_title"
+        case closeConfirmationMessage = "close_confirm_message"
+        case closeConfirmationCloseButtonText = "close_confirm_close_text"
+        case closeConfirmationBackButtonText = "close_confirm_back_text"
         case questions
     }
 

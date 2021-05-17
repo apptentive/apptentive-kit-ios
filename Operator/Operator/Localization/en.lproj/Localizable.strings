@@ -5,7 +5,7 @@
 "NotImplementedAlertMessage" =  "Interaction '%@' is not implemented.";
 
 /* The confimation message on the button for the 'Not Implemented' alert. */
-"NotImplementedAlertConfirmation" = "Ok";
+"NotImplementedAlertConfirmation" = "OK";
 
 /* Survey submit button title */
 "SurveySubmitButtonText" = "Submit";
