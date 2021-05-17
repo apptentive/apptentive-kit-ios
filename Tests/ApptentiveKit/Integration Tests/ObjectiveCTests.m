@@ -1,0 +1,84 @@
+//
+//  ObjectiveCTests.m
+//  ApptentiveFeatureTests
+//
+//  Created by Frank Schmitt on 3/22/21.
+//  Copyright © 2021 Apptentive, Inc. All rights reserved.
+//
+
+#import <XCTest/XCTest.h>
+@import ApptentiveKit;
+
+@interface ObjectiveCTests : XCTestCase
+
+@property (strong, nonatomic) NSString *key;
+@property (strong, nonatomic) NSString *signature;
+@property (strong, nonatomic) NSURL *serverURL;
+
+@end
+
+@implementation ObjectiveCTests
+
+- (void)setUp {
+    NSURL *defaultDefaultsURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"Defaults" withExtension:@"plist"];
+    NSDictionary *defaultDefaults = [NSDictionary dictionaryWithContentsOfURL: defaultDefaultsURL];
+    [NSUserDefaults.standardUserDefaults registerDefaults:defaultDefaults];
+
+    self.key = [NSUserDefaults.standardUserDefaults stringForKey:@"Key"];
+    self.signature = [NSUserDefaults.standardUserDefaults stringForKey:@"Signature"];
+    self.serverURL = [NSUserDefaults.standardUserDefaults URLForKey:@"ServerURL"];
+}
+
+- (void)testRegisterWithConfiguration {
+    ApptentiveConfiguration *configuration = [ApptentiveConfiguration configurationWithApptentiveKey:self.key apptentiveSignature:self.signature];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    configuration.logLevel = ApptentiveLogLevelDebug;
+    configuration.shouldSanitizeLogMessages = true;
+
+    XCTAssertEqualObjects(configuration.apptentiveKey, self.key);
+    XCTAssertEqualObjects(configuration.apptentiveSignature, self.signature);
+    XCTAssertEqual(configuration.logLevel, ApptentiveLogLevelDebug);
+    XCTAssertEqual(configuration.shouldSanitizeLogMessages, true);
+
+    [Apptentive registerWithConfiguration:configuration];
+#pragma clang diagnostic pop
+}
+
+- (void)testCustomData {
+    Apptentive.shared.personName = @"Testy McTestface";
+    Apptentive.shared.personEmailAddress = @"test@example.com";
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    // Just make sure this compiles.
+    [Apptentive.shared addCustomPersonDataBool:false withKey:@"false"];
+    [Apptentive.shared addCustomPersonDataString:@"foo" withKey:@"bar"];
+    [Apptentive.shared addCustomPersonDataNumber:@42 withKey:@"the_answer"];
+    [Apptentive.shared removeCustomPersonDataWithKey:@"false"];
+
+    [Apptentive.shared addCustomDeviceDataBool:true withKey:@"true"];
+    [Apptentive.shared addCustomDeviceDataString:@"fizz" withKey:@"buzz"];
+    [Apptentive.shared addCustomDeviceDataNumber:@70 withKey:@"nice + 1"];
+    [Apptentive.shared removeCustomDeviceDataWithKey:@"true"];
+#pragma clang diagnostic pop
+
+    XCTAssertEqualObjects(Apptentive.shared.personName, @"Testy McTestface");
+    XCTAssertEqualObjects(Apptentive.shared.personEmailAddress, @"test@example.com");
+}
+
+- (void)testEngage {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Engage completion"];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [Apptentive.shared engage:@"event" fromViewController:nil completion:^(BOOL success) {
+        [expectation fulfill];
+    }];
+#pragma clang diagnostic pop
+
+    [self waitForExpectations:@[expectation] timeout:2.0];
+}
+
+@end

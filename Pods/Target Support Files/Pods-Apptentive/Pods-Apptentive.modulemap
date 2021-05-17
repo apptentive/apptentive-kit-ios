@@ -1,6 +1,0 @@
-framework module Pods_Apptentive {
-  umbrella header "Pods-Apptentive-umbrella.h"
-
-  export *
-  module * { export * }
-}

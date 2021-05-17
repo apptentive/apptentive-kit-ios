@@ -1,0 +1,61 @@
+language: swift
+osx_image: xcode12.4
+os: osx
+
+deploy:
+  provider: releases
+  token: ${GITHUB_TOKEN}
+  file_glob: true
+  file:
+    - "./artifacts/**/*"
+  cleanup: false
+  on:
+    all_branches: true
+    tags: true
+
+branches:
+  only:
+    - develop
+    - staging
+    - production
+
+stages:
+  - verify
+  - framework
+  - name: deploy
+    if: NOT(type = pull_request) AND (branch = staging OR branch = production)
+
+jobs:
+  include:
+    - stage: verify
+      name: test
+      script:
+        - bundle install
+        - bundle exec fastlane test
+        - bundle exec fastlane coverage
+    - stage: verify
+      name: lint
+      addons:
+        homebrew:
+          packages:
+          - swift-format
+      script:
+        - bundle exec fastlane lint
+    - stage: framework
+      name: xcframework
+      addons:
+        artifacts:
+          paths:
+            - $(ls *.zip | tr "\n" ":")
+      script:
+        - bundle install
+        - BUILD_NUMBER=$TRAVIS_BUILD_NUMBER bundle exec fastlane framework
+        - bundle exec fastlane zipArtifacts
+        - export TRAVIS_TAG="$(agvtool what-marketing-version -terse1)-${TRAVIS_BRANCH}+${TRAVIS_BUILD_NUMBER}"
+        - git tag $TRAVIS_TAG
+    - stage: deploy
+      name: testflight
+      script:
+        - bundle install
+        - BUILD_NUMBER=$TRAVIS_BUILD_NUMBER bundle exec fastlane beta
+

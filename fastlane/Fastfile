@@ -1,0 +1,197 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+build_directory = ".build"
+
+default_platform(:ios)
+setup_travis
+
+platform :ios do
+  build_number = ENV['BUILD_NUMBER']
+  if build_number.nil?
+    build_number = '0'
+  end
+
+  desc "Run tests"
+  lane :test do
+    # Update the Defaults.plist for integration tests using environment variables
+    File.rename "../Tests/ApptentiveKit/Integration Tests/Defaults-Template.plist", "../Tests/ApptentiveKit/Integration Tests/Defaults.plist" unless File.exists? "../Tests/ApptentiveKit/Integration Tests/Defaults.plist"
+    update_plist(
+      plist_path: "Tests/ApptentiveKit/Integration Tests/Defaults.plist",
+      block: proc do |plist|
+        plist[:Key] = ENV["APPTENTIVE_PROD_KEY"]
+        plist[:Signature] = ENV["APPTENTIVE_PROD_SIGNATURE"]
+      end
+    )
+
+    run_tests(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", code_coverage: true)
+  end
+  
+  desc "Generates a code coverage report"
+  lane :coverage do
+    xcov(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", output_directory: ".fastlane/test_output", exclude_targets: "ApptentiveUITestsApp.app", minimum_coverage_percentage: 80.0)
+  end
+
+  desc "Runs the swift-format linter on ApptentiveKit"
+  lane :lint do
+    sh('swift-format -m lint --configuration ../.swift-format -r ../Sources/ApptentiveKit')
+  end
+
+  desc "Runs the swift-format linter on all swift files in repo"
+  lane :lint_all do
+    sh('swift-format -m lint --configuration ../.swift-format -r ..')
+  end
+
+  desc "Runs the swift-format formatter in-place on all swift files"
+  lane :format do
+    doit = prompt(text: "This will destructively re-format all swift files in this repository. Are you sure? (Y/N)")
+    if doit == 'Y'
+      sh('swift-format -m format -i --configuration ../.swift-format -r ..')
+    end
+  end
+
+ 
+  desc "Builds Apptentive xcframework binary"
+  lane :framework do
+    framework_scheme = "ApptentiveKit"
+
+    increment_build_number(
+      build_number: build_number
+    )
+
+    xcargs = {
+      :BUILD_LIBRARY_FOR_DISTRIBUTION => "YES",
+      :SKIP_INSTALL => "NO"
+    }
+    
+    gym(
+      scheme: framework_scheme,
+      output_directory: "build/iOS",
+      destination: 'generic/platform=iOS',
+      archive_path: "build/ios.xcarchive",
+      sdk: 'iphoneos',
+      derived_data_path: 'build/iphoneos',
+      skip_package_ipa: true,
+      xcargs: xcargs,
+      skip_codesigning: true
+    )
+    
+    gym(
+      scheme: framework_scheme,
+      output_directory: "build/iossimulator",
+      destination: 'generic/platform=iOS Simulator',
+      archive_path: "build/iossimulator.xcarchive",
+      sdk: 'iphonesimulator',
+      derived_data_path: 'build/iphoneos',
+      skip_package_ipa: true,
+      xcargs: xcargs,
+      skip_codesigning: true
+    )
+
+    sh("xcodebuild -create-xcframework \
+      -framework ../build/ios.xcarchive/Products/Library/Frameworks/ApptentiveKit.framework \
+      -framework ../build/iossimulator.xcarchive/Products/Library/Frameworks/ApptentiveKit.framework \
+      -output ../build/ApptentiveKit.xcframework")
+  end
+
+  desc "Zips all xcarchive and xcframework"
+  lane :zipArtifacts do
+    Dir.mkdir 'artifacts'
+
+    Dir.glob("../build/*.xcarchive").each do |file|
+      zip(
+        path: File.expand_path(file),
+        output_path: "./artifacts/#{File.basename(file)}.zip"
+      )
+    end
+
+    Dir.glob("../build/*.xcframework").each do |file|
+      zip(
+        path: File.expand_path(file),
+        output_path: "./artifacts/#{File.basename(file)}.zip"
+      )
+    end
+  end
+
+  desc "Deploys Operator app to TestFlight"
+  lane :beta do
+    #Create the App Store Connect JWT
+    api_key = app_store_connect_api_key(
+      key_id: "G9GXHMBKNM",
+      issuer_id: "69a6de7a-6048-47e3-e053-5b8c7c11a4d1",
+      key_content: ENV['ASC_API_KEY'],
+      duration: 1200, # optional
+      in_house: false, # optional but may be required if using match/sigh
+    )
+    
+    # Match the version number of the SDK
+    version = get_version_number(
+      xcodeproj: "ApptentiveKit.xcodeproj",
+      target: "ApptentiveKit"
+    )
+    
+    increment_version_number(
+      xcodeproj: "Operator/Operator.xcodeproj",
+      version_number: version
+    )
+    
+    # Use the build number from travis if available
+    if ENV["BUILD_NUMBER"]
+      increment_build_number(
+        xcodeproj: "Operator/Operator.xcodeproj",
+        build_number: ENV["BUILD_NUMBER"]
+      )
+    end
+
+    # Convert template Defaults.plist file to the real deal
+    File.rename "../Operator/Operator/Defaults-Template.plist", "../Operator/Operator/Defaults.plist" unless File.exists? "../Operator/Operator/Defaults.plist"
+
+    update_plist(
+      plist_path: "Operator/Operator/Defaults.plist",
+      block: proc do |plist|
+        plist[:Key] = ENV['APPTENTIVE_PROD_KEY']
+        plist[:Signature] = ENV['APPTENTIVE_PROD_SIGNATURE']
+      end
+    )
+    
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "ApptentiveKit.xcodeproj",
+      code_sign_identity: "Apple Distribution"
+    )
+    
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "Operator/Operator.xcodeproj",
+      code_sign_identity: "Apple Distribution",
+      profile_name: "match AppStore com.apptentive.Operator"
+    )
+    
+    match(type: "appstore", app_identifier: "com.apptentive.Operator", readonly: is_ci)
+
+    build_app(
+      project: "Operator/Operator.xcodeproj",
+      scheme: "Operator",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "build"
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end

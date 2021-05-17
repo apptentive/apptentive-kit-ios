@@ -5,6 +5,7 @@
 ## Build generated
 build/
 DerivedData/
+artifacts/
 
 ## Various settings
 *.pbxuser
@@ -21,6 +22,7 @@ xcuserdata/
 *.moved-aside
 *.xccheckout
 *.xcscmblueprint
+.DS_Store
 
 ## Obj-C/Swift specific
 *.hmap
@@ -66,3 +68,11 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+.bundle/
+vendor/
+ios*.xcarchive
+iossimulator*.xcarchive/
+iphoneos/
+
+# Credential-type files
+Defaults.plist

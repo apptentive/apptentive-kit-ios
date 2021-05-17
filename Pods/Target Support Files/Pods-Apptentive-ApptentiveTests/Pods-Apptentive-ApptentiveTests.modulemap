@@ -1,6 +1,0 @@
-framework module Pods_Apptentive_ApptentiveTests {
-  umbrella header "Pods-Apptentive-ApptentiveTests-umbrella.h"
-
-  export *
-  module * { export * }
-}
