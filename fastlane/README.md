@@ -51,6 +51,11 @@ Builds Apptentive xcframework binary
 fastlane ios zipArtifacts
 ```
 Zips all xcarchive and xcframework
+### ios certs
+```
+fastlane ios certs
+```
+Gets development certs
 ### ios beta
 ```
 fastlane ios beta

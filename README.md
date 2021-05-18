@@ -2,6 +2,14 @@
 
 Apptentive SDK for Apple platforms. Currently intended to support UIKit-based apps running on iOS. 
 
+# Running on a Device
+
+1. Make sure you have fastlane installed
+2. Get the Shared-Engineering 2 ASC API Key from 1Password
+3. Run ```
+ASC_API_KEY="<paste the key here, newlines and all>" bundle exec fastlane certs``` in the Terminal
+4. You should be able to build and run on a device in Xcode
+
 # CI / CD
 
 * [Travis](https://travis-ci.com/github/apptentive/apple-sdk)
