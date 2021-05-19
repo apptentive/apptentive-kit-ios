@@ -62,7 +62,7 @@ class TextModalViewModelTests: XCTestCase {
         switch self.spySender?.engagedEvent?.userInfo {
         case .textModalAction(let textModalAction):
             XCTAssertEqual(textModalAction.invokedInteractionID, "55e6033045ce5551eb00000b")
-
+            
         default:
             XCTFail("Expected event data of type textModalAction")
         }
@@ -79,6 +79,16 @@ class TextModalViewModelTests: XCTestCase {
         default:
             XCTFail("Expected event data of type textModalAction")
         }
+    }
+
+    func testRecordedAnswer() {
+        viewModel?.buttons[1].action?()
+        let recordedResponse = self.spySender?.responses
+        XCTAssertEqual(recordedResponse?.count, 1)
+        if let recordedResponseValue = recordedResponse?.values.first, let recordedAnswerValue = recordedResponseValue.first {
+            XCTAssertEqual(recordedAnswerValue, Answer.choice("55e6037a45ce551189000017"))
+        }
+
     }
 
     func testDismissButton() {
