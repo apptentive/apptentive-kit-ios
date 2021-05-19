@@ -39,6 +39,7 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
         "DTSDKName": "iphonesimulator13.4.internal",
         "DTXcode": "1160",
         "DTXcodeBuild": "11E703a",
+        "MinimumOSVersion": "12.1",
     ]
 
     var fileManager = FileManager.default

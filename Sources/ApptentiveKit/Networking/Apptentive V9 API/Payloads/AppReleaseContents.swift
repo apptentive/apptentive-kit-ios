@@ -16,6 +16,7 @@ struct AppReleaseContents: Equatable, Codable, PayloadEncodable {
     var appStoreReceipt: AppStoreReceipt
     var isDebugBuild: Bool
     var isOverridingStyles: Bool
+    var deploymentTarget: String?
     var compiler: String?
     var platformBuild: String?
     var platformName: String?
@@ -39,6 +40,7 @@ struct AppReleaseContents: Equatable, Codable, PayloadEncodable {
         self.appStoreReceipt = AppStoreReceipt(hasReceipt: appRelease.hasAppStoreReceipt)
         self.isDebugBuild = appRelease.isDebugBuild
         self.isOverridingStyles = appRelease.isOverridingStyles
+        self.deploymentTarget = appRelease.deploymentTarget
         self.compiler = appRelease.compiler
         self.platformBuild = appRelease.platformBuild
         self.platformName = appRelease.platformName
@@ -63,6 +65,7 @@ struct AppReleaseContents: Equatable, Codable, PayloadEncodable {
         try container.encode(self.appStoreReceipt, forKey: .appStoreReceipt)
         try container.encode(self.isDebugBuild, forKey: .isDebugBuild)
         try container.encode(self.isOverridingStyles, forKey: .isOverridingStyles)
+        try container.encode(self.deploymentTarget, forKey: .deploymentTarget)
         try container.encode(self.compiler, forKey: .compiler)
         try container.encode(self.platformBuild, forKey: .platformBuild)
         try container.encode(self.platformName, forKey: .platformName)
@@ -87,6 +90,7 @@ struct AppReleaseContents: Equatable, Codable, PayloadEncodable {
         case appStoreReceipt = "app_store_receipt"
         case isDebugBuild = "debug"
         case isOverridingStyles = "overriding_styles"
+        case deploymentTarget = "deployment_target"
         case compiler = "dt_compiler"
         case platformBuild = "dt_platform_build"
         case platformName = "dt_platform_name"

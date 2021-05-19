@@ -182,6 +182,7 @@ enum AllPossiblePayloadCodingKeys: String, CodingKey {
     case appStoreReceipt = "app_store_receipt"
     case isDebugBuild = "debug"
     case isOverridingStyles = "overriding_styles"
+    case deploymentTarget = "deployment_target"
     case compiler = "dt_compiler"
     case platformBuild = "dt_platform_build"
     case platformName = "dt_platform_name"

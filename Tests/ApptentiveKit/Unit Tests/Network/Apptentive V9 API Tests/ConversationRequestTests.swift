@@ -41,6 +41,7 @@ class ConversationRequestTests: XCTestCase {
               "app_release": {
                 "dt_platform_version": "13.4",
                 "overriding_styles": false,
+                "deployment_target": "12.1",
                 "dt_xcode": "1160",
                 "dt_xcode_build": "11E703a",
                 "sdk_version": "0.0.0",
