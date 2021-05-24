@@ -423,23 +423,24 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
                 "R6": [Answer.range(5)],
             ])
         XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#Survey#submit")
-        XCTAssertEqual(self.spySender?.responses,
-           [
-            "2": [Answer.choice("3")],
-            "6": [Answer.choice("8")],
-            "11": [Answer.choice("12"), Answer.choice("14")],
-            "15": [Answer.other("16", "Bar")],
-            "18": [Answer.choice("19")],
-            "25": [Answer.choice("26"), Answer.other("28", "Foo")],
-            "56e0b5d9c7199274f700001b": [Answer.freeform("Foo")],
-            "56e0b5d9c7199274f700001d": [Answer.freeform("Bar")],
-            "R1": [Answer.range(10)],
-            "R2": [Answer.range(2)],
-            "R3": [Answer.range(-3)],
-            "R4": [Answer.range(4)],
-            "R5": [Answer.range(5)],
-            "R6": [Answer.range(5)],
-           ])
+        XCTAssertEqual(
+            self.spySender?.responses,
+            [
+                "2": [Answer.choice("3")],
+                "6": [Answer.choice("8")],
+                "11": [Answer.choice("12"), Answer.choice("14")],
+                "15": [Answer.other("16", "Bar")],
+                "18": [Answer.choice("19")],
+                "25": [Answer.choice("26"), Answer.other("28", "Foo")],
+                "56e0b5d9c7199274f700001b": [Answer.freeform("Foo")],
+                "56e0b5d9c7199274f700001d": [Answer.freeform("Bar")],
+                "R1": [Answer.range(10)],
+                "R2": [Answer.range(2)],
+                "R3": [Answer.range(-3)],
+                "R4": [Answer.range(4)],
+                "R5": [Answer.range(5)],
+                "R6": [Answer.range(5)],
+            ])
     }
 
     func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {

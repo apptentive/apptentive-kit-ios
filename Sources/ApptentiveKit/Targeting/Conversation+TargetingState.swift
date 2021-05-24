@@ -259,7 +259,7 @@ extension Answer {
     enum Value: Equatable, Hashable {
         case int(Int)
         case string(String)
-        
+
         var intValue: Int? {
             if case .int(let int) = self {
                 return int
@@ -267,7 +267,7 @@ extension Answer {
                 return nil
             }
         }
-        
+
         var stringValue: String? {
             if case .string(let string) = self {
                 return string

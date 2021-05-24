@@ -310,14 +310,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             let choice = choiceQuestion.choices[indexPath.row]
             choice.isSelected = true
             otherCell.isSelected = true
-          
-                otherCell.setExpandedConstraints()
-                UIView.animate(withDuration: SurveyViewController.animationDuration) {
-                    otherCell.textField.alpha = 1
-                    otherCell.layoutIfNeeded()
-                }
-          
-            
+
+            otherCell.setExpandedConstraints()
+            UIView.animate(withDuration: SurveyViewController.animationDuration) {
+                otherCell.textField.alpha = 1
+                otherCell.layoutIfNeeded()
+            }
+
             self.tableView.beginUpdates()
             self.tableView.endUpdates()
 
@@ -472,9 +471,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             break
         }
     }
-    
+
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel) {
-        
+
         self.tableView.indexPathsForVisibleRows?.forEach { indexPath in
             guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
                 return  // Not a choice question
@@ -489,13 +488,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             if let choiceCell = cell as? SurveyChoiceCell {
                 choiceCell.isSelected = isSelected
             } else if let choiceCell = cell as? SurveyOtherChoiceCell {
-           
+
                 // cell selection is out of sync with view model selection
-                if (!isSelected && choiceCell.isSelected) ||  (isSelected && !choiceCell.isSelected) {
+                if (!isSelected && choiceCell.isSelected) || (isSelected && !choiceCell.isSelected) {
                     choiceCell.isSelected = isSelected
                     self.tableView.reloadRows(at: [indexPath], with: .fade)
                 }
-                    
+
             } else {
                 return assertionFailure("Should have choice cell for choice question")
             }

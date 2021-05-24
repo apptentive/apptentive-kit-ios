@@ -73,7 +73,7 @@ extension Apptentive {
 
         // Apptentive UIKit extensions overrides
         UITableView.Style.apptentive = .grouped
-        
+
         UIColor.apptentiveInstructionsLabel = instructionsLabelColor
         UIColor.apptentiveImageNotSelected = imageNotSelectedColor
         UIColor.apptentiveTextInputBorder = textInputBorderColor

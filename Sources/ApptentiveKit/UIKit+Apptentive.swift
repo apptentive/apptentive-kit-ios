@@ -92,12 +92,12 @@ extension UIColor {
             return .black
         }
     }()
-    
+
     /// The color to use for instruction labels.
     public static var apptentiveInstructionsLabel: UIColor = {
         return .lightGray
     }()
-    
+
     /// The color to use for choice labels.
     public static var apptentiveChoiceLabel: UIColor = {
         return .darkGray
@@ -130,7 +130,7 @@ extension UIColor {
             return .black
         }
     }()
-    
+
     /// The color to use for the borders of text fields and text views.
     public static var apptentiveTextInputBorder: UIColor = {
         return lightGray
@@ -219,9 +219,7 @@ extension UIColor {
             return .white
         }
     }()
-    
-    
- 
+
     /// The color to use for images in a selected state for surveys.
     public static var apptentiveImageSelected: UIColor = {
         return .systemBlue
@@ -231,7 +229,7 @@ extension UIColor {
     public static var apptentiveImageNotSelected: UIColor = {
         return .lightGray
     }()
-    
+
     /// The background color to use for the submit button on surveys.
     public static var apptentiveSubmitButton: UIColor = {
         if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
@@ -254,7 +252,7 @@ extension UIColor {
     public static var apptentiveTermsOfServiceLabel: UIColor = {
         return .white
     }()
-    
+
     /// The color to use for the submit button text color.
     public static var apptentiveSubmitButtonTitle: UIColor = {
         return .white
@@ -295,7 +293,7 @@ extension UIFont {
     public static var apptentiveSubmitLabel: UIFont = {
         return .preferredFont(forTextStyle: .headline)
     }()
-    
+
     /// The font used for the submit button at the end of surveys.
     public static var apptentiveSubmitButtonTitle: UIFont = {
         return .preferredFont(forTextStyle: .headline)

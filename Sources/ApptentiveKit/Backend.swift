@@ -155,8 +155,8 @@ class Backend {
 
         self.saveToPersistentStorageIfNeeded()
     }
-    
-    func invalidateEngagementManifestForDebug(environment: GlobalEnvironment)  {
+
+    func invalidateEngagementManifestForDebug(environment: GlobalEnvironment) {
         if environment.isDebugBuild == true {
             self.targeter.engagementManifest.expiry = .distantPast
             self.processChanges(from: self.conversation)

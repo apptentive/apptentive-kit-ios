@@ -25,9 +25,9 @@ class SurveySubmitView: UIView {
         self.submitButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
         self.submitButton.titleLabel?.font = .apptentiveSubmitButtonTitle
         self.submitButton.titleLabel?.adjustsFontForContentSizeCategory = true
-     
+
         self.submitButton.setTitleColor(.apptentiveSubmitButtonTitle, for: .normal)
-        
+
         self.submitButton.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([

@@ -44,7 +44,7 @@ class SurveyQuestionHeaderView: UITableViewHeaderFooterView {
         self.instructionsLabel.lineBreakMode = .byWordWrapping
         self.instructionsLabel.font = .apptentiveInstructionsLabel
         self.instructionsLabel.textColor = .apptentiveInstructionsLabel
-        
+
     }
 
     private func configureStackView() {

@@ -62,7 +62,7 @@ class TextModalViewModelTests: XCTestCase {
         switch self.spySender?.engagedEvent?.userInfo {
         case .textModalAction(let textModalAction):
             XCTAssertEqual(textModalAction.invokedInteractionID, "55e6033045ce5551eb00000b")
-            
+
         default:
             XCTFail("Expected event data of type textModalAction")
         }

@@ -107,7 +107,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
         self.textField.backgroundColor = .apptentiveTextInputBackground
         self.textField.textColor = .apptentiveChoiceLabel
         self.textField.returnKeyType = .done
-        
+
         NSLayoutConstraint.activate([
             self.otherTextLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 55.5),
             self.otherTextLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -20),
@@ -120,12 +120,12 @@ class SurveyOtherChoiceCell: UITableViewCell {
         ])
     }
 
-     func setCollapsedConstraints() {
+    func setCollapsedConstraints() {
         self.contentViewBottomConstraint.isActive = true
         self.splitterConstraint.isActive = false
     }
 
-     func setExpandedConstraints() {
+    func setExpandedConstraints() {
         self.contentViewBottomConstraint.isActive = false
         self.splitterConstraint.isActive = true
     }
