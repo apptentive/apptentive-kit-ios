@@ -1,0 +1,60 @@
+
+/* Class = "UITabBarItem"; title = "Custom Data"; ObjectID = "2VO-DL-LDs"; */
+"2VO-DL-LDs.title" = "Custom Data";
+
+/* Class = "UITextField"; placeholder = "Key"; ObjectID = "2et-8h-Ez6"; */
+"2et-8h-Ez6.placeholder" = "Key";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "40y-w3-ZgR"; */
+"40y-w3-ZgR.text" = "Title";
+
+/* Class = "UITextField"; placeholder = "String"; ObjectID = "AQ3-NR-DuV"; */
+"AQ3-NR-DuV.placeholder" = "String";
+
+/* Class = "UILabel"; text = "Key"; ObjectID = "BTT-TE-4gc"; */
+"BTT-TE-4gc.text" = "Key";
+
+/* Class = "UILabel"; text = "Detail"; ObjectID = "CQb-ZG-fCF"; */
+"CQb-ZG-fCF.text" = "Detail";
+
+/* Class = "UILabel"; text = "Value"; ObjectID = "F5e-JP-bog"; */
+"F5e-JP-bog.text" = "Value";
+
+/* Class = "UITextField"; placeholder = "Name/Email"; ObjectID = "ItW-kM-Rps"; */
+"ItW-kM-Rps.placeholder" = "Name/Email";
+
+/* Class = "UILabel"; text = "No Custom Data Set"; ObjectID = "NXu-I1-YPD"; */
+"NXu-I1-YPD.text" = "No Custom Data Set";
+
+/* Class = "UITextField"; placeholder = "Key"; ObjectID = "P8i-xy-ZKC"; */
+"P8i-xy-ZKC.placeholder" = "Key";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "PCE-Qc-SqV"; */
+"PCE-Qc-SqV.text" = "Title";
+
+/* Class = "UISegmentedControl"; Vl7-qn-Dmf.segmentTitles[0] = "Person"; ObjectID = "Vl7-qn-Dmf"; */
+"Vl7-qn-Dmf.segmentTitles[0]" = "Person";
+
+/* Class = "UISegmentedControl"; Vl7-qn-Dmf.segmentTitles[1] = "Device"; ObjectID = "Vl7-qn-Dmf"; */
+"Vl7-qn-Dmf.segmentTitles[1]" = "Device";
+
+/* Class = "UITextField"; placeholder = "new_event_name"; ObjectID = "YQZ-9j-aig"; */
+"YQZ-9j-aig.placeholder" = "new_event_name";
+
+/* Class = "UITextField"; placeholder = "Number"; ObjectID = "bn0-Uz-va2"; */
+"bn0-Uz-va2.placeholder" = "Number";
+
+/* Class = "UITextField"; placeholder = "Key"; ObjectID = "c4t-Xy-KQX"; */
+"c4t-Xy-KQX.placeholder" = "Key";
+
+/* Class = "UITabBarItem"; title = "Interactions"; ObjectID = "c8Q-tA-SlT"; */
+"c8Q-tA-SlT.title" = "Interactions";
+
+/* Class = "UINavigationItem"; title = "Events"; ObjectID = "uyN-Rt-eY3"; */
+"uyN-Rt-eY3.title" = "Events";
+
+/* Class = "UITabBarItem"; title = "Events"; ObjectID = "vWy-Z6-mVC"; */
+"vWy-Z6-mVC.title" = "Events";
+
+/* Class = "UINavigationItem"; title = "Interactions"; ObjectID = "wYm-fi-Xuz"; */
+"wYm-fi-Xuz.title" = "Interactions";
