@@ -1,5 +1,5 @@
 language: swift
-osx_image: xcode12.4
+osx_image: xcode12.5
 os: osx
 
 deploy:
@@ -39,6 +39,7 @@ jobs:
         homebrew:
           packages:
           - swift-format
+          update: true
       script:
         - bundle exec fastlane lint
     - stage: framework

@@ -143,6 +143,7 @@
 		EF5FC3CE25800C62003E127B /* NotImplementedAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3CD25800C62003E127B /* NotImplementedAlertViewModel.swift */; };
 		EF5FC3E125801734003E127B /* NotImplementedAlertUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3DB258013FC003E127B /* NotImplementedAlertUITests.swift */; };
 		EF69E0BC258962DA00FA0636 /* SurveyRangeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF69E0BB258962DA00FA0636 /* SurveyRangeCell.swift */; };
+		EF9B2C73265D79110044D2E2 /* UIWindow+TopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -337,6 +338,7 @@
 		EF5FC3CD25800C62003E127B /* NotImplementedAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertViewModel.swift; sourceTree = "<group>"; };
 		EF5FC3DB258013FC003E127B /* NotImplementedAlertUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertUITests.swift; sourceTree = "<group>"; };
 		EF69E0BB258962DA00FA0636 /* SurveyRangeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyRangeCell.swift; sourceTree = "<group>"; };
+		EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIWindow+TopViewController.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -664,6 +666,7 @@
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */,
 				013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */,
+				EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */,
 				0165B80B258181CF001DF54E /* Apptentive+Theme.swift */,
 				013D8EB824F5C99B005EC4D1 /* Backend.swift */,
 				016E6DC425F8477200151E29 /* Bundle+Apptentive.swift */,
@@ -1096,6 +1099,7 @@
 				013D8EA824F09B01005EC4D1 /* Environment.swift in Sources */,
 				013D8E9224F039F9005EC4D1 /* Conversation.swift in Sources */,
 				01086517253E42FC00101CFB /* PayloadSender.swift in Sources */,
+				EF9B2C73265D79110044D2E2 /* UIWindow+TopViewController.swift in Sources */,
 				010864F3253E197A00101CFB /* EventContents.swift in Sources */,
 				017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */,
 				EF425863263A74BA0094E1DC /* TermsOfService.swift in Sources */,

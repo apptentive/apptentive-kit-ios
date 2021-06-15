@@ -158,14 +158,11 @@ class SurveyUITests: XCTestCase {
         XCUIApplication().activate()
         let tablesQuery = XCUIApplication().tables
         tablesQuery.staticTexts["Survey"].tap()
-
         let toolbar = XCUIApplication().toolbars
-
         let termsOfServiceBarButtonItem = toolbar.buttons["Terms of Service"]
         XCTAssertTrue(termsOfServiceBarButtonItem.exists, "The ToS button is not showing.")
-
         termsOfServiceBarButtonItem.tap()
-
-        XCTAssertFalse(termsOfServiceBarButtonItem.isHittable, "The ToS button is still hittable which means the webview is not showing when the ToS button is tapped.")
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        XCTAssertTrue(safari.wait(for: .runningForeground, timeout: 15.0))
     }
 }
