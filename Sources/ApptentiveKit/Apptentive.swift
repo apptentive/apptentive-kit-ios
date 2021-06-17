@@ -262,6 +262,12 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
     }
 
+    func protectedDataWillBecomeUnavailable(_ environment: GlobalEnvironment) {
+        self.backendQueue.async {
+            self.backend.unload()
+        }
+    }
+
     func applicationWillEnterForeground(_ environment: GlobalEnvironment) {
         self.engage(event: .launch())
 

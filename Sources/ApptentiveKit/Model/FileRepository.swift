@@ -67,7 +67,7 @@ class FileRepository<T> {
     /// - Parameter data: The data to be saved.
     /// - Throws: An error if the data could not be saved.
     fileprivate func save(data: Data) throws {
-        try data.write(to: self.url)
+        try data.write(to: self.url, options: [ .atomic ])
     }
 
     /// Decodes encoded data into the desired object.
