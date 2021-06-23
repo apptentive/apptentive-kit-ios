@@ -66,7 +66,7 @@ class PersonDataSource: DataDataSource {
                 cell.stringTextField.text = value
                 cell.stringTextField.keyboardType = keyboardType
                 cell.stringTextField.tag = indexPath.row
-                cell.stringTextField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
+                cell.stringTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
 
                 return cell
             } else {
@@ -97,7 +97,7 @@ class PersonDataSource: DataDataSource {
         }
     }
 
-    @objc func textFieldChanged(_ sender: UITextField) {
+    @IBAction func textFieldEditingDidEnd(_ sender: UITextField) {
         switch sender.tag {
         case 0:
             self.apptentive.personName = sender.text

@@ -81,6 +81,16 @@ class TextModalViewModelTests: XCTestCase {
         }
     }
 
+    func testRecordedAnswer() {
+        viewModel?.buttons[1].action?()
+        let recordedResponse = self.spySender?.responses
+        XCTAssertEqual(recordedResponse?.count, 1)
+        if let recordedResponseValue = recordedResponse?.values.first, let recordedAnswerValue = recordedResponseValue.first {
+            XCTAssertEqual(recordedAnswerValue, Answer.choice("55e6037a45ce551189000017"))
+        }
+
+    }
+
     func testDismissButton() {
         viewModel?.buttons[3].action?()
 

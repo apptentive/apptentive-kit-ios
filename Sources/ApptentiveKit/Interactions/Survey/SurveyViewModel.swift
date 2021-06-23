@@ -21,6 +21,9 @@ public class SurveyViewModel {
 
     let interaction: Interaction
 
+    /// Whether to display the survey as a vertically-scrolling list or a series of horizontally-scrolling cards.
+    let presentationStyle: SurveyConfiguration.PresentationStyle
+
     /// The name of the survey, typically displayed in a navigation bar.
     public let name: String?
 
@@ -60,25 +63,26 @@ public class SurveyViewModel {
     required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: EventEngaging & ResponseSending & ResponseRecording) {
         self.interaction = interaction
 
+        self.presentationStyle = configuration.presentationStyle ?? .list
+
         self.name = configuration.name
-     
-        self.submitButtonText = configuration.submitText ?? NSLocalizedString("SurveySubmitButtonText", tableName: "Localizable", bundle: Bundle.module, value: "Submit", comment: "Survey submit button title")
+        self.submitButtonText = configuration.submitText ?? "Submit"
         self.validationErrorMessage =
-            configuration.validationError ?? NSLocalizedString("SurveyErrorMessage", tableName: "Localizable", bundle: Bundle.module, value: "There are issues with your responses.", comment: "Survey error validation message")
+            configuration.validationError ?? "There are issues with your responses."
         self.introduction = configuration.introduction
         self.thankYouMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
         self.interactionDelegate = interactionDelegate
 
-        self.closeConfirmationAlertTitle = NSLocalizedString("CloseSurveyAlertTitle", tableName: "Localizable", bundle: Bundle.module, value: "Close survey?", comment: "Survey close confirmation alert title")
-
-        self.closeConfirmationAlertMessage = NSLocalizedString(
-            "CloseConfirmationAlertMessage", tableName: "Localizable", bundle: Bundle.module, value: "You will lose your progress if you close this survey.", comment: "Survey close confirmation alert message")
-
-        self.closeConfirmationBackButtonLabel = NSLocalizedString("CloseConfirmationBackButton", tableName: "Localizable", bundle: Bundle.module, value: "Back to Survey", comment: "Survey close confirmation back button")
-
-        self.closeConfirmationCloseButtonLabel = NSLocalizedString("CloseConfirmationCloseButton", tableName: "Localizable", bundle: Bundle.module, value: "Close", comment: "Survey close confirmation close button")
+        self.closeConfirmationAlertTitle =
+            configuration.closeConfirmationTitle ?? "Close survey?"
+        self.closeConfirmationAlertMessage =
+            configuration.closeConfirmationMessage ?? "You will lose your progress if you close this survey."
+        self.closeConfirmationBackButtonLabel =
+            configuration.closeConfirmationBackButtonText ?? "Back to Survey"
+        self.closeConfirmationCloseButtonLabel =
+            configuration.closeConfirmationCloseButtonText ?? "Close"
 
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self
@@ -148,17 +152,21 @@ public class SurveyViewModel {
             self.delegate?.surveyViewModelDidSubmit(self)
         } else {
             self.questions.forEach { question in
-                question.isMarkedAsInvalid = !question.isValid
-
-                if let choiceQuestion = question as? ChoiceQuestion {
-                    choiceQuestion.choices.forEach { choice in
-                        choice.isMarkedAsInvalid = !choice.isValid
-                    }
-                }
+                self.validateQuestion(question)
             }
 
             self.delegate?.surveyViewModelValidationDidChange(self)
         }
+    }
+
+    public func validateQuestion(_ question: Question) {
+        if let choiceQuestion = question as? ChoiceQuestion {
+            choiceQuestion.choices.forEach { choice in
+                choice.isMarkedAsInvalid = !choice.isValid
+            }
+        }
+        
+        question.isMarkedAsInvalid = !question.isValid
     }
 
     /// Registers that the survey was successfully presented to the user.

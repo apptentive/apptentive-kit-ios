@@ -1,0 +1,221 @@
+{
+  "id": "1",
+  "type": "Survey",
+  "version": 1,
+  "configuration": {
+    "presentation_style": "card",
+    "questions": [
+      {
+        "id": "2",
+        "answer_choices": [
+          {
+            "id": "3",
+            "value": "1A",
+            "type": "select_option"
+          },
+          {
+            "id": "4",
+            "value": "1B",
+            "type": "select_option"
+          },
+          {
+            "id": "5",
+            "value": "Other",
+            "type": "select_other"
+          }
+        ],
+        "instructions": "select one",
+        "randomize": false,
+        "value": "Multichoice Optional",
+        "type": "multichoice",
+        "error_message": "Error - There was a problem with your single-select answer.",
+        "required": false
+      },
+      {
+        "id": "11",
+        "answer_choices": [
+          {
+            "id": "12",
+            "value": "3A",
+            "type": "select_option"
+          },
+          {
+            "id": "14",
+            "value": "3B",
+            "type": "select_option"
+          }
+        ],
+        "instructions": "select all that apply",
+        "randomize": false,
+        "value": "Multiselect Optional",
+        "type": "multiselect",
+        "error_message": "Error - There was a problem with your multi-select answer.",
+        "required": false,
+        "min_selections": 0,
+        "max_selections": 3
+      },
+      {
+        "id": "15",
+        "answer_choices": [
+          {
+            "id": "16",
+            "value": "4Do you have a more specific way to answer this question?",
+            "type": "select_other"
+          },
+          {
+            "id": "17",
+            "value": "4B",
+            "type": "select_option"
+          }
+        ],
+        "instructions": "select at least 1",
+        "randomize": false,
+        "value": "Multiselect Required",
+        "type": "multiselect",
+        "error_message": "Error - There was a problem with your multi-select answer.",
+        "required": true,
+        "min_selections": 1,
+        "max_selections": 2
+      },
+      {
+        "id": "18",
+        "answer_choices": [
+          {
+            "id": "19",
+            "value": "5A",
+            "type": "select_option"
+          },
+          {
+            "id": "20",
+            "value": "5B",
+            "type": "select_option"
+          },
+          {
+            "id": "21",
+            "value": "5Other #1",
+            "type": "select_other",
+            "hint": "Here's a hint..."
+          },
+          {
+            "id": "22",
+            "value": "5C",
+            "type": "select_option"
+          },
+          {
+            "id": "23",
+            "value": "5Other #2",
+            "type": "select_other",
+            "hint": "Another hint..."
+          },
+          {
+            "id": "24",
+            "value": "5D",
+            "type": "select_option"
+          }
+        ],
+        "instructions": "select between 1 and 3",
+        "randomize": true,
+        "value": "Multiselect Optional With Limits",
+        "type": "multiselect",
+        "error_message": "Error - There was a problem with your multi-select answer.",
+        "required": false,
+        "min_selections": 1,
+        "max_selections": 3
+      },
+      {
+        "id": "25",
+        "answer_choices": [
+          {
+            "id": "26",
+            "value": "6A",
+            "type": "select_option"
+          },
+          {
+            "id": "27",
+            "value": "6B",
+            "type": "select_option"
+          },
+          {
+            "id": "28",
+            "value": "6Other #1",
+            "type": "select_other"
+          },
+          {
+            "id": "29",
+            "value": "6C",
+            "type": "select_option"
+          },
+          {
+            "id": "30",
+            "value": "6Other #2",
+            "type": "select_other"
+          },
+          {
+            "id": "31",
+            "value": "6D",
+            "type": "select_option"
+          }
+        ],
+        "instructions": "select between 1 and 3",
+        "randomize": false,
+        "value": "Multiselect Required With Limits",
+        "type": "multiselect",
+        "error_message": "Error - There was a problem with your multi-select answer.",
+        "required": true,
+        "min_selections": 1,
+        "max_selections": 3
+      },
+      {
+        "id": "56e0b5d9c7199274f700001a",
+        "randomize": false,
+        "multiline": false,
+        "value": "Singleline Short Optional",
+        "type": "singleline",
+        "error_message": "Error - There was a problem with your text answer.",
+        "required": false,
+        "freeform_hint": "7"
+      },
+      {
+        "id": "56e0b5d9c7199274f700001b",
+        "randomize": false,
+        "multiline": false,
+        "value": "Singleline Short Required",
+        "type": "singleline",
+        "error_message": "Error - There was a problem with your text answer.",
+        "required": true,
+        "freeform_hint": "8"
+      },
+      {
+        "id": "56e0b5d9c7199274f700001c",
+        "randomize": false,
+        "multiline": true,
+        "value": "Singleline Long Optional",
+        "type": "singleline",
+        "error_message": "Error - There was a problem with your text answer.",
+        "required": false,
+        "freeform_hint": "9"
+      },
+      {
+        "id": "56e0b5d9c7199274f700001d",
+        "randomize": false,
+        "multiline": true,
+        "value": "Singleline Long Required",
+        "type": "singleline",
+        "error_message": "Error - There was a problem with your text answer.",
+        "required": true,
+        "freeform_hint": "10"
+      },
+    ],
+    "submit_text": "Boom",
+    "required_text": "Mandatory",
+    "validation_error": "You done goofed.",
+    "title": "(copy) All Combos Survey",
+    "name": "Every Question Type",
+    "description": "Please help us see how each question is formatted when returning a survey response to the server.",
+    "multiple_responses": true,
+    "show_success_message": true,
+    "view_period": 86400,
+    "required": false,
+    "success_message": "Thank you!"
+  }
+}

@@ -57,7 +57,7 @@ extension Apptentive {
         barButtonItemAppearance.setTitleTextAttributes(barTextAttributes, for: .normal)
         barButtonItemAppearance.tintColor = barForegroundColor
 
-        UIView.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self, UITableView.self]).tintColor = buttonTintColor
+        //UIView.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self, UITableView.self]).tintColor = buttonTintColor
 
         let backgroundColor: UIColor = {
             if #available(iOS 13.0, *) {
@@ -73,7 +73,7 @@ extension Apptentive {
 
         // Apptentive UIKit extensions overrides
         UITableView.Style.apptentive = .grouped
-        
+
         UIColor.apptentiveInstructionsLabel = instructionsLabelColor
         UIColor.apptentiveImageNotSelected = imageNotSelectedColor
         UIColor.apptentiveTextInputBorder = textInputBorderColor

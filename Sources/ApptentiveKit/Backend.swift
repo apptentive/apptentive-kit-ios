@@ -110,7 +110,9 @@ class Backend {
         self.conversation.appCredentials = appCredentials
     }
 
-    /// Loads a previously saved conversation, if any, from persistent storage.
+    /// Sets up access to persistent storage and loads any previously-saved conversation data.
+    ///
+    /// This method may be called multiple times if the device is locked with the app in the foreground and then unlocked.
     /// - Parameters:
     ///   - containerURL: A file URL corresponding to the container directory for Apptentive files.
     ///   - fileManager: The `FileManager` instance to use when accessing the filesystem.
@@ -139,7 +141,19 @@ class Backend {
 
         self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: environment.fileManager)
 
-        self.startPersistenceTimer()
+        // Because of potentially unbalanced calls to `load(containerURL:environment)` and `unload()`,
+        // we suspend (but don't discard) the persistence timer. Therefore it should only be created once.
+        if self.persistenceTimer == nil {
+            self.startPersistenceTimer()
+        }
+    }
+
+    /// Reliquishes access to persistent storage.
+    ///
+    /// Called when the device is locked with the app in the foreground.
+    func unload() {
+        self.payloadSender.repository = nil
+        self.conversationRepository = nil
     }
 
     func willEnterForeground(environment: GlobalEnvironment) {
@@ -155,11 +169,11 @@ class Backend {
 
         self.saveToPersistentStorageIfNeeded()
     }
-    
-    func invalidateEngagementManifestForDebug(environment: GlobalEnvironment)  {
+
+    func invalidateEngagementManifestForDebug(environment: GlobalEnvironment) {
         if environment.isDebugBuild == true {
             self.targeter.engagementManifest.expiry = .distantPast
-            self.getInteractionsIfNeeded()
+            self.processChanges(from: self.conversation)
         }
     }
 

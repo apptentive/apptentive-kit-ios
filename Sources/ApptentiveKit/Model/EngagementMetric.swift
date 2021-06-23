@@ -68,6 +68,6 @@ struct EngagementMetric: Equatable, Codable {
             newLastInvoked = lastInvoked ?? newer.lastInvoked
         }
 
-        return EngagementMetric(totalCount: newTotalCount, versionCount: newVersionCount, buildCount: newBuildCount, lastInvoked: newLastInvoked,  answers: newAnswers)
+        return EngagementMetric(totalCount: newTotalCount, versionCount: newVersionCount, buildCount: newBuildCount, lastInvoked: newLastInvoked, answers: newAnswers)
     }
 }

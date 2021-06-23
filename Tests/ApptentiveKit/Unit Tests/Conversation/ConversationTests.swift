@@ -37,12 +37,16 @@ class ConversationTests: XCTestCase {
 
         var conversation = Conversation(environment: environment)
 
-        conversation.interactions.invoke(for: "abcwer", with: [
-            .choice("id1"),
-            .other("id2", "value2"),
-            .freeform("value3"),
-            .range(5)
-        ])
+        conversation.interactions.invoke(
+            for: "abcwer",
+            with: [
+                .choice("id1"),
+                .other("id2", "value2"),
+                .freeform("value3"),
+                .range(5),
+            ])
+
+        let _ = try? conversation.value(for: "random/xyz/percent")
 
         let encoder = PropertyListEncoder()
 

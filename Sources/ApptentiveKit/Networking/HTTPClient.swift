@@ -50,6 +50,9 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
                 completion(
                     Result {
                         let httpResponse = try Self.processResult(data: data, response: response, error: error)
+
+                        Self.log(httpResponse)
+
                         return try endpoint.transformResponse(httpResponse)
                     })
             }
@@ -107,6 +110,19 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
 
         request.httpBody.flatMap {
             ApptentiveLogger.network.debug("Body: \(String(data: $0, encoding: .utf8) ?? "<encoding error>")")
+        }
+    }
+
+    static func log(_ response: HTTPResponse) {
+        ApptentiveLogger.network.debug("API response from \(response.response.url?.absoluteString ?? "<no URL>"), status \(response.response.statusCode)")
+
+        ApptentiveLogger.network.debug("API response headers:")
+        response.response.allHeaderFields.forEach({ (header, value) in
+            ApptentiveLogger.network.debug("  \((header as? String) ?? "???"): \((value as? String) ?? "???", privacy: .auto)")
+        })
+
+        if response.data.count > 0 {
+            ApptentiveLogger.network.debug("Body: \(String(data: response.data, encoding: .utf8) ?? "<encoding error>")")
         }
     }
 }

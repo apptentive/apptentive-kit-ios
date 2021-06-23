@@ -158,6 +158,12 @@ enum ConditionalOperator: String {
     func evaluate(_ value: Any?, with parameter: AnyObject?) -> Bool {
         switch (self, value, parameter) {
 
+        // Existential set (interaction response) operators
+        case (.exists, let value as Set<String>, let parameter as Bool):
+            return value.isEmpty != parameter
+        case (.exists, let value as Set<Answer.Value>, let parameter as Bool):
+            return value.isEmpty != parameter
+
         // Universal operators
         case (.exists, let value, let parameter as Bool):
             return (value != nil) == parameter
@@ -169,6 +175,14 @@ enum ConditionalOperator: String {
             return value.trimmedAndLowercased().hasSuffix(parameter.trimmedAndLowercased())
         case (.contains, let value as String, let parameter as String):
             return value.trimmedAndLowercased().contains(parameter.trimmedAndLowercased())
+
+        // String set (interaction response) operators
+        case (.startsWith, let value as Set<Answer.Value>, let parameter as String):
+            return value.contains(where: { $0.stringValue?.trimmedAndLowercased().hasPrefix(parameter.trimmedAndLowercased()) == true })
+        case (.endsWith, let value as Set<Answer.Value>, let parameter as String):
+            return value.contains(where: { $0.stringValue?.trimmedAndLowercased().hasSuffix(parameter.trimmedAndLowercased()) == true })
+        case (.contains, let value as Set<Answer.Value>, let parameter as String):
+            return value.contains(where: { $0.stringValue?.trimmedAndLowercased().contains(parameter.trimmedAndLowercased()) == true })
 
         // Relative date operators
         case (.after, let value as Date, let parameter as TimeInterval):
@@ -186,6 +200,14 @@ enum ConditionalOperator: String {
         case (.equals, nil, nil):
             return true
 
+        // Equality set (interaction response) operators
+        case (.equals, let value as Set<String>, let parameter as String):
+            return value.contains(parameter)
+        case (.equals, let value as Set<Answer.Value>, let parameter as String):
+            return value.contains(where: { $0.stringValue?.trimmedAndLowercased() == parameter.trimmedAndLowercased() })
+        case (.equals, let value as Set<Answer.Value>, let parameter as Int):
+            return value.contains(where: { $0.intValue == parameter })
+
         // Nonequality operators
         case (.notEquals, let value as Bool, let parameter as Bool):
             return value != parameter
@@ -195,6 +217,14 @@ enum ConditionalOperator: String {
             return false
         case (.notEquals, nil, nil):
             return false
+
+        // Nonequality set (interaction response) operators
+        case (.notEquals, let value as Set<String>, let parameter as String):
+            return !value.contains(parameter)
+        case (.notEquals, let value as Set<Answer.Value>, let parameter as String):
+            return !value.contains(where: { $0.stringValue?.trimmedAndLowercased() == parameter.trimmedAndLowercased() })
+        case (.notEquals, let value as Set<Answer.Value>, let parameter as Int):
+            return !value.contains(where: { $0.intValue == parameter })
 
         // Comparison operators
         case (_, _ as Bool, _ as Int):
@@ -207,6 +237,16 @@ enum ConditionalOperator: String {
             return compare(value, with: parameter)
         case (_, let value as Version, let parameter as Version):
             return compare(value, with: parameter)
+
+        // Comparison set (interaction response) operators
+        case (_, let value as Set<Answer.Value>, let parameter as Int):
+            return value.contains(where: { element in
+                if let intValue = element.intValue {
+                    return compare(intValue, with: parameter)
+                } else {
+                    return false
+                }
+            })
 
         // Error cases
         default:

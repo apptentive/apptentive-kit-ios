@@ -1,0 +1,190 @@
+{
+    "$and": [
+        {
+            "interactions/did_not_respond/answers/value": {
+                "$exists": false
+            }
+        },
+        {
+            "interactions/did_not_respond/answers/id": {
+                "$exists": false
+            }
+        },
+        {
+            "interactions/other_question/answers/value": {
+                "$exists": true
+            }
+        },
+        {
+            "interactions/other_question/answers/id": {
+                "$exists": true
+            }
+        },
+        {
+            "interactions/range_question/answers/value": {
+                "$eq": -2
+            }
+        },
+        {
+            "interactions/range_question/answers/value": {
+                "$eq": 0
+            }
+        },
+        {
+            "interactions/range_question/answers/value": {
+                "$eq": 2
+            }
+        },
+        {
+            "interactions/range_question/answers/value": {
+                "$ne": 1
+            }
+        },
+        {
+            "interactions/range_question/answers/value": {
+                "$lt": 0
+            }
+        },
+        {
+            "interactions/range_question/answers/value": {
+                "$gte": 0
+            }
+        },
+        {
+            "$not": {
+                "interactions/range_question/answers/value": {
+                    "$lt": -2
+                }
+            }
+        },
+        {
+            "$not": {
+                "interactions/range_question/answers/value": {
+                    "$gt": 2
+                }
+            }
+        },
+        {
+            "interactions/freeform_question/answers/value": {
+                "$contains": "BeTcH"
+            }
+        },
+        {
+            "interactions/freeform_question/answers/value": {
+                "$ends_with": "cHa"
+            }
+        },
+        {
+            "interactions/freeform_question/answers/value": {
+                "$starts_with": "You"
+            }
+        },
+        {
+            "interactions/freeform_question/answers/value": {
+                "$eq": "yah"
+            }
+        },
+        {
+            "interactions/freeform_question/answers/value": {
+                "$ne": "foo"
+            }
+        },
+        {
+            "$not": {
+                "interactions/freeform_question/answers/value": {
+                    "$contains": "foo"
+                }
+            }
+        },
+        {
+            "$not": {
+                "interactions/freeform_question/answers/value": {
+                    "$ends_with": "bar"
+                }
+            }
+        },
+        {
+            "$not": {
+                "interactions/freeform_question/answers/value": {
+                    "$starts_with": "baz"
+                }
+            }
+        },
+        {
+            "interactions/choice_question/answers/id": {
+                "$eq": "abc123"
+            }
+        },
+        {
+            "interactions/choice_question/answers/id": {
+                "$eq": "def456"
+            }
+        },
+        {
+            "interactions/choice_question/answers/id": {
+                "$ne": "foo098"
+            }
+        },
+        {
+            "interactions/other_question/answers/id": {
+                "$eq": "ghi123"
+            }
+        },
+        {
+            "interactions/other_question/answers/id": {
+                "$eq": "jkl456"
+            }
+        },
+        {
+            "interactions/other_question/answers/id": {
+                "$ne": "foo123"
+            }
+        },
+        {
+            "interactions/other_question/answers/value": {
+                "$contains": "kid"
+            }
+        },
+        {
+            "interactions/other_question/answers/value": {
+                "$ends_with": "kidding"
+            }
+        },
+        {
+            "interactions/other_question/answers/value": {
+                "$starts_with": "JUST"
+            }
+        },
+        {
+            "interactions/other_question/answers/value": {
+                "$eq": "Gee"
+            }
+        },
+        {
+            "interactions/other_question/answers/value": {
+                "$ne": "foo"
+            }
+        },
+        {
+            "$not": {
+                "interactions/other_question/answers/value": {
+                    "$contains": "foo"
+                }
+            }
+        },
+        {
+            "$not": {
+                "interactions/other_question/answers/value": {
+                    "$ends_with": "bar"
+                }
+            }
+        },
+        {
+            "$not": {
+                "interactions/other_question/answers/value": {
+                    "$starts_with": "baz"
+                }
+            }
+        }
+    ]
+}

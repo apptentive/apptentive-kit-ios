@@ -135,7 +135,7 @@ extension SurveyViewModel {
             }
 
             /// The freeform "Other" text entered by the user for this choice.
-            public var otherText: String? {
+            public var value: String? {
                 didSet {
                     self.updateMarkedAsInvalid()
                 }
@@ -170,7 +170,7 @@ extension SurveyViewModel {
             var responsePart: Answer? {
                 if self.isSelected {
                     if self.supportsOther {
-                        guard let otherText = self.otherText else {
+                        guard let otherText = self.value else {
                             return nil
                         }
 
@@ -186,7 +186,7 @@ extension SurveyViewModel {
             private let id: String
 
             private var trimmedOtherText: String? {
-                if let trimmed = self.otherText?.trimmingCharacters(in: .whitespacesAndNewlines), trimmed.count > 0 {
+                if let trimmed = self.value?.trimmingCharacters(in: .whitespacesAndNewlines), trimmed.count > 0 {
                     return trimmed
                 } else {
                     return nil

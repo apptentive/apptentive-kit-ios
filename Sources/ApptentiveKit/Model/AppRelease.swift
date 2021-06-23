@@ -44,6 +44,9 @@ struct AppRelease: Equatable, Codable {
     /// Whether the app is overriding the default Apptentive styling.
     var isOverridingStyles: Bool = false
 
+    /// The minimum OS version that the app can run on.
+    var deploymentTarget: String?
+
     /// The compiler used to build the SDK.
     var compiler: String?
 
@@ -115,6 +118,7 @@ struct AppRelease: Equatable, Codable {
                 self.build = Version(string: buildString)
             }
 
+            self.deploymentTarget = infoDictionary["MinimumOSVersion"] as? String
             self.compiler = infoDictionary["DTCompiler"] as? String
             self.platformBuild = infoDictionary["DTPlatformBuild"] as? String
             self.platformName = infoDictionary["DTPlatformName"] as? String
@@ -150,6 +154,7 @@ struct AppRelease: Equatable, Codable {
         self.hasAppStoreReceipt = newer.hasAppStoreReceipt
         self.isDebugBuild = newer.isDebugBuild
         self.isOverridingStyles = newer.isOverridingStyles
+        self.deploymentTarget = newer.deploymentTarget
         self.compiler = newer.compiler
         self.platformBuild = newer.platformBuild
         self.platformName = newer.platformName

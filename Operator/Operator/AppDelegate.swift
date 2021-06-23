@@ -47,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return
         }
         self.apptentive = Apptentive(apiBaseURL: url)
-        apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature))
+        apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature), completion: completion)
     }
 }
 extension UIViewController {

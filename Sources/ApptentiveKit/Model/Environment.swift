@@ -69,6 +69,10 @@ protocol EnvironmentDelegate: AnyObject {
     /// - Parameter environment: The environment calling the method.
     func protectedDataDidBecomeAvailable(_ environment: GlobalEnvironment)
 
+    /// Notifies the receiver that access to protected data (from the encrypted filesystem) will no longer be available.
+    /// - Parameter environment: The environment calling the method.
+    func protectedDataWillBecomeUnavailable(_ environment: GlobalEnvironment)
+
     /// Notifies the receiver that the application will enter the foreground.
     /// - Parameter environment: The environment calling the method.
     func applicationWillEnterForeground(_ environment: GlobalEnvironment)
@@ -221,6 +225,7 @@ class Environment: GlobalEnvironment {
 
         #if canImport(UIKit)
             NotificationCenter.default.addObserver(self, selector: #selector(protectedDataDidBecomeAvailable(notification:)), name: UIApplication.protectedDataDidBecomeAvailableNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(protectedDataWillBecomeUnavailable(notification:)), name: UIApplication.protectedDataWillBecomeUnavailableNotification, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(applicationWillEnterForeground(notification:)), name: UIApplication.willEnterForegroundNotification, object: nil)
 
             NotificationCenter.default.addObserver(self, selector: #selector(applicationDidEnterBackground(notification:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -295,6 +300,11 @@ class Environment: GlobalEnvironment {
         @objc func protectedDataDidBecomeAvailable(notification: Notification) {
             self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
             delegate?.protectedDataDidBecomeAvailable(self)
+        }
+
+        @objc func protectedDataWillBecomeUnavailable(notification: Notification) {
+            self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
+            delegate?.protectedDataWillBecomeUnavailable(self)
         }
 
         @objc func applicationWillEnterForeground(notification: Notification) {

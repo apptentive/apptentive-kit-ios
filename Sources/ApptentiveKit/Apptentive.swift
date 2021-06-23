@@ -22,7 +22,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     ///
     /// This property must be set before calling `register(credentials:)`.
     public var theme: UITheme = .apptentive
-        
+
     /// The object representing the terms of service at the bottom of surveys.
     public var termsOfService: TermsOfService? = nil
 
@@ -106,6 +106,15 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
             self.applyApptentiveTheme()
         }
 
+        if !isTesting {
+
+            if credentials.key.isEmpty || credentials.signature.isEmpty {
+                assertionFailure("App key or signature is missing.")
+            } else if !credentials.key.hasPrefix("IOS-") {
+                assertionFailure("Invalid app key. Please check the dashboard for the correct app key.")
+            }
+        }
+
         self.backendQueue.async {
             self.backend.connect(appCredentials: credentials) { result in
                 switch result {
@@ -116,7 +125,9 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
                 case .failure(let error):
                     completion?(.failure(error))
                     ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
-
+                    if !self.isTesting {
+                        assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                    }
                 }
             }
         }
@@ -262,6 +273,12 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
     }
 
+    func protectedDataWillBecomeUnavailable(_ environment: GlobalEnvironment) {
+        self.backendQueue.async {
+            self.backend.unload()
+        }
+    }
+
     func applicationWillEnterForeground(_ environment: GlobalEnvironment) {
         self.engage(event: .launch())
 
@@ -304,6 +321,11 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         self.backendQueue.async {
             self.backend.conversation.device = self.device
         }
+    }
+
+    /// Checks the environment to see if testing is taking place.
+    private var isTesting: Bool {
+        return ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
 }
 
