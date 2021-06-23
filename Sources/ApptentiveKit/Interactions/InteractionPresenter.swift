@@ -131,8 +131,9 @@ open class InteractionPresenter {
 
         // If we have a presenting view but one of its ancestors' `isBeingDismissed` is set, use that VC's parent.
         if let presentingViewController = self.presentingViewController,
-           let dismissingAncestor = Self.findDismissingAncestor(of: presentingViewController),
-           let parentOfDismissingAncestor = Self.findParentViewController(of: dismissingAncestor) {
+            let dismissingAncestor = Self.findDismissingAncestor(of: presentingViewController),
+            let parentOfDismissingAncestor = Self.findParentViewController(of: dismissingAncestor)
+        {
             return parentOfDismissingAncestor
         } else {
             // Otherwise, as far as we know, the presenting view controller is good.

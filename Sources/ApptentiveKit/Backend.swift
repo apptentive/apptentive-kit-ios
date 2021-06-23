@@ -150,7 +150,7 @@ class Backend {
 
     /// Reliquishes access to persistent storage.
     ///
-    /// Called when the device is locked with the app in the foreground. 
+    /// Called when the device is locked with the app in the foreground.
     func unload() {
         self.payloadSender.repository = nil
         self.conversationRepository = nil
