@@ -146,7 +146,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertFalse(multiselectRequired.isValid)
         multiselectRequired.toggleChoice(at: 0)
         XCTAssertFalse(multiselectRequired.isValid, "Other text should be required.")
-        multiselectRequired.choices[0].otherText = "Bar"
+        multiselectRequired.choices[0].value = "Bar"
         XCTAssertTrue(multiselectRequired.isValid, "Implicit minimum of one selection (provided by server)")
 
         XCTAssertTrue(multiselectOptionalWithLimits.isValid, "Multiselect optional limits only enforced if something is selected")
@@ -184,12 +184,12 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertTrue(freeformLongOptional.isValid)
         XCTAssertFalse(freeformLongRequired.isValid)
 
-        freeformShortRequired.answerText = " "
+        freeformShortRequired.value = " "
         XCTAssertFalse(freeformShortRequired.isValid)
-        freeformShortRequired.answerText = "Yo"
+        freeformShortRequired.value = "Yo"
         XCTAssertTrue(freeformShortRequired.isValid)
 
-        freeformLongRequired.answerText = "Hey"
+        freeformLongRequired.value = "Hey"
         XCTAssertTrue(freeformLongRequired.isValid)
     }
 
@@ -306,7 +306,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 
         self.gotValidationDidChange = false
         multiselectRequired.toggleChoice(at: 0)
-        multiselectRequired.choices[0].otherText = "Foo"
+        multiselectRequired.choices[0].value = "Foo"
         XCTAssertTrue(self.gotValidationDidChange)
         XCTAssertFalse(multiselectRequired.isMarkedAsInvalid)
         self.gotValidationDidChange = false
@@ -326,20 +326,20 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertFalse(multiselectRequiredWithLimits.isMarkedAsInvalid, "Should not re-validate until submit")
 
         self.gotValidationDidChange = false
-        freeformShortRequired.answerText = "Yo"
+        freeformShortRequired.value = "Yo"
         XCTAssertTrue(self.gotValidationDidChange)
         XCTAssertFalse(freeformShortRequired.isMarkedAsInvalid)
         self.gotValidationDidChange = false
-        freeformShortRequired.answerText = " "
+        freeformShortRequired.value = " "
         XCTAssertFalse(self.gotValidationDidChange)
         XCTAssertFalse(freeformShortRequired.isMarkedAsInvalid, "Should not re-validate until submit")
 
         self.gotValidationDidChange = false
-        freeformLongRequired.answerText = "Hey"
+        freeformLongRequired.value = "Hey"
         XCTAssertTrue(self.gotValidationDidChange)
         XCTAssertFalse(freeformLongRequired.isMarkedAsInvalid)
         self.gotValidationDidChange = false
-        freeformLongRequired.answerText = ""
+        freeformLongRequired.value = ""
         XCTAssertFalse(self.gotValidationDidChange)
         XCTAssertFalse(freeformLongRequired.isMarkedAsInvalid, "Should not re-validate until submit")
 
@@ -382,16 +382,16 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         multiselectOptional.toggleChoice(at: 0)
         multiselectOptional.toggleChoice(at: 2)
         multiselectRequired.toggleChoice(at: 0)
-        multiselectRequired.choices[0].otherText = "Bar"
+        multiselectRequired.choices[0].value = "Bar"
         multiselectOptionalWithLimits.toggleChoice(at: 0)
         multiselectRequiredWithLimits.toggleChoice(at: 0)
         multiselectRequiredWithLimits.toggleChoice(at: 2)
-        multiselectRequiredWithLimits.choices[2].otherText = "Foo"
+        multiselectRequiredWithLimits.choices[2].value = "Foo"
 
-        freeformShortOptional.answerText = " "
-        freeformShortRequired.answerText = "Foo"
-        freeformLongOptional.answerText = "\n"
-        freeformLongRequired.answerText = "Bar"
+        freeformShortOptional.value = " "
+        freeformShortRequired.value = "Foo"
+        freeformLongOptional.value = "\n"
+        freeformLongRequired.value = "Bar"
 
         rangeNPS.selectValue(at: 10)
         rangeHowDoYouFeel.selectValue(at: 1)

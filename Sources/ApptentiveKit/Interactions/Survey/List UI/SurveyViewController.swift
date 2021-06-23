@@ -182,7 +182,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         switch (question, cell) {
         case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let singleLineCell as SurveySingleLineCell):
             singleLineCell.textField.placeholder = freeformQuestion.placeholderText
-            singleLineCell.textField.text = freeformQuestion.answerText
+            singleLineCell.textField.text = freeformQuestion.value
             singleLineCell.textField.delegate = self
             singleLineCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
             singleLineCell.textField.tag = self.tag(for: indexPath)
@@ -191,9 +191,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             singleLineCell.isMarkedAsInvalid = question.isMarkedAsInvalid
 
         case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let multiLineCell as SurveyMultiLineCell):
-            multiLineCell.textView.text = freeformQuestion.answerText
+            multiLineCell.textView.text = freeformQuestion.value
             multiLineCell.placeholderLabel.text = freeformQuestion.placeholderText
-            multiLineCell.placeholderLabel.isHidden = !(freeformQuestion.answerText?.isEmpty ?? true)
+            multiLineCell.placeholderLabel.isHidden = !(freeformQuestion.value?.isEmpty ?? true)
             multiLineCell.textView.delegate = self
             multiLineCell.textView.tag = self.tag(for: indexPath)
             multiLineCell.textView.accessibilityIdentifier = String(indexPath.section)
@@ -238,7 +238,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             otherCell.otherTextLabel.text = choice.label
             otherCell.isSelected = choice.isSelected
-            otherCell.textField.text = choice.otherText
+            otherCell.textField.text = choice.value
             otherCell.textField.delegate = self
             otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
             otherCell.textField.tag = self.tag(for: indexPath)
@@ -532,9 +532,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let question = self.viewModel.questions[indexPath.section]
 
         if let freeformQuestion = question as? SurveyViewModel.FreeformQuestion {
-            freeformQuestion.answerText = textField.text
+            freeformQuestion.value = textField.text
         } else if let choiceQuestion = question as? SurveyViewModel.ChoiceQuestion {
-            choiceQuestion.choices[indexPath.row].otherText = textField.text
+            choiceQuestion.choices[indexPath.row].value = textField.text
         } else {
             return assertionFailure("Text field sending events to wrong question")
         }
@@ -556,6 +556,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         return false
     }
 
+    // We probably don't need this now that the Other text field is only visible when the choice is selected.
     func textFieldDidBeginEditing(_ textField: UITextField) {
         let indexPath = self.indexPath(forTag: textField.tag)
 
@@ -583,7 +584,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             return assertionFailure("Text view sending delegate calls to wrong question")
         }
 
-        question.answerText = textView.text
+        question.value = textView.text
     }
 
     func textViewDidBeginEditing(_ textView: UITextView) {

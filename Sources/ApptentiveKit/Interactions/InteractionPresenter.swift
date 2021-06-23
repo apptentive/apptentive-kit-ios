@@ -80,7 +80,7 @@ open class InteractionPresenter {
     /// - Parameter viewModel: the survey view model that represents the survey and handles submissions.
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
     open func presentSurvey(with viewModel: SurveyViewModel) throws {
-        let viewController = SurveyViewController(viewModel: viewModel)
+        let viewController = viewModel.presentationStyle == .card ? CardViewController(viewModel: viewModel) : SurveyViewController(viewModel: viewModel)
 
         let navigationController = ApptentiveNavigationController(rootViewController: viewController)
 

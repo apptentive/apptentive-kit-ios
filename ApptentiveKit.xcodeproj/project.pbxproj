@@ -14,6 +14,7 @@
 		011C64BC264C48D300219243 /* EngagementMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011C64BB264C48D300219243 /* EngagementMetric.swift */; };
 		011C64D3264D881400219243 /* Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011C64D2264D881400219243 /* Answer.swift */; };
 		011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011FF85F252D1AF700073EBC /* InteractionDelegate.swift */; };
+		01211C0B26810CC3009F0364 /* SurveyCardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01211C0A26810CC3009F0364 /* SurveyCardUITests.swift */; };
 		012A1B60263A219500EBC073 /* LegacyConversationRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012A1B5F263A219500EBC073 /* LegacyConversationRepositoryTests.swift */; };
 		012A1B62263A21C400EBC073 /* Legacy Data in Resources */ = {isa = PBXBuildFile; fileRef = 012A1B61263A21C400EBC073 /* Legacy Data */; };
 		012A1B68263A27D100EBC073 /* LegacyEngagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012A1B66263A27CD00EBC073 /* LegacyEngagement.swift */; };
@@ -90,6 +91,10 @@
 		017FC9922531101500C7A47F /* TargeterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC9752531101500C7A47F /* TargeterTests.swift */; };
 		017FC9942531101500C7A47F /* EventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC9772531101500C7A47F /* EventTests.swift */; };
 		01822BBA2565727D006ADB3B /* SurveyQuestionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */; };
+		01870CEA2643582F00DC8796 /* CardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01870CE92643582F00DC8796 /* CardViewController.swift */; };
+		01870CEE264358D800DC8796 /* AdvanceButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01870CEB264358D800DC8796 /* AdvanceButton.swift */; };
+		01870CEF264358D800DC8796 /* SurveyIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01870CEC264358D800DC8796 /* SurveyIndicator.swift */; };
+		01870CF0264358D800DC8796 /* QuestionCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01870CED264358D800DC8796 /* QuestionCardView.swift */; };
 		018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9090247EFFEC004577EB /* SurveyViewModel.swift */; };
 		018A909A247F09D4004577EB /* Interaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A9099247F09D4004577EB /* Interaction.swift */; };
 		019121812404581B00FFE0F4 /* ApptentiveFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */; };
@@ -117,6 +122,7 @@
 		01C0218A25DC891A00547059 /* Criteria+Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C0218925DC891A00547059 /* Criteria+Logging.swift */; };
 		01C54076258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */; };
 		01C7958425C1082800FD28F1 /* PersonAndDeviceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C7958325C1082800FD28F1 /* PersonAndDeviceTests.swift */; };
+		01D19C8D266162FB00BD8CF9 /* ChoiceButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D19C8C266162FB00BD8CF9 /* ChoiceButton.swift */; };
 		01D739282405CB630000EE52 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		01E79821251C2E9D00D24A05 /* ConversationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E79820251C2E9D00D24A05 /* ConversationRequest.swift */; };
 		01E79845251C30F800D24A05 /* Payload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E79844251C30F800D24A05 /* Payload.swift */; };
@@ -199,6 +205,7 @@
 		011C64BB264C48D300219243 /* EngagementMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementMetric.swift; sourceTree = "<group>"; };
 		011C64D2264D881400219243 /* Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Answer.swift; sourceTree = "<group>"; };
 		011FF85F252D1AF700073EBC /* InteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionDelegate.swift; sourceTree = "<group>"; };
+		01211C0A26810CC3009F0364 /* SurveyCardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyCardUITests.swift; sourceTree = "<group>"; };
 		012A1B5F263A219500EBC073 /* LegacyConversationRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConversationRepositoryTests.swift; sourceTree = "<group>"; };
 		012A1B61263A21C400EBC073 /* Legacy Data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Legacy Data"; sourceTree = "<group>"; };
 		012A1B63263A250300EBC073 /* LegacyConversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConversation.swift; sourceTree = "<group>"; };
@@ -278,6 +285,10 @@
 		017FC9752531101500C7A47F /* TargeterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TargeterTests.swift; sourceTree = "<group>"; };
 		017FC9772531101500C7A47F /* EventTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventTests.swift; sourceTree = "<group>"; };
 		01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyQuestionHeaderView.swift; sourceTree = "<group>"; };
+		01870CE92643582F00DC8796 /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
+		01870CEB264358D800DC8796 /* AdvanceButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdvanceButton.swift; sourceTree = "<group>"; };
+		01870CEC264358D800DC8796 /* SurveyIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyIndicator.swift; sourceTree = "<group>"; };
+		01870CED264358D800DC8796 /* QuestionCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuestionCardView.swift; sourceTree = "<group>"; };
 		018A9090247EFFEC004577EB /* SurveyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyViewModel.swift; sourceTree = "<group>"; };
 		018A9099247F09D4004577EB /* Interaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interaction.swift; sourceTree = "<group>"; };
 		019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveFeatureTests.swift; sourceTree = "<group>"; };
@@ -309,6 +320,7 @@
 		01C0218925DC891A00547059 /* Criteria+Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Criteria+Logging.swift"; sourceTree = "<group>"; };
 		01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyOtherChoiceCell.swift; sourceTree = "<group>"; };
 		01C7958325C1082800FD28F1 /* PersonAndDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonAndDeviceTests.swift; sourceTree = "<group>"; };
+		01D19C8C266162FB00BD8CF9 /* ChoiceButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoiceButton.swift; sourceTree = "<group>"; };
 		01D739232405CB630000EE52 /* ApptentiveUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01D739272405CB630000EE52 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01E79820251C2E9D00D24A05 /* ConversationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationRequest.swift; sourceTree = "<group>"; };
@@ -487,7 +499,7 @@
 			path = EnjoymentDialog;
 			sourceTree = "<group>";
 		};
-		015A3A3A24DCD4B600DD44A2 /* Default UI */ = {
+		015A3A3A24DCD4B600DD44A2 /* List UI */ = {
 			isa = PBXGroup;
 			children = (
 				015F2ACE24C8F2DD004B53E2 /* SurveyViewController.swift */,
@@ -500,7 +512,7 @@
 				015F2AE024C9FEBF004B53E2 /* SurveyMultiLineCell.swift */,
 				015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */,
 			);
-			path = "Default UI";
+			path = "List UI";
 			sourceTree = "<group>";
 		};
 		015D6BC3250AC0AC00372759 /* Conversation */ = {
@@ -605,7 +617,8 @@
 		018A90D82481C73C004577EB /* Survey */ = {
 			isa = PBXGroup;
 			children = (
-				015A3A3A24DCD4B600DD44A2 /* Default UI */,
+				0190A018265860BD00FA4368 /* Card UI */,
+				015A3A3A24DCD4B600DD44A2 /* List UI */,
 				015F2AAB24C7A6DB004B53E2 /* SurveyConfiguration.swift */,
 				018A9090247EFFEC004577EB /* SurveyViewModel.swift */,
 				015AF83624E739C0000DF8B0 /* SurveyViewModel+Question.swift */,
@@ -615,6 +628,18 @@
 				015F2ADC24C9EE3A004B53E2 /* SurveyResponse.swift */,
 			);
 			path = Survey;
+			sourceTree = "<group>";
+		};
+		0190A018265860BD00FA4368 /* Card UI */ = {
+			isa = PBXGroup;
+			children = (
+				01870CED264358D800DC8796 /* QuestionCardView.swift */,
+				01870CEB264358D800DC8796 /* AdvanceButton.swift */,
+				01870CEC264358D800DC8796 /* SurveyIndicator.swift */,
+				01870CE92643582F00DC8796 /* CardViewController.swift */,
+				01D19C8C266162FB00BD8CF9 /* ChoiceButton.swift */,
+			);
+			path = "Card UI";
 			sourceTree = "<group>";
 		};
 		01974A682577043400C7D693 /* TextModal */ = {
@@ -764,6 +789,7 @@
 				019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */,
 				01ED6285257B113E0023208C /* NavigateToLinkUITests.swift */,
 				1F323D44240EED3000A678BC /* SurveyUITests.swift */,
+				01211C0A26810CC3009F0364 /* SurveyCardUITests.swift */,
 				EF5FC3DB258013FC003E127B /* NotImplementedAlertUITests.swift */,
 				01ED6166257723D20023208C /* TextModalUITests.swift */,
 				1F323D46240EED3000A678BC /* Info.plist */,
@@ -1034,7 +1060,9 @@
 				013D8EA724F09B01005EC4D1 /* Person.swift in Sources */,
 				015F2AEC24CA2A94004B53E2 /* SurveySubmitView.swift in Sources */,
 				013D8EB924F5C99B005EC4D1 /* Backend.swift in Sources */,
+				01870CF0264358D800DC8796 /* QuestionCardView.swift in Sources */,
 				015F2AB224C7A6DB004B53E2 /* SurveyConfiguration.swift in Sources */,
+				01870CEF264358D800DC8796 /* SurveyIndicator.swift in Sources */,
 				01ED6263257B02050023208C /* NavigateToLinkConfiguration.swift in Sources */,
 				017230FA253673AA0095AEAA /* Version.swift in Sources */,
 				017FC93A25310E4700C7A47F /* Targeter.swift in Sources */,
@@ -1043,9 +1071,11 @@
 				013D8E9024F039A7005EC4D1 /* HTTPRequesting.swift in Sources */,
 				014D5B19256ED5940030DC90 /* EnjoymentDialogConfiguration.swift in Sources */,
 				018A9091247EFFEC004577EB /* SurveyViewModel.swift in Sources */,
+				01870CEE264358D800DC8796 /* AdvanceButton.swift in Sources */,
 				015F2AEA24CA2A88004B53E2 /* SurveyIntroductionView.swift in Sources */,
 				016E6DC525F8477200151E29 /* Bundle+Apptentive.swift in Sources */,
 				015A0D4125509C0A00EF077D /* SurveyChoiceCell.swift in Sources */,
+				01D19C8D266162FB00BD8CF9 /* ChoiceButton.swift in Sources */,
 				015D6BC22509A34D00372759 /* FileRepository.swift in Sources */,
 				015F2AE124C9FEBF004B53E2 /* SurveyMultiLineCell.swift in Sources */,
 				015A0D3625509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift in Sources */,
@@ -1092,6 +1122,7 @@
 				01A1BC87263B7676003DC51B /* LegacyConversationMetadata.swift in Sources */,
 				01822BBA2565727D006ADB3B /* SurveyQuestionHeaderView.swift in Sources */,
 				015AF83C24E7437A000DF8B0 /* SurveyViewModel+FreeformQuestion.swift in Sources */,
+				01870CEA2643582F00DC8796 /* CardViewController.swift in Sources */,
 				013D8E8E24F038D3005EC4D1 /* HTTPEndpoint.swift in Sources */,
 				01B91F9525CB830C00B8AFEE /* PersonContents.swift in Sources */,
 				0158976724E5C8C600DF0DC0 /* Apptentive+Compatibility.swift in Sources */,
@@ -1165,6 +1196,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				01ED61B3257726C60023208C /* TextModalUITests.swift in Sources */,
+				01211C0B26810CC3009F0364 /* SurveyCardUITests.swift in Sources */,
 				1F323D45240EED3000A678BC /* SurveyUITests.swift in Sources */,
 				EF5FC3E125801734003E127B /* NotImplementedAlertUITests.swift in Sources */,
 				0165B7E125804381001DF54E /* AppleRatingDialogUITests.swift in Sources */,

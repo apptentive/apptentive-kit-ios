@@ -26,6 +26,10 @@ extension SurveyViewModel {
         /// The value that was selected by the user, if any.
         public private(set) var selectedValueIndex: Int?
 
+        public var value: Int? {
+            self.selectedValueIndex.flatMap { $0 + self.minValue }
+        }
+
         /// The text labels to display for each answer choice.
         public var choiceLabels: [String] {
             // TODO: Use a number formatter? (for e.g. Arabic)
@@ -49,14 +53,14 @@ extension SurveyViewModel {
         }
 
         override var response: [Answer]? {
-            self.selectedValueIndex.flatMap {
-                [Answer.range($0 + self.minValue)]
-            }
+            self.value.flatMap { [Answer.range($0)] }
         }
+
         public func accessibilityHintForSegment() -> String {
             let minValue = String(self.minValue)
             let maxValue = String(self.maxValue)
 
+            #warning("Localize this")
             return "Where \(minValue) is \(minText ?? "the least") and \(maxValue) is \(maxText ?? "the most")"
         }
     }

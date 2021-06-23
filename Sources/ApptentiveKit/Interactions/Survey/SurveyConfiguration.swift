@@ -29,6 +29,12 @@ struct SurveyConfiguration: Decodable {
     let closeConfirmationCloseButtonText: String?
     let closeConfirmationBackButtonText: String?
     let questions: [Question]
+    let presentationStyle: PresentationStyle?
+
+    enum PresentationStyle: String, Decodable {
+        case list
+        case card
+    }
 
     enum CodingKeys: String, CodingKey {
         case name
@@ -43,6 +49,7 @@ struct SurveyConfiguration: Decodable {
         case closeConfirmationMessage = "close_confirm_message"
         case closeConfirmationCloseButtonText = "close_confirm_close_text"
         case closeConfirmationBackButtonText = "close_confirm_back_text"
+        case presentationStyle = "presentation_style"
         case questions
     }
 

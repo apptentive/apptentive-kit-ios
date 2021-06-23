@@ -18,7 +18,7 @@ extension SurveyViewModel {
         public let allowMultipleLines: Bool
 
         /// The text of the user's current answer to the question.
-        public var answerText: String? {
+        public var value: String? {
             didSet {
                 self.updateMarkedAsInvalid()
             }
@@ -32,7 +32,7 @@ extension SurveyViewModel {
         }
 
         private var trimmedAnswerText: String? {
-            if let result = self.answerText?.trimmingCharacters(in: .whitespacesAndNewlines), result.count > 0 {
+            if let result = self.value?.trimmingCharacters(in: .whitespacesAndNewlines), result.count > 0 {
                 return result
             } else {
                 return nil

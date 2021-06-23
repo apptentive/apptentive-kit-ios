@@ -21,6 +21,9 @@ public class SurveyViewModel {
 
     let interaction: Interaction
 
+    /// Whether to display the survey as a vertically-scrolling list or a series of horizontally-scrolling cards.
+    let presentationStyle: SurveyConfiguration.PresentationStyle
+
     /// The name of the survey, typically displayed in a navigation bar.
     public let name: String?
 
@@ -59,6 +62,8 @@ public class SurveyViewModel {
 
     required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: EventEngaging & ResponseSending & ResponseRecording) {
         self.interaction = interaction
+
+        self.presentationStyle = configuration.presentationStyle ?? .list
 
         self.name = configuration.name
         self.submitButtonText = configuration.submitText ?? "Submit"
@@ -147,17 +152,21 @@ public class SurveyViewModel {
             self.delegate?.surveyViewModelDidSubmit(self)
         } else {
             self.questions.forEach { question in
-                question.isMarkedAsInvalid = !question.isValid
-
-                if let choiceQuestion = question as? ChoiceQuestion {
-                    choiceQuestion.choices.forEach { choice in
-                        choice.isMarkedAsInvalid = !choice.isValid
-                    }
-                }
+                self.validateQuestion(question)
             }
 
             self.delegate?.surveyViewModelValidationDidChange(self)
         }
+    }
+
+    public func validateQuestion(_ question: Question) {
+        if let choiceQuestion = question as? ChoiceQuestion {
+            choiceQuestion.choices.forEach { choice in
+                choice.isMarkedAsInvalid = !choice.isValid
+            }
+        }
+        
+        question.isMarkedAsInvalid = !question.isValid
     }
 
     /// Registers that the survey was successfully presented to the user.
