@@ -34,6 +34,9 @@ extension Conversation: TargetingState {
         case "device":
             return try self.device.value(for: try field.nextComponent())
 
+        case "random":
+            return try self.random.value(for: try field.nextComponent())
+
         default:
             throw TargetingError.unrecognizedField(field.fullPath)
         }
@@ -221,6 +224,32 @@ extension CustomData: TargetingState {
         }
 
         return self[key]
+    }
+}
+
+/// Adds the ability to query the random sample values for the values of fields.
+extension Random: TargetingState {
+    func value(for field: Field) throws -> Any? {
+        guard field.keys.count <= 2 else {
+            throw TargetingError.unrecognizedField(field.fullPath)
+        }
+
+        guard let firstKey = field.keys.first else {
+            throw TargetingError.unexpectedEndOfField(field.fullPath, field.position)
+        }
+
+        let nextKey = field.keys.count > 1 ? field.keys[1] : nil
+
+        switch (firstKey, nextKey) {
+        case (let key, "percent"):
+            return self.randomPercent(for: key)
+
+        case ("percent", nil):
+            return self.newRandomPercent()
+
+        default:
+            throw TargetingError.unrecognizedField(field.fullPath)
+        }
     }
 }
 

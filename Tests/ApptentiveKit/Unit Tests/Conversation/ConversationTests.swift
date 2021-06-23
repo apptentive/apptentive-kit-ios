@@ -46,6 +46,8 @@ class ConversationTests: XCTestCase {
                 .range(5),
             ])
 
+        let _ = try? conversation.value(for: "random/xyz/percent")
+
         let encoder = PropertyListEncoder()
 
         let data = try encoder.encode(conversation)

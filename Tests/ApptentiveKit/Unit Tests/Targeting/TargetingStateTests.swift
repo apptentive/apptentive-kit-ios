@@ -228,4 +228,11 @@ class TargetingStateTests: XCTestCase {
         XCTAssertEqual(try self.conversation.value(for: "device/custom_data/number") as? Int, 5)
         XCTAssertEqual(try self.conversation.value(for: "device/custom_data/boolean") as? Bool, true)
     }
+
+    func testRandomPercent() throws {
+        XCTAssertEqual(try self.conversation.value(for: "random/percent") as? Double, 50)
+        XCTAssertEqual(try self.conversation.value(for: "random/xyz/percent") as? Double, 50)
+
+        XCTAssertEqual(self.conversation.random.values["xyz"], 0.5)
+    }
 }

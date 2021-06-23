@@ -85,6 +85,7 @@
 		0173EA4325B2035F009740F5 /* ApptentiveLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */; };
 		0176159B25D1F9F900BB85C6 /* HTTPRequestRetrier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0176159A25D1F9F900BB85C6 /* HTTPRequestRetrier.swift */; };
 		017615AA25D2234F00BB85C6 /* HTTPRetryPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017615A925D2234F00BB85C6 /* HTTPRetryPolicy.swift */; };
+		017BAAF6268299C90035DA1E /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BAAF5268299C90035DA1E /* Random.swift */; };
 		017FC92C25310E2400C7A47F /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC92B25310E2400C7A47F /* Event.swift */; };
 		017FC93A25310E4700C7A47F /* Targeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC93425310E4700C7A47F /* Targeter.swift */; };
 		017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC95325310E9400C7A47F /* EngagementManifest.swift */; };
@@ -279,6 +280,7 @@
 		0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveLogger.swift; sourceTree = "<group>"; };
 		0176159A25D1F9F900BB85C6 /* HTTPRequestRetrier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestRetrier.swift; sourceTree = "<group>"; };
 		017615A925D2234F00BB85C6 /* HTTPRetryPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRetryPolicy.swift; sourceTree = "<group>"; };
+		017BAAF5268299C90035DA1E /* Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
 		017FC92B25310E2400C7A47F /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		017FC93425310E4700C7A47F /* Targeter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Targeter.swift; sourceTree = "<group>"; };
 		017FC95325310E9400C7A47F /* EngagementManifest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EngagementManifest.swift; sourceTree = "<group>"; };
@@ -412,6 +414,7 @@
 				015D6BC12509A34D00372759 /* FileRepository.swift */,
 				EF425862263A74BA0094E1DC /* TermsOfService.swift */,
 				011C64D2264D881400219243 /* Answer.swift */,
+				017BAAF5268299C90035DA1E /* Random.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1132,6 +1135,7 @@
 				01086517253E42FC00101CFB /* PayloadSender.swift in Sources */,
 				EF9B2C73265D79110044D2E2 /* UIWindow+TopViewController.swift in Sources */,
 				010864F3253E197A00101CFB /* EventContents.swift in Sources */,
+				017BAAF6268299C90035DA1E /* Random.swift in Sources */,
 				017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */,
 				EF425863263A74BA0094E1DC /* TermsOfService.swift in Sources */,
 				013D8E8C24F038D3005EC4D1 /* HTTPClient.swift in Sources */,

@@ -45,8 +45,15 @@ struct Conversation: Equatable, Codable, APICredentialsProviding {
 
     /// The device corresponding to the conversation.
     var device: Device
+
+    /// The metrics for engaged code points.
     var codePoints: EngagementMetrics
+
+    /// The metrics for presented interactions.
     var interactions: EngagementMetrics
+
+    /// The values used for determining whether a conversation is part of a random sample.
+    var random: Random
 
     /// Initializes a conversation with the specified environment.
     /// - Parameter environment: The environment used to create the initial app release and device values.
@@ -56,6 +63,7 @@ struct Conversation: Equatable, Codable, APICredentialsProviding {
         self.device = Device(environment: environment)
         self.codePoints = EngagementMetrics()
         self.interactions = EngagementMetrics()
+        self.random = Random()
     }
 
     /// Merges the conversation with a newer conversation.
@@ -87,6 +95,7 @@ struct Conversation: Equatable, Codable, APICredentialsProviding {
         self.device.merge(with: newer.device)
         self.codePoints.merge(with: newer.codePoints)
         self.interactions.merge(with: newer.interactions)
+        self.random.merge(with: newer.random)
     }
 
     /// Creates a new conversation merged with the specified newer conversation.
