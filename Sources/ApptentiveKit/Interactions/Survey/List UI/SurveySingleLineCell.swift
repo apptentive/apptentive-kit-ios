@@ -62,7 +62,7 @@ class SurveySingleLineCell: UITableViewCell {
         self.textField.translatesAutoresizingMaskIntoConstraints = false
         self.textField.adjustsFontForContentSizeCategory = true
 
-        self.textField.font = .apptentiveQuestionLabel
+        self.textField.font = .apptentiveChoiceLabel
         self.textField.returnKeyType = .done
 
         NSLayoutConstraint.activate([

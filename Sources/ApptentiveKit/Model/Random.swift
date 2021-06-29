@@ -10,7 +10,7 @@ import Foundation
 
 /// Stores values used in random sampling
 ///
-/// This needs to be a class because 
+/// This needs to be a class because
 class Random: Equatable, Codable {
     var values: [String: Double]
 
@@ -52,9 +52,9 @@ class Random: Equatable, Codable {
 
     private func newRandomValue() -> Double {
         #if DEBUG
-        return 0.5
+            return 0.5
         #else
-        return Double.random(in: 0..<1)
+            return Double.random(in: 0..<1)
         #endif
     }
 }

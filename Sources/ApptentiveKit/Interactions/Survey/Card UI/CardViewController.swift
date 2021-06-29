@@ -133,7 +133,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     @objc func advance(_ sender: AnyObject) {
         let lastQuestionIndex = self.viewModel.questions.count - 1
 
-        if (self.currentQuestionIndex == lastQuestionIndex) {
+        if self.currentQuestionIndex == lastQuestionIndex {
             self.viewModel.submit()
         } else {
             self.viewModel.validateQuestion(self.currentQuestion)
@@ -188,7 +188,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
             self.advance(textField)
         }
 
-        if (self.currentQuestion.isValid) {
+        if self.currentQuestion.isValid {
             textField.resignFirstResponder()
         }
 
@@ -236,7 +236,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
 
                 textField.layer.borderColor = (self.currentQuestion.isMarkedAsInvalid ? UIColor.apptentiveError : UIColor.clear).cgColor
             }
-            break;
+            break
 
         case let choiceQuestion as SurveyViewModel.ChoiceQuestion:
             var indexOffset = 2
@@ -255,16 +255,16 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
                 }
             }
 
-            break;
+            break
 
         default:
-            break;
+            break
         }
     }
 
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel) {
         guard let choiceQuestion = viewModel.questions[self.currentQuestionIndex] as? SurveyViewModel.ChoiceQuestion else {
-            return // no choice question currently visible
+            return  // no choice question currently visible
         }
 
         var startingStackViewIndex = 2
@@ -297,7 +297,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
 
     private func didChangeQuestionIndex() {
         self.indicatorView.selectedSegmentIndex = currentQuestionIndex
-        self.numberOfPreviousQuestions = currentQuestionIndex // TODO: Subtract any skipped questions
+        self.numberOfPreviousQuestions = currentQuestionIndex  // TODO: Subtract any skipped questions
 
         if currentQuestionIndex == self.viewModel.questions.count - 1 {
             self.nextButton.setTitle("Submit", for: .normal)
@@ -353,7 +353,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
                     cardView.stackView.addArrangedSubview(textField)
                 }
             }
-            break;
+            break
 
         case let freeformQuestion as SurveyViewModel.FreeformQuestion:
             if freeformQuestion.allowMultipleLines {
@@ -371,17 +371,17 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
                     textField.becomeFirstResponder()
                 }
             }
-            break;
+            break
 
         case let rangeQuestion as SurveyViewModel.RangeQuestion:
             let (rangeControl, minMaxView) = Self.buildRangeControl(for: rangeQuestion, delegate: self)
             cardView.stackView.addArrangedSubview(rangeControl)
             cardView.stackView.addArrangedSubview(minMaxView)
-            break;
+            break
 
         default:
             // Unknown question type
-            break;
+            break
         }
 
         cardView.errorLabel.text = question?.errorMessage
@@ -501,7 +501,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         minMaxView.axis = .horizontal
 
         return (rangeControl, minMaxView)
-     }
+    }
 }
 
 protocol TextFieldPopulating {

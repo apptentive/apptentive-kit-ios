@@ -42,17 +42,17 @@ class SurveyIndicator: UIView {
         }
     }
 
-////    enum Mode {
-////        case salient
-////        case smooth
-////    }
-////
-////    var mode: Mode {
-////        let minimumSalientWidth = CGFloat(self.numberOfSegments) * self.minimumSegmentWidth + CGFloat(self.numberOfSpaces) * self.minimumSegmentSpacing
-////
-////        return self.bounds.width >= minimumSalientWidth ? .salient : .smooth
-////    }
-//
+    ////    enum Mode {
+    ////        case salient
+    ////        case smooth
+    ////    }
+    ////
+    ////    var mode: Mode {
+    ////        let minimumSalientWidth = CGFloat(self.numberOfSegments) * self.minimumSegmentWidth + CGFloat(self.numberOfSpaces) * self.minimumSegmentSpacing
+    ////
+    ////        return self.bounds.width >= minimumSalientWidth ? .salient : .smooth
+    ////    }
+    //
     private let defaultSegmentWidth: CGFloat = 32
     private let minimumSegmentWidth: CGFloat = 16
     private let defaultSegmentSpacing: CGFloat = 8
@@ -127,7 +127,7 @@ class SurveyIndicator: UIView {
         self.segmentLayers.removeAll()
 
         for _ in 0..<self.numberOfSegments {
-            let segmentLayer = CALayer();
+            let segmentLayer = CALayer()
 
             self.layer.addSublayer(segmentLayer)
             self.segmentLayers.append(segmentLayer)

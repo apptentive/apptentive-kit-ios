@@ -165,7 +165,7 @@ public class SurveyViewModel {
                 choice.isMarkedAsInvalid = !choice.isValid
             }
         }
-        
+
         question.isMarkedAsInvalid = !question.isValid
     }
 

@@ -48,28 +48,28 @@ class SurveyCardUITests: XCTestCase {
 
         // The following will need a solution to the keyboard blocking the Next/Submit button.
         // Commenting out for now.
-//        XCUIApplication().keyboards.firstMatch.buttons["Next"].firstMatch.tap()
-//
-//        XCTAssertTrue(XCUIApplication().staticTexts["Singleline Short Required"].waitForExistence(timeout: 2.0), "Seventh question title should exist")
-//
-//        let textField = XCUIApplication().textFields["8"]
-//        textField.tap()
-//        textField.typeText("Test\n")
-//
-//        XCTAssertTrue(XCUIApplication().staticTexts["Singleline Long Optional"].waitForExistence(timeout: 2.0), "Eighth question title should exist")
-//
-//        XCUIApplication().keyboards.firstMatch.swipeDown()
-//        XCUIApplication().buttons["Next"].tap()
-//
-//        XCTAssertTrue(XCUIApplication().staticTexts["Singleline Long Required"].waitForExistence(timeout: 2.0), "Ninth question title should exist")
-//
-//        let textView = XCUIApplication().textViews["9"]
-//        textView.tap()
-//        textView.typeText("Test")
-//
-//        XCUIApplication().keyboards.firstMatch.swipeDown()
-//
-//        XCUIApplication().buttons["Submit"].tap()
+        //        XCUIApplication().keyboards.firstMatch.buttons["Next"].firstMatch.tap()
+        //
+        //        XCTAssertTrue(XCUIApplication().staticTexts["Singleline Short Required"].waitForExistence(timeout: 2.0), "Seventh question title should exist")
+        //
+        //        let textField = XCUIApplication().textFields["8"]
+        //        textField.tap()
+        //        textField.typeText("Test\n")
+        //
+        //        XCTAssertTrue(XCUIApplication().staticTexts["Singleline Long Optional"].waitForExistence(timeout: 2.0), "Eighth question title should exist")
+        //
+        //        XCUIApplication().keyboards.firstMatch.swipeDown()
+        //        XCUIApplication().buttons["Next"].tap()
+        //
+        //        XCTAssertTrue(XCUIApplication().staticTexts["Singleline Long Required"].waitForExistence(timeout: 2.0), "Ninth question title should exist")
+        //
+        //        let textView = XCUIApplication().textViews["9"]
+        //        textView.tap()
+        //        textView.typeText("Test")
+        //
+        //        XCUIApplication().keyboards.firstMatch.swipeDown()
+        //
+        //        XCUIApplication().buttons["Submit"].tap()
     }
 
     func testFailedValidation() throws {

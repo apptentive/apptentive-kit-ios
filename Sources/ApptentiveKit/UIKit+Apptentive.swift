@@ -263,7 +263,7 @@ extension UIColor {
 extension UIFont {
     /// The font used for all survey question labels.
     public static var apptentiveQuestionLabel: UIFont = {
-        return .preferredFont(forTextStyle: .headline)
+        return .preferredFont(forTextStyle: .title3)
     }()
 
     /// The font used for the terms of service.

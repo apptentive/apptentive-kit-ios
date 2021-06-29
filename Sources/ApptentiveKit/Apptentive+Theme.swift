@@ -26,7 +26,8 @@ extension Apptentive {
             let apptentiveGroupPrimaryColor = UIColor(named: "apptentiveGroupPrimary", in: bundle, compatibleWith: nil),
             let apptentiveGroupSecondaryColor = UIColor(named: "apptentiveGroupSecondary", in: bundle, compatibleWith: nil),
             let textInputBackgroundColor = UIColor(named: "textInputBackground", in: bundle, compatibleWith: nil),
-            let termsOfServiceColor = UIColor(named: "termsOfService", in: bundle, compatibleWith: nil)
+            let termsOfServiceColor = UIColor(named: "termsOfService", in: bundle, compatibleWith: nil),
+            let question = UIColor(named: "question", in: bundle, compatibleWith: nil)
         else {
             assertionFailure("Unable to locate color asset(s).")
             return
@@ -84,6 +85,7 @@ extension Apptentive {
         UIColor.apptentiveTextInputBackground = textInputBackgroundColor
         UIColor.apptentiveImageSelected = buttonTintColor
         UIColor.apptentiveSubmitButton = buttonTintColor
+        UIColor.apptentiveQuestionLabel = question
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
