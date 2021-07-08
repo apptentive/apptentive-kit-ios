@@ -187,6 +187,8 @@ class Backend {
     ///   - event: The `Event` object to be engaged.
     ///   - completion: A completion handler whose argument indicates whether engaging the event resulted in the presentation of an interaction.
     func engage(event: Event, completion: ((Result<Bool, Error>) -> Void)?) {
+        ApptentiveLogger.engagement.info("Engaged event “\(event.codePointName)”")
+
         self.payloadSender.send(Payload(wrapping: event), for: self.conversation)
 
         self.conversation.codePoints.invoke(for: event.codePointName)

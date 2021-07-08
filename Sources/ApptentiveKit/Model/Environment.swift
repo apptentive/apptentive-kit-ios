@@ -187,7 +187,7 @@ class Environment: GlobalEnvironment {
             self.telephonyNetworkInfo = CTTelephonyNetworkInfo()
             if #available(iOS 12.0, *) {
                 if let carriers = telephonyNetworkInfo.serviceSubscriberCellularProviders, carriers.count > 0 {
-                    self.carrier = carriers.values.compactMap({ $0.carrierName }).joined(separator: ", ")
+                    self.carrier = carriers.values.compactMap({ $0.carrierName }).joined(separator: "|")
                 }
             } else {
                 self.carrier = telephonyNetworkInfo.subscriberCellularProvider?.carrierName
