@@ -97,7 +97,13 @@ struct ConditionalTest {
     /// - Throws: An error in case of an invalid field.
     /// - Returns: The result of the test.
     func isSatisfied(for field: Field, of state: TargetingState) throws -> Bool {
-        let value = try state.value(for: field)
+        var value: Any?
+        do {
+            value = try state.value(for: field)
+        } catch {
+            value = nil
+            ApptentiveLogger.default.error("Error recognizing targeting field: \(error)")
+        }
         let result = conditionalOperator.evaluate(value, with: parameter)
 
         self.log(field: field, value: value, result: result)
