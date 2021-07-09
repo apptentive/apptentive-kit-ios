@@ -510,6 +510,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.cancel()
         }
     }
+
     @objc func termsOfServiceTapped() {
         let termsOfService = Apptentive.shared.termsOfService
         if let url = termsOfService?.linkURL {
@@ -645,8 +646,19 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     private func confirmCancel() {
         let alertController = UIAlertController(title: self.viewModel.closeConfirmationAlertTitle, message: self.viewModel.closeConfirmationAlertMessage, preferredStyle: .actionSheet)
-        alertController.addAction(UIAlertAction(title: self.viewModel.closeConfirmationCloseButtonLabel, style: .destructive, handler: { _ in self.cancel() }))
-        alertController.addAction(UIAlertAction(title: self.viewModel.closeConfirmationBackButtonLabel, style: .cancel, handler: nil))
+        alertController.addAction(
+            UIAlertAction(
+                title: self.viewModel.closeConfirmationCloseButtonLabel, style: .destructive,
+                handler: { _ in
+                    self.viewModel.cancel(partial: true)
+
+                }))
+        alertController.addAction(
+            UIAlertAction(
+                title: self.viewModel.closeConfirmationBackButtonLabel, style: .cancel,
+                handler: { _ in
+                    self.viewModel.continuePartial()
+                }))
 
         self.present(alertController, animated: true, completion: nil)
     }

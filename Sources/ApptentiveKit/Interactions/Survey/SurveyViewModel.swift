@@ -175,7 +175,20 @@ public class SurveyViewModel {
     }
 
     /// Registers that the survey was cancelled by the user.
-    public func cancel() {
+    public func cancel(partial: Bool = false) {
+        if partial {
+            self.cancelPartial()
+        }
         self.interactionDelegate.engage(event: .cancel(from: self.interaction))
+    }
+    
+    /// Registers that the survey was continued when the user was presented with the close confimation view.
+    public func continuePartial() {
+        self.interactionDelegate.engage(event: .continuePartial(from: interaction))
+    }
+   
+    /// Registers that the survey was cancelled when the user was presented with the close confirmation view.
+    private func cancelPartial() {
+        self.interactionDelegate.engage(event: .cancelPartial(from: interaction))
     }
 }

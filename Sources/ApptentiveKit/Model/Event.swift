@@ -67,6 +67,16 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
     static func cancel(from interaction: Interaction?) -> Self {
         return Self(internalName: "cancel", interaction: interaction)
     }
+    
+    /// Convenience property for a continue_partial event (e.g. a survey).
+    static func continuePartial(from interaction: Interaction?) -> Self {
+        return Self(internalName: "continue_partial", interaction: interaction)
+    }
+    
+    /// Convenience property for a cancel_partial event (e.g. a survey).
+    static func cancelPartial(from interaction: Interaction?) -> Self {
+        return Self(internalName: "cancel_partial", interaction: interaction)
+    }
 
     /// Returns a `#`-separated string incorporating the vendor, interaction and name, all appropriately percent-escaped.
     ///
