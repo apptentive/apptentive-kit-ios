@@ -12,10 +12,10 @@ import Foundation
 ///
 /// This needs to be a class because
 class Random: Equatable, Codable {
-    var values: [String: Double]
+    var values: [String: Float]
 
     init() {
-        self.values = [String: Double]()
+        self.values = [String: Float]()
     }
 
     /// Merges the custom data with newer custom data.
@@ -30,11 +30,11 @@ class Random: Equatable, Codable {
         }
     }
 
-    func randomPercent(for key: String) -> Double {
+    func randomPercent(for key: String) -> Float {
         return self.randomValue(for: key) * 100.0
     }
 
-    func newRandomPercent() -> Double {
+    func newRandomPercent() -> Float {
         return self.newRandomValue() * 100.0
     }
 
@@ -42,7 +42,7 @@ class Random: Equatable, Codable {
         lhs.values == rhs.values
     }
 
-    private func randomValue(for key: String) -> Double {
+    private func randomValue(for key: String) -> Float {
         let result = self.values[key] ?? self.newRandomValue()
 
         self.values[key] = result
@@ -50,11 +50,11 @@ class Random: Equatable, Codable {
         return result
     }
 
-    private func newRandomValue() -> Double {
+    private func newRandomValue() -> Float {
         #if DEBUG
             return 0.5
         #else
-            return Double.random(in: 0..<1)
+            return Float.random(in: 0..<1)
         #endif
     }
 }
