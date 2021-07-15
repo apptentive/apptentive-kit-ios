@@ -60,8 +60,7 @@ extension SurveyViewModel {
             let minValue = String(self.minValue)
             let maxValue = String(self.maxValue)
 
-            #warning("Localize this")
-            return "Where \(minValue) is \(minText ?? "the least") and \(maxValue) is \(maxText ?? "the most")"
+            return "\(minValue) = \(minText ?? "the least") & \(maxValue) = \(maxText ?? "the most")"
         }
     }
 }
