@@ -15,6 +15,7 @@ class SpyInteractionDelegate: InteractionDelegate {
     var shouldURLOpeningSucceed = true
     var openedURL: URL? = nil
     var responses: [String: [Answer]] = [:]
+    var termsOfService: TermsOfService?
 
     func engage(event: Event) {
         self.engagedEvent = event

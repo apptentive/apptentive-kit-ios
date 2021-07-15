@@ -17,7 +17,7 @@ public protocol SurveyViewModelDelegate: AnyObject {
 
 /// A class that describes the data in a survey interaction and allows reponses to be gathered and transmitted.
 public class SurveyViewModel {
-    let interactionDelegate: EventEngaging & ResponseSending & ResponseRecording
+    let interactionDelegate: EventEngaging & ResponseSending & ResponseRecording & TermsOfServiceProviding
 
     let interaction: Interaction
 
@@ -60,9 +60,11 @@ public class SurveyViewModel {
     /// An object, typically a view controller, that implements the `SurveyViewModelDelegate` protocol to receive updates when the survey data changes.
     public weak var delegate: SurveyViewModelDelegate?
 
-    required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: EventEngaging & ResponseSending & ResponseRecording) {
-        self.interaction = interaction
+    /// The object representing the terms of service at the bottom of surveys.
+    var termsOfService: TermsOfService?
 
+    required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: EventEngaging & ResponseSending & ResponseRecording & TermsOfServiceProviding) {
+        self.interaction = interaction
         self.presentationStyle = configuration.presentationStyle ?? .list
 
         self.name = configuration.name
@@ -74,7 +76,7 @@ public class SurveyViewModel {
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
         self.interactionDelegate = interactionDelegate
-
+        self.termsOfService = self.interactionDelegate.termsOfService
         self.closeConfirmationAlertTitle =
             configuration.closeConfirmationTitle ?? "Close survey?"
         self.closeConfirmationAlertMessage =
@@ -181,12 +183,12 @@ public class SurveyViewModel {
         }
         self.interactionDelegate.engage(event: .cancel(from: self.interaction))
     }
-    
+
     /// Registers that the survey was continued when the user was presented with the close confimation view.
     public func continuePartial() {
         self.interactionDelegate.engage(event: .continuePartial(from: interaction))
     }
-   
+
     /// Registers that the survey was cancelled when the user was presented with the close confirmation view.
     private func cancelPartial() {
         self.interactionDelegate.engage(event: .cancelPartial(from: interaction))

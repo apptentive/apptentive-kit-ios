@@ -512,7 +512,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     @objc func termsOfServiceTapped() {
-        let termsOfService = Apptentive.shared.termsOfService
+        let termsOfService = self.viewModel.termsOfService
         if let url = termsOfService?.linkURL {
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -629,7 +629,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     private func configureTermsOfService() {
 
-        if let terms = Apptentive.shared.termsOfService {
+        if let terms = self.viewModel.termsOfService {
 
             let flexible = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
             let barButtonItem = UIBarButtonItem(title: terms.bodyText, style: .plain, target: self, action: #selector(termsOfServiceTapped))

@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording
+typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & TermsOfServiceProviding
 
 /// Describes an object that can send responses from Survey interactions.
 protocol ResponseSending {
@@ -50,4 +50,9 @@ protocol ResponseRecording {
     /// Records the specified response for later querying in the targeter.
     /// - Parameter answers: The answers included in the interaction response.
     func recordResponse(_ answers: [Answer], for questionID: String)
+}
+
+/// Describes an object representing the terms of service at the bottom of surveys.
+protocol TermsOfServiceProviding {
+    var termsOfService: TermsOfService? { get set }
 }

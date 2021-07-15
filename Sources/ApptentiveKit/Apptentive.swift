@@ -24,7 +24,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     public var theme: UITheme = .apptentive
 
     /// The object representing the terms of service at the bottom of surveys.
-    public var termsOfService: TermsOfService? = nil
+    public var termsOfService: TermsOfService?
 
     /// The name of the person using the app, if available.
     @objc public var personName: String? {
@@ -126,7 +126,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
                     completion?(.failure(error))
                     ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
                     if !self.isTesting {
-                        assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                       assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
                     }
                 }
             }
