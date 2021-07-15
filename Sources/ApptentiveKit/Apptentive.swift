@@ -180,6 +180,12 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     let containerDirectory: String
 
     init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: GlobalEnvironment? = nil) {
+        if Self.alreadyInitialized {
+            assertionFailure("Attempting to instantiate an Apptentive object but an instance already exists.")
+        }
+
+        Self.alreadyInitialized = true
+
         // swift-format-ignore
         self.baseURL = baseURL ?? URL(string: "https://api.apptentive.com/")!
         self.backendQueue = backendQueue ?? DispatchQueue(label: "Apptentive Backend")
@@ -212,6 +218,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
 
         ApptentiveLogger.default.info("Apptentive SDK Initialized.")
     }
+
+    static var alreadyInitialized = false
 
     // MARK: InteractionDelegate
 

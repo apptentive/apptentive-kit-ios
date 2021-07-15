@@ -29,6 +29,10 @@ class ApptentiveFeatureTests: XCTestCase {
         self.validSignature = signature
     }
 
+    override func tearDown() {
+        Apptentive.alreadyInitialized = false
+    }
+
     func testSDKRegistrationSucceedsWithPositiveConfirmation() {
         let credentials = Apptentive.AppCredentials(key: self.validKey!, signature: self.validSignature!)
 

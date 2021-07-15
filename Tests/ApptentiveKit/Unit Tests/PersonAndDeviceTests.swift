@@ -54,6 +54,10 @@ class PersonAndDeviceTests: XCTestCase {
         }
     }
 
+    override func tearDown() {
+        Apptentive.alreadyInitialized = false
+    }
+
     func testPersonName() {
         XCTAssertNil(self.apptentive.personName)
 
@@ -155,6 +159,8 @@ class PersonAndDeviceTests: XCTestCase {
             self.apptentive.backend.saveToPersistentStorageIfNeeded()
 
             DispatchQueue.main.async {
+                Apptentive.alreadyInitialized = false
+
                 // Here we replace the Apptentive property with a new instance with no person/device properties set.
                 self.apptentive = Apptentive(baseURL: URL(string: "https://localhost"), containerDirectory: "com.apptentive.feedback", backendQueue: self.dispatchQueue, environment: self.environment)
 
