@@ -127,10 +127,12 @@ extension EngagementMetric: TargetingState {
 
             switch subfield.keys.first {
             case "value":
-                return Set(self.answers.compactMap { $0.value })
+                let result = Set(self.answers.compactMap { $0.value })
+                return result.count > 0 ? result : nil
 
             case "id":
-                return Set(self.answers.compactMap { $0.id })
+                let result = Set(self.answers.compactMap { $0.id })
+                return result.count > 0 ? result : nil
 
             default:
                 throw TargetingError.unrecognizedField(field.fullPath)

@@ -54,7 +54,7 @@ class ApptentiveV9APITests: XCTestCase {
         let expectedHeaders = [
             "APPTENTIVE-KEY": "abc",
             "APPTENTIVE-SIGNATURE": "123",
-            "X-API-Version": "9",
+            "X-API-Version": "11",
             "User-Agent": "Apptentive/1.2.3 (Apple)",
             "Content-Type": "application/json",
             "Authorization": "Bearer def",

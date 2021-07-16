@@ -185,6 +185,13 @@
                     "$starts_with": "baz"
                 }
             }
+        },
+        {
+            "$not": {
+                "interactions/hasnt_seen_interaction/answers/id": {
+                    "$ne": "foo"
+                }
+            }
         }
     ]
 }

@@ -161,7 +161,7 @@ struct ApptentiveV9API: HTTPEndpoint {
 
     /// The API version to send for the request.
     static var apiVersion: String {
-        "9"
+        "11"
     }
 
     /// The string to be sent for the request's `User-Agent` header.

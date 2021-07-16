@@ -145,6 +145,8 @@ class TargetingStateTests: XCTestCase {
         XCTAssertEqual(try self.conversation.value(for: "interactions/unseen123/invokes/cf_bundle_version") as? Int, 0)
         XCTAssertEqual(try self.conversation.value(for: "interactions/unseen123/invokes/cf_bundle_short_version_string") as? Int, 0)
         XCTAssertNil(try self.conversation.value(for: "interactions/unseen123/last_invoked_at"))
+        XCTAssertNil(try self.conversation.value(for: "interactions/unseen123/answers/value"))
+        XCTAssertNil(try self.conversation.value(for: "interactions/unseen123/answers/id"))
     }
 
     func testPersonName() throws {
