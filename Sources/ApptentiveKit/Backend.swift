@@ -131,12 +131,16 @@ class Backend {
             let savedConversation = try conversationRepository.load()
 
             self.conversation = try savedConversation.merged(with: self.conversation)
+
+            self.processChanges(from: savedConversation)
         } else if legacyConversationRepository.fileExists {
             ApptentiveLogger.default.info("Loading legacy conversation.")
 
             let legacyConversation = try legacyConversationRepository.load()
 
             self.conversation = try legacyConversation.merged(with: self.conversation)
+
+            self.processChanges(from: legacyConversation)
         }
 
         self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: environment.fileManager)
@@ -172,9 +176,13 @@ class Backend {
 
     func invalidateEngagementManifestForDebug(environment: GlobalEnvironment) {
         if environment.isDebugBuild == true {
-            self.targeter.engagementManifest.expiry = .distantPast
-            self.processChanges(from: self.conversation)
+            self.invalidateEngagementManifest()
         }
+    }
+
+    func invalidateEngagementManifest() {
+        self.targeter.engagementManifest.expiry = .distantPast
+        self.processChanges(from: self.conversation)
     }
 
     /// Engages an event.
@@ -307,6 +315,12 @@ class Backend {
                 ApptentiveLogger.network.debug("Device data changed. Enqueueing update.")
 
                 self.payloadSender.send(Payload(wrapping: self.conversation.device), for: self.conversation)
+
+                if self.conversation.device.localeRaw != oldValue.device.localeRaw {
+                    ApptentiveLogger.engagement.debug("Locale changed. Invalidating engagement manifest.")
+
+                    self.invalidateEngagementManifest()
+                }
             }
 
             if self.conversation.appRelease != oldValue.appRelease {

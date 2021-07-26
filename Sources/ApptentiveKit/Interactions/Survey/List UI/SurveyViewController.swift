@@ -628,7 +628,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     private func configureTermsOfService() {
-
         if let terms = self.viewModel.termsOfService {
 
             let flexible = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)

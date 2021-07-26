@@ -15,6 +15,8 @@ public protocol SurveyViewModelDelegate: AnyObject {
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel)
 }
 
+typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & ResponseRecording & TermsOfServiceProviding
+
 /// A class that describes the data in a survey interaction and allows reponses to be gathered and transmitted.
 public class SurveyViewModel {
     let interactionDelegate: EventEngaging & ResponseSending & ResponseRecording & TermsOfServiceProviding
@@ -85,6 +87,8 @@ public class SurveyViewModel {
             configuration.closeConfirmationBackButtonText ?? "Back to Survey"
         self.closeConfirmationCloseButtonLabel =
             configuration.closeConfirmationCloseButtonText ?? "Close"
+
+        self.termsOfService = interactionDelegate.termsOfService
 
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self
