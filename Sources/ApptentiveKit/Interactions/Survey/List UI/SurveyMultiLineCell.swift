@@ -13,32 +13,49 @@ class SurveyMultiLineCell: UITableViewCell {
     let placeholderLabel: UILabel
     var placeholderWidthConstraint: NSLayoutConstraint?
     var heightConstraint: NSLayoutConstraint?
+    var leadingConstraint: NSLayoutConstraint?
+    var trailingConstraint: NSLayoutConstraint?
+
     var tableViewStyle: UITableView.Style {
         didSet {
+            self.borderLayer.borderWidth = 1.0 / self.traitCollection.displayScale
+            self.borderLayer.cornerRadius = 6.0
+            self.borderLayer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
+
             switch self.tableViewStyle {
             case .insetGrouped:
                 if #available(iOS 13.0, *) {
-                    self.layer.borderColor = UIColor.tertiaryLabel.cgColor
-                    self.layer.borderWidth = 1.0
                     // The following determined experimentally to match UITextField
                     self.textView.textContainerInset = UIEdgeInsets(top: 1.0, left: -5.0, bottom: 1.0, right: -5.0)
-                }
-            default:
-                self.textView.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
-                self.textView.layer.borderWidth = 1.0 / self.traitCollection.displayScale
-                self.textView.layer.cornerRadius = 6.0
 
+                    self.leadingConstraint?.constant = 16.0
+                    self.trailingConstraint?.constant = 16.0
+                }
+
+            default:
                 // The following determined experimentally to match UITextField
                 if #available(iOS 13.0, *) {
                     self.textView.textContainerInset = UIEdgeInsets(top: 6.0, left: 2.0, bottom: 6.0, right: 2.0)
                 } else {
                     self.textView.textContainerInset = UIEdgeInsets(top: 4.0, left: 2.0, bottom: 4.0, right: 2.0)
                 }
+
+                self.leadingConstraint?.constant = 9.0
+                self.trailingConstraint?.constant = 9.0
             }
 
             self.updatePlaceholderConstraints()
         }
     }
+
+    var borderLayer: CALayer {
+        if #available(iOS 13.0, *), case self.tableViewStyle = UITableView.Style.insetGrouped {
+            return self.layer
+        } else {
+            return self.textView.layer
+        }
+    }
+
     var isMarkedAsInvalid: Bool {
         didSet {
             if self.isMarkedAsInvalid {
@@ -49,15 +66,6 @@ class SurveyMultiLineCell: UITableViewCell {
         }
     }
 
-    // Colors below determined experimentally to match UITextField
-    private let placholderTextColor: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .placeholderText
-        } else {
-            return .init(red: 0.235294, green: 0.235294, blue: 0.262745, alpha: 0.3)
-        }
-    }()
-
     private var placeholderLayoutConstraints = [NSLayoutConstraint]()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -66,7 +74,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.tableViewStyle = .grouped
         self.isMarkedAsInvalid = false
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.contentView.backgroundColor = .apptentiveGroupSecondary
+        self.contentView.backgroundColor = .apptentiveSecondaryGroupedBackground
         self.translatesAutoresizingMaskIntoConstraints = false
         self.contentView.addSubview(self.textView)
 
@@ -84,15 +92,17 @@ class SurveyMultiLineCell: UITableViewCell {
         self.textView.adjustsFontForContentSizeCategory = true
         self.textView.font = .apptentiveChoiceLabel
         self.textView.returnKeyType = .default
+
+        self.leadingConstraint = self.textView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 9.0)
+        self.trailingConstraint = self.contentView.trailingAnchor.constraint(equalTo: self.textView.trailingAnchor, constant: 9.0)
+        self.heightConstraint = self.textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100.0)
+
         NSLayoutConstraint.activate([
             self.textView.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
+            self.leadingConstraint, self.trailingConstraint,
             self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textView.bottomAnchor, multiplier: 1.0),
-            self.textView.leadingAnchor.constraint(equalToSystemSpacingAfter: self.contentView.leadingAnchor, multiplier: 1.0),
-            self.contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: self.textView.trailingAnchor, multiplier: 1.0),
-        ])
-
-        self.heightConstraint = self.textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100.0)
-        self.heightConstraint?.isActive = true
+            self.heightConstraint
+        ].compactMap({$0}))
 
         self.textView.addSubview(self.placeholderLabel)
         self.placeholderLabel.isAccessibilityElement = false
@@ -102,7 +112,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.placeholderLabel.adjustsFontSizeToFitWidth = true
         self.placeholderLabel.minimumScaleFactor = 0.1
         self.placeholderLabel.font = .apptentiveChoiceLabel
-        self.placeholderLabel.textColor = self.placholderTextColor
+        self.placeholderLabel.textColor = .apptentiveTextInputPlaceholder
 
         self.updatePlaceholderConstraints()
 

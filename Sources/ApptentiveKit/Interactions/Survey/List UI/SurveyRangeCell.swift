@@ -25,7 +25,7 @@ class SurveyRangeCell: UITableViewCell {
     }
 
     private func setupViews() {
-        self.contentView.backgroundColor = .apptentiveGroupSecondary
+        self.contentView.backgroundColor = .apptentiveSecondaryGroupedBackground
         self.configureSegmentedControl()
         self.configureMinMaxLabels()
     }

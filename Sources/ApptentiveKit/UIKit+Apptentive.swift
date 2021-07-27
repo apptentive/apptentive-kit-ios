@@ -83,7 +83,6 @@ extension UIImage {
 }
 
 extension UIColor {
-
     /// The color to use for labels in a non-error state.
     public static var apptentiveQuestionLabel: UIColor = {
         if #available(iOS 13.0, *) {
@@ -95,7 +94,11 @@ extension UIColor {
 
     /// The color to use for instruction labels.
     public static var apptentiveInstructionsLabel: UIColor = {
-        return .lightGray
+        if #available(iOS 13.0, *) {
+            return .secondaryLabel
+        } else {
+            return .lightGray
+        }
     }()
 
     /// The color to use for choice labels.
@@ -140,16 +143,14 @@ extension UIColor {
     public static var apptentiveTextInputBackground: UIColor = {
         if #available(iOS 13.0, *) {
             return UIColor { traitCollection in
-
                 switch traitCollection.userInterfaceStyle {
                 case .dark:
-
                     return .black
+
                 default:
-
                     return .white
-                }
 
+                }
             }
         } else {
             return .white
@@ -160,74 +161,66 @@ extension UIColor {
     public static var apptentiveTextInput: UIColor = {
         if #available(iOS 13.0, *) {
             return UIColor { traitCollection in
-
                 switch traitCollection.userInterfaceStyle {
                 case .dark:
-
                     return .secondaryLabel
-                default:
 
+                default:
                     return .black
                 }
-
             }
         } else {
             return .black
         }
     }()
+
+    public static var apptentiveTextInputPlaceholder: UIColor = {
+        if #available(iOS 13.0, *) {
+            return .placeholderText
+        } else {
+            return UIColor(red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 67.0 / 255.0, alpha: 74.0 / 255.0)
+        }
+    }()
+
     /// The color used for min and max labels for the range survey.
     public static var apptentiveMinMaxLabel: UIColor = {
         return .gray
     }()
 
     /// The color used for the background of the entire survey.
-    public static var apptentiveGroupPrimary: UIColor = {
+    public static var apptentiveGroupedBackground: UIColor = {
         if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-
-                    return .black
-                default:
-
-                    return .systemGroupedBackground
-                }
-
-            }
+            return .systemGroupedBackground
         } else {
             return .white
         }
     }()
 
     /// The color used for the cell where the survey question is located.
-    public static var apptentiveGroupSecondary: UIColor = {
+    public static var apptentiveSecondaryGroupedBackground: UIColor = {
         if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-
-                    return .black
-                default:
-
-                    return .systemGroupedBackground
-                }
-
-            }
+            return .secondarySystemGroupedBackground
         } else {
             return .white
         }
     }()
 
+    public static var apptentiveSeparator: UIColor = {
+        if #available(iOS 13.0, *) {
+            return .separator
+        } else {
+            return UIColor(red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 67.0 / 255.0, alpha: 74.0 / 255.0)
+        }
+    }()
+
     /// The color to use for images in a selected state for surveys.
     public static var apptentiveImageSelected: UIColor = {
-        return .systemBlue
+        return UIApplication.shared.windows.first?.tintColor ?? .systemBlue
     }()
 
     /// The color to use for images in a non-selected state for surveys.
     public static var apptentiveImageNotSelected: UIColor = {
-        return .lightGray
+        return UIApplication.shared.windows.first?.tintColor ?? .systemBlue
     }()
 
     /// The background color to use for the submit button on surveys.
@@ -263,7 +256,7 @@ extension UIColor {
 extension UIFont {
     /// The font used for all survey question labels.
     public static var apptentiveQuestionLabel: UIFont = {
-        return .preferredFont(forTextStyle: .title3)
+        return .preferredFont(forTextStyle: .body)
     }()
 
     /// The font used for the terms of service.
@@ -285,10 +278,12 @@ extension UIFont {
     public static var apptentiveInstructionsLabel: UIFont = {
         return .preferredFont(forTextStyle: .caption1)
     }()
+
     /// The font used for the survey introduction label.
     public static var apptentiveSurveyIntroductionLabel: UIFont = {
         return .preferredFont(forTextStyle: .subheadline)
     }()
+
     /// The font used for the survey confirmation label and the survey submit button.
     public static var apptentiveSubmitLabel: UIFont = {
         return .preferredFont(forTextStyle: .headline)
@@ -298,5 +293,4 @@ extension UIFont {
     public static var apptentiveSubmitButtonTitle: UIFont = {
         return .preferredFont(forTextStyle: .headline)
     }()
-
 }

@@ -11,7 +11,7 @@ import UIKit
 class SurveyChoiceCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .value1, reuseIdentifier: reuseIdentifier)
-        self.contentView.backgroundColor = .apptentiveGroupSecondary
+        self.contentView.backgroundColor = .apptentiveSecondaryGroupedBackground
         self.textLabel?.font = .apptentiveChoiceLabel
         self.textLabel?.textColor = .apptentiveChoiceLabel
         self.textLabel?.numberOfLines = 0

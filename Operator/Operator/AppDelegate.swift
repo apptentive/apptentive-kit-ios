@@ -23,13 +23,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.connect { result in
             switch result {
             case .success(true):
-                print("Apptenitve registration successful")
+                print("Apptentive registration successful")
+
             case .success(false):
                 print("Apptentive registration not successful.")
+                
             case .failure(let error):
                 print("Apptentive registration failed: \(error)")
             }
-
         }
 
         return true
@@ -49,7 +50,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return
         }
         self.apptentive = Apptentive(apiBaseURL: url)
-        apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature), completion: completion)
+
+        self.apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature), completion: completion)
     }
 }
 extension UIViewController {

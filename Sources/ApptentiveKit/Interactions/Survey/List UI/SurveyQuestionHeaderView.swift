@@ -18,7 +18,7 @@ class SurveyQuestionHeaderView: UITableViewHeaderFooterView {
         self.instructionsLabel = UILabel(frame: .zero)
         self.stackView = UIStackView(arrangedSubviews: [self.questionLabel, self.instructionsLabel])
         super.init(reuseIdentifier: reuseIdentifier)
-        self.contentView.backgroundColor = .apptentiveGroupSecondary
+        self.contentView.backgroundColor = .apptentiveGroupedBackground
         self.contentView.addSubview(self.stackView)
 
         self.contentView.isAccessibilityElement = true

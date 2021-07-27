@@ -58,8 +58,6 @@ extension Apptentive {
         barButtonItemAppearance.setTitleTextAttributes(barTextAttributes, for: .normal)
         barButtonItemAppearance.tintColor = barForegroundColor
 
-        //UIView.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self, UITableView.self]).tintColor = buttonTintColor
-
         let backgroundColor: UIColor = {
             if #available(iOS 13.0, *) {
                 return .systemBackground
@@ -80,8 +78,9 @@ extension Apptentive {
         UIColor.apptentiveTextInputBorder = textInputBorderColor
         UIColor.apptentiveTextInput = textInputColor
         UIColor.apptentiveChoiceLabel = choiceLabelColor
-        UIColor.apptentiveGroupPrimary = apptentiveGroupPrimaryColor
-        UIColor.apptentiveGroupSecondary = apptentiveGroupSecondaryColor
+        UIColor.apptentiveGroupedBackground = apptentiveGroupPrimaryColor
+        UIColor.apptentiveSecondaryGroupedBackground = apptentiveGroupSecondaryColor
+        UIColor.apptentiveSeparator = apptentiveGroupPrimaryColor
         UIColor.apptentiveTextInputBackground = textInputBackgroundColor
         UIColor.apptentiveImageSelected = buttonTintColor
         UIColor.apptentiveSubmitButton = buttonTintColor
@@ -94,6 +93,9 @@ extension Apptentive {
         }
 
         UIColor.apptentiveTermsOfServiceLabel = termsOfServiceColor
+
+        UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .title3)
+
         UIBarButtonItem.apptentiveClose = {
             let systemClose: UIBarButtonItem = {
                 if #available(iOS 13.0, *) {
