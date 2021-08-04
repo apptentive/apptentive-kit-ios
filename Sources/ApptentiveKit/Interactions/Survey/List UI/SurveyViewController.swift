@@ -649,7 +649,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             UIAlertAction(
                 title: self.viewModel.closeConfirmationCloseButtonLabel, style: .destructive,
                 handler: { _ in
-                    self.viewModel.cancel(partial: true)
+                    self.cancel(partial: true)
 
                 }))
         alertController.addAction(
@@ -662,8 +662,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.present(alertController, animated: true, completion: nil)
     }
 
-    private func cancel() {
-        self.viewModel.cancel()
+    private func cancel(partial: Bool = false) {
+        self.viewModel.cancel(partial: partial)
         self.dismiss()
     }
 

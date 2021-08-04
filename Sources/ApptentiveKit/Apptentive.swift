@@ -126,7 +126,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
                     completion?(.failure(error))
                     ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
                     if !self.isTesting {
-                       assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                        assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
                     }
                 }
             }
