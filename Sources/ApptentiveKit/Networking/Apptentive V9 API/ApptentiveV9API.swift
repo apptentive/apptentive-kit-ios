@@ -215,6 +215,7 @@ struct ApptentiveV9API: HTTPEndpoint {
             let scanner = Scanner(string: cacheControlHeader.lowercased())
             var maxAge: Double = .nan
             if scanner.scanString("max-age", into: nil) && scanner.scanString("=", into: nil) && scanner.scanDouble(&maxAge) {
+                maxAge = max(maxAge, 600) // API has a bug where it sends a max-age of zero sometimes.
                 return Date(timeIntervalSinceNow: maxAge)
             }
         }

@@ -94,7 +94,11 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
             }
 
         case .failure(let error as HTTPClientError):
-            if self.retryPolicy.shouldRetry(inCaseOf: error) {
+            if error.indicatesCancellation {
+                self.dispatchQueue.async {
+                    completion(result)
+                }
+            } else if self.retryPolicy.shouldRetry(inCaseOf: error) {
                 self.retryPolicy.incrementRetryDelay()
                 let retryDelayMilliseconds = Int(self.retryPolicy.retryDelay / 1000.0)
 

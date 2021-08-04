@@ -124,9 +124,13 @@ class PayloadSender {
                 self.payloads.removeFirst()
 
             case .failure(let error):
-                ApptentiveLogger.payload.error("Permanent failure when sending \(firstPayload): \(error.localizedDescription). Removing from queue.")
+                if let clientError = error as? HTTPClientError, clientError.indicatesCancellation {
+                    ApptentiveLogger.payload.debug("Payload \(firstPayload) request cancelled. Not retrying, not removing from queue.")
+                } else {
+                    ApptentiveLogger.payload.error("Permanent failure when sending \(firstPayload): \(error.localizedDescription). Removing from queue.")
 
-                self.payloads.removeFirst()
+                    self.payloads.removeFirst()
+                }
             }
 
             self.currentPayloadIdentifier = nil

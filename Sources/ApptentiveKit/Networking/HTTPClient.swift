@@ -134,6 +134,14 @@ enum HTTPClientError: Error {
     case clientError(HTTPURLResponse, Data?)
     case serverError(HTTPURLResponse, Data?)
     case unhandledStatusCode(HTTPURLResponse, Data?)
+
+    var indicatesCancellation: Bool {
+        if case .connectionError(let underlyingError as NSError) = self {
+            return underlyingError.domain == NSURLErrorDomain && underlyingError.code == NSURLErrorCancelled
+        } else {
+            return false
+        }
+    }
 }
 
 extension HTTPClientError: LocalizedError {

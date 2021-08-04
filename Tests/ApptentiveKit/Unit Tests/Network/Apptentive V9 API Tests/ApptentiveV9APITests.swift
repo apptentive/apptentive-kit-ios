@@ -91,13 +91,13 @@ class ApptentiveV9APITests: XCTestCase {
 
         XCTAssertEqual(expiry1.timeIntervalSinceNow, Date(timeIntervalSinceNow: 86400).timeIntervalSinceNow, accuracy: 1.0)
 
-        let response3 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["cAcHe-cOnTrOl": "max-age = 200"])!
+        let response3 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["cAcHe-cOnTrOl": "max-age = 650"])!
 
         guard let expiry3 = ApptentiveV9API.parseExpiry(response3) else {
             return XCTFail("Unable to parse valid expiry (with weird case)")
         }
 
-        XCTAssertEqual(expiry3.timeIntervalSinceNow, Date(timeIntervalSinceNow: 200).timeIntervalSinceNow, accuracy: 1.0)
+        XCTAssertEqual(expiry3.timeIntervalSinceNow, Date(timeIntervalSinceNow: 650).timeIntervalSinceNow, accuracy: 1.0)
     }
 
     func testCreateConversation() throws {
