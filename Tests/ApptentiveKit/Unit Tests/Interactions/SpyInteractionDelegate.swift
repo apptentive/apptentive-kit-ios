@@ -6,6 +6,7 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import Foundation
 @testable import ApptentiveKit
 
 class SpyInteractionDelegate: InteractionDelegate {

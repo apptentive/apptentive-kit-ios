@@ -130,22 +130,22 @@ extension Apptentive {
     }
 
     @available(*, deprecated, message: "Extended event data are no longer supported.")
-    @objc public class func extendedData(date: Date) -> [AnyHashable: Any] {
+    @objc(extendedDataDate:) public class func extendedData(date: Date) -> [AnyHashable: Any] {
         return [:]
     }
 
     @available(*, deprecated, message: "Extended event data are no longer supported.")
-    @objc public class func extendedData(latitude: Double, longitude: Double) -> [AnyHashable: Any] {
+    @objc(extendedDataLocationForLatitude:longitude:) public class func extendedData(latitude: Double, longitude: Double) -> [AnyHashable: Any] {
         return [:]
     }
 
     @available(*, deprecated, message: "Extended event data are no longer supported.")
-    @objc public class func extendedData(transactionID: String?, affiliation: String?, revenue: NSNumber?, shipping: NSNumber?, tax: NSNumber?, currency: String?, commerceItems: [[AnyHashable: Any]]?) -> [AnyHashable: Any] {
+    @objc(extendedDataCommerceWithTransactionID:affiliation:revenue:shipping:tax:currency:commerceItems:) public class func extendedData(transactionID: String?, affiliation: String?, revenue: NSNumber?, shipping: NSNumber?, tax: NSNumber?, currency: String?, commerceItems: [[AnyHashable: Any]]?) -> [AnyHashable: Any] {
         return [:]
     }
 
     @available(*, deprecated, message: "Extended event data are no longer supported.")
-    @objc public class func extendedData(itemID: String?, name: String?, category: String?, price: NSNumber?, quantity: NSNumber?, currency: String?) -> [AnyHashable: Any] {
+    @objc(extendedDataCommerceItemWithItemID:name:category:price:quantity:currency:) public class func extendedData(itemID: String?, name: String?, category: String?, price: NSNumber?, quantity: NSNumber?, currency: String?) -> [AnyHashable: Any] {
         return [:]
     }
 
@@ -227,6 +227,16 @@ extension Apptentive {
             nil
         }
         set {}
+    }
+
+    @available(*, deprecated, message: "mParticleId has been renamed to mParticleID.")
+    @objc public var mParticleId: String? {
+        get {
+            return self.mParticleID
+        }
+        set {
+            self.mParticleID = newValue
+        }
     }
 
     @available(*, deprecated, message: "Subscript the `personCustomData` property instead.")

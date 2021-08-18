@@ -107,7 +107,6 @@
 		019E79082575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019E79072575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift */; };
 		019E79122575AD7D006BD412 /* SpyInteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019E79112575AD7D006BD412 /* SpyInteractionDelegate.swift */; };
 		019E79252575B560006BD412 /* EnjoymentDialogUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */; };
-		01A0917123FCB4A700AF187E /* ApptentiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 01A0916F23FCB4A700AF187E /* ApptentiveKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01A0918123FCB4CC00AF187E /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A0918723FCB5D600AF187E /* Apptentive.swift */; };
 		01A1BC87263B7676003DC51B /* LegacyConversationMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A1BC86263B7676003DC51B /* LegacyConversationMetadata.swift */; };
@@ -303,7 +302,6 @@
 		019E79112575AD7D006BD412 /* SpyInteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpyInteractionDelegate.swift; sourceTree = "<group>"; };
 		019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogUITests.swift; sourceTree = "<group>"; };
 		01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ApptentiveKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		01A0916F23FCB4A700AF187E /* ApptentiveKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ApptentiveKit.h; sourceTree = "<group>"; };
 		01A0917C23FCB4CC00AF187E /* ApptentiveFeatureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveFeatureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01A0918023FCB4CC00AF187E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01A0918723FCB5D600AF187E /* Apptentive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Apptentive.swift; sourceTree = "<group>"; };
@@ -322,6 +320,7 @@
 		01C0218925DC891A00547059 /* Criteria+Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Criteria+Logging.swift"; sourceTree = "<group>"; };
 		01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyOtherChoiceCell.swift; sourceTree = "<group>"; };
 		01C7958325C1082800FD28F1 /* PersonAndDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonAndDeviceTests.swift; sourceTree = "<group>"; };
+		01C9B65526C5ED11006A6A5E /* ApptentiveKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = ApptentiveKit.podspec; sourceTree = "<group>"; };
 		01D19C8C266162FB00BD8CF9 /* ChoiceButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoiceButton.swift; sourceTree = "<group>"; };
 		01D739232405CB630000EE52 /* ApptentiveUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01D739272405CB630000EE52 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -658,6 +657,7 @@
 			isa = PBXGroup;
 			children = (
 				016E6DD925F9493300151E29 /* Package.swift */,
+				01C9B65526C5ED11006A6A5E /* ApptentiveKit.podspec */,
 				016E6DD825F9493300151E29 /* README.md */,
 				016E6D7825F83D1C00151E29 /* Sources */,
 				016E6D8125F83D3000151E29 /* Tests */,
@@ -690,7 +690,6 @@
 				013D8E8624F03888005EC4D1 /* Networking */,
 				017FC93125310E4700C7A47F /* Targeting */,
 				01A0918723FCB5D600AF187E /* Apptentive.swift */,
-				01A0916F23FCB4A700AF187E /* ApptentiveKit.h */,
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */,
 				013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */,
@@ -837,7 +836,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01A0917123FCB4A700AF187E /* ApptentiveKit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

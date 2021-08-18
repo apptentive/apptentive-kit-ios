@@ -54,6 +54,19 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
     }
 
+    @objc public var mParticleID: String? {
+        get {
+            self.person.mParticleID
+        }
+        set {
+            self.person.mParticleID = newValue
+
+            ApptentiveLogger.default.debug("Setting person mParticle ID to “\(newValue)”.")
+
+            self.updateConversationPerson()
+        }
+    }
+
     /// The custom data assocated with the person using the app.
     ///
     /// Supported types are `String`, `Bool`, and numbers.
