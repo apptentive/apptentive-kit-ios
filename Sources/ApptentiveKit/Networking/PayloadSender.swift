@@ -148,10 +148,6 @@ class PayloadSender {
 
     func suspend() {
         self.isSuspended = true
-
-        if let identifier = self.currentPayloadIdentifier {
-            self.requestRetrier.cancel(identifier: identifier)
-        }
     }
 
     func resume() {
