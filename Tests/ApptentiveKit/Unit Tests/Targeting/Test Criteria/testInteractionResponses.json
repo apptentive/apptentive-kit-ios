@@ -51,18 +51,18 @@
             }
         },
         {
-            "$not": {
+            "$not": [{
                 "interactions/range_question/answers/value": {
                     "$lt": -2
                 }
-            }
+            }]
         },
         {
-            "$not": {
+            "$not": [{
                 "interactions/range_question/answers/value": {
                     "$gt": 2
                 }
-            }
+            }]
         },
         {
             "interactions/freeform_question/answers/value": {
@@ -90,25 +90,25 @@
             }
         },
         {
-            "$not": {
+            "$not": [{
                 "interactions/freeform_question/answers/value": {
                     "$contains": "foo"
                 }
-            }
+            }]
         },
         {
-            "$not": {
+            "$not": [{
                 "interactions/freeform_question/answers/value": {
                     "$ends_with": "bar"
                 }
-            }
+            }]
         },
         {
-            "$not": {
+            "$not": [{
                 "interactions/freeform_question/answers/value": {
                     "$starts_with": "baz"
                 }
-            }
+            }]
         },
         {
             "interactions/choice_question/answers/id": {
@@ -166,32 +166,32 @@
             }
         },
         {
-            "$not": {
+            "$not": [{
                 "interactions/other_question/answers/value": {
                     "$contains": "foo"
                 }
-            }
+            }]
         },
         {
-            "$not": {
+            "$not": [{
                 "interactions/other_question/answers/value": {
                     "$ends_with": "bar"
                 }
-            }
+            }]
         },
         {
-            "$not": {
+            "$not": [{
                 "interactions/other_question/answers/value": {
                     "$starts_with": "baz"
                 }
-            }
+            }]
         },
         {
-            "$not": {
+            "$not": [{
                 "interactions/hasnt_seen_interaction/answers/id": {
                     "$ne": "foo"
                 }
-            }
+            }]
         }
     ]
 }

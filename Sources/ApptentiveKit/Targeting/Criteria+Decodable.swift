@@ -21,13 +21,7 @@ extension LogicalClause: Decodable {
         }
 
         self.logicalOperator = logicalOperator
-
-        switch logicalOperator {
-        case .and, .or:
-            self.subClauses = try decodeUnkeyedSubClauses(from: decoder)
-        case .not:
-            self.subClauses = try decodeKeyedSubClauses(from: decoder)
-        }
+        self.subClauses = try decodeUnkeyedSubClauses(from: decoder)
     }
 }
 

@@ -6,39 +6,39 @@
       }
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/number_5": {
           "$exists": false
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/number_5": {
           "$exists": 5
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/number_5": {
           "$exists": null
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/key_with_null_value": {
           "$exists": true
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/non_existent_key": {
           "$exists": true
         }
-      }
+      }]
     }
   ]
 }

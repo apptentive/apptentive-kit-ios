@@ -6,76 +6,76 @@
       }
     },
     {
-      "$not": {
+      "$not": [{
         "application/cf_bundle_short_version_string": {
           "$exists": false
         }
-      }
+      }]
     },
     {
-      "$not": {
-        "$not": {
+      "$not": [{
+        "$not": [{
           "application/cf_bundle_short_version_string": {
             "$exists": true
           }
-        }
-      }
+        }]
+      }]
     },
     {
-      "$not": {
-        "$not": {
-          "$not": {
+      "$not": [{
+        "$not": [{
+          "$not": [{
             "application/cf_bundle_short_version_string": {
               "$exists": false
             }
-          }
-        }
-      }
+          }]
+        }]
+      }]
     },
     {
-      "$not": {
-        "$not": {
-          "$not": {
-            "$not": {
+      "$not": [{
+        "$not": [{
+          "$not": [{
+            "$not": [{
               "application/cf_bundle_short_version_string": {
                 "$exists": true
               }
-            }
-          }
-        }
-      }
+            }]
+          }]
+        }]
+      }]
     },
     {
-      "$not": {
-        "$not": {
-          "$not": {
-            "$not": {
-              "$not": {
+      "$not": [{
+        "$not": [{
+          "$not": [{
+            "$not": [{
+              "$not": [{
                 "application/cf_bundle_short_version_string": {
                   "$exists": false
                 }
-              }
-            }
-          }
-        }
-      }
+              }]
+            }]
+          }]
+        }]
+      }]
     },
     {
-      "$not": {
-        "$not": {
-          "$not": {
-            "$not": {
-              "$not": {
-                "$not": {
+      "$not": [{
+        "$not": [{
+          "$not": [{
+            "$not": [{
+              "$not": [{
+                "$not": [{
                   "application/cf_bundle_short_version_string": {
                     "$exists": true
                   }
-                }
-              }
-            }
-          }
-        }
-      }
+                }]
+              }]
+            }]
+          }]
+        }]
+      }]
     }
   ]
 }

@@ -6,70 +6,70 @@
       }
     },
     {
-      "$not": {
+      "$not": [{
         "time_at_install/total": {
           "$after": 1
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "time_at_install/total": {
           "$after": null
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "time_at_install/total": {
           "$after": ""
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "time_at_install/total": {
           "$after": {
             "_type": "version",
             "version": "5.0.0"
           }
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/key_with_null_value": {
           "$after": null
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/key_with_null_value": {
           "$after": ""
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/key_with_null_value": {
           "$after": 5
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/non_existent_key": {
           "$after": 5
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/non_existent_key": {
           "$after": ""
         }
-      }
+      }]
     }
   ]
 }

@@ -17,28 +17,28 @@
       "device/custom_data/string_qwerty": "QWERTY"
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/string_qwerty": {
           "$eq": "werty"
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/string_qwerty": "werty"
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/string_qwerty": {
           "$eq": null
         }
-      }
+      }]
     },
     {
-      "$not": {
+      "$not": [{
         "device/custom_data/string_qwerty": null
-      }
+      }]
     }
   ]
 }
