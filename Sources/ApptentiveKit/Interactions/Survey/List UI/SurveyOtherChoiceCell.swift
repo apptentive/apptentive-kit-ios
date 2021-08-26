@@ -102,7 +102,8 @@ class SurveyOtherChoiceCell: UITableViewCell {
         self.textField.layer.cornerRadius = 6.0
 
         self.textField.translatesAutoresizingMaskIntoConstraints = false
-        self.textField.font = .apptentiveChoiceLabel
+        self.textField.font = .apptentiveTextIntput
+        
         self.textField.adjustsFontForContentSizeCategory = true
         self.textField.backgroundColor = .apptentiveTextInputBackground
         self.textField.textColor = .apptentiveChoiceLabel
@@ -111,7 +112,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
         NSLayoutConstraint.activate([
             self.otherTextLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 55.5),
             self.otherTextLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -20),
-            self.contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: self.textField.trailingAnchor, multiplier: 1.0),
+            self.contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: self.textField.trailingAnchor, multiplier: 2.0),
             self.textField.leadingAnchor.constraint(equalTo: self.otherTextLabel.leadingAnchor, constant: -7),
 
             self.otherTextLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 12),

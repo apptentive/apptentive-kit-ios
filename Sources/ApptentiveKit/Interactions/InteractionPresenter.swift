@@ -119,6 +119,7 @@ open class InteractionPresenter {
             throw InteractionPresenterError.noPresentingViewController
         }
 
+        viewControllerToPresent.modalPresentationStyle = .fullScreen
         presentingViewController.present(viewControllerToPresent, animated: true, completion: completion)
     }
 

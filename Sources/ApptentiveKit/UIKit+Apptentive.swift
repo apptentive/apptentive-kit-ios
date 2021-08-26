@@ -256,7 +256,7 @@ extension UIColor {
 extension UIFont {
     /// The font used for all survey question labels.
     public static var apptentiveQuestionLabel: UIFont = {
-        return .preferredFont(forTextStyle: .body)
+        return .preferredFont(forTextStyle: .callout)
     }()
 
     /// The font used for the terms of service.
@@ -266,7 +266,7 @@ extension UIFont {
 
     /// the font used for all survey answer choice labels.
     public static var apptentiveChoiceLabel: UIFont = {
-        return .preferredFont(forTextStyle: .body)
+        return .preferredFont(forTextStyle: .callout)
     }()
 
     /// The font used for the min and max labels for the range survey.
@@ -292,5 +292,9 @@ extension UIFont {
     /// The font used for the submit button at the end of surveys.
     public static var apptentiveSubmitButtonTitle: UIFont = {
         return .preferredFont(forTextStyle: .headline)
+    }()
+    
+    public static var apptentiveTextIntput: UIFont = {
+        return .preferredFont(forTextStyle: .callout)
     }()
 }

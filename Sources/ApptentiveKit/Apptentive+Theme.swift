@@ -34,22 +34,25 @@ extension Apptentive {
         }
 
         if #available(iOS 13.0, *) {
-            let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: apptentiveRangeControlBorder, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16.0, weight: .medium)] as [NSAttributedString.Key: Any]
-            let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16.0, weight: .medium)] as [NSAttributedString.Key: Any]
+            let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: apptentiveRangeControlBorder, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13.0, weight: .medium)] as [NSAttributedString.Key: Any]
+            let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13.0, weight: .medium)] as [NSAttributedString.Key: Any]
 
             let segmentedControlAppearance = UISegmentedControl.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesOnLoad, for: .normal)
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesWhenSelected, for: .selected)
-            segmentedControlAppearance.selectedSegmentTintColor = buttonTintColor
+            segmentedControlAppearance.setBackgroundImage(image(with: .white), for: .normal, barMetrics: .default)
+            segmentedControlAppearance.setBackgroundImage(image(with: buttonTintColor), for: .selected, barMetrics: .default)
         }
 
-        let barTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor]
+        let barTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font : UIFont.preferredFont(forTextStyle: .title2)]
 
         let navigationBarAppearance = UINavigationBar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
         navigationBarAppearance.barTintColor = barTintColor
         navigationBarAppearance.titleTextAttributes = barTextAttributes
         navigationBarAppearance.isTranslucent = false
-
+       
+        
+        
         let toolBarAppearance = UIToolbar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
         toolBarAppearance.barTintColor = barTintColor
         toolBarAppearance.isTranslucent = false
@@ -94,7 +97,7 @@ extension Apptentive {
 
         UIColor.apptentiveTermsOfServiceLabel = termsOfServiceColor
 
-        UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .title3)
+        UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .callout)
 
         UIBarButtonItem.apptentiveClose = {
             let systemClose: UIBarButtonItem = {
@@ -118,5 +121,18 @@ extension Apptentive {
         }()
 
         UIButton.apptentiveStyle = .radius(8.0)
+    }
+   
+    private func image(with color: UIColor?) -> UIImage? {
+        let rect = CGRect(x: 0.0, y: 0.0, width: 1.0, height: 1.0)
+        UIGraphicsBeginImageContext(rect.size)
+        let context = UIGraphicsGetCurrentContext()
+        if let cg = color?.cgColor {
+            context?.setFillColor(cg)
+        }
+        context?.fill(rect)
+        let theImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return theImage
     }
 }

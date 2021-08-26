@@ -125,7 +125,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.tableView.tableFooterView = self.submitView
     }
 
-    override func viewDidLayoutSubviews() {
+    override func viewWillLayoutSubviews() {
         self.updateHeaderFooterSize()
     }
 

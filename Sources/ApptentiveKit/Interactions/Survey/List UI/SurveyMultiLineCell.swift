@@ -40,8 +40,8 @@ class SurveyMultiLineCell: UITableViewCell {
                     self.textView.textContainerInset = UIEdgeInsets(top: 4.0, left: 2.0, bottom: 4.0, right: 2.0)
                 }
 
-                self.leadingConstraint?.constant = 9.0
-                self.trailingConstraint?.constant = 9.0
+                self.leadingConstraint?.constant = 14.5
+                self.trailingConstraint?.constant = 14.5
             }
 
             self.updatePlaceholderConstraints()
@@ -90,11 +90,13 @@ class SurveyMultiLineCell: UITableViewCell {
         self.textView.textColor = .apptentiveTextInput
         self.textView.translatesAutoresizingMaskIntoConstraints = false
         self.textView.adjustsFontForContentSizeCategory = true
-        self.textView.font = .apptentiveChoiceLabel
+        self.textView.font = .apptentiveTextIntput
         self.textView.returnKeyType = .default
 
-        self.leadingConstraint = self.textView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 9.0)
-        self.trailingConstraint = self.contentView.trailingAnchor.constraint(equalTo: self.textView.trailingAnchor, constant: 9.0)
+        self.leadingConstraint = self.textView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 10.0)
+       
+        self.trailingConstraint = self.contentView.trailingAnchor.constraint(equalTo: self.textView.trailingAnchor, constant: 10.0)
+          
         self.heightConstraint = self.textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100.0)
 
         NSLayoutConstraint.activate([
@@ -111,7 +113,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.placeholderLabel.isUserInteractionEnabled = false
         self.placeholderLabel.adjustsFontSizeToFitWidth = true
         self.placeholderLabel.minimumScaleFactor = 0.1
-        self.placeholderLabel.font = .apptentiveChoiceLabel
+        self.placeholderLabel.font = .apptentiveTextIntput
         self.placeholderLabel.textColor = .apptentiveTextInputPlaceholder
 
         self.updatePlaceholderConstraints()

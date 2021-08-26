@@ -73,11 +73,11 @@ class SurveySingleLineCell: UITableViewCell {
         self.textField.textColor = .apptentiveTextInput
         self.textField.translatesAutoresizingMaskIntoConstraints = false
         self.textField.adjustsFontForContentSizeCategory = true
-        self.textField.font = .apptentiveChoiceLabel
+        self.textField.font = .apptentiveTextIntput
         self.textField.returnKeyType = .done
 
-        self.leadingConstraint = self.textField.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 9.0)
-        self.trailingConstraint = self.contentView.trailingAnchor.constraint(equalTo: self.textField.trailingAnchor, constant: 9.0)
+        self.leadingConstraint = self.textField.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 15.0)
+        self.trailingConstraint = self.contentView.trailingAnchor.constraint(equalTo: self.textField.trailingAnchor, constant: 15.0)
 
         NSLayoutConstraint.activate([
             self.textField.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
