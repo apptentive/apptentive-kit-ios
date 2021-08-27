@@ -84,7 +84,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.configureTermsOfService()
         self.navigationController?.presentationController?.delegate = self
 
-        self.navigationItem.title = self.viewModel.name
+        if let headerLogo = UIImage.apptentiveHeaderLogo {
+            let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
+            self.navigationItem.titleView = headerImageView
+        } else {
+            self.navigationItem.title = self.viewModel.name
+        }
 
         self.introductionView.textLabel.text = self.viewModel.introduction
 

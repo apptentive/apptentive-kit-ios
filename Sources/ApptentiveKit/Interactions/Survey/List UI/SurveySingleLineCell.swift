@@ -79,10 +79,11 @@ class SurveySingleLineCell: UITableViewCell {
         self.leadingConstraint = self.textField.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 15.0)
         self.trailingConstraint = self.contentView.trailingAnchor.constraint(equalTo: self.textField.trailingAnchor, constant: 15.0)
 
-        NSLayoutConstraint.activate([
-            self.textField.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
-            self.leadingConstraint, self.trailingConstraint,
-            self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textField.bottomAnchor, multiplier: 1.0)
-        ].compactMap({$0}))
+        NSLayoutConstraint.activate(
+            [
+                self.textField.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
+                self.leadingConstraint, self.trailingConstraint,
+                self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textField.bottomAnchor, multiplier: 1.0),
+            ].compactMap({ $0 }))
     }
 }

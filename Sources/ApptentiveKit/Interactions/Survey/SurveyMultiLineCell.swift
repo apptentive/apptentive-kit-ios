@@ -99,12 +99,13 @@ class SurveyMultiLineCell: UITableViewCell {
           
         self.heightConstraint = self.textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100.0)
 
-        NSLayoutConstraint.activate([
-            self.textView.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
-            self.leadingConstraint, self.trailingConstraint,
-            self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textView.bottomAnchor, multiplier: 1.0),
-            self.heightConstraint
-        ].compactMap({$0}))
+        NSLayoutConstraint.activate(
+            [
+                self.textView.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
+                self.leadingConstraint, self.trailingConstraint,
+                self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textView.bottomAnchor, multiplier: 1.0),
+                self.heightConstraint,
+            ].compactMap({ $0 }))
 
         self.textView.addSubview(self.placeholderLabel)
         self.placeholderLabel.isAccessibilityElement = false

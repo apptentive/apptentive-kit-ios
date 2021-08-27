@@ -53,6 +53,12 @@ extension UIButton {
 }
 
 extension UIImage {
+
+    /// The image to use for the top navigation bar for surveys.
+    public static var apptentiveHeaderLogo: UIImage? = {
+        return nil
+    }()
+
     /// The image to use next to a radio button question choice.
     public static var apptentiveRadioButton: UIImage? = {
         return apptentiveImage(named: "circle")

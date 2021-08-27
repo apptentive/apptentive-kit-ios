@@ -511,7 +511,6 @@
 				015A0D4025509C0A00EF077D /* SurveyChoiceCell.swift */,
 				01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */,
 				015F2ADE24C9F85D004B53E2 /* SurveySingleLineCell.swift */,
-				015F2AE024C9FEBF004B53E2 /* SurveyMultiLineCell.swift */,
 				015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */,
 			);
 			path = "List UI";
@@ -627,6 +626,7 @@
 				015AF83924E74379000DF8B0 /* SurveyViewModel+FreeformQuestion.swift */,
 				015A0D3425509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift */,
 				015A0D3525509BB600EF077D /* SurveyViewModel+RangeQuestion.swift */,
+				015F2AE024C9FEBF004B53E2 /* SurveyMultiLineCell.swift */,
 				015F2ADC24C9EE3A004B53E2 /* SurveyResponse.swift */,
 			);
 			path = Survey;

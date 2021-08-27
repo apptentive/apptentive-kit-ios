@@ -101,7 +101,7 @@ class Backend {
     ///   - completion: A completion handler to be called when conversation credentials are loaded/retrieved, or when loading/retrieving fails.
     func connect(appCredentials: Apptentive.AppCredentials, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
         guard self.conversation.appCredentials == nil || self.conversation.appCredentials == appCredentials else {
-            assertionFailure("Mismatched Credentials: Please delete and reinstall the app.")
+               assertionFailure("Mismatched Credentials: Please delete and reinstall the app.")
             return
         }
 
