@@ -33,7 +33,6 @@ class SurveyOtherChoiceCell: UITableViewCell {
         self.contentView.backgroundColor = .apptentiveSecondaryGroupedBackground
         self.contentViewBottomConstraint = self.contentView.bottomAnchor.constraint(greaterThanOrEqualTo: self.otherTextLabel.bottomAnchor, constant: 12)
         self.splitterConstraint = self.textField.topAnchor.constraint(equalTo: self.otherTextLabel.bottomAnchor, constant: 10)
-        self.translatesAutoresizingMaskIntoConstraints = false
         self.textField.isHidden = false
         self.textField.alpha = 0.0
         self.contentView.addSubview(self.textField)

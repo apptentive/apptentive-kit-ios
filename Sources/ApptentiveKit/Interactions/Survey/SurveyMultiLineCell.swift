@@ -75,7 +75,6 @@ class SurveyMultiLineCell: UITableViewCell {
         self.isMarkedAsInvalid = false
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.contentView.backgroundColor = .apptentiveSecondaryGroupedBackground
-        self.translatesAutoresizingMaskIntoConstraints = false
         self.contentView.addSubview(self.textView)
 
         self.configureTextView()

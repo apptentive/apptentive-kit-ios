@@ -47,14 +47,14 @@ extension Apptentive {
         let barTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font : UIFont.preferredFont(forTextStyle: .title2)]
 
         let navigationBarAppearance = UINavigationBar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
+        navigationBarAppearance.backgroundColor = barTintColor
         navigationBarAppearance.barTintColor = barTintColor
         navigationBarAppearance.titleTextAttributes = barTextAttributes
         navigationBarAppearance.isTranslucent = false
-       
-        
-        
+
         let toolBarAppearance = UIToolbar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
         toolBarAppearance.barTintColor = barTintColor
+        toolBarAppearance.backgroundColor = barTintColor
         toolBarAppearance.isTranslucent = false
 
         let barButtonItemAppearance = UIBarButtonItem.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])

@@ -122,16 +122,17 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.tableView.estimatedRowHeight = UITableView.automaticDimension
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.updateHeaderFooterSize()
+    }
+
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
         self.updateHeaderFooterSize()
         self.tableView.tableHeaderView = self.introductionView
         self.tableView.tableFooterView = self.submitView
-    }
-
-    override func viewWillLayoutSubviews() {
-        self.updateHeaderFooterSize()
     }
 
     // MARK: - Table view data source

@@ -59,7 +59,6 @@ class SurveySingleLineCell: UITableViewCell {
         self.isMarkedAsInvalid = false
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.contentView.backgroundColor = .apptentiveSecondaryGroupedBackground
-        self.translatesAutoresizingMaskIntoConstraints = false
         self.contentView.addSubview(self.textField)
         self.configureTextField()
     }
