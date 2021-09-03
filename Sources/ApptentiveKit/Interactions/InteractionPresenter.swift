@@ -119,7 +119,14 @@ open class InteractionPresenter {
             throw InteractionPresenterError.noPresentingViewController
         }
 
+        // Workaround for iOS 15 beta 8 clear bars at scroll view extrema.
+        if let navigationController = viewControllerToPresent as? ApptentiveNavigationController, let backgroundColor = ApptentiveNavigationController.barTintColor {
+            navigationController.view.backgroundColor = backgroundColor
+        }
+
+        // Display full screen
         viewControllerToPresent.modalPresentationStyle = .fullScreen
+
         presentingViewController.present(viewControllerToPresent, animated: true, completion: completion)
     }
 

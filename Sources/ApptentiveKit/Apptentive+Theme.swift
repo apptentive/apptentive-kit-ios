@@ -46,6 +46,9 @@ extension Apptentive {
 
         let barTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font : UIFont.preferredFont(forTextStyle: .title2)]
 
+        ApptentiveNavigationController.barTintColor = barTintColor
+        ApptentiveNavigationController.preferredStatusBarStyle = .lightContent
+        
         let navigationBarAppearance = UINavigationBar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
         navigationBarAppearance.backgroundColor = barTintColor
         navigationBarAppearance.barTintColor = barTintColor

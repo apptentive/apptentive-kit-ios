@@ -10,6 +10,13 @@ import UIKit
 
 /// `UINavigationController` subclass intended primarily to facilitate scoping `UIAppearance` rules to Apptentive UI.
 public class ApptentiveNavigationController: UINavigationController {
+    /// Used to work around a bug in iOS 15 beta 8 (and earlier?) where navigation/tool bars end up clear in some cases.
+    static var barTintColor: UIColor? = nil
+    static var preferredStatusBarStyle: UIStatusBarStyle = .default
+
+    public override var preferredStatusBarStyle: UIStatusBarStyle {
+        return Self.preferredStatusBarStyle
+    }
 }
 
 extension UITableView.Style {
