@@ -11,16 +11,29 @@ import OSLog
 
 /// Intended to be not exactly a drop-in replacement, but pretty close to the iOS 14 `Logger` class.
 public struct ApptentiveLogger {
-    private let log: OSLog
+    private let log: OSLog?
 
     /// Creates a logger with the specified subsystem.
     init(subsystem: String) {
-        self.log = OSLog(subsystem: subsystem, category: .pointsOfInterest)
+        if #available(iOS 12.0, *) {
+            self.log = OSLog(subsystem: subsystem, category: .pointsOfInterest)
+        } else {
+            self.log = nil
+        }
     }
 
     private func log(_ message: ApptentiveLogMessage, level: LogLevel) {
         if level >= self.logLevel {
-            os_log(level.logType, log: self.log, "%@", message.description)
+            if #available(iOS 12.0, *) {
+                guard let log = self.log else {
+                    assertionFailure("Expected log to be available in iOS 12+")
+                    return
+                }
+
+                os_log(level.logType, log: log, "%@", message.description)
+            } else {
+                print("\(level.label)/Apptentive: \(message.description)")
+            }
         }
     }
 
@@ -256,5 +269,30 @@ public enum LogLevel: Int, Comparable {
     // swift-format-ignore
     public static func < (lhs: LogLevel, rhs: LogLevel) -> Bool {
         return lhs.rawValue < rhs.rawValue
+    }
+
+    var label: String {
+        switch self {
+        case .debug:
+            return "D"
+
+        case .info:
+            return "I"
+
+        case .notice:
+            return "N"
+
+        case .warning:
+            return "W"
+
+        case .error:
+            return "E"
+
+        case .critical:
+            return "C"
+
+        case .fault:
+            return "F"
+        }
     }
 }
