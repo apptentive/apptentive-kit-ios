@@ -72,7 +72,7 @@ class SurveySingleLineCell: UITableViewCell {
         self.textField.textColor = .apptentiveTextInput
         self.textField.translatesAutoresizingMaskIntoConstraints = false
         self.textField.adjustsFontForContentSizeCategory = true
-        self.textField.font = .apptentiveTextIntput
+        self.textField.font = .apptentiveTextInput
         self.textField.returnKeyType = .done
 
         self.leadingConstraint = self.textField.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 15.0)

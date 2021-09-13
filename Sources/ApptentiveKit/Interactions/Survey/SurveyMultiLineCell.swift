@@ -89,7 +89,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.textView.textColor = .apptentiveTextInput
         self.textView.translatesAutoresizingMaskIntoConstraints = false
         self.textView.adjustsFontForContentSizeCategory = true
-        self.textView.font = .apptentiveTextIntput
+        self.textView.font = .apptentiveTextInput
         self.textView.returnKeyType = .default
 
         self.leadingConstraint = self.textView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 10.0)
@@ -113,7 +113,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.placeholderLabel.isUserInteractionEnabled = false
         self.placeholderLabel.adjustsFontSizeToFitWidth = true
         self.placeholderLabel.minimumScaleFactor = 0.1
-        self.placeholderLabel.font = .apptentiveTextIntput
+        self.placeholderLabel.font = .apptentiveTextInput
         self.placeholderLabel.textColor = .apptentiveTextInputPlaceholder
 
         self.updatePlaceholderConstraints()
