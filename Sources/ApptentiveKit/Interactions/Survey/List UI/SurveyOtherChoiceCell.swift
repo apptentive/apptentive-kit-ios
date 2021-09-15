@@ -102,7 +102,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
         self.textField.translatesAutoresizingMaskIntoConstraints = false
         self.textField.font = .apptentiveTextInput
-        
+
         self.textField.adjustsFontForContentSizeCategory = true
         self.textField.backgroundColor = .apptentiveTextInputBackground
         self.textField.textColor = .apptentiveChoiceLabel

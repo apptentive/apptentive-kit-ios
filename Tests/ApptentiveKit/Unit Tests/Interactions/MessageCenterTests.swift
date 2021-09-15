@@ -1,17 +1,19 @@
 //
-//  InteractionTests.swift
+//  MessageCenter.swift
 //  ApptentiveUnitTests
 //
-//  Created by Frank Schmitt on 5/27/20.
-//  Copyright © 2020 Apptentive, Inc. All rights reserved.
+//  Created by Luqmaan Khan on 9/14/21.
+//  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
+import Foundation
 import XCTest
 
 @testable import ApptentiveKit
 
-class InteractionTests: XCTestCase {
-    func testInteractionDecoding() throws {
+class MessageCenterTests: XCTestCase {
+
+    func testDecodingMessageList() throws {
         guard let directoryURL = Bundle(for: type(of: self)).url(forResource: "Test Interactions", withExtension: nil) else {
             return XCTFail("Unable to find test data")
         }
@@ -22,11 +24,12 @@ class InteractionTests: XCTestCase {
         let directoryEnumerator = localFileManager.enumerator(at: directoryURL, includingPropertiesForKeys: Array(resourceKeys))!
 
         for case let fileURL as URL in directoryEnumerator {
-            if !fileURL.absoluteString.contains("MessageList.json") {
-            let data = try Data(contentsOf: fileURL)
+            if fileURL.absoluteString.contains("MessageList.json") {
+                let data = try Data(contentsOf: fileURL)
 
-            let _ = try JSONDecoder().decode(Interaction.self, from: data)
-        }
+                let _ = try JSONDecoder().decode(MessageList.self, from: data)
+            }
         }
     }
+
 }

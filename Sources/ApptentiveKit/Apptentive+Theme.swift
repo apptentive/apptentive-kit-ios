@@ -44,11 +44,11 @@ extension Apptentive {
             segmentedControlAppearance.setBackgroundImage(image(with: buttonTintColor), for: .selected, barMetrics: .default)
         }
 
-        let barTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font : UIFont.preferredFont(forTextStyle: .title2)]
+        let barTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .title2)]
 
         ApptentiveNavigationController.barTintColor = barTintColor
         ApptentiveNavigationController.preferredStatusBarStyle = .lightContent
-        
+
         let navigationBarAppearance = UINavigationBar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
         navigationBarAppearance.backgroundColor = barTintColor
         navigationBarAppearance.barTintColor = barTintColor
@@ -127,7 +127,7 @@ extension Apptentive {
 
         UIButton.apptentiveStyle = .radius(8.0)
     }
-   
+
     private func image(with color: UIColor?) -> UIImage? {
         let rect = CGRect(x: 0.0, y: 0.0, width: 1.0, height: 1.0)
         UIGraphicsBeginImageContext(rect.size)

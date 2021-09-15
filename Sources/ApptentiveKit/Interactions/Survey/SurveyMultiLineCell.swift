@@ -93,9 +93,9 @@ class SurveyMultiLineCell: UITableViewCell {
         self.textView.returnKeyType = .default
 
         self.leadingConstraint = self.textView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 10.0)
-       
+
         self.trailingConstraint = self.contentView.trailingAnchor.constraint(equalTo: self.textView.trailingAnchor, constant: 10.0)
-          
+
         self.heightConstraint = self.textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100.0)
 
         NSLayoutConstraint.activate(

@@ -20,7 +20,7 @@ class ViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.loadInteractions()
-        //TODO: Set header here in order to test it. 
+        //TODO: Set header here in order to test it.
         //UIImage.apptentiveHeaderLogo = UIImage(named: "exampleLogo")
         let url = URL(string: "https://www.apptentive.com/")!
         let tos = TermsOfService(bodyText: "Terms of Service", linkURL: url)

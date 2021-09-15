@@ -101,7 +101,7 @@ class Backend {
     ///   - completion: A completion handler to be called when conversation credentials are loaded/retrieved, or when loading/retrieving fails.
     func connect(appCredentials: Apptentive.AppCredentials, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
         guard self.conversation.appCredentials == nil || self.conversation.appCredentials == appCredentials else {
-               assertionFailure("Mismatched Credentials: Please delete and reinstall the app.")
+            assertionFailure("Mismatched Credentials: Please delete and reinstall the app.")
             return
         }
 
@@ -398,6 +398,19 @@ class Backend {
             }
 
             self.connectCompletion = nil
+        }
+    }
+
+    /// Retrieves a message list from the Apptentive API.
+    func getMessages() {
+        self.requestRetrier.startUnlessUnderway(.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessageList, Error>) in
+            switch result {
+            case .success(let messageList):
+                ApptentiveLogger.default.debug("Message List received.")
+            //TODO: Store the message list here.
+            case .failure(let error):
+                ApptentiveLogger.network.error("Failed to download message list: \(error)")
+            }
         }
     }
 
