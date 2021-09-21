@@ -100,7 +100,7 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
                 }
             } else if self.retryPolicy.shouldRetry(inCaseOf: error) {
                 self.retryPolicy.incrementRetryDelay()
-                let retryDelayMilliseconds = Int(self.retryPolicy.retryDelay / 1000.0)
+                let retryDelayMilliseconds = Int(self.retryPolicy.retryDelay) * 1000
 
                 ApptentiveLogger.network.info("Retriable error sending API request with identifier ”\(identifier)”: \(error.localizedDescription). Retrying in \(retryDelayMilliseconds) ms.")
 
@@ -122,6 +122,8 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
             }
 
         default:
+            self.requests[identifier] = nil
+
             self.dispatchQueue.async {
                 completion(result)
             }

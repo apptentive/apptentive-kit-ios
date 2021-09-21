@@ -201,7 +201,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
 
         // swift-format-ignore
         self.baseURL = baseURL ?? URL(string: "https://api.apptentive.com/")!
-        self.backendQueue = backendQueue ?? DispatchQueue(label: "Apptentive Backend")
+        self.backendQueue = backendQueue ?? DispatchQueue(label: "com.apptentive.backend", qos: .default, autoreleaseFrequency: .workItem)
         self.environment = environment ?? Environment()
         self.containerDirectory = containerDirectory ?? "com.apptentive.feedback"
 
