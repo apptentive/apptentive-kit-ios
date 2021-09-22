@@ -52,6 +52,10 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         self.init(contents: .appRelease(AppReleaseContents(with: appRelease)), path: "app_release", method: .put)
     }
 
+    init(wrapping message: Message) {
+        self.init(contents: .message(MessageContents(with: message)), path: "messages", method: .post)
+    }
+
     /// Initializes a new payload.
     /// - Parameters:
     ///   - contents: The contents of the payload.
@@ -101,6 +105,11 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             self.contents = .appRelease(try container.decode(AppReleaseContents.self, forKey: containerKey))
             self.path = "app_release"
             self.method = .put
+
+        case .message:
+            self.contents = .message(try container.decode(MessageContents.self, forKey: containerKey))
+            self.path = "messages"
+            self.method = .post
         }
 
         let nestedContainer = try container.nestedContainer(keyedBy: AllPossiblePayloadCodingKeys.self, forKey: containerKey)
@@ -132,15 +141,19 @@ enum PayloadTypeCodingKeys: String, CodingKey {
     case person
     case device
     case appRelease = "app_release"
+    case message
 }
 
 /// The union of coding keys from all payload types.
 enum AllPossiblePayloadCodingKeys: String, CodingKey {
-    // Generic keys
+    // Ubiquitous keys
     case nonce
     case creationDate = "client_created_at"
     case creationUTCOffset = "client_created_at_utc_offset"
     case sessionID = "session_id"
+
+    // Shared keys
+    case customData = "custom_data"
 
     // Survey response keys
     case answers
@@ -149,7 +162,6 @@ enum AllPossiblePayloadCodingKeys: String, CodingKey {
     case label
     case interactionID = "interaction_id"
     case userInfo = "data"
-    case customData = "custom_data"
     case time
     case location
     case commerce
@@ -197,6 +209,11 @@ enum AllPossiblePayloadCodingKeys: String, CodingKey {
     case sdkPlatform = "sdk_platform"
     case sdkDistributionVersion = "sdk_distribution_version"
     case sdkDistributionName = "sdk_distribution"
+
+    // Message keys
+    case body
+    case isAutomated = "automated"
+    case isHidden = "hidden"
 }
 
 /// The contents of the payload.
@@ -208,6 +225,7 @@ enum PayloadContents: Equatable {
     case person(PersonContents)
     case device(DeviceContents)
     case appRelease(AppReleaseContents)
+    case message(MessageContents)
 
     var containerKey: PayloadTypeCodingKeys {
         switch self {
@@ -225,6 +243,9 @@ enum PayloadContents: Equatable {
 
         case .appRelease:
             return .appRelease
+
+        case .message:
+            return .message
         }
     }
 
@@ -244,6 +265,9 @@ enum PayloadContents: Equatable {
 
         case .appRelease(let appReleaseContents):
             try appReleaseContents.encodeContents(to: &container)
+
+        case .message(let messageContents):
+            try messageContents.encodeContents(to: &container)
         }
     }
 }
