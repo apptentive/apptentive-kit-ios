@@ -213,9 +213,6 @@ extension Apptentive {
     }
 
     @available(*, deprecated, message: "Sending attachments is not implemented and this method has no effect.")
-    @objc(sendAttachmentText:) public func sendAttachment(_ text: String) {}
-
-    @available(*, deprecated, message: "Sending attachments is not implemented and this method has no effect.")
     @objc(sendAttachmentImage:) public func sendAttachment(_ image: UIImage) {}
 
     @available(*, deprecated, message: "Sending attachments is not implemented and this method has no effect.")

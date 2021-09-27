@@ -259,6 +259,12 @@ class Backend {
         self.conversation.interactions.invoke(for: questionID, with: answers)
     }
 
+    /// Queues the specified message to be sent by the payload sender.
+    /// - Parameter message: The message to send.
+    func sendMessage(_ message: Message) {
+        self.payloadSender.send(Payload(wrapping: message), for: self.conversation, persistEagerly: true)
+    }
+
     private func presentInteraction(_ interaction: Interaction, completion: ((Result<Bool, Error>) -> Void)?) throws {
         guard let frontend = self.frontend else {
             throw ApptentiveError.internalInconsistency

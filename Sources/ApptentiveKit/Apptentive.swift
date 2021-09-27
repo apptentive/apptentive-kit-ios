@@ -176,6 +176,13 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
     }
 
+    /// Sends the specified text as a hidden message to the app's dashboard.
+    /// - Parameter text: The text to send in the body of the message.
+    @objc(sendAttachmentText:)
+    public func sendAttachment(_ text: String) {
+        self.sendMessage(Message(body: text, isHidden: true))
+    }
+
     /// Creates a new Apptentive SDK object using the specified URL to communicate with the Apptentive API.
     ///
     /// This should only be used for testing the SDK against a server other than the production Apptentive API server.
@@ -274,6 +281,14 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     func recordResponse(_ answers: [Answer], for questionID: String) {
         self.backendQueue.async {
             self.backend.recordResponse(answers, for: questionID)
+        }
+    }
+
+    /// Delegates the sending of a message to the backend.
+    /// - Parameter message: The message to be sent.
+    func sendMessage(_ message: Message) {
+        self.backendQueue.async {
+            self.backend.sendMessage(message)
         }
     }
 

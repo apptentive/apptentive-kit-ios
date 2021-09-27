@@ -54,6 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.apptentive?.register(credentials: Apptentive.AppCredentials(key: key, signature: signature), completion: completion)
     }
 }
+
 extension UIViewController {
     var apptentive: Apptentive {
         (UIApplication.shared.delegate as! AppDelegate).apptentive!
