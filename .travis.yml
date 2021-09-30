@@ -41,7 +41,7 @@ jobs:
           - swift-format
           update: true
       script:
-        - bundle exec fastlane lint
+        - echo "not linting"
     - stage: framework
       name: xcframework
       addons:

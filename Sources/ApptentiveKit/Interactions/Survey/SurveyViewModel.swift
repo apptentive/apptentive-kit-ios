@@ -165,6 +165,8 @@ public class SurveyViewModel {
         }
     }
 
+    /// Update the `isMarkedAsInvalid` flag based on the whether the number of choices matches the requirements.
+    /// - Parameter question: the question whose answers should be validate.
     public func validateQuestion(_ question: Question) {
         if let choiceQuestion = question as? ChoiceQuestion {
             choiceQuestion.choices.forEach { choice in

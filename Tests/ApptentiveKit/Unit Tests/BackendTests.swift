@@ -43,7 +43,7 @@ class BackendTests: XCTestCase {
 
         self.backend.conversation.person.name = "Testy McTestface"
 
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 600.0)
     }
 
     func testDeviceChange() {
@@ -57,7 +57,7 @@ class BackendTests: XCTestCase {
 
         self.backend.conversation.device.customData["string"] = "foo"
 
-        wait(for: [expectation], timeout: 10.0)
+        wait(for: [expectation], timeout: 600.0)
     }
 
     func testAppReleaseChange() {
@@ -71,6 +71,6 @@ class BackendTests: XCTestCase {
 
         self.backend.conversation.appRelease.version = "1.2.3"
 
-        wait(for: [expectation], timeout: 10.0)
+        wait(for: [expectation], timeout: 600.0)
     }
 }

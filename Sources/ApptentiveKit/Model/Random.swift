@@ -8,9 +8,13 @@
 
 import Foundation
 
-/// Stores values used in random sampling
+/// Stores values used in random sampling.
 ///
-/// This needs to be a class because
+/// The random values are generated on demand, deep inside a function call stack,
+/// so propagating the values back up to the canonical `Conversation` object
+/// would be tricky.
+///
+/// For that reason we make this object a class so that it has reference semantics.
 class Random: Equatable, Codable {
     var values: [String: Float]
 

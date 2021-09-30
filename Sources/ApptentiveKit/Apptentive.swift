@@ -54,6 +54,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
     }
 
+    /// The string used by the mParticle integration to identify the current user.
     @objc public var mParticleID: String? {
         get {
             self.person.mParticleID

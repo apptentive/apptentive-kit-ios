@@ -10,10 +10,15 @@ import Foundation
 
 /// Represents the terms of service to be shown to users at the bottom of surveys.
 public class TermsOfService {
+    /// Creates a new TermsOfService object.
+    /// - Parameters:
+    ///   - bodyText: The text of the terms of service link.
+    ///   - linkURL: The URL that will be opened when the link is tapped.
     public init(bodyText: String?, linkURL: URL?) {
         self.bodyText = bodyText
         self.linkURL = linkURL
     }
+
     /// The text to be shown on the terms of service button.
     public var bodyText: String?
 

@@ -48,7 +48,9 @@ protocol URLOpening {
 /// Describes an object that can record a response to an interaction.
 protocol ResponseRecording {
     /// Records the specified response for later querying in the targeter.
-    /// - Parameter answers: The answers included in the interaction response.
+    /// - Parameters:
+    ///   - answers: The answers included in the interaction response.
+    ///   - questionID: The identifier for the question.
     func recordResponse(_ answers: [Answer], for questionID: String)
 }
 

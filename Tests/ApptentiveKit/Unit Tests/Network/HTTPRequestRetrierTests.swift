@@ -50,7 +50,7 @@ class HTTPRequestRetrierTests: XCTestCase {
             expect.fulfill()
         }
 
-        self.wait(for: [expect], timeout: 10.0)
+        self.wait(for: [expect], timeout: 600.0)
     }
 
     func testStartUnlessUnderway() {
@@ -78,7 +78,7 @@ class HTTPRequestRetrierTests: XCTestCase {
             XCTFail("Second request completion handler should not be called.")
         }
 
-        self.wait(for: [expect], timeout: 2.0)
+        self.wait(for: [expect], timeout: 600.0)
     }
 
     func testRetryOnConnectionError() {
@@ -109,7 +109,7 @@ class HTTPRequestRetrierTests: XCTestCase {
             expect1.fulfill()
         }
 
-        self.wait(for: [expect1, expect2], timeout: 10.0)
+        self.wait(for: [expect1, expect2], timeout: 600.0)
     }
 
     func testNoRetryOnClientError() {
@@ -151,7 +151,7 @@ class HTTPRequestRetrierTests: XCTestCase {
             expect1.fulfill()
         }
 
-        self.wait(for: [expect1, expect2], timeout: 10.0)
+        self.wait(for: [expect1, expect2], timeout: 600.0)
     }
 
     struct FakeError: Error {}

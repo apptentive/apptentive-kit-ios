@@ -115,7 +115,7 @@ class Backend {
     /// This method may be called multiple times if the device is locked with the app in the foreground and then unlocked.
     /// - Parameters:
     ///   - containerURL: A file URL corresponding to the container directory for Apptentive files.
-    ///   - fileManager: The `FileManager` instance to use when accessing the filesystem.
+    ///   - environment: An object implementing the `GlobalEnvironment` protocol.
     /// - Throws: An error if the conversation file exists but can't be read, or if the saved conversation can't be merged with the in-memory conversation.
     func load(containerURL: URL, environment: GlobalEnvironment) throws {
         try self.createContainerDirectoryIfNeeded(containerURL: containerURL, fileManager: environment.fileManager)

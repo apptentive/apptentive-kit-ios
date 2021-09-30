@@ -209,19 +209,25 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         case (let rangeQuestion as SurveyViewModel.RangeQuestion, let rangeChoiceCell as SurveyRangeCell):
             rangeChoiceCell.choiceLabels = rangeQuestion.choiceLabels
-            rangeChoiceCell.segmentedControl?.addTarget(self, action: #selector(rangeControlValueDidChange(_:)), for: .valueChanged)
-            rangeChoiceCell.segmentedControl?.tag = self.tag(for: indexPath)
-            for (index, subview) in rangeChoiceCell.segmentedControl!.subviews.enumerated() {
-                let segmentLabel = rangeChoiceCell.segmentedControl?.titleForSegment(at: index)
+
+            guard let segmentedControl = rangeChoiceCell.segmentedControl else {
+                assertionFailure("Expected range cell to have segmented control.")
+                break
+            }
+
+            segmentedControl.addTarget(self, action: #selector(rangeControlValueDidChange(_:)), for: .valueChanged)
+            segmentedControl.tag = self.tag(for: indexPath)
+            for (index, subview) in segmentedControl.subviews.enumerated() {
+                let segmentLabel = segmentedControl.titleForSegment(at: index)
                 subview.accessibilityLabel = segmentLabel
-                subview.accessibilityHint = rangeQuestion.accessibilityHintForSegment()
+                subview.accessibilityHint = rangeQuestion.accessibilityHintForSegment
                 subview.accessibilityTraits = .none
             }
 
             if let selectedIndex = rangeQuestion.selectedValueIndex {
-                rangeChoiceCell.segmentedControl?.selectedSegmentIndex = selectedIndex
+                segmentedControl.selectedSegmentIndex = selectedIndex
             } else {
-                rangeChoiceCell.segmentedControl?.selectedSegmentIndex = UISegmentedControl.noSegment
+                segmentedControl.selectedSegmentIndex = UISegmentedControl.noSegment
             }
             rangeChoiceCell.minLabel.text = rangeQuestion.minText
             rangeChoiceCell.maxLabel.text = rangeQuestion.maxText

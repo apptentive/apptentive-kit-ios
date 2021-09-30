@@ -23,9 +23,10 @@ extension SurveyViewModel {
         /// The text to display alongside the choice having the maximium value.
         public let maxText: String?
 
-        /// The value that was selected by the user, if any.
+        /// The index of the value selected by the user, if any.
         public private(set) var selectedValueIndex: Int?
 
+        /// The value that was selected by the user, if any.
         public var value: Int? {
             self.selectedValueIndex.flatMap { $0 + self.minValue }
         }
@@ -56,7 +57,8 @@ extension SurveyViewModel {
             self.value.flatMap { [Answer.range($0)] }
         }
 
-        public func accessibilityHintForSegment() -> String {
+        /// The text to use for the accessibility hint for the specified segment.
+        public var accessibilityHintForSegment: String {
             let minValue = String(self.minValue)
             let maxValue = String(self.maxValue)
 

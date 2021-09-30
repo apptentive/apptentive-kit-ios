@@ -10,7 +10,7 @@ import UIKit
 
 /// `UINavigationController` subclass intended primarily to facilitate scoping `UIAppearance` rules to Apptentive UI.
 public class ApptentiveNavigationController: UINavigationController {
-    /// Used to work around a bug in iOS 15 beta 8 (and earlier?) where navigation/tool bars end up clear in some cases.
+    // Used to work around a bug in iOS 15 beta 8 (and earlier?) where navigation/tool bars end up clear in some cases.
     static var barTintColor: UIColor? = nil
     static var preferredStatusBarStyle: UIStatusBarStyle = .default
 
@@ -187,6 +187,7 @@ extension UIColor {
         }
     }()
 
+    /// The color to use for the placeholder text within text fields and text views.
     public static var apptentiveTextInputPlaceholder: UIColor = {
         if #available(iOS 13.0, *) {
             return .placeholderText
@@ -218,6 +219,7 @@ extension UIColor {
         }
     }()
 
+    /// The color to use for separators in e.g. table views.
     public static var apptentiveSeparator: UIColor = {
         if #available(iOS 13.0, *) {
             return .separator

@@ -23,10 +23,10 @@ class InteractionTests: XCTestCase {
 
         for case let fileURL as URL in directoryEnumerator {
             if !fileURL.absoluteString.contains("MessageList.json") {
-            let data = try Data(contentsOf: fileURL)
+                let data = try Data(contentsOf: fileURL)
 
-            let _ = try JSONDecoder().decode(Interaction.self, from: data)
-        }
+                let _ = try JSONDecoder().decode(Interaction.self, from: data)
+            }
         }
     }
 }
