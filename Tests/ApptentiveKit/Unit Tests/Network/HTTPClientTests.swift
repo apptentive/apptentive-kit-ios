@@ -16,7 +16,7 @@ class HTTPClientTests: XCTestCase {
         let url = URL(string: "https://example.com")!
         let response = HTTPURLResponse(url: url, statusCode: 222, httpVersion: "1.1", headerFields: [:])
 
-        let httpResult = try HTTPClient<ApptentiveV9API>.processResult(data: data, response: response, error: nil)
+        let httpResult = try HTTPClient.processResult(data: data, response: response, error: nil)
 
         XCTAssertEqual(httpResult.0, data)
         XCTAssertEqual(httpResult.1, response)
@@ -27,7 +27,7 @@ class HTTPClientTests: XCTestCase {
     func testProcessConnectionError() throws {
         let error = MockError()
 
-        let result = Result { try HTTPClient<ApptentiveV9API>.processResult(data: nil, response: nil, error: error) }
+        let result = Result { try HTTPClient.processResult(data: nil, response: nil, error: error) }
 
         if case .failure(let resultingError) = result {
             if case HTTPClientError.connectionError(let underlyingError) = resultingError {
@@ -44,7 +44,7 @@ class HTTPClientTests: XCTestCase {
         let url = URL(string: "https://example.com")!
         let response = HTTPURLResponse(url: url, statusCode: 444, httpVersion: "1.1", headerFields: [:])
 
-        let result = Result { try HTTPClient<ApptentiveV9API>.processResult(data: nil, response: response, error: nil) }
+        let result = Result { try HTTPClient.processResult(data: nil, response: response, error: nil) }
 
         if case .failure(let resultingError) = result {
             if case HTTPClientError.clientError(let errorResponse, let data) = resultingError {
@@ -60,7 +60,7 @@ class HTTPClientTests: XCTestCase {
         let url = URL(string: "https://example.com")!
         let response = HTTPURLResponse(url: url, statusCode: 555, httpVersion: "1.1", headerFields: [:])
 
-        let result = Result { try HTTPClient<ApptentiveV9API>.processResult(data: nil, response: response, error: nil) }
+        let result = Result { try HTTPClient.processResult(data: nil, response: response, error: nil) }
 
         if case .failure(let resultingError) = result {
             if case HTTPClientError.serverError(let errorResponse, let data) = resultingError {

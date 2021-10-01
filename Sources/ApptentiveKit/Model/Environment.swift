@@ -30,6 +30,9 @@ protocol PlatformEnvironment {
     func applicationSupportURL() throws -> URL
     func requestReview(completion: @escaping (Bool) -> Void)
     func open(_ url: URL, completion: @escaping (Bool) -> Void)
+
+    func startBackgroundTask()
+    func endBackgroundTask()
 }
 
 /// The portions of the Environment that provide information about the app.
@@ -295,8 +298,28 @@ class Environment: GlobalEnvironment {
         #endif
     }
 
-    #if canImport(UIKit)
+    private var backgroundTaskIdentifier: UIBackgroundTaskIdentifier?
 
+    func startBackgroundTask() {
+        #if canImport(UIKit)
+        self.backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "com.apptentive.feedback") {
+            self.endBackgroundTask()
+        }
+
+        ApptentiveLogger.default.debug("Started background task with ID \(String(describing: self.backgroundTaskIdentifier)).")
+        #endif
+    }
+
+    func endBackgroundTask() {
+        guard let backgroundTaskIdentifier = self.backgroundTaskIdentifier else {
+            return assertionFailure("Expected to have background task identifier.")
+        }
+
+        UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+        ApptentiveLogger.default.debug("Ended background task with ID \(String(describing: self.backgroundTaskIdentifier)).")
+    }
+
+    #if canImport(UIKit)
         @objc func protectedDataDidBecomeAvailable(notification: Notification) {
             self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
             delegate?.protectedDataDidBecomeAvailable(self)

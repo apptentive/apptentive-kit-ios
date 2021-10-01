@@ -12,7 +12,7 @@ typealias HTTPResponse = (data: Data, response: HTTPURLResponse)
 typealias HTTPResult = Result<HTTPResponse, Error>
 
 /// A class used to communicate with a particular REST API.
-class HTTPClient<Endpoint: HTTPEndpoint> {
+class HTTPClient {
 
     /// The object conforming to `HTTPRequesting` that will be used to perform requests.
     let requestor: HTTPRequesting
@@ -40,7 +40,7 @@ class HTTPClient<Endpoint: HTTPEndpoint> {
     ///   - completion: A completion handler called with the result of the request.
     /// - Returns: An `HTTPCancellable` instance corresponding to the request.
     @discardableResult
-    func request<T: Decodable>(_ endpoint: Endpoint, completion: @escaping (Result<T, Error>) -> Void) -> HTTPCancellable? {
+    func request<T: Decodable>(_ endpoint: HTTPEndpoint, completion: @escaping (Result<T, Error>) -> Void) -> HTTPCancellable? {
         do {
             let request = try endpoint.buildRequest(baseURL: self.baseURL, userAgent: self.userAgent)
 
@@ -134,14 +134,6 @@ enum HTTPClientError: Error {
     case clientError(HTTPURLResponse, Data?)
     case serverError(HTTPURLResponse, Data?)
     case unhandledStatusCode(HTTPURLResponse, Data?)
-
-    var indicatesCancellation: Bool {
-        if case .connectionError(let underlyingError as NSError) = self {
-            return underlyingError.domain == NSURLErrorDomain && underlyingError.code == NSURLErrorCancelled
-        } else {
-            return false
-        }
-    }
 }
 
 extension HTTPClientError: LocalizedError {

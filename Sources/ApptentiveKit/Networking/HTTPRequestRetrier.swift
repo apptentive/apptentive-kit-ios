@@ -8,12 +8,18 @@
 
 import Foundation
 
-class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
+/// Used by payload sender in place of the class below for better testability.
+protocol HTTPRequestStarting {
+    func start<T: Decodable>(_ endpoint: HTTPEndpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void)
+}
+
+/// Retries HTTP requests until they either succeed or permanently fail.
+class HTTPRequestRetrier: HTTPRequestStarting {
     /// The policy to use for retrying requests.
     private(set) var retryPolicy: HTTPRetryPolicy
 
     /// The HTTP client to use for requests.
-    let client: HTTPClient<Endpoint>
+    let client: HTTPClient
 
     /// The queue to use for calling completion handlers.
     let dispatchQueue: DispatchQueue
@@ -26,7 +32,7 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
     ///   - retryPolicy: The policy to use for retrying requests.
     ///   - client: The HTTP client to use for requests.
     ///   - queue: The queue to use for calling completion handlers.
-    internal init(retryPolicy: HTTPRetryPolicy, client: HTTPClient<Endpoint>, queue: DispatchQueue) {
+    internal init(retryPolicy: HTTPRetryPolicy, client: HTTPClient, queue: DispatchQueue) {
         self.retryPolicy = retryPolicy
         self.client = client
         self.dispatchQueue = queue
@@ -39,7 +45,7 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
     ///   - endpoint: The HTTP endpoint of the request.
     ///   - identifier: A string that identifies the request.
     ///   - completion: A completion handler to call when the request either succeeds or fails permanently.
-    func start<T: Decodable>(_ endpoint: Endpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
+    func start<T: Decodable>(_ endpoint: HTTPEndpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
         let wrapper = RequestWrapper(endpoint: endpoint)
 
         let request = self.client.request(endpoint) { (result: Result<T, Error>) in
@@ -58,7 +64,7 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
     ///   - endpoint: The HTTP endpoint of the request.
     ///   - identifier: A string that identifies the request.
     ///   - completion: A completion handler to call when the request either succeeds or fails permanently.
-    func startUnlessUnderway<T: Decodable>(_ endpoint: Endpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
+    func startUnlessUnderway<T: Decodable>(_ endpoint: HTTPEndpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
         if self.requests[identifier] != nil {
             ApptentiveLogger.network.info("A request with identifier \(identifier) is already underway. Skipping.")
 
@@ -66,16 +72,6 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
         }
 
         self.start(endpoint, identifier: identifier, completion: completion)
-    }
-
-    /// Cancels the specified request.
-    /// - Parameter identifier: The identifier of the request to cancel.
-    func cancel(identifier: String) {
-        ApptentiveLogger.network.info("Cancelling request with identifier \(identifier).")
-
-        requests[identifier]?.request?.cancel()
-
-        self.requests[identifier] = nil
     }
 
     /// Processes the response created by the HTTP client to determine if the request should be retried.
@@ -94,11 +90,7 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
             }
 
         case .failure(let error as HTTPClientError):
-            if error.indicatesCancellation {
-                self.dispatchQueue.async {
-                    completion(result)
-                }
-            } else if self.retryPolicy.shouldRetry(inCaseOf: error) {
+            if self.retryPolicy.shouldRetry(inCaseOf: error) {
                 self.retryPolicy.incrementRetryDelay()
                 let retryDelayMilliseconds = Int(self.retryPolicy.retryDelay) * 1000
 
@@ -132,10 +124,10 @@ class HTTPRequestRetrier<Endpoint: HTTPEndpoint> {
 
     /// Describes a request's endpoint and in-flight HTTP request.
     class RequestWrapper {
-        let endpoint: Endpoint
+        let endpoint: HTTPEndpoint
         var request: HTTPCancellable?
 
-        internal init(endpoint: Endpoint, request: HTTPCancellable? = nil) {
+        internal init(endpoint: HTTPEndpoint, request: HTTPCancellable? = nil) {
             self.endpoint = endpoint
             self.request = request
         }

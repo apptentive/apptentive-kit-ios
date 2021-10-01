@@ -48,6 +48,7 @@
 		014D5B19256ED5940030DC90 /* EnjoymentDialogConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D5B18256ED5940030DC90 /* EnjoymentDialogConfiguration.swift */; };
 		014D5B23256ED6B80030DC90 /* EnjoymentDialogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D5B22256ED6B80030DC90 /* EnjoymentDialogViewModel.swift */; };
 		014D5B33256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D5B32256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift */; };
+		014F460126E1A8D70055D5D4 /* PayloadSenderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014F460026E1A8D70055D5D4 /* PayloadSenderTests.swift */; };
 		0158976724E5C8C600DF0DC0 /* Apptentive+Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */; };
 		015A0D3625509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015A0D3425509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift */; };
 		015A0D3725509BB600EF077D /* SurveyViewModel+RangeQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015A0D3525509BB600EF077D /* SurveyViewModel+RangeQuestion.swift */; };
@@ -245,6 +246,7 @@
 		014D5B18256ED5940030DC90 /* EnjoymentDialogConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogConfiguration.swift; sourceTree = "<group>"; };
 		014D5B22256ED6B80030DC90 /* EnjoymentDialogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogViewModel.swift; sourceTree = "<group>"; };
 		014D5B32256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+AlertViewModel.swift"; sourceTree = "<group>"; };
+		014F460026E1A8D70055D5D4 /* PayloadSenderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayloadSenderTests.swift; sourceTree = "<group>"; };
 		0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Apptentive+Compatibility.swift"; sourceTree = "<group>"; };
 		015A0D3425509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SurveyViewModel+ChoiceQuestion.swift"; sourceTree = "<group>"; };
 		015A0D3525509BB600EF077D /* SurveyViewModel+RangeQuestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SurveyViewModel+RangeQuestion.swift"; sourceTree = "<group>"; };
@@ -492,6 +494,7 @@
 				013D8E9524F03C04005EC4D1 /* HTTPClientTests.swift */,
 				0130E80B25D326CF004B2895 /* HTTPRequestRetrierTests.swift */,
 				0130E81125D327B9004B2895 /* SpyRequestor.swift */,
+				014F460026E1A8D70055D5D4 /* PayloadSenderTests.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -1191,6 +1194,7 @@
 				0118DD6E26FB79AC00037E0E /* MessagePayloadTests.swift in Sources */,
 				0165B7EA25804388001DF54E /* AppleRatingDialogControllerTests.swift in Sources */,
 				015D6BC9250AC0AC00372759 /* AppReleaseTests.swift in Sources */,
+				014F460126E1A8D70055D5D4 /* PayloadSenderTests.swift in Sources */,
 				015D6BCD250AC0AC00372759 /* ConversationTests.swift in Sources */,
 				01ED6199257724580023208C /* InteractionTestHelpers.swift in Sources */,
 				01B91FCA25CCAFC600B8AFEE /* AppReleasePayloadTests.swift in Sources */,

@@ -60,4 +60,7 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
     func requestReview(completion: @escaping (Bool) -> Void) {
         completion(shouldRequestReviewSucceed)
     }
+
+    func startBackgroundTask() {}
+    func endBackgroundTask() {}
 }

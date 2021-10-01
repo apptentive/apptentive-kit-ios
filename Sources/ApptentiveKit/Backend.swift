@@ -49,7 +49,7 @@ class Backend {
 
     private var payloadSender: PayloadSender
 
-    private var requestRetrier: HTTPRequestRetrier<ApptentiveV9API>
+    private var requestRetrier: HTTPRequestRetrier
 
     /// The completion handler that should be called when conversation credentials are loaded/retrieved.
     private var connectCompletion: ((Result<ConnectionType, Error>) -> Void)?
@@ -67,7 +67,7 @@ class Backend {
     ///   - baseURL: The URL where the Apptentive API is based.
     convenience init(queue: DispatchQueue, environment: ConversationEnvironment, baseURL: URL) {
         let conversation = Conversation(environment: environment)
-        let client = HTTPClient<ApptentiveV9API>(requestor: URLSession(configuration: Self.urlSessionConfiguration), baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: environment.sdkVersion))
+        let client = HTTPClient(requestor: URLSession(configuration: Self.urlSessionConfiguration), baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: environment.sdkVersion))
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier)
 
@@ -81,7 +81,7 @@ class Backend {
     ///   - targeter: The targeter to use to determine if events should show an interaction.
     ///   - requestRetrier: The Apptentive API request retrier to use to send API requests.
     ///   - payloadSender: The payload sender to use to send updates to the API.
-    init(queue: DispatchQueue, conversation: Conversation, targeter: Targeter, requestRetrier: HTTPRequestRetrier<ApptentiveV9API>, payloadSender: PayloadSender) {
+    init(queue: DispatchQueue, conversation: Conversation, targeter: Targeter, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSender) {
         self.queue = queue
         self.conversation = conversation
         self.targeter = targeter
@@ -167,10 +167,15 @@ class Backend {
     }
 
     func didEnterBackground(environment: GlobalEnvironment) {
-        self.payloadSender.suspend()
+        environment.startBackgroundTask()
+
+        self.payloadSender.drain {
+            DispatchQueue.main.async {
+                environment.endBackgroundTask()
+            }
+        }
 
         self.suspendPersistenceTimer()
-
         self.saveToPersistentStorageIfNeeded()
     }
 
@@ -197,7 +202,7 @@ class Backend {
     func engage(event: Event, completion: ((Result<Bool, Error>) -> Void)?) {
         ApptentiveLogger.engagement.info("Engaged event “\(event.codePointName)”")
 
-        self.payloadSender.send(Payload(wrapping: event), for: self.conversation)
+        self.payloadSender.send(Payload(wrapping: event))
 
         self.conversation.codePoints.invoke(for: event.codePointName)
 
@@ -221,7 +226,7 @@ class Backend {
     /// Sends a survey response to the Apptentive API.
     /// - Parameter surveyResponse: The survey response to send to the API.
     func send(surveyResponse: SurveyResponse) {
-        self.payloadSender.send(Payload(wrapping: surveyResponse), for: self.conversation, persistEagerly: true)
+        self.payloadSender.send(Payload(wrapping: surveyResponse), persistEagerly: true)
     }
 
     /// Evaluates a list of invocations and presents an interaction, if needed.
@@ -262,7 +267,7 @@ class Backend {
     /// Queues the specified message to be sent by the payload sender.
     /// - Parameter message: The message to send.
     func sendMessage(_ message: Message) {
-        self.payloadSender.send(Payload(wrapping: message), for: self.conversation, persistEagerly: true)
+        self.payloadSender.send(Payload(wrapping: message), persistEagerly: true)
     }
 
     private func presentInteraction(_ interaction: Interaction, completion: ((Result<Bool, Error>) -> Void)?) throws {
@@ -302,10 +307,10 @@ class Backend {
             }
 
             // Supply the payload sender with necessary credentials
-            if payloadSender.credentials == nil {
+            if payloadSender.credentialsProvider == nil {
                 ApptentiveLogger.network.debug("Activating payload sender.")
 
-                self.payloadSender.credentials = self.conversation
+                self.payloadSender.credentialsProvider = self.conversation
             }
 
             // Retrieve a new engagement manifest if the previous one is missing or expired.
@@ -314,13 +319,13 @@ class Backend {
             if self.conversation.person != oldValue.person {
                 ApptentiveLogger.network.debug("Person data changed. Enqueueing update.")
 
-                self.payloadSender.send(Payload(wrapping: self.conversation.person), for: self.conversation)
+                self.payloadSender.send(Payload(wrapping: self.conversation.person))
             }
 
             if self.conversation.device != oldValue.device {
                 ApptentiveLogger.network.debug("Device data changed. Enqueueing update.")
 
-                self.payloadSender.send(Payload(wrapping: self.conversation.device), for: self.conversation)
+                self.payloadSender.send(Payload(wrapping: self.conversation.device))
 
                 if self.conversation.device.localeRaw != oldValue.device.localeRaw {
                     ApptentiveLogger.engagement.debug("Locale changed. Invalidating engagement manifest.")
@@ -332,7 +337,7 @@ class Backend {
             if self.conversation.appRelease != oldValue.appRelease {
                 ApptentiveLogger.network.debug("App release data changed. Enqueueing update.")
 
-                self.payloadSender.send(Payload(wrapping: self.conversation.appRelease), for: self.conversation)
+                self.payloadSender.send(Payload(wrapping: self.conversation.appRelease))
             }
         } else if let _ = conversation.appCredentials {
             // App credentials allow us to retrieve conversation credentials from the API.
@@ -394,7 +399,7 @@ class Backend {
     private func createConversationOnServer() {
         ApptentiveLogger.default.info("Requesting a new conversation via Apptentive API.")
 
-        self.requestRetrier.startUnlessUnderway(.createConversation(self.conversation), identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
+        self.requestRetrier.startUnlessUnderway(ApptentiveV9API.createConversation(self.conversation), identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
             switch result {
             case .success(let conversationResponse):
                 self.conversation.conversationCredentials = Conversation.ConversationCredentials(token: conversationResponse.token, id: conversationResponse.id)
@@ -409,7 +414,7 @@ class Backend {
 
     /// Retrieves a message list from the Apptentive API.
     func getMessages() {
-        self.requestRetrier.startUnlessUnderway(.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessageList, Error>) in
+        self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessageList, Error>) in
             switch result {
             case .success(let messageList):
                 ApptentiveLogger.default.debug("Message List received.")
@@ -426,7 +431,7 @@ class Backend {
         if (self.targeter.engagementManifest.expiry ?? Date.distantPast) < Date() {
             ApptentiveLogger.default.info("Requesting new engagement manifest via Apptentive API (current one is absent or stale).")
 
-            self.requestRetrier.startUnlessUnderway(.getInteractions(with: self.conversation), identifier: "get interactions") { (result: Result<EngagementManifest, Error>) in
+            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getInteractions(with: self.conversation), identifier: "get interactions") { (result: Result<EngagementManifest, Error>) in
                 switch result {
                 case .success(let engagementManifest):
                     ApptentiveLogger.default.debug("New engagement manifest received.")

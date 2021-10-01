@@ -23,11 +23,11 @@ class BackendTests: XCTestCase {
         conversation.conversationCredentials = Conversation.ConversationCredentials(token: "abc123", id: "def456")
 
         self.requestor = SpyRequestor(responseData: Data())
-        let client = HTTPClient<ApptentiveV9API>(requestor: self.requestor, baseURL: URL(string: "https://api.apptentive.com/")!, userAgent: "foo")
-        let requestRetrier = HTTPRequestRetrier<ApptentiveV9API>(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
+        let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://api.apptentive.com/")!, userAgent: "foo")
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
 
         let payloadSender = PayloadSender(requestRetrier: requestRetrier)
-        payloadSender.credentials = conversation
+        payloadSender.credentialsProvider = conversation
 
         self.backend = Backend(queue: queue, conversation: conversation, targeter: Targeter(), requestRetrier: requestRetrier, payloadSender: payloadSender)
     }
@@ -43,7 +43,7 @@ class BackendTests: XCTestCase {
 
         self.backend.conversation.person.name = "Testy McTestface"
 
-        wait(for: [expectation], timeout: 600.0)
+        self.wait(for: [expectation], timeout: 600.0)
     }
 
     func testDeviceChange() {
@@ -57,7 +57,7 @@ class BackendTests: XCTestCase {
 
         self.backend.conversation.device.customData["string"] = "foo"
 
-        wait(for: [expectation], timeout: 600.0)
+        self.wait(for: [expectation], timeout: 600.0)
     }
 
     func testAppReleaseChange() {
@@ -71,6 +71,6 @@ class BackendTests: XCTestCase {
 
         self.backend.conversation.appRelease.version = "1.2.3"
 
-        wait(for: [expectation], timeout: 600.0)
+        self.wait(for: [expectation], timeout: 600.0)
     }
 }

@@ -106,10 +106,10 @@ class ApptentiveV9APITests: XCTestCase {
         let requestor = SpyRequestor(responseData: try JSONEncoder().encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789")))
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
 
-        let client = HTTPClient<ApptentiveV9API>(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
+        let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
 
         let expectation = XCTestExpectation()
-        let _ = client.request(.createConversation(conversation)) { (result: Result<ConversationResponse, Error>) in
+        let _ = client.request(ApptentiveV9API.createConversation(conversation)) { (result: Result<ConversationResponse, Error>) in
             XCTAssertNotNil(requestor.request)
             XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
             XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations"))
@@ -135,7 +135,7 @@ class ApptentiveV9APITests: XCTestCase {
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
         conversation.conversationCredentials = Conversation.ConversationCredentials(token: "456", id: "def")
 
-        let client = HTTPClient<ApptentiveV9API>(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
+        let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
         let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier)
@@ -155,7 +155,7 @@ class ApptentiveV9APITests: XCTestCase {
             expectation.fulfill()
         }
 
-        payloadSender.send(Payload(wrapping: surveyResponse), for: conversation)
+        payloadSender.send(Payload(wrapping: surveyResponse))
     }
 
     func testCreateEvent() throws {
@@ -166,7 +166,7 @@ class ApptentiveV9APITests: XCTestCase {
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
         conversation.conversationCredentials = Conversation.ConversationCredentials(token: "456", id: "def")
 
-        let client = HTTPClient<ApptentiveV9API>(requestor: requestor, baseURL: baseURL, userAgent: "foo")
+        let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: "foo")
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
         let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier)
@@ -186,7 +186,7 @@ class ApptentiveV9APITests: XCTestCase {
             expectation.fulfill()
         }
 
-        payloadSender.send(Payload(wrapping: event), for: conversation)
+        payloadSender.send(Payload(wrapping: event))
     }
 
     struct MockEncodable: Encodable {
