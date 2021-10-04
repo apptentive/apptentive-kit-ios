@@ -258,7 +258,11 @@ extension UIColor {
 
     /// The color to use for the terms of service label.
     public static var apptentiveTermsOfServiceLabel: UIColor = {
-        return .white
+        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
+            return tintColor
+        } else {
+            return .systemBlue
+        }
     }()
 
     /// The color to use for the submit button text color.
@@ -313,4 +317,13 @@ extension UIFont {
     public static var apptentiveTextInput: UIFont = {
         return .preferredFont(forTextStyle: .body)
     }()
+}
+
+extension UIToolbar {
+    public enum ToolbarMode {
+        case alwaysShown
+        case hiddenWhenEmpty
+    }
+
+    public static var apptentiveToolbarMode: ToolbarMode = .hiddenWhenEmpty
 }
