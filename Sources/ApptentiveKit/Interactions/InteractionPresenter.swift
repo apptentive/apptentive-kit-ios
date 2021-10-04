@@ -11,7 +11,7 @@ import UIKit
 /// An `InteractionPresenter` is used by the Apptentive SDK to present UI represented by `Interaction`  objects to the user.
 open class InteractionPresenter {
     /// A view controller that can be used to present view-controller-based interactions.
-    open var presentingViewController: UIViewController?
+    weak var presentingViewController: UIViewController?
 
     var delegate: InteractionDelegate?
 
