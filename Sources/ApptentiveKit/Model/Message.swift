@@ -8,14 +8,23 @@
 
 import Foundation
 
+/// Represents an individual message within a list of messages.
 struct Message: Codable {
+    /// The custom data associated with the message.
     var customData: CustomData
+    /// The message id.
     let id: String?
+    /// Indicates if the message is being received from the dashboard.
     let isInbound: Bool
+    /// Indicates whether the message is a Context Message (shown after a "Don't Love" response triggered Message Center).
     var isAutomated: Bool
+    /// Indicates whether the message shows in the message list to the consumer.
     var isHidden: Bool
+    /// The set of media attachments associated with the message.
     var attachments: [Attachment]
+    /// The sender information associated with the message.
     var sender: Sender?
+    /// The body text of the message.
     var body: String?
 
     internal init(body: String? = nil, attachments: [Message.Attachment] = [], isHidden: Bool = false, customData: CustomData = CustomData(), id: String? = nil, isInbound: Bool = false, isAutomated: Bool = false, sender: Message.Sender? = nil) {
@@ -51,9 +60,13 @@ struct Message: Codable {
         case attachments, sender, body
     }
 
+    /// Describes information associated with the sender of the message.
     struct Sender: Codable, Equatable {
+        /// The id associated with the sender.
         let id: String
+        /// The sender's name.
         var name: String?
+        /// The profile photo of the sender if available.
         var profilePhotoURL: URL?
 
         enum CodingKeys: String, CodingKey {
@@ -62,10 +75,15 @@ struct Message: Codable {
         }
     }
 
+    /// Describes the media attachment assoiciated with each message.
     struct Attachment: Codable {
+        /// The specific media type.
         let mediaType: String
+        /// The filename of the media type.
         let filename: String
+        /// The data contents of the media.
         let data: Data?
+        /// The URL for the media type.
         let url: URL?
     }
 }

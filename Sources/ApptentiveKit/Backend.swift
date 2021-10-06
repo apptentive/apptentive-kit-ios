@@ -17,6 +17,9 @@ class Backend {
 
     /// The `Apptentive` instance that owns this `Backend` instance.
     weak var frontend: Apptentive?
+    
+    /// A Message Manager object which is initialized on launch.
+    var messageManager: MessageManager?
 
     /// Indicates the source of the conversation credentials when calling `connect(appCredentials:baseURL:completion:)`.
     enum ConnectionType {
@@ -144,6 +147,9 @@ class Backend {
         }
 
         self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: environment.fileManager)
+       
+        
+        self.messageManager?.messageListRepository = MessageManager.createRepository(containerURL: containerURL, filename: "MessageList", fileManager: environment.fileManager)
 
         // Because of potentially unbalanced calls to `load(containerURL:environment)` and `unload()`,
         // we suspend (but don't discard) the persistence timer. Therefore it should only be created once.
@@ -418,7 +424,8 @@ class Backend {
             switch result {
             case .success(let messageList):
                 ApptentiveLogger.default.debug("Message List received.")
-            //TODO: Store the message list here.
+                self.messageManager?.messageList = messageList
+               try? self.messageManager?.saveMessagesToDisk()
             case .failure(let error):
                 ApptentiveLogger.network.error("Failed to download message list: \(error)")
             }

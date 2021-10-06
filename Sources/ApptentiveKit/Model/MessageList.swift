@@ -7,15 +7,24 @@
 //
 
 import Foundation
-
+/// Describes the top level object for messages.
 struct MessageList: Codable {
-    let messages: [Message]
+    /// The array of messages between the consumer and the dashboard.
+    var messages: [Message] = []
+    /// The identifier associated with the last message.
     let endsWith: String?
-    let hasMore: Bool
+    /// Indicates whether there are more messages.
+    let hasMore: Bool?
 
     enum CodingKeys: String, CodingKey {
         case messages
         case endsWith = "ends_with"
         case hasMore = "has_more"
+    }
+
+    init(messages: [Message], endsWith: String?, hasMore: Bool) {
+        self.messages = messages
+        self.endsWith = endsWith
+        self.hasMore = hasMore
     }
 }
