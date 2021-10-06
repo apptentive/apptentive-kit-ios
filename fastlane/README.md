@@ -16,6 +16,11 @@ or alternatively using `brew install fastlane`
 
 # Available Actions
 ## iOS
+### ios clean
+```
+fastlane ios clean
+```
+Clean build areas
 ### ios test
 ```
 fastlane ios test

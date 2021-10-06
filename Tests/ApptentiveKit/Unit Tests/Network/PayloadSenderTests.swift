@@ -61,7 +61,7 @@ class PayloadSenderTests: XCTestCase {
             expectation.fulfill()
         }
 
-        self.wait(for: [expectation], timeout: 600)
+        self.wait(for: [expectation], timeout: 5)
     }
 
     func testHTTPClientError() throws {
@@ -106,7 +106,7 @@ class PayloadSenderTests: XCTestCase {
             expectation.fulfill()
         }
 
-        self.wait(for: [expectation], timeout: 600)
+        self.wait(for: [expectation], timeout: 5)
     }
 
     func testNoDiskAccess() {
@@ -167,7 +167,7 @@ class PayloadSenderTests: XCTestCase {
         // Start the payload sending process by setting the credentials.
         payloadSender.credentialsProvider = self.credentialsProvider
 
-        self.wait(for: [expectation], timeout: 600)
+        self.wait(for: [expectation], timeout: 5)
     }
 
     class SpyRequestStarter: HTTPRequestStarting {

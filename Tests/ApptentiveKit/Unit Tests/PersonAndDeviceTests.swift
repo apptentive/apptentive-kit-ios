@@ -72,7 +72,7 @@ class PersonAndDeviceTests: XCTestCase {
             expect.fulfill()
         }
 
-        wait(for: [expect], timeout: 600.0)
+        wait(for: [expect], timeout: 5)
     }
 
     func testPersonEmail() {
@@ -89,7 +89,7 @@ class PersonAndDeviceTests: XCTestCase {
             expect.fulfill()
         }
 
-        wait(for: [expect], timeout: 600.0)
+        wait(for: [expect], timeout: 5)
     }
 
     func testPersonCustomData() {
@@ -110,7 +110,7 @@ class PersonAndDeviceTests: XCTestCase {
             expect.fulfill()
         }
 
-        wait(for: [expect], timeout: 600.0)
+        wait(for: [expect], timeout: 5)
     }
 
     func testDeviceCustomData() {
@@ -131,7 +131,7 @@ class PersonAndDeviceTests: XCTestCase {
             expect.fulfill()
         }
 
-        wait(for: [expect], timeout: 600.0)
+        wait(for: [expect], timeout: 5)
     }
 
     func testUpdateFromBackend() {
@@ -199,6 +199,6 @@ class PersonAndDeviceTests: XCTestCase {
             }
         }
 
-        wait(for: [expect], timeout: 600.0)
+        wait(for: [expect], timeout: 5)
     }
 }

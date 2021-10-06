@@ -165,7 +165,7 @@ class SurveyUITests: XCTestCase {
         XCTAssertTrue(termsOfServiceBarButtonItem.exists, "The ToS button is not showing.")
         termsOfServiceBarButtonItem.tap()
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
-        XCTAssertTrue(safari.wait(for: .runningForeground, timeout: 600.0))
+        XCTAssertTrue(safari.wait(for: .runningForeground, timeout: 5))
     }
 
     ///TODO: Figure out how to test the header and the navigation title at the same time.

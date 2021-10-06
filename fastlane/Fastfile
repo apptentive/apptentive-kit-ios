@@ -16,12 +16,17 @@
 build_directory = ".build"
 
 default_platform(:ios)
-setup_travis
 
 platform :ios do
   build_number = ENV['BUILD_NUMBER']
   if build_number.nil?
     build_number = '0'
+  end
+  
+  desc "Clean build areas"
+  lane :clean do
+    FileUtils.remove_dir "../.fastlane/test_output" if File.exists? "../.fastlane/test_output"
+    FileUtils.remove_dir "../build" if File.exists? "../build"
   end
 
   desc "Run tests"
@@ -36,7 +41,7 @@ platform :ios do
       end
     )
 
-    run_tests(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", code_coverage: true)
+    run_tests(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", devices: ["UI Test"], code_coverage: true)
   end
   
   desc "Generates a code coverage report"
