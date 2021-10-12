@@ -19,7 +19,7 @@ class Backend {
     weak var frontend: Apptentive?
     
     /// A Message Manager object which is initialized on launch.
-    var messageManager: MessageManager?
+    var messageManager: MessageManager
 
     /// Indicates the source of the conversation credentials when calling `connect(appCredentials:baseURL:completion:)`.
     enum ConnectionType {
@@ -54,6 +54,8 @@ class Backend {
 
     private var requestRetrier: HTTPRequestRetrier
 
+    private var configuration: Configuration?
+
     /// The completion handler that should be called when conversation credentials are loaded/retrieved.
     private var connectCompletion: ((Result<ConnectionType, Error>) -> Void)?
 
@@ -62,6 +64,11 @@ class Backend {
 
     private var persistenceTimer: DispatchSourceTimer?
     private var persistenceTimerActive = false
+
+    private var messagePollingInterval: TimeInterval {
+        // TODO: Use foregroundPollingInterval when MC is presented
+        return self.configuration?.messageCenter.backgroundPollingInterval ?? 600
+    }
 
     /// Initializes a new backend instance.
     /// - Parameters:
@@ -74,7 +81,7 @@ class Backend {
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier)
 
-        self.init(queue: queue, conversation: conversation, targeter: Targeter(), requestRetrier: requestRetrier, payloadSender: payloadSender)
+        self.init(queue: queue, conversation: conversation, targeter: Targeter(), messageManager: MessageManager(), requestRetrier: requestRetrier, payloadSender: payloadSender)
     }
 
     /// This initializer intended for testing only.
@@ -84,10 +91,11 @@ class Backend {
     ///   - targeter: The targeter to use to determine if events should show an interaction.
     ///   - requestRetrier: The Apptentive API request retrier to use to send API requests.
     ///   - payloadSender: The payload sender to use to send updates to the API.
-    init(queue: DispatchQueue, conversation: Conversation, targeter: Targeter, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSender) {
+    init(queue: DispatchQueue, conversation: Conversation, targeter: Targeter, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSender) {
         self.queue = queue
         self.conversation = conversation
         self.targeter = targeter
+        self.messageManager = messageManager
         self.requestRetrier = requestRetrier
         self.payloadSender = payloadSender
     }
@@ -149,7 +157,7 @@ class Backend {
         self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: environment.fileManager)
        
         
-        self.messageManager?.messageListRepository = MessageManager.createRepository(containerURL: containerURL, filename: "MessageList", fileManager: environment.fileManager)
+        self.messageManager.messageListRepository = MessageManager.createRepository(containerURL: containerURL, filename: "MessageList", fileManager: environment.fileManager)
 
         // Because of potentially unbalanced calls to `load(containerURL:environment)` and `unload()`,
         // we suspend (but don't discard) the persistence timer. Therefore it should only be created once.
@@ -322,6 +330,12 @@ class Backend {
             // Retrieve a new engagement manifest if the previous one is missing or expired.
             self.getInteractionsIfNeeded()
 
+            // Retrieve a new app configuration if the previous one is missing or expired.
+            self.getConfigurationIfNeeded()
+
+            // Check the API for new messages if we haven't done so recently (according to messagePollingInterval).
+            self.getMessagesIfNeeded()
+
             if self.conversation.person != oldValue.person {
                 ApptentiveLogger.network.debug("Person data changed. Enqueueing update.")
 
@@ -419,22 +433,28 @@ class Backend {
     }
 
     /// Retrieves a message list from the Apptentive API.
-    func getMessages() {
-        self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessageList, Error>) in
-            switch result {
-            case .success(let messageList):
-                ApptentiveLogger.default.debug("Message List received.")
-                self.messageManager?.messageList = messageList
-               try? self.messageManager?.saveMessagesToDisk()
-            case .failure(let error):
-                ApptentiveLogger.network.error("Failed to download message list: \(error)")
+    func getMessagesIfNeeded() {
+        if ((self.messageManager.lastFetchDate ?? Date.distantPast) + self.messagePollingInterval) < Date() {
+            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessageList, Error>) in
+                switch result {
+                case .success(let messageList):
+                    ApptentiveLogger.default.debug("Message List received.")
+                    self.messageManager.messageList = messageList
+                    do {
+                        try self.messageManager.saveMessagesToDisk()
+                    } catch let error {
+                        ApptentiveLogger.default.error("Unable to save messages to disk: \(error)")
+                    }
+                case .failure(let error):
+                    ApptentiveLogger.network.error("Failed to download message list: \(error)")
+                }
             }
         }
     }
 
     /// Retrieves an engagement manifest from the Apptentive API if the current one is missing or expired.
     private func getInteractionsIfNeeded() {
-        // Make sure we don't have a request in flight already, and that the engagement manifest in memory (if any) is expired.
+        // Check that the engagement manifest in memory (if any) is expired.
         if (self.targeter.engagementManifest.expiry ?? Date.distantPast) < Date() {
             ApptentiveLogger.default.info("Requesting new engagement manifest via Apptentive API (current one is absent or stale).")
 
@@ -447,6 +467,26 @@ class Backend {
 
                 case .failure(let error):
                     ApptentiveLogger.network.error("Failed to download engagement manifest: \(error).")
+                }
+            }
+        }
+    }
+
+    /// Retrieves a Configuration object from the Apptentive API if the current one is missing or expired.
+    private func getConfigurationIfNeeded() {
+        // Check that the configuration in memory (if any) is expired.
+        if (self.configuration?.expiry ?? Date.distantPast) < Date() {
+            ApptentiveLogger.default.info("Requesting new app configuration via Apptentive API (current one is absent or stale).")
+
+            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getConfiguration(with: self.conversation), identifier: "get configuration") { (result: Result<Configuration, Error>) in
+                switch result {
+                case .success(let configuration):
+                    ApptentiveLogger.default.debug("New app configuration received.")
+
+                    self.configuration = configuration
+
+                case .failure(let error):
+                    ApptentiveLogger.network.error("Failed to download app configuration: \(error).")
                 }
             }
         }

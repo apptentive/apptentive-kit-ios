@@ -59,6 +59,13 @@ struct ApptentiveV9API: HTTPEndpoint {
         return Self(credentials: credentials, path: "messages", method: .get)
     }
 
+    /// Builds a request to retrieve a message list from the server.
+    /// - Parameter credentials: The conversation for which to retrieve the message list.
+    /// - Returns: A struct describing the HTTP request to be performed.
+    static func getConfiguration(with credentials: APICredentialsProviding) -> Self {
+        return Self(credentials: credentials, path: "configuration", method: .get)
+    }
+
     // MARK: - HTTPEndpoint
 
     /// Returns the URL for the endpoint.

@@ -116,6 +116,8 @@
 		01A1BC87263B7676003DC51B /* LegacyConversationMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A1BC86263B7676003DC51B /* LegacyConversationMetadata.swift */; };
 		01A1BC8A263B78D7003DC51B /* LegacyConversationMetadataItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A1BC89263B78D7003DC51B /* LegacyConversationMetadataItem.swift */; };
 		01B074BA26094885004874AC /* ObjectiveCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B074B926094885004874AC /* ObjectiveCTests.m */; };
+		01B1FD2F270E52B3008EA104 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B1FD2E270E52B3008EA104 /* Configuration.swift */; };
+		01B1FD32270E56B1008EA104 /* ConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B1FD31270E56B1008EA104 /* ConfigurationTests.swift */; };
 		01B91F9525CB830C00B8AFEE /* PersonContents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91F9425CB830C00B8AFEE /* PersonContents.swift */; };
 		01B91F9B25CB834500B8AFEE /* DeviceContents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91F9A25CB834500B8AFEE /* DeviceContents.swift */; };
 		01B91FA125CB835700B8AFEE /* AppReleaseContents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91FA025CB835700B8AFEE /* AppReleaseContents.swift */; };
@@ -320,6 +322,8 @@
 		01A1BC89263B78D7003DC51B /* LegacyConversationMetadataItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConversationMetadataItem.swift; sourceTree = "<group>"; };
 		01AFFAA6245A1786000353C0 /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fastlane; sourceTree = "<group>"; };
 		01B074B926094885004874AC /* ObjectiveCTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCTests.m; sourceTree = "<group>"; };
+		01B1FD2E270E52B3008EA104 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
+		01B1FD31270E56B1008EA104 /* ConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationTests.swift; sourceTree = "<group>"; };
 		01B91F9425CB830C00B8AFEE /* PersonContents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonContents.swift; sourceTree = "<group>"; };
 		01B91F9A25CB834500B8AFEE /* DeviceContents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceContents.swift; sourceTree = "<group>"; };
 		01B91FA025CB835700B8AFEE /* AppReleaseContents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReleaseContents.swift; sourceTree = "<group>"; };
@@ -431,6 +435,7 @@
 				EF425862263A74BA0094E1DC /* TermsOfService.swift */,
 				011C64D2264D881400219243 /* Answer.swift */,
 				017BAAF5268299C90035DA1E /* Random.swift */,
+				01B1FD2E270E52B3008EA104 /* Configuration.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -490,7 +495,7 @@
 			path = Networking;
 			sourceTree = "<group>";
 		};
-		013D8E9324F03C04005EC4D1 /* Network */ = {
+		013D8E9324F03C04005EC4D1 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
 				01E79854251C325100D24A05 /* Apptentive V9 API Tests */,
@@ -499,7 +504,7 @@
 				0130E81125D327B9004B2895 /* SpyRequestor.swift */,
 				014F460026E1A8D70055D5D4 /* PayloadSenderTests.swift */,
 			);
-			path = Network;
+			path = Networking;
 			sourceTree = "<group>";
 		};
 		013D8EAD24F09B63005EC4D1 /* Third Party */ = {
@@ -533,17 +538,6 @@
 				015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */,
 			);
 			path = "List UI";
-			sourceTree = "<group>";
-		};
-		015D6BC3250AC0AC00372759 /* Conversation */ = {
-			isa = PBXGroup;
-			children = (
-				015D6BC4250AC0AC00372759 /* AppReleaseTests.swift */,
-				015D6BC5250AC0AC00372759 /* DeviceTests.swift */,
-				015D6BC6250AC0AC00372759 /* PersonTests.swift */,
-				015D6BC8250AC0AC00372759 /* ConversationTests.swift */,
-			);
-			path = Conversation;
 			sourceTree = "<group>";
 		};
 		0165B7C2258042BE001DF54E /* AppleRatingDialog */ = {
@@ -733,13 +727,25 @@
 			path = "Integration Tests";
 			sourceTree = "<group>";
 		};
+		01B1FD30270E54D4008EA104 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				015D6BC4250AC0AC00372759 /* AppReleaseTests.swift */,
+				015D6BC5250AC0AC00372759 /* DeviceTests.swift */,
+				015D6BC6250AC0AC00372759 /* PersonTests.swift */,
+				015D6BC8250AC0AC00372759 /* ConversationTests.swift */,
+				01B1FD31270E56B1008EA104 /* ConfigurationTests.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		01D739242405CB630000EE52 /* Unit Tests */ = {
 			isa = PBXGroup;
 			children = (
 				012A1B5E263A217200EBC073 /* Migration */,
-				015D6BC3250AC0AC00372759 /* Conversation */,
-				013D8E9324F03C04005EC4D1 /* Network */,
 				013D8DDF24EEFA13005EC4D1 /* Interactions */,
+				01B1FD30270E54D4008EA104 /* Model */,
+				013D8E9324F03C04005EC4D1 /* Networking */,
 				017FC9592531101500C7A47F /* Targeting */,
 				01D739272405CB630000EE52 /* Info.plist */,
 				015D6BCE250AC7AD00372759 /* MockEnvironment.swift */,
@@ -1130,6 +1136,7 @@
 				01E79845251C30F800D24A05 /* Payload.swift in Sources */,
 				EF5FC3A7257FD901003E127B /* NotImplementedAlertViewModel.swift in Sources */,
 				015F2A9F24C7A460004B53E2 /* InteractionPresenter.swift in Sources */,
+				01B1FD2F270E52B3008EA104 /* Configuration.swift in Sources */,
 				0165B80C258181CF001DF54E /* Apptentive+Theme.swift in Sources */,
 				0118DD6A26FB796B00037E0E /* Message.swift in Sources */,
 				011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */,
@@ -1209,6 +1216,7 @@
 				01B91FC425CCAFB800B8AFEE /* DevicePayloadTests.swift in Sources */,
 				01ED6193257724250023208C /* TextModalViewModelTests.swift in Sources */,
 				013D8E0D24EEFA13005EC4D1 /* InteractionTests.swift in Sources */,
+				01B1FD32270E56B1008EA104 /* ConfigurationTests.swift in Sources */,
 				017FC9922531101500C7A47F /* TargeterTests.swift in Sources */,
 				019E79122575AD7D006BD412 /* SpyInteractionDelegate.swift in Sources */,
 				015D6BCB250AC0AC00372759 /* PersonTests.swift in Sources */,

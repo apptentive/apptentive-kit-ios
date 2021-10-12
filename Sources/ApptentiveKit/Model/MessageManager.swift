@@ -12,8 +12,13 @@ import Foundation
 class MessageManager {
 
     /// The Message List object. The message list is fetched from the server on launch and saved to disk.
-    var messageList: MessageList?
-    
+    var messageList: MessageList? {
+        didSet {
+            self.lastFetchDate = Date()
+        }
+    }
+
+    var lastFetchDate: Date?
     
     /// The persistence repository used for the message list.
     var messageListRepository: PropertyListRepository<MessageList>? {

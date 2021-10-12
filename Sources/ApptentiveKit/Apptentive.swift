@@ -232,7 +232,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         if self.environment.isInForeground {
             self.engage(event: .launch())
             self.backend.invalidateEngagementManifestForDebug(environment: self.environment)
-            self.backend.getMessages()
         }
 
         self.backend.frontend = self
