@@ -235,6 +235,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
 
         self.backend.frontend = self
+
         self.interactionPresenter.delegate = self
 
         ApptentiveLogger.default.info("Apptentive SDK Initialized.")
@@ -289,6 +290,17 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     func sendMessage(_ message: Message) {
         self.backendQueue.async {
             self.backend.sendMessage(message)
+        }
+    }
+    /// Receives the message list from the backend.
+    /// - Parameter completion: A completion handler to be called when the message center view model is initialized,
+    func getMessages(completion: @escaping (MessageList) -> Void) {
+        guard let messageList = self.backend.messageManager.messageList else { return }
+        self.backendQueue.async {
+            DispatchQueue.main.async {
+                completion(messageList)
+
+            }
         }
     }
 

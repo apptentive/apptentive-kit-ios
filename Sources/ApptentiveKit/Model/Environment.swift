@@ -302,11 +302,11 @@ class Environment: GlobalEnvironment {
 
     func startBackgroundTask() {
         #if canImport(UIKit)
-        self.backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "com.apptentive.feedback") {
-            self.endBackgroundTask()
-        }
+            self.backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "com.apptentive.feedback") {
+                self.endBackgroundTask()
+            }
 
-        ApptentiveLogger.default.debug("Started background task with ID \(String(describing: self.backgroundTaskIdentifier)).")
+            ApptentiveLogger.default.debug("Started background task with ID \(String(describing: self.backgroundTaskIdentifier)).")
         #endif
     }
 

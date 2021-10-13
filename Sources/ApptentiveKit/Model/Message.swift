@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents an individual message within a list of messages.
-struct Message: Codable {
+public struct Message: Codable {
     /// The custom data associated with the message.
     var customData: CustomData
     /// The message id.
@@ -38,7 +38,7 @@ struct Message: Codable {
         self.body = body
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         self.customData = try container.decodeIfPresent(CustomData.self, forKey: .customData) ?? CustomData()

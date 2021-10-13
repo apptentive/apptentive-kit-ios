@@ -17,9 +17,9 @@ class Backend {
 
     /// The `Apptentive` instance that owns this `Backend` instance.
     weak var frontend: Apptentive?
-    
+
     /// A Message Manager object which is initialized on launch.
-    var messageManager: MessageManager
+    public var messageManager: MessageManager
 
     /// Indicates the source of the conversation credentials when calling `connect(appCredentials:baseURL:completion:)`.
     enum ConnectionType {
@@ -155,8 +155,7 @@ class Backend {
         }
 
         self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: environment.fileManager)
-       
-        
+
         self.messageManager.messageListRepository = MessageManager.createRepository(containerURL: containerURL, filename: "MessageList", fileManager: environment.fileManager)
 
         // Because of potentially unbalanced calls to `load(containerURL:environment)` and `unload()`,

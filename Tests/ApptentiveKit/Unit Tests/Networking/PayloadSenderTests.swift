@@ -7,6 +7,7 @@
 //
 
 import XCTest
+
 @testable import ApptentiveKit
 
 class PayloadSenderTests: XCTestCase {
@@ -174,7 +175,7 @@ class PayloadSenderTests: XCTestCase {
         var result: Result<PayloadResponse, Error>? = nil
         var requests = [HTTPEndpoint]()
 
-        func start<T>(_ endpoint: HTTPEndpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
+        func start<T>(_ endpoint: HTTPEndpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void) where T: Decodable {
             guard let result = self.result as? Result<T, Error> else {
                 return XCTFail("Mock object type/nullability mismatch")
             }

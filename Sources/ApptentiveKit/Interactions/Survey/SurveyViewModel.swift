@@ -19,7 +19,7 @@ typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & Response
 
 /// A class that describes the data in a survey interaction and allows reponses to be gathered and transmitted.
 public class SurveyViewModel {
-    let interactionDelegate: EventEngaging & ResponseSending & ResponseRecording & TermsOfServiceProviding
+    weak var interactionDelegate: (EventEngaging & ResponseSending & ResponseRecording & TermsOfServiceProviding)?
 
     let interaction: Interaction
 
@@ -78,7 +78,7 @@ public class SurveyViewModel {
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
         self.interactionDelegate = interactionDelegate
-        self.termsOfService = self.interactionDelegate.termsOfService
+        self.termsOfService = self.interactionDelegate?.termsOfService
         self.closeConfirmationAlertTitle =
             configuration.closeConfirmationTitle ?? "Close survey?"
         self.closeConfirmationAlertMessage =
@@ -147,12 +147,12 @@ public class SurveyViewModel {
     /// If one or more answers are invalid, the delegate's `surveyViewModelValidationDidChange(_:)` will be called.
     public func submit() {
         if self.isValid {
-            self.interactionDelegate.send(surveyResponse: self.response)
+            self.interactionDelegate?.send(surveyResponse: self.response)
 
-            self.interactionDelegate.engage(event: .submit(from: self.interaction))
+            self.interactionDelegate?.engage(event: .submit(from: self.interaction))
 
             self.response.answers.forEach { questionID, responses in
-                self.interactionDelegate.recordResponse(responses, for: questionID)
+                self.interactionDelegate?.recordResponse(responses, for: questionID)
             }
 
             self.delegate?.surveyViewModelDidSubmit(self)
@@ -179,7 +179,7 @@ public class SurveyViewModel {
 
     /// Registers that the survey was successfully presented to the user.
     public func launch() {
-        self.interactionDelegate.engage(event: .launch(from: self.interaction))
+        self.interactionDelegate?.engage(event: .launch(from: self.interaction))
     }
 
     /// Registers that the survey was cancelled by the user.
@@ -187,14 +187,14 @@ public class SurveyViewModel {
     public func cancel(partial: Bool = false) {
         switch partial {
         case true:
-            self.interactionDelegate.engage(event: .cancelPartial(from: interaction))
+            self.interactionDelegate?.engage(event: .cancelPartial(from: interaction))
         case false:
-            self.interactionDelegate.engage(event: .cancel(from: self.interaction))
+            self.interactionDelegate?.engage(event: .cancel(from: self.interaction))
         }
     }
 
     /// Registers that the survey was continued when the user was presented with the close confimation view.
     public func continuePartial() {
-        self.interactionDelegate.engage(event: .continuePartial(from: interaction))
+        self.interactionDelegate?.engage(event: .continuePartial(from: interaction))
     }
 }

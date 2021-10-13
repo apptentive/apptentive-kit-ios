@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 /// Describes the top level object for messages.
 struct MessageList: Codable {
     /// The array of messages between the consumer and the dashboard.

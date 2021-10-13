@@ -39,6 +39,9 @@ public struct Interaction: Decodable {
         case "TextModal":
             self.configuration = .textModal(try container.decode(TextModalConfiguration.self, forKey: .configuration))
 
+        case "MessageCenter":
+            self.configuration = .messageCenter(try container.decode(MessageCenterConfiguration.self, forKey: .configuration))
+
         default:
             self.configuration = .notImplemented
         }
@@ -70,6 +73,7 @@ public struct Interaction: Decodable {
         case navigateToLink(NavigateToLinkConfiguration)
         case survey(SurveyConfiguration)
         case textModal(TextModalConfiguration)
+        case messageCenter(MessageCenterConfiguration)
         case notImplemented
     }
 }

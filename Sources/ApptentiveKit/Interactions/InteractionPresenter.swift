@@ -52,6 +52,9 @@ open class InteractionPresenter {
             let viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
             try self.presentTextModal(with: viewModel)
 
+        case .messageCenter(let configuration):
+            let viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
+
         case .notImplemented:
             let viewModel = NotImplementedAlertViewModel(interactionTypeName: interaction.typeName)
             try self.presentViewController(UIAlertController(viewModel: viewModel))

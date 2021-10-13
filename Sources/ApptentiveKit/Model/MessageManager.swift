@@ -19,12 +19,12 @@ class MessageManager {
     }
 
     var lastFetchDate: Date?
-    
+
     /// The persistence repository used for the message list.
     var messageListRepository: PropertyListRepository<MessageList>? {
         didSet {
             do {
-                guard let repository = messageListRepository, ((messageListRepository?.fileExists) != nil) else {
+                guard let repository = messageListRepository, repository.fileExists  else {
                     ApptentiveLogger.default.debug("No messages in persistence storage.")
                     return
                 }
@@ -35,14 +35,15 @@ class MessageManager {
             }
         }
     }
-    
+
     static func createRepository(containerURL: URL, filename: String, fileManager: FileManager) -> PropertyListRepository<MessageList> {
         return PropertyListRepository<MessageList>(containerURL: containerURL, filename: filename, fileManager: fileManager)
     }
 
     func saveMessagesToDisk() throws {
         if let messageListRepository = self.messageListRepository,
-           let messageList = self.messageList {
+            let messageList = self.messageList
+        {
             try messageListRepository.save(messageList)
         }
     }
