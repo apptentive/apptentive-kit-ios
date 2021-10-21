@@ -27,7 +27,9 @@ extension Apptentive {
             let apptentiveGroupSecondaryColor = UIColor(named: "apptentiveGroupSecondary", in: bundle, compatibleWith: nil),
             let textInputBackgroundColor = UIColor(named: "textInputBackground", in: bundle, compatibleWith: nil),
             let termsOfServiceColor = UIColor(named: "termsOfService", in: bundle, compatibleWith: nil),
-            let question = UIColor(named: "question", in: bundle, compatibleWith: nil)
+            let question = UIColor(named: "question", in: bundle, compatibleWith: nil),
+            let messageBubbleInboundColor = UIColor(named: "messageBubbleInbound", in: bundle, compatibleWith: nil),
+            let messageLabelInboundColor = UIColor(named: "messageLabelInbound", in: bundle, compatibleWith: nil)
         else {
             assertionFailure("Unable to locate color asset(s).")
             return
@@ -60,7 +62,7 @@ extension Apptentive {
         toolBarAppearance.backgroundColor = barTintColor
         toolBarAppearance.isTranslucent = false
 
-        UIToolbar.apptentiveToolbarMode = .alwaysShown
+        UIToolbar.apptentiveMode = .alwaysShown
 
         let barButtonItemAppearance = UIBarButtonItem.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
         barButtonItemAppearance.setTitleTextAttributes(barTextAttributes, for: .normal)
@@ -79,6 +81,14 @@ extension Apptentive {
         tableViewAppearance.separatorColor = backgroundColor
 
         // Apptentive UIKit extensions overrides
+
+        //This is set in UIKit+Apptentive.
+        //        let messageSentBubble = UIImage(named: "messageSentBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9))
+        //        UIImage.apptentiveSentMessageBubble = messageSentBubble
+        //
+        //        let messageReceivedBubble = UIImage(named: "messageReceivedBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9))
+        //        UIImage.apptentiveReceivedMessageBubble = messageReceivedBubble
+
         UITableView.Style.apptentive = .grouped
 
         UIColor.apptentiveInstructionsLabel = instructionsLabelColor
@@ -93,6 +103,11 @@ extension Apptentive {
         UIColor.apptentiveImageSelected = buttonTintColor
         UIColor.apptentiveSubmitButton = buttonTintColor
         UIColor.apptentiveQuestionLabel = question
+        UIColor.apptentiveMessageBubbleInbound = messageBubbleInboundColor
+        UIColor.apptentiveMessageBubbleOutbound = buttonTintColor
+
+        UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
+        UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder

@@ -61,6 +61,16 @@ extension UIButton {
 
 extension UIImage {
 
+    /// The image to use as the chat bubble for outbound messages.
+    public static var apptentiveSentMessageBubble: UIImage? = {
+        return UIImage(named: "messageSentBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9))
+    }()
+
+    /// The image to use as the chat bubble for inbound messages.
+    public static var apptentiveReceivedMessageBubble: UIImage? = {
+        return UIImage(named: "messageReceivedBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9))
+    }()
+
     /// The image to use for the top navigation bar for surveys.
     public static var apptentiveHeaderLogo: UIImage? = {
         return nil
@@ -96,6 +106,27 @@ extension UIImage {
 }
 
 extension UIColor {
+
+    /// The color to use for the message bubble view for inbound messages.
+    public static var apptentiveMessageBubbleInbound: UIColor = {
+        return .darkGray
+    }()
+
+    /// The color to use for the message bubble view for outbound messages.
+    public static var apptentiveMessageBubbleOutbound: UIColor = {
+        return .systemBlue
+    }()
+
+    /// The color to use for message labels for the inbound message body.
+    public static var apptentiveMessageLabelInbound: UIColor = {
+        return .white
+    }()
+
+    /// The color to use for message labels for the outbound message body.
+    public static var apptentiveMessageLabelOutbound: UIColor = {
+        return .darkGray
+    }()
+
     /// The color to use for labels in a non-error state.
     public static var apptentiveQuestionLabel: UIColor = {
         if #available(iOS 13.0, *) {
@@ -283,13 +314,28 @@ extension UIFont {
         return .preferredFont(forTextStyle: .footnote)
     }()
 
-    /// the font used for all survey answer choice labels.
+    /// The font used for all survey answer choice labels.
     public static var apptentiveChoiceLabel: UIFont = {
+        return .preferredFont(forTextStyle: .body)
+    }()
+
+    /// The font used for the message body in message center.
+    public static var apptentiveMessageLabel: UIFont = {
         return .preferredFont(forTextStyle: .body)
     }()
 
     /// The font used for the min and max labels for the range survey.
     public static var apptentiveMinMaxLabel: UIFont = {
+        return .preferredFont(forTextStyle: .caption2)
+    }()
+
+    /// The font used for the sender label in message center.
+    public static var apptentiveSenderLabel: UIFont = {
+        return .preferredFont(forTextStyle: .caption2)
+    }()
+
+    /// The font used for the message date label in message center.
+    public static var apptentiveMessageDateLabel: UIFont = {
         return .preferredFont(forTextStyle: .caption2)
     }()
 
@@ -320,10 +366,16 @@ extension UIFont {
 }
 
 extension UIToolbar {
+    /// The circumstances under which to show a toolbar.
     public enum ToolbarMode {
+
+        /// Always show the toolbar.
         case alwaysShown
+
+        /// Show the toolbar only when there will be UI present in it.
         case hiddenWhenEmpty
     }
 
-    public static var apptentiveToolbarMode: ToolbarMode = .hiddenWhenEmpty
+    /// Determines when to show a toolbar in Apptentive view controllers.
+    public static var apptentiveMode: ToolbarMode = .hiddenWhenEmpty
 }

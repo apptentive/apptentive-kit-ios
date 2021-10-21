@@ -92,5 +92,4 @@ struct MessageCenterConfiguration: Codable {
     struct Status: Codable {
         let body: String
     }
-
 }

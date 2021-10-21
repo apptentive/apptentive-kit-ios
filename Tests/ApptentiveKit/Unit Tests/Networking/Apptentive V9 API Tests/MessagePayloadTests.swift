@@ -18,7 +18,7 @@ class MessagePayloadTests: XCTestCase {
         let jsonDecoder = JSONDecoder()
         jsonDecoder.dateDecodingStrategy = .secondsSince1970
 
-        var message = Message(body: "Test Message", isHidden: true)
+        var message = Message(body: "Test Message", isHidden: true, sentDate: Date())
 
         message.customData["string"] = "foo"
         message.customData["number"] = 42

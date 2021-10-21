@@ -53,6 +53,12 @@ public class MessageCenterViewModel {
     /// The introductory message added to conversation after consumer's message is sent.
     public let automatedMessageBody: String?
 
+    /// The messages grouped by date, according to the current calendar, sorted with oldest messages last.
+    public var groupedMessages = [[Message]]()
+
+    /// The formatter for the sent date labels.
+    public var sentDateFormatter: DateFormatter
+
     init(configuration: MessageCenterConfiguration, interaction: Interaction, delegate: InteractionDelegate) {
         self.interactionDelegate = delegate
         self.interaction = interaction
@@ -69,10 +75,12 @@ public class MessageCenterViewModel {
         self.statusBody = configuration.status.body
         self.automatedMessageBody = configuration.automatedMessage?.body ?? "We're sorry to hear that you don't love this app! Is there anything we could do to make it better?"
 
+        self.sentDateFormatter = DateFormatter()
+
         self.interactionDelegate?.getMessages(completion: { messageList in
             self.messageList = messageList
+            self.assembleGroupedMessages(messages: messageList.messages)
         })
-
     }
 
     /// Adds the message to the array of messages and calls the sendMessage function from the InteractionDelegate  to send the Message to the Apptentive API.
@@ -92,4 +100,68 @@ public class MessageCenterViewModel {
         self.interactionDelegate?.engage(event: .cancel(from: self.interaction))
     }
 
+    /// The number of message groups.
+    public var numberOfMessageGroups: Int {
+        return self.groupedMessages.count
+    }
+
+    /// Returns the number of messages in the specified group.
+    /// - Parameter index: the index of the message group.
+    /// - Returns: the number of messages in the group.
+    public func numberOfMessagesInGroup(at index: Int) -> Int {
+        return self.groupedMessages[index].count
+    }
+
+    /// Returns whether the message at the specified index path is inbound (sent from the Apptentive dashboard).
+    /// - Parameter indexPath: the index path of the message.
+    /// - Returns: whether the message is inbound.
+    public func isInbound(at indexPath: IndexPath) -> Bool {
+        return self.message(at: indexPath).isInbound
+    }
+
+    /// Returns the text of the message at the specified index path.
+    /// - Parameter indexPath: the index path of the message.
+    /// - Returns: the text of the message.
+    public func messageText(at indexPath: IndexPath) -> String? {
+        return self.message(at: indexPath).body
+    }
+
+    /// Returns the date that the message at the specified index path was sent.
+    /// - Parameter indexPath: the index path of the message.
+    /// - Returns: a human-readable string of the date that the message was sent.
+    public func sentDateString(at indexPath: IndexPath) -> String {
+        return self.sentDateFormatter.string(from: self.message(at: indexPath).sentDate)
+    }
+
+    /// Returns the name of the sender (if any) of the message at the specified index path.
+    /// - Parameter indexPath: the index path of the message.
+    /// - Returns: The name of the sender, if any.
+    public func senderName(at indexPath: IndexPath) -> String? {
+        return self.message(at: indexPath).sender?.name
+    }
+
+    /// Returns a URL pointing to the an image for the sender (if any) of the message at the specified index path.
+    /// - Parameter indexPath: the index path of the message.
+    /// - Returns: A URL for the image, if one is available.
+    public func senderImageURL(at indexPath: IndexPath) -> URL? {
+        return self.message(at: indexPath).sender?.profilePhotoURL
+    }
+
+    private func message(at indexPath: IndexPath) -> Message {
+        return self.groupedMessages[indexPath.section][indexPath.row]
+    }
+
+    private func assembleGroupedMessages(messages: [Message]) {
+
+        let messageDict = Dictionary(grouping: messages) { (message) -> Date in
+            Calendar.current.startOfDay(for: message.sentDate)
+        }
+
+        let sortedKeys = messageDict.keys.sorted()
+        sortedKeys.forEach { (key) in
+            let values = messageDict[key]
+            self.groupedMessages.append(values ?? [])
+
+        }
+    }
 }

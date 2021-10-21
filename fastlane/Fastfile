@@ -51,7 +51,7 @@ platform :ios do
 
   desc "Runs the swift-format linter on ApptentiveKit"
   lane :lint do
-    sh('swift-format lint --configuration ../.swift-format -r ../Sources/ApptentiveKit')
+    sh('swift-format lint --configuration ../.swift-format -s -r ../Sources/ApptentiveKit')
   end
 
   desc "Runs the swift-format linter on all swift files in repo"

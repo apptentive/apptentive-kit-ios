@@ -11,7 +11,9 @@ import Foundation
 /// Provides multiple ways to interact with the MessageList.
 class MessageManager {
 
-    /// The Message List object. The message list is fetched from the server on launch and saved to disk.
+    /// The Message List object.
+    ///
+    /// The message list is fetched from the server on launch and saved to disk.
     var messageList: MessageList? {
         didSet {
             self.lastFetchDate = Date()
@@ -24,7 +26,7 @@ class MessageManager {
     var messageListRepository: PropertyListRepository<MessageList>? {
         didSet {
             do {
-                guard let repository = messageListRepository, repository.fileExists  else {
+                guard let repository = messageListRepository, repository.fileExists else {
                     ApptentiveLogger.default.debug("No messages in persistence storage.")
                     return
                 }

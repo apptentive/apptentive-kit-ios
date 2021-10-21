@@ -54,6 +54,7 @@ open class InteractionPresenter {
 
         case .messageCenter(let configuration):
             let viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
+            try self.presentMessageCenter(with: viewModel)
 
         case .notImplemented:
             let viewModel = NotImplementedAlertViewModel(interactionTypeName: interaction.typeName)
@@ -72,6 +73,21 @@ open class InteractionPresenter {
 
         try self.presentViewController(
             viewController,
+            completion: {
+                viewModel.launch()
+            })
+    }
+
+    /// Presents a Message Center Interaction.
+    ///
+    /// Override this method to change the way Message Center is presented, such as to use a custom view controller.
+    /// - Parameter viewModel: the message center view model that represents the message center and handles sending and receiving messages.
+    /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
+    open func presentMessageCenter(with viewModel: MessageCenterViewModel) throws {
+        let messageViewController = MessageViewController(viewModel: viewModel)
+        let navController = ApptentiveNavigationController(rootViewController: messageViewController)
+        try self.presentViewController(
+            navController,
             completion: {
                 viewModel.launch()
             })

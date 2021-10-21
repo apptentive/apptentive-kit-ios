@@ -52,6 +52,7 @@ class SpyInteractionDelegate: InteractionDelegate {
     }
 
     func sendMessage(_ message: Message) {
+        //TODO: Initialize the MessageList if nil
         self.messageList?.messages.append(message)
     }
 }

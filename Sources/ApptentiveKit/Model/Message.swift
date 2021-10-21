@@ -27,7 +27,14 @@ public struct Message: Codable {
     /// The body text of the message.
     var body: String?
 
-    internal init(body: String? = nil, attachments: [Message.Attachment] = [], isHidden: Bool = false, customData: CustomData = CustomData(), id: String? = nil, isInbound: Bool = false, isAutomated: Bool = false, sender: Message.Sender? = nil) {
+    /// The time/date when the message is sent which is expressed as a number in JSON.
+    var sentDate: Date
+
+    var sentDateString: String?
+
+    internal init(
+        body: String? = nil, attachments: [Message.Attachment] = [], isHidden: Bool = false, customData: CustomData = CustomData(), id: String? = nil, isInbound: Bool = false, isAutomated: Bool = false, sender: Message.Sender? = nil, sentDate: Date
+    ) {
         self.customData = customData
         self.id = id
         self.isInbound = isInbound
@@ -36,8 +43,10 @@ public struct Message: Codable {
         self.attachments = attachments
         self.sender = sender
         self.body = body
+        self.sentDate = sentDate
     }
 
+    // swift-format-ignore
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -49,6 +58,7 @@ public struct Message: Codable {
         self.body = try container.decodeIfPresent(String.self, forKey: .body)
         self.attachments = try container.decodeIfPresent([Attachment].self, forKey: .attachments) ?? []
         self.sender = try container.decodeIfPresent(Sender.self, forKey: .sender)
+        self.sentDate = try container.decodeIfPresent(Date.self, forKey: .sentDate) ?? Date()
     }
 
     enum CodingKeys: String, CodingKey {
@@ -58,6 +68,7 @@ public struct Message: Codable {
         case isAutomated = "automated"
         case isHidden = "hidden"
         case attachments, sender, body
+        case sentDate = "created_at"
     }
 
     /// Describes information associated with the sender of the message.

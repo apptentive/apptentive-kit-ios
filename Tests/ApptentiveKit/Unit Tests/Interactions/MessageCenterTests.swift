@@ -70,7 +70,7 @@ class MessageCenterTests: XCTestCase {
             messages: [
                 Message(
                     body: nil, attachments: [Message.Attachment(mediaType: "test", filename: "test", data: nil, url: nil)], isHidden: true, customData: data, id: nil, isInbound: true, isAutomated: true,
-                    sender: Message.Sender(id: "test", name: nil, profilePhotoURL: nil))
+                    sender: Message.Sender(id: "test", name: nil, profilePhotoURL: nil), sentDate: Date())
             ], endsWith: nil, hasMore: true)
         let messageManager = MessageManager()
         messageManager.messageList = messageList
@@ -88,5 +88,14 @@ class MessageCenterTests: XCTestCase {
                 NSLog("Error loading messages: \(error)")
             }
         }
+    }
+
+    func testGetMessage() {
+        let message = Message(body: "Test", sentDate: Date())
+        self.spySender?.messageList = MessageList(messages: [message], endsWith: nil, hasMore: false)
+
+        self.spySender?.getMessages(completion: { messageList in
+            XCTAssertEqual(messageList.messages[0].body, "Test")
+        })
     }
 }

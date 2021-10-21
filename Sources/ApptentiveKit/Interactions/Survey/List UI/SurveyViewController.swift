@@ -650,7 +650,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             barButtonItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.apptentiveTermsOfServiceLabel, NSAttributedString.Key.foregroundColor: UIColor.apptentiveTermsOfServiceLabel, NSAttributedString.Key.underlineStyle: 1], for: .selected)
             self.setToolbarItems([flexible, barButtonItem, flexible], animated: false)
         } else {
-            self.navigationController?.setToolbarHidden((UIToolbar.apptentiveToolbarMode == .hiddenWhenEmpty), animated: true)
+            self.navigationController?.setToolbarHidden((UIToolbar.apptentiveMode == .hiddenWhenEmpty), animated: true)
         }
     }
 

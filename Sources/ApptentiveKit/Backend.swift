@@ -89,6 +89,7 @@ class Backend {
     ///   - queue: The dispatch queue on which the backend instance should run.
     ///   - conversation: The conversation that the backend should start with.
     ///   - targeter: The targeter to use to determine if events should show an interaction.
+    ///   - messageManager: The message manager to use to manage messages for Message Center.
     ///   - requestRetrier: The Apptentive API request retrier to use to send API requests.
     ///   - payloadSender: The payload sender to use to send updates to the API.
     init(queue: DispatchQueue, conversation: Conversation, targeter: Targeter, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSender) {

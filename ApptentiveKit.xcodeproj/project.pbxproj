@@ -45,6 +45,7 @@
 		013D8EAF24F09B63005EC4D1 /* CwlSysctl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8EAE24F09B63005EC4D1 /* CwlSysctl.swift */; };
 		013D8EB124F09F6C005EC4D1 /* ConversationRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8EB024F09F6C005EC4D1 /* ConversationRequestTests.swift */; };
 		013D8EB924F5C99B005EC4D1 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8EB824F5C99B005EC4D1 /* Backend.swift */; };
+		014303FD2722259C00A07F79 /* MessageCenterUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014303FC2722259C00A07F79 /* MessageCenterUITests.swift */; };
 		014D5B19256ED5940030DC90 /* EnjoymentDialogConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D5B18256ED5940030DC90 /* EnjoymentDialogConfiguration.swift */; };
 		014D5B23256ED6B80030DC90 /* EnjoymentDialogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D5B22256ED6B80030DC90 /* EnjoymentDialogViewModel.swift */; };
 		014D5B33256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014D5B32256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift */; };
@@ -150,9 +151,11 @@
 		1F323D65240F28C200A678BC /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		1F323D66240F28C200A678BC /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1F323D6B240F2F0500A678BC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D6A240F2F0500A678BC /* ViewController.swift */; };
+		EF0E660C2721D14E007A6457 /* MessageSentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0E660B2721D14E007A6457 /* MessageSentCell.swift */; };
 		EF1306C326F0D08700837F2A /* MessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306C226F0D08700837F2A /* MessageList.swift */; };
 		EF1306CF26F18C1B00837F2A /* MessageCenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306CE26F18C1B00837F2A /* MessageCenterTests.swift */; };
 		EF1306D626F3D2EC00837F2A /* MessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306D526F3D2EC00837F2A /* MessageManager.swift */; };
+		EF417551271F5F860013248B /* ApptentiveImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF417550271F5F860013248B /* ApptentiveImageView.swift */; };
 		EF425863263A74BA0094E1DC /* TermsOfService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF425862263A74BA0094E1DC /* TermsOfService.swift */; };
 		EF5FC3A7257FD901003E127B /* NotImplementedAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3A6257FD901003E127B /* NotImplementedAlertViewModel.swift */; };
 		EF5FC3CE25800C62003E127B /* NotImplementedAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3CD25800C62003E127B /* NotImplementedAlertViewModel.swift */; };
@@ -161,6 +164,8 @@
 		EF9B2C73265D79110044D2E2 /* UIWindow+TopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */; };
 		EF9F405B2711624D005D7209 /* MessageCenterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F405A2711624D005D7209 /* MessageCenterViewModel.swift */; };
 		EF9F405F271182E2005D7209 /* MessageCenterConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */; };
+		EF9F40AB27178F5E005D7209 /* MessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AA27178F5E005D7209 /* MessageViewController.swift */; };
+		EF9F40B0271894C7005D7209 /* MessageReceivedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -248,6 +253,7 @@
 		013D8EAE24F09B63005EC4D1 /* CwlSysctl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CwlSysctl.swift; sourceTree = "<group>"; };
 		013D8EB024F09F6C005EC4D1 /* ConversationRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationRequestTests.swift; sourceTree = "<group>"; };
 		013D8EB824F5C99B005EC4D1 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Backend.swift; sourceTree = "<group>"; };
+		014303FC2722259C00A07F79 /* MessageCenterUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterUITests.swift; sourceTree = "<group>"; };
 		014D5B18256ED5940030DC90 /* EnjoymentDialogConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogConfiguration.swift; sourceTree = "<group>"; };
 		014D5B22256ED6B80030DC90 /* EnjoymentDialogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnjoymentDialogViewModel.swift; sourceTree = "<group>"; };
 		014D5B32256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+AlertViewModel.swift"; sourceTree = "<group>"; };
@@ -363,9 +369,11 @@
 		1F323D5C240EEE0500A678BC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1F323D5E240EEE0500A678BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F323D6A240F2F0500A678BC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		EF0E660B2721D14E007A6457 /* MessageSentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSentCell.swift; sourceTree = "<group>"; };
 		EF1306C226F0D08700837F2A /* MessageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageList.swift; sourceTree = "<group>"; };
 		EF1306CE26F18C1B00837F2A /* MessageCenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterTests.swift; sourceTree = "<group>"; };
 		EF1306D526F3D2EC00837F2A /* MessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageManager.swift; sourceTree = "<group>"; };
+		EF417550271F5F860013248B /* ApptentiveImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveImageView.swift; sourceTree = "<group>"; };
 		EF425862263A74BA0094E1DC /* TermsOfService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfService.swift; sourceTree = "<group>"; };
 		EF5FC3A6257FD901003E127B /* NotImplementedAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertViewModel.swift; sourceTree = "<group>"; };
 		EF5FC3CD25800C62003E127B /* NotImplementedAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertViewModel.swift; sourceTree = "<group>"; };
@@ -374,6 +382,8 @@
 		EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIWindow+TopViewController.swift"; sourceTree = "<group>"; };
 		EF9F405A2711624D005D7209 /* MessageCenterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterViewModel.swift; sourceTree = "<group>"; };
 		EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterConfiguration.swift; sourceTree = "<group>"; };
+		EF9F40AA27178F5E005D7209 /* MessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewController.swift; sourceTree = "<group>"; };
+		EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReceivedCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -708,6 +718,7 @@
 				013D8E8624F03888005EC4D1 /* Networking */,
 				017FC93125310E4700C7A47F /* Targeting */,
 				01A0918723FCB5D600AF187E /* Apptentive.swift */,
+				EF417550271F5F860013248B /* ApptentiveImageView.swift */,
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */,
 				013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */,
@@ -826,6 +837,7 @@
 				01211C0A26810CC3009F0364 /* SurveyCardUITests.swift */,
 				EF5FC3DB258013FC003E127B /* NotImplementedAlertUITests.swift */,
 				01ED6166257723D20023208C /* TextModalUITests.swift */,
+				014303FC2722259C00A07F79 /* MessageCenterUITests.swift */,
 				1F323D46240EED3000A678BC /* Info.plist */,
 			);
 			path = "UI Tests";
@@ -866,8 +878,19 @@
 			children = (
 				EF9F405A2711624D005D7209 /* MessageCenterViewModel.swift */,
 				EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */,
+				EF9F40AE27189453005D7209 /* Default UI */,
 			);
 			path = MessageCenter;
+			sourceTree = "<group>";
+		};
+		EF9F40AE27189453005D7209 /* Default UI */ = {
+			isa = PBXGroup;
+			children = (
+				EF9F40AA27178F5E005D7209 /* MessageViewController.swift */,
+				EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */,
+				EF0E660B2721D14E007A6457 /* MessageSentCell.swift */,
+			);
+			path = "Default UI";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1144,6 +1167,7 @@
 				017230EC253673960095AEAA /* Field.swift in Sources */,
 				011C64D3264D881400219243 /* Answer.swift in Sources */,
 				012A1B69263A27D400EBC073 /* LegacyConversation.swift in Sources */,
+				EF0E660C2721D14E007A6457 /* MessageSentCell.swift in Sources */,
 				015AF83724E739C0000DF8B0 /* SurveyViewModel+Question.swift in Sources */,
 				01C54076258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift in Sources */,
 				017FC92C25310E2400C7A47F /* Event.swift in Sources */,
@@ -1160,6 +1184,7 @@
 				014D5B33256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift in Sources */,
 				EF69E0BC258962DA00FA0636 /* SurveyRangeCell.swift in Sources */,
 				013D8EA624F09B01005EC4D1 /* Device.swift in Sources */,
+				EF9F40AB27178F5E005D7209 /* MessageViewController.swift in Sources */,
 				0176159B25D1F9F900BB85C6 /* HTTPRequestRetrier.swift in Sources */,
 				01974A6F2577043400C7D693 /* TextModalViewModel.swift in Sources */,
 				012A1B68263A27D100EBC073 /* LegacyEngagement.swift in Sources */,
@@ -1170,6 +1195,7 @@
 				015AF83C24E7437A000DF8B0 /* SurveyViewModel+FreeformQuestion.swift in Sources */,
 				01870CEA2643582F00DC8796 /* CardViewController.swift in Sources */,
 				013D8E8E24F038D3005EC4D1 /* HTTPEndpoint.swift in Sources */,
+				EF417551271F5F860013248B /* ApptentiveImageView.swift in Sources */,
 				01B91F9525CB830C00B8AFEE /* PersonContents.swift in Sources */,
 				0118DD6C26FB797500037E0E /* MessageContents.swift in Sources */,
 				0158976724E5C8C600DF0DC0 /* Apptentive+Compatibility.swift in Sources */,
@@ -1181,6 +1207,7 @@
 				EF9B2C73265D79110044D2E2 /* UIWindow+TopViewController.swift in Sources */,
 				010864F3253E197A00101CFB /* EventContents.swift in Sources */,
 				017BAAF6268299C90035DA1E /* Random.swift in Sources */,
+				EF9F40B0271894C7005D7209 /* MessageReceivedCell.swift in Sources */,
 				017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */,
 				EF425863263A74BA0094E1DC /* TermsOfService.swift in Sources */,
 				EF9F405F271182E2005D7209 /* MessageCenterConfiguration.swift in Sources */,
@@ -1253,6 +1280,7 @@
 				01211C0B26810CC3009F0364 /* SurveyCardUITests.swift in Sources */,
 				1F323D45240EED3000A678BC /* SurveyUITests.swift in Sources */,
 				EF5FC3E125801734003E127B /* NotImplementedAlertUITests.swift in Sources */,
+				014303FD2722259C00A07F79 /* MessageCenterUITests.swift in Sources */,
 				0165B7E125804381001DF54E /* AppleRatingDialogUITests.swift in Sources */,
 				019E79252575B560006BD412 /* EnjoymentDialogUITests.swift in Sources */,
 				01ED6286257B113E0023208C /* NavigateToLinkUITests.swift in Sources */,

@@ -181,7 +181,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     /// - Parameter text: The text to send in the body of the message.
     @objc(sendAttachmentText:)
     public func sendAttachment(_ text: String) {
-        self.sendMessage(Message(body: text, isHidden: true))
+
+        self.sendMessage(Message(body: text, isHidden: true, sentDate: Date()))
     }
 
     /// Creates a new Apptentive SDK object using the specified URL to communicate with the Apptentive API.
@@ -293,7 +294,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
     }
     /// Receives the message list from the backend.
-    /// - Parameter completion: A completion handler to be called when the message center view model is initialized,
+    /// - Parameter completion: A completion handler to be called when the message center view model is initialized.
     func getMessages(completion: @escaping (MessageList) -> Void) {
         guard let messageList = self.backend.messageManager.messageList else { return }
         self.backendQueue.async {
