@@ -130,6 +130,10 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     // MARK: - View Model Delegate
 
     func messageCenterViewModelMessageListDidUpdate(_: MessageCenterViewModel) {
+        guard self.viewModel.numberOfMessageGroups > 0 else {
+            return
+        }
+
         self.tableView.reloadSections([self.viewModel.numberOfMessageGroups - 1], with: .none)
 
         self.scrollToBottom(true)
@@ -176,12 +180,12 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     private func scrollToBottom(_ animated: Bool) {
-        let lastSection = self.tableView.numberOfSections - 1
-        let lastIndexPath = IndexPath(row: self.tableView.numberOfRows(inSection: lastSection) - 1, section: lastSection)
-
-        guard lastIndexPath.section >= 0, lastIndexPath.row >= 0 else {
+        let lastSectionIndex = self.tableView.numberOfSections - 1
+        guard lastSectionIndex >= 0 && self.tableView.numberOfRows(inSection: lastSectionIndex) > 0 else {
             return
         }
+
+        let lastIndexPath = IndexPath(row: self.tableView.numberOfRows(inSection: lastSectionIndex) - 1, section: lastSectionIndex)
 
         self.tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: animated)
     }
