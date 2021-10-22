@@ -37,11 +37,12 @@ class MessageSentCell: UITableViewCell {
         self.bubbleImageView.setContentHuggingPriority(.defaultLow, for: .vertical)
         self.bubbleImageView.tintColor = .apptentiveMessageBubbleOutbound
 
-        self.dateLabel.textColor = .apptentiveMessageLabelInbound
+        self.dateLabel.textColor = .apptentiveMessageLabelOutbound
         self.dateLabel.translatesAutoresizingMaskIntoConstraints = false
         self.dateLabel.numberOfLines = 0
         self.dateLabel.font = .apptentiveMessageDateLabel
         self.dateLabel.textAlignment = .left
+        self.dateLabel.adjustsFontForContentSizeCategory = true
 
         self.messageLabel.textColor = .apptentiveMessageLabelOutbound
         self.messageLabel.font = .apptentiveMessageLabel
@@ -52,6 +53,7 @@ class MessageSentCell: UITableViewCell {
         self.messageLabel.minimumScaleFactor = 0.5
         self.messageLabel.sizeToFit()
         self.messageLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        self.messageLabel.adjustsFontForContentSizeCategory = true
 
         setConstraints()
     }

@@ -182,7 +182,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     @objc(sendAttachmentText:)
     public func sendAttachment(_ text: String) {
 
-        self.sendMessage(Message(body: text, isHidden: true, sentDate: Date()))
+        self.sendMessage(Message(body: text, isHidden: true))
     }
 
     /// Creates a new Apptentive SDK object using the specified URL to communicate with the Apptentive API.
@@ -300,7 +300,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         self.backendQueue.async {
             DispatchQueue.main.async {
                 completion(messageList)
-
             }
         }
     }

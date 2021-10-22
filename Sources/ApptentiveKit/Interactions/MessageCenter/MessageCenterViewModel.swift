@@ -8,14 +8,25 @@
 
 import Foundation
 
+/// Represents an object that can be notified of a change to the message list.
+public protocol MessageCenterViewModelDelegate: AnyObject {
+    func messageCenterViewModelMessageListDidUpdate(_: MessageCenterViewModel)
+}
+
 /// A class that describes the data in message center and allows messages to be gathered and transmitted.
 public class MessageCenterViewModel {
     weak var interactionDelegate: InteractionDelegate?
+    weak var delegate: MessageCenterViewModelDelegate?
 
     let interaction: Interaction
 
     /// The list of messages between the consumer and the dashboard.
-    var messageList: MessageList?
+    var messageList: MessageList {
+        didSet {
+            self.assembleGroupedMessages(messages: self.messageList.messages)
+            self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+        }
+    }
 
     /// The title for the message center window.
     public let headingTitle: String
@@ -54,10 +65,13 @@ public class MessageCenterViewModel {
     public let automatedMessageBody: String?
 
     /// The messages grouped by date, according to the current calendar, sorted with oldest messages last.
-    public var groupedMessages = [[Message]]()
+    public var groupedMessages: [[Message]]
 
     /// The formatter for the sent date labels.
     public var sentDateFormatter: DateFormatter
+
+    /// The formatter for the group headers.
+    public var groupDateFormatter: DateFormatter
 
     init(configuration: MessageCenterConfiguration, interaction: Interaction, delegate: InteractionDelegate) {
         self.interactionDelegate = delegate
@@ -76,6 +90,15 @@ public class MessageCenterViewModel {
         self.automatedMessageBody = configuration.automatedMessage?.body ?? "We're sorry to hear that you don't love this app! Is there anything we could do to make it better?"
 
         self.sentDateFormatter = DateFormatter()
+        self.sentDateFormatter.dateStyle = .none
+        self.sentDateFormatter.timeStyle = .short
+
+        self.groupDateFormatter = DateFormatter()
+        self.groupDateFormatter.dateStyle = .long
+        self.groupDateFormatter.timeStyle = .none
+
+        self.messageList = MessageList()
+        self.groupedMessages = [[]]
 
         self.interactionDelegate?.getMessages(completion: { messageList in
             self.messageList = messageList
@@ -86,7 +109,7 @@ public class MessageCenterViewModel {
     /// Adds the message to the array of messages and calls the sendMessage function from the InteractionDelegate  to send the Message to the Apptentive API.
     /// - Parameter message: The message to be sent.
     public func sendMessage(message: Message) {
-        self.messageList?.messages.append(message)
+        self.messageList.messages.append(message)
         self.interactionDelegate?.sendMessage(message)
     }
 
@@ -112,11 +135,22 @@ public class MessageCenterViewModel {
         return self.groupedMessages[index].count
     }
 
+    /// The date string for the message group, according to the current calendar.
+    /// - Parameter index: The index of the group.
+    /// - Returns: A string formatted with the date of messages in the group.
+    public func dateStringForMessagesInGroup(at index: Int) -> String? {
+        if self.groupedMessages[index].count > 0 {
+            return self.groupDateFormatter.string(from: self.groupedMessages[index].first?.sentDate ?? Date())
+        } else {
+            return nil
+        }
+    }
+
     /// Returns whether the message at the specified index path is inbound (sent from the Apptentive dashboard).
     /// - Parameter indexPath: the index path of the message.
     /// - Returns: whether the message is inbound.
-    public func isInbound(at indexPath: IndexPath) -> Bool {
-        return self.message(at: indexPath).isInbound
+    public func sentByLocalUser(at indexPath: IndexPath) -> Bool {
+        return self.message(at: indexPath).sentByLocalUser
     }
 
     /// Returns the text of the message at the specified index path.
@@ -152,6 +186,7 @@ public class MessageCenterViewModel {
     }
 
     private func assembleGroupedMessages(messages: [Message]) {
+        self.groupedMessages.removeAll()
 
         let messageDict = Dictionary(grouping: messages) { (message) -> Date in
             Calendar.current.startOfDay(for: message.sentDate)
@@ -161,7 +196,6 @@ public class MessageCenterViewModel {
         sortedKeys.forEach { (key) in
             let values = messageDict[key]
             self.groupedMessages.append(values ?? [])
-
         }
     }
 }

@@ -58,6 +58,7 @@ class MessageReceivedCell: UITableViewCell {
         self.dateLabel.numberOfLines = 0
         self.dateLabel.font = .apptentiveMessageDateLabel
         self.dateLabel.textAlignment = .left
+        self.dateLabel.adjustsFontForContentSizeCategory = true
 
         self.messageLabel.font = .apptentiveMessageLabel
         self.messageLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -67,11 +68,13 @@ class MessageReceivedCell: UITableViewCell {
         self.messageLabel.minimumScaleFactor = 0.5
         self.messageLabel.sizeToFit()
         self.messageLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        self.messageLabel.adjustsFontForContentSizeCategory = true
 
         self.senderLabel.translatesAutoresizingMaskIntoConstraints = false
         self.senderLabel.numberOfLines = 0
         self.senderLabel.font = .apptentiveSenderLabel
         self.senderLabel.textAlignment = .left
+        self.senderLabel.adjustsFontForContentSizeCategory = true
 
         self.setConstraints()
     }

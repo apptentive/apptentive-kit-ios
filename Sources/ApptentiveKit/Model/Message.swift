@@ -15,7 +15,7 @@ public struct Message: Codable {
     /// The message id.
     let id: String?
     /// Indicates if the message is being received from the dashboard.
-    let isInbound: Bool
+    let sentByLocalUser: Bool
     /// Indicates whether the message is a Context Message (shown after a "Don't Love" response triggered Message Center).
     var isAutomated: Bool
     /// Indicates whether the message shows in the message list to the consumer.
@@ -26,18 +26,16 @@ public struct Message: Codable {
     var sender: Sender?
     /// The body text of the message.
     var body: String?
-
-    /// The time/date when the message is sent which is expressed as a number in JSON.
+    /// When when the message was created.
     var sentDate: Date
 
-    var sentDateString: String?
-
     internal init(
-        body: String? = nil, attachments: [Message.Attachment] = [], isHidden: Bool = false, customData: CustomData = CustomData(), id: String? = nil, isInbound: Bool = false, isAutomated: Bool = false, sender: Message.Sender? = nil, sentDate: Date
+        body: String? = nil, attachments: [Message.Attachment] = [], isHidden: Bool = false, customData: CustomData = CustomData(), id: String? = nil, sentByLocalUser: Bool = true, isAutomated: Bool = false, sender: Message.Sender? = nil,
+        sentDate: Date = Date()
     ) {
         self.customData = customData
         self.id = id
-        self.isInbound = isInbound
+        self.sentByLocalUser = sentByLocalUser
         self.isAutomated = isAutomated
         self.isHidden = isHidden
         self.attachments = attachments
@@ -52,7 +50,7 @@ public struct Message: Codable {
 
         self.customData = try container.decodeIfPresent(CustomData.self, forKey: .customData) ?? CustomData()
         self.id = try container.decodeIfPresent(String.self, forKey: .id)
-        self.isInbound = try container.decodeIfPresent(Bool.self, forKey: .isInbound) ?? false
+        self.sentByLocalUser = try container.decodeIfPresent(Bool.self, forKey: .sentByLocalUser) ?? false
         self.isAutomated = try container.decodeIfPresent(Bool.self, forKey: .isAutomated) ?? false
         self.isHidden = try container.decodeIfPresent(Bool.self, forKey: .isAutomated) ?? false
         self.body = try container.decodeIfPresent(String.self, forKey: .body)
@@ -64,7 +62,7 @@ public struct Message: Codable {
     enum CodingKeys: String, CodingKey {
         case customData = "custom_data"
         case id
-        case isInbound = "inbound"
+        case sentByLocalUser = "inbound"
         case isAutomated = "automated"
         case isHidden = "hidden"
         case attachments, sender, body

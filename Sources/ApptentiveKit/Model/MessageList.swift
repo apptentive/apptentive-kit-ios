@@ -23,7 +23,7 @@ struct MessageList: Codable {
         case hasMore = "has_more"
     }
 
-    init(messages: [Message], endsWith: String?, hasMore: Bool) {
+    init(messages: [Message] = [], endsWith: String? = nil, hasMore: Bool = false) {
         self.messages = messages
         self.endsWith = endsWith
         self.hasMore = hasMore
