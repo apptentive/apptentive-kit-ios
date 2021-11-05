@@ -23,24 +23,27 @@ class PayloadSender {
         }
     }
 
-    /// The currently in-flight API request, if any.
-    private var currentPayloadIdentifier: String? = nil
-
     /// The repository to use when loading/saving payloads from/to persistent storage.
     var repository: FileRepository<[Payload]>? {
         didSet {
             do {
                 guard let repository = repository, repository.fileExists else {
-                    ApptentiveLogger.default.debug("No payload queue in persistent storage. Starting from scratch.")
+                    ApptentiveLogger.payload.debug("No payload queue in persistent storage. Starting from scratch.")
                     return
                 }
 
-                let savedPayloads = try repository.load()
+                if self.payloadsNeedLoading {
+                    let savedPayloads = try repository.load()
 
-                ApptentiveLogger.default.debug("Merging \(savedPayloads.count) saved payloads into in-memory queue.")
-                self.payloads = savedPayloads + self.payloads
+                    ApptentiveLogger.payload.debug("Merging \(savedPayloads.count) saved payloads into in-memory queue.")
+                    self.payloads = savedPayloads + self.payloads
+
+                    self.payloadsNeedLoading = false
+                } else {
+                    ApptentiveLogger.payload.debug("Saved payloads already loaded.")
+                }
             } catch let error {
-                ApptentiveLogger.default.error("Unable to load payload queue: \(error).")
+                ApptentiveLogger.payload.error("Unable to load payload queue: \(error).")
                 assertionFailure("Payload queue file exists but can't be read (error: \(error.localizedDescription)).")
             }
         }
@@ -66,7 +69,7 @@ class PayloadSender {
             do {
                 try self.savePayloadsIfNeeded()
             } catch let error {
-                ApptentiveLogger.network.error("Unable to save important payload: \(error).")
+                ApptentiveLogger.payload.error("Unable to save important payload: \(error).")
                 assertionFailure("Unable to save important payload: \(error).")
             }
         }
@@ -110,6 +113,24 @@ class PayloadSender {
         }
     }
 
+    /// The currently in-flight API request, if any.
+    private var currentPayloadIdentifier: String? = nil
+
+    /// Whether payloads from last session need to be loaded.
+    private var payloadsNeedLoading: Bool = true
+
+    /// Whether the in-memory payload queue should be saved to the repository.
+    private var payloadsNeedSaving: Bool = false
+
+    /// Whether the payload sender is suspended (paused).
+    private var isSuspended: Bool = false
+
+    /// Whether the payload sender is finishing sending payloads in the queue and then suspend.
+    private var isDraining: Bool = false
+
+    /// A method that is called when the draining process completes.
+    private var drainCompletionHandler: (() -> Void)?
+
     /// The payloads waiting to be sent.
     private var payloads: [Payload] {
         didSet {
@@ -119,18 +140,10 @@ class PayloadSender {
         }
     }
 
-    private var payloadsNeedSaving: Bool = false
-
-    private var isSuspended: Bool = false
-
-    private var isDraining: Bool = false
-
-    private var drainCompletionHandler: (() -> Void)?
-
     /// Send any queued payloads to the API.
     private func sendPayloads() {
         guard !isSuspended else {
-            ApptentiveLogger.network.debug("Payload sender is suspended")
+            ApptentiveLogger.payload.debug("Payload sender is suspended")
             return
         }
 
@@ -140,7 +153,7 @@ class PayloadSender {
         }
 
         guard currentPayloadIdentifier == nil else {
-            ApptentiveLogger.network.debug("Already sending a payload")
+            ApptentiveLogger.payload.debug("Already sending a payload")
             return
         }
 

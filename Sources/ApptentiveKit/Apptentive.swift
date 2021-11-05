@@ -310,7 +310,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
             do {
                 let containerURL = try environment.applicationSupportURL().appendingPathComponent(self.containerDirectory)
 
-                try self.backend.load(containerURL: containerURL, environment: environment)
+                try self.backend.protectedDataDidBecomeAvailable(containerURL: containerURL, environment: environment)
 
                 self.person.merge(with: self.backend.conversation.person)
                 self.device.merge(with: self.backend.conversation.device)
@@ -323,7 +323,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
 
     func protectedDataWillBecomeUnavailable(_ environment: GlobalEnvironment) {
         self.backendQueue.async {
-            self.backend.unload()
+            self.backend.protectedDataWillBecomeUnavailable()
         }
     }
 

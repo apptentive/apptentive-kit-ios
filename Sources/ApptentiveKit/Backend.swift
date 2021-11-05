@@ -62,9 +62,16 @@ class Backend {
     /// Whether the conversation has changes that need to be saved to persistent storage.
     private var conversationNeedsSaving: Bool = false
 
+    /// Whether the conversation in memory is a temporary one that should be merged with one loaded from disk.
+    private var conversationNeedsLoading: Bool = true
+
+    /// A timer that periodically runs a task to save the conversation and payload sender.
     private var persistenceTimer: DispatchSourceTimer?
+
+    /// A flag indicating whether the persistenc timer is active.
     private var persistenceTimerActive = false
 
+    /// The interval at which to poll for new messages.
     private var messagePollingInterval: TimeInterval {
         // TODO: Use foregroundPollingInterval when MC is presented
         return self.configuration?.messageCenter.backgroundPollingInterval ?? 600
@@ -122,42 +129,22 @@ class Backend {
         self.conversation.appCredentials = appCredentials
     }
 
-    /// Sets up access to persistent storage and loads any previously-saved conversation data.
+    /// Sets up access to persistent storage and loads any previously-saved conversation data if needed.
     ///
     /// This method may be called multiple times if the device is locked with the app in the foreground and then unlocked.
     /// - Parameters:
     ///   - containerURL: A file URL corresponding to the container directory for Apptentive files.
     ///   - environment: An object implementing the `GlobalEnvironment` protocol.
     /// - Throws: An error if the conversation file exists but can't be read, or if the saved conversation can't be merged with the in-memory conversation.
-    func load(containerURL: URL, environment: GlobalEnvironment) throws {
+    func protectedDataDidBecomeAvailable(containerURL: URL, environment: GlobalEnvironment) throws {
         try self.createContainerDirectoryIfNeeded(containerURL: containerURL, fileManager: environment.fileManager)
 
-        let conversationRepository = PropertyListRepository<Conversation>(containerURL: containerURL, filename: "Conversation", fileManager: environment.fileManager)
-        self.conversationRepository = conversationRepository
-
-        let legacyConversationRepository = LegacyConversationRepository(containerURL: containerURL, filename: "conversation-v1.meta", environment: environment)
-
-        if conversationRepository.fileExists {
-            ApptentiveLogger.default.info("Loading previously-saved conversation.")
-
-            let savedConversation = try conversationRepository.load()
-
-            self.conversation = try savedConversation.merged(with: self.conversation)
-
-            self.processChanges(from: savedConversation)
-        } else if legacyConversationRepository.fileExists {
-            ApptentiveLogger.default.info("Loading legacy conversation.")
-
-            let legacyConversation = try legacyConversationRepository.load()
-
-            self.conversation = try legacyConversation.merged(with: self.conversation)
-
-            self.processChanges(from: legacyConversation)
-        }
-
+        self.conversationRepository = PropertyListRepository<Conversation>(containerURL: containerURL, filename: "Conversation", fileManager: environment.fileManager)
         self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: environment.fileManager)
-
         self.messageManager.messageListRepository = MessageManager.createRepository(containerURL: containerURL, filename: "MessageList", fileManager: environment.fileManager)
+
+        // On the first call to `protectedDataDidBecomeAvailable(containerURL:environment:)`, update the in-memory conversation with data from any saved conversation.
+        try self.updateWithSavedConversationIfNeeded(containerURL: containerURL, environment: environment)
 
         // Because of potentially unbalanced calls to `load(containerURL:environment)` and `unload()`,
         // we suspend (but don't discard) the persistence timer. Therefore it should only be created once.
@@ -169,7 +156,8 @@ class Backend {
     /// Reliquishes access to persistent storage.
     ///
     /// Called when the device is locked with the app in the foreground.
-    func unload() {
+    func protectedDataWillBecomeUnavailable() {
+        self.messageManager.messageListRepository = nil
         self.payloadSender.repository = nil
         self.conversationRepository = nil
     }
@@ -282,6 +270,49 @@ class Backend {
     /// - Parameter message: The message to send.
     func sendMessage(_ message: Message) {
         self.payloadSender.send(Payload(wrapping: message), persistEagerly: true)
+    }
+
+    /// Updates the in-memory conversation with the contents of a saved current or legacy conversation the first time it is called.
+    ///
+    /// Subsequent calls will have no effect.
+    /// - Parameters:
+    ///   - containerURL: The URL for the directory in which to look for the legacy conversation file.
+    ///   - environment: The Environment object used by the legacy conversation repository migration process.
+    /// - Throws: An error if the conversation file exists but can't be read, or if the saved conversation can't be merged with the in-memory conversation.
+    private func updateWithSavedConversationIfNeeded(containerURL: URL, environment: GlobalEnvironment) throws {
+        if self.conversationNeedsLoading {
+            guard let conversationRepository = self.conversationRepository else {
+                throw ApptentiveError.internalInconsistency
+            }
+
+            if conversationRepository.fileExists {
+                ApptentiveLogger.default.info("Loading previously-saved conversation.")
+
+                let savedConversation = try conversationRepository.load()
+
+                self.conversation = try savedConversation.merged(with: self.conversation)
+
+                self.processChanges(from: savedConversation)
+            } else {
+                let legacyConversationRepository = LegacyConversationRepository(containerURL: containerURL, filename: "conversation-v1.meta", environment: environment)
+
+                if legacyConversationRepository.fileExists {
+                    ApptentiveLogger.default.info("Loading legacy conversation.")
+
+                    let legacyConversation = try legacyConversationRepository.load()
+
+                    self.conversation = try legacyConversation.merged(with: self.conversation)
+
+                    self.processChanges(from: legacyConversation)
+                } else {
+                    ApptentiveLogger.default.info("No current or legacy conversation found. Continuing with newly-created conversation.")
+                }
+            }
+
+            self.conversationNeedsLoading = false
+        } else {
+            ApptentiveLogger.default.info("In-memory conversation already contains data from any saved conversation.")
+        }
     }
 
     private func presentInteraction(_ interaction: Interaction, completion: ((Result<Bool, Error>) -> Void)?) throws {
