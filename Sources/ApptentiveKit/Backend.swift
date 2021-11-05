@@ -189,7 +189,6 @@ class Backend {
 
     func invalidateEngagementManifest() {
         self.targeter.engagementManifest.expiry = .distantPast
-        self.processChanges(from: self.conversation)
     }
 
     /// Engages an event.
@@ -347,8 +346,10 @@ class Backend {
 
             // If we have credentials but we have not called the completion block, do so.
             if let connectCompletion = self.connectCompletion {
-                connectCompletion(.success(.cached))
                 self.connectCompletion = nil
+                DispatchQueue.main.async {
+                    connectCompletion(.success(.cached))
+                }
             }
 
             // Supply the payload sender with necessary credentials
@@ -451,15 +452,20 @@ class Backend {
         ApptentiveLogger.default.info("Requesting a new conversation via Apptentive API.")
 
         self.requestRetrier.startUnlessUnderway(ApptentiveV9API.createConversation(self.conversation), identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
+            let completion = self.connectCompletion
+            self.connectCompletion = nil
+
             switch result {
             case .success(let conversationResponse):
                 self.conversation.conversationCredentials = Conversation.ConversationCredentials(token: conversationResponse.token, id: conversationResponse.id)
-                self.connectCompletion?(.success(.new))
+                DispatchQueue.main.sync {
+                    completion?(.success(.new))
+                }
             case .failure(let error):
-                self.connectCompletion?(.failure(error))
+                DispatchQueue.main.sync {
+                    completion?(.failure(error))
+                }
             }
-
-            self.connectCompletion = nil
         }
     }
 

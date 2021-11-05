@@ -47,20 +47,6 @@ public struct Interaction: Decodable {
         }
     }
 
-    /// Initializes an interaction with the given parameters.
-    ///
-    /// This can be removed once the API sends us pre-transformed engagement manifests.
-    /// We need to be able to create new TextModal interactions to make the transform work.
-    /// - Parameters:
-    ///   - id: The interaction ID.
-    ///   - typeName: The type of interaction as a string.
-    ///   - configuration: The configuration as an enum value.
-    init(id: String, typeName: String, configuration: InteractionConfiguration) {
-        self.id = id
-        self.typeName = typeName
-        self.configuration = configuration
-    }
-
     enum InteractionCodingKeys: String, CodingKey {
         case id
         case type

@@ -214,6 +214,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         self.containerDirectory = containerDirectory ?? "com.apptentive.feedback"
 
         self.backend = Backend(queue: self.backendQueue, environment: self.environment, baseURL: self.baseURL)
+
         self.interactionPresenter = InteractionPresenter()
 
         self.person = self.backend.conversation.person
@@ -222,21 +223,23 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         super.init()
 
         self.environment.delegate = self
+        self.backend.frontend = self
+        self.interactionPresenter.delegate = self
+
         if self.environment.isProtectedDataAvailable {
             self.protectedDataDidBecomeAvailable(self.environment)
         }
 
-        // Typically we will be initialized too late to receive the ApplicationWillEnterForeground
-        // notification, so we have to manually record a launch event here.
-        // We are engaging the launch event inside the invalidateEngagementManifestForDebug method, and then refreshing the engagement manifest.
+        // The SDK will be initialized after the system sends the
+        // ApplicationWillEnterForeground notification, meaning that
+        // the tasks below have to be run explicitly.
         if self.environment.isInForeground {
             self.engage(event: .launch())
-            self.backend.invalidateEngagementManifestForDebug(environment: self.environment)
+
+            self.backendQueue.async {
+                self.backend.invalidateEngagementManifestForDebug(environment: self.environment)
+            }
         }
-
-        self.backend.frontend = self
-
-        self.interactionPresenter.delegate = self
 
         ApptentiveLogger.default.info("Apptentive SDK Initialized.")
     }
@@ -328,11 +331,11 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     }
 
     func applicationWillEnterForeground(_ environment: GlobalEnvironment) {
-        self.engage(event: .launch())
-
         self.backendQueue.async {
             self.backend.willEnterForeground(environment: environment)
         }
+
+        self.engage(event: .launch())
     }
 
     func applicationDidEnterBackground(_ environment: GlobalEnvironment) {
