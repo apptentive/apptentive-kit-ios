@@ -27,6 +27,7 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
     var distributionName: String?
     var distributionVersion: Version?
     var isDebugBuild = true
+    var isTesting = true
     var infoDictionary: [String: Any]? = [
         "CFBundleIdentifier": "com.apptentive.test",
         "CFBundleShortVersionString": "0.0.0",

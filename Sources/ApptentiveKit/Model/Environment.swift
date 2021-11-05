@@ -43,6 +43,7 @@ protocol AppEnvironment {
     var distributionName: String? { get set }
     var distributionVersion: Version? { get set }
     var isDebugBuild: Bool { get }
+    var isTesting: Bool { get }
 }
 
 /// The portions of the Environment that provide information about the device.
@@ -157,6 +158,9 @@ class Environment: GlobalEnvironment {
     /// Whether the application is in the foreground.
     var isInForeground: Bool
 
+    /// Checks the environment to see if testing is taking place.
+    var isTesting: Bool
+
     /// The delegate to notify when aspects of the environment change.
     weak var delegate: EnvironmentDelegate?
 
@@ -207,6 +211,8 @@ class Environment: GlobalEnvironment {
         #else
             isDebugBuild = false
         #endif
+
+        self.isTesting = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 
         #if canImport(UIKit)
             self.identifierForVendor = UIDevice.current.identifierForVendor

@@ -120,8 +120,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
             self.applyApptentiveTheme()
         }
 
-        if !isTesting {
-
+        if !self.environment.isTesting {
             if credentials.key.isEmpty || credentials.signature.isEmpty {
                 assertionFailure("App key or signature is missing.")
             } else if !credentials.key.hasPrefix("IOS-") {
@@ -139,7 +138,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
                 case .failure(let error):
                     completion?(.failure(error))
                     ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
-                    if !self.isTesting {
+                    if !self.environment.isTesting {
                         assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
                     }
                 }
@@ -370,11 +369,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         self.backendQueue.async {
             self.backend.conversation.device = self.device
         }
-    }
-
-    /// Checks the environment to see if testing is taking place.
-    private var isTesting: Bool {
-        return ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
 }
 
