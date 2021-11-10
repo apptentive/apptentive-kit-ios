@@ -92,10 +92,10 @@ class MessageCenterTests: XCTestCase {
 
     func testGetMessage() {
         let message = Message(body: "Test", sentDate: Date())
-        self.spySender?.messageList = MessageList(messages: [message], endsWith: nil, hasMore: false)
+        self.spySender?.messageManager?.messageList = MessageList(messages: [message], endsWith: nil, hasMore: false)
 
-        self.spySender?.getMessages(completion: { messageList in
-            XCTAssertEqual(messageList.messages[0].body, "Test")
+        self.spySender?.getMessages(completion: { messageManager in
+            XCTAssertEqual(messageManager.messageList?.messages[0].body, "Test")
         })
     }
 }

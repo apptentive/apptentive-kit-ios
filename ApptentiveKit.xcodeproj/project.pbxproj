@@ -153,9 +153,11 @@
 		1F323D66240F28C200A678BC /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1F323D6B240F2F0500A678BC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D6A240F2F0500A678BC /* ViewController.swift */; };
 		EF0E660C2721D14E007A6457 /* MessageSentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0E660B2721D14E007A6457 /* MessageSentCell.swift */; };
+		EF0E661627229687007A6457 /* GreetingHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0E661527229687007A6457 /* GreetingHeaderView.swift */; };
 		EF1306C326F0D08700837F2A /* MessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306C226F0D08700837F2A /* MessageList.swift */; };
 		EF1306CF26F18C1B00837F2A /* MessageCenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306CE26F18C1B00837F2A /* MessageCenterTests.swift */; };
 		EF1306D626F3D2EC00837F2A /* MessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306D526F3D2EC00837F2A /* MessageManager.swift */; };
+		EF18B1BF2723104600F53D3A /* MessageListFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF18B1BE2723104600F53D3A /* MessageListFooterView.swift */; };
 		EF417551271F5F860013248B /* ApptentiveImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF417550271F5F860013248B /* ApptentiveImageView.swift */; };
 		EF425863263A74BA0094E1DC /* TermsOfService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF425862263A74BA0094E1DC /* TermsOfService.swift */; };
 		EF5FC3A7257FD901003E127B /* NotImplementedAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FC3A6257FD901003E127B /* NotImplementedAlertViewModel.swift */; };
@@ -372,9 +374,11 @@
 		1F323D5E240EEE0500A678BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1F323D6A240F2F0500A678BC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		EF0E660B2721D14E007A6457 /* MessageSentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSentCell.swift; sourceTree = "<group>"; };
+		EF0E661527229687007A6457 /* GreetingHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreetingHeaderView.swift; sourceTree = "<group>"; };
 		EF1306C226F0D08700837F2A /* MessageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageList.swift; sourceTree = "<group>"; };
 		EF1306CE26F18C1B00837F2A /* MessageCenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterTests.swift; sourceTree = "<group>"; };
 		EF1306D526F3D2EC00837F2A /* MessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageManager.swift; sourceTree = "<group>"; };
+		EF18B1BE2723104600F53D3A /* MessageListFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageListFooterView.swift; sourceTree = "<group>"; };
 		EF417550271F5F860013248B /* ApptentiveImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveImageView.swift; sourceTree = "<group>"; };
 		EF425862263A74BA0094E1DC /* TermsOfService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfService.swift; sourceTree = "<group>"; };
 		EF5FC3A6257FD901003E127B /* NotImplementedAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotImplementedAlertViewModel.swift; sourceTree = "<group>"; };
@@ -892,6 +896,8 @@
 				EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */,
 				EF0E660B2721D14E007A6457 /* MessageSentCell.swift */,
 				014304002722305C00A07F79 /* MessageComposeView.swift */,
+				EF0E661527229687007A6457 /* GreetingHeaderView.swift */,
+				EF18B1BE2723104600F53D3A /* MessageListFooterView.swift */,
 			);
 			path = "Default UI";
 			sourceTree = "<group>";
@@ -1129,6 +1135,7 @@
 				015F2AEC24CA2A94004B53E2 /* SurveySubmitView.swift in Sources */,
 				013D8EB924F5C99B005EC4D1 /* Backend.swift in Sources */,
 				01870CF0264358D800DC8796 /* QuestionCardView.swift in Sources */,
+				EF18B1BF2723104600F53D3A /* MessageListFooterView.swift in Sources */,
 				015F2AB224C7A6DB004B53E2 /* SurveyConfiguration.swift in Sources */,
 				01870CEF264358D800DC8796 /* SurveyIndicator.swift in Sources */,
 				01ED6263257B02050023208C /* NavigateToLinkConfiguration.swift in Sources */,
@@ -1170,6 +1177,7 @@
 				013877C82603002100F3462A /* Apptentive+TemporaryAPI.swift in Sources */,
 				017230EC253673960095AEAA /* Field.swift in Sources */,
 				011C64D3264D881400219243 /* Answer.swift in Sources */,
+				EF0E661627229687007A6457 /* GreetingHeaderView.swift in Sources */,
 				012A1B69263A27D400EBC073 /* LegacyConversation.swift in Sources */,
 				EF0E660C2721D14E007A6457 /* MessageSentCell.swift in Sources */,
 				015AF83724E739C0000DF8B0 /* SurveyViewModel+Question.swift in Sources */,

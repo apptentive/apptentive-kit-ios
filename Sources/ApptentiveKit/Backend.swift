@@ -44,6 +44,8 @@ class Backend {
         }
     }
 
+    var messageCenterInForeground: Bool = false
+
     /// The file repository used to load and save the conversation from/to persistent storage.
     private var conversationRepository: PropertyListRepository<Conversation>?
 
@@ -73,8 +75,11 @@ class Backend {
 
     /// The interval at which to poll for new messages.
     private var messagePollingInterval: TimeInterval {
-        // TODO: Use foregroundPollingInterval when MC is presented
-        return self.configuration?.messageCenter.backgroundPollingInterval ?? 600
+        if self.messageCenterInForeground {
+            return self.configuration?.messageCenter.foregroundPollingInterval ?? 15
+        } else {
+            return self.configuration?.messageCenter.backgroundPollingInterval ?? 600
+        }
     }
 
     /// Initializes a new backend instance.
@@ -425,6 +430,7 @@ class Backend {
         persistenceTimer.setEventHandler { [weak self] in
             ApptentiveLogger.default.debug("Running periodic persistence task")
             self?.saveToPersistentStorageIfNeeded()
+            self?.getMessagesIfNeeded()
         }
 
         persistenceTimer.resume()

@@ -295,13 +295,21 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
             self.backend.sendMessage(message)
         }
     }
-    /// Receives the message list from the backend.
+    /// Receives the message manager from the backend.
     /// - Parameter completion: A completion handler to be called when the message center view model is initialized.
-    func getMessages(completion: @escaping (MessageList) -> Void) {
-        guard let messageList = self.backend.messageManager.messageList else { return }
+    func getMessages(completion: @escaping (MessageManager) -> Void) {
         self.backendQueue.async {
+            let messageManager = self.backend.messageManager
             DispatchQueue.main.async {
-                completion(messageList)
+                completion(messageManager)
+            }
+        }
+    }
+
+    var messageCenterInForeground: Bool = false {
+        didSet {
+            self.backendQueue.async {
+                self.backend.messageCenterInForeground = self.messageCenterInForeground
             }
         }
     }

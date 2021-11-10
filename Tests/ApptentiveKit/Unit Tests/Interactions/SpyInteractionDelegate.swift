@@ -12,6 +12,8 @@ import Foundation
 
 class SpyInteractionDelegate: InteractionDelegate {
 
+    var messageCenterInForeground: Bool = false
+
     var engagedEvent: Event?
     var sentSurveyResponse: SurveyResponse?
     var shouldRequestReviewSucceed = true
@@ -19,7 +21,7 @@ class SpyInteractionDelegate: InteractionDelegate {
     var openedURL: URL? = nil
     var responses: [String: [Answer]] = [:]
     var termsOfService: TermsOfService?
-    var messageList: MessageList?
+    var messageManager: MessageManager?
 
     func engage(event: Event) {
         self.engagedEvent = event
@@ -46,13 +48,13 @@ class SpyInteractionDelegate: InteractionDelegate {
         responses[questionID] = answers
     }
 
-    func getMessages(completion: @escaping (MessageList) -> Void) {
-        guard let messageList = self.messageList else { return }
-        completion(messageList)
+    func getMessages(completion: @escaping (MessageManager) -> Void) {
+        guard let messageManager = self.messageManager else { return }
+        completion(messageManager)
     }
 
     func sendMessage(_ message: Message) {
         //TODO: Initialize the MessageList if nil
-        self.messageList?.messages.append(message)
+        self.messageManager?.messageList?.messages.append(message)
     }
 }

@@ -84,8 +84,11 @@ open class InteractionPresenter {
     /// - Parameter viewModel: the message center view model that represents the message center and handles sending and receiving messages.
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
     open func presentMessageCenter(with viewModel: MessageCenterViewModel) throws {
+
         let messageViewController = MessageViewController(viewModel: viewModel)
+
         let navController = ApptentiveNavigationController(rootViewController: messageViewController)
+
         try self.presentViewController(
             navController,
             completion: {

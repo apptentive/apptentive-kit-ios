@@ -10,9 +10,9 @@ import Foundation
 
 typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & TermsOfServiceProviding & MessageSending & MessageProviding
 
-/// Describes an object that can receive the MessageList from the backend.
+/// Describes an object that can receive the MessageManager from the backend.
 protocol MessageProviding: AnyObject {
-    func getMessages(completion: @escaping (MessageList) -> Void)
+    func getMessages(completion: @escaping (MessageManager) -> Void)
 }
 
 /// Describes an object that can send messages from the Message Center interaction.
@@ -20,6 +20,8 @@ protocol MessageSending: AnyObject {
     /// Sends the message object to the Apptentive API.
     /// - Parameter message: The message to be sent.
     func sendMessage(_ message: Message)
+
+    var messageCenterInForeground: Bool { get set }
 }
 
 /// Describes an object that can send responses from Survey interactions.

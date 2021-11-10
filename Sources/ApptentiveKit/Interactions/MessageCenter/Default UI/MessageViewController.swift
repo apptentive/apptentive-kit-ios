@@ -10,6 +10,8 @@ import UIKit
 
 class MessageViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate {
     let viewModel: MessageCenterViewModel
+    let headerView: GreetingHeaderView
+    let footerView: MessageListFooterView
     let composeContainerView: MessageCenterComposeContainerView
     let messageReceivedCellID = "MessageCellReceived"
     let messageSentCellID = "MessageSentCell"
@@ -17,9 +19,11 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     private var shouldScrollToBottom = true
 
     init(viewModel: MessageCenterViewModel) {
-        self.viewModel = viewModel
         self.composeContainerView = MessageCenterComposeContainerView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 88)))
+        self.headerView = GreetingHeaderView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 320)))
+        self.footerView = MessageListFooterView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 88)))
 
+        self.viewModel = viewModel
         super.init(style: .grouped)
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -51,8 +55,14 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.composeContainerView.composeView.placeholderLabel.text = self.viewModel.composerPlaceholderText
         self.composeContainerView.composeView.sendButton.setTitle(self.viewModel.composerSendButtonTitle, for: .normal)
         self.composeContainerView.composeView.sendButton.addTarget(self, action: #selector(sendMessage), for: .touchUpInside)
-
         self.textViewDidChange(self.composeContainerView.composeView.textView)
+
+        self.tableView.tableHeaderView = self.headerView
+        self.headerView.greetingTitleLabel.text = self.viewModel.greetingTitle
+        self.headerView.greetingBodyLabel.text = self.viewModel.greetingBody
+
+        self.tableView.tableFooterView = self.footerView
+        self.footerView.statusTextLabel.text = self.viewModel.statusBody
 
         self.viewModel.delegate = self
     }
@@ -64,6 +74,18 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
             self.scrollToBottom(false)
             self.shouldScrollToBottom = false
         }
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        self.sizeHeaderFooterViews()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        self.sizeHeaderFooterViews()
     }
 
     override var canBecomeFirstResponder: Bool {
@@ -86,7 +108,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell: UITableViewCell
-        let sentByLocalUser = self.viewModel.sentByLocalUser(at: indexPath)
+        let sentByLocalUser = viewModel.sentByLocalUser(at: indexPath)
 
         if sentByLocalUser {
             cell = tableView.dequeueReusableCell(withIdentifier: self.messageSentCellID, for: indexPath)
@@ -130,12 +152,16 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     // MARK: - View Model Delegate
 
     func messageCenterViewModelMessageListDidUpdate(_: MessageCenterViewModel) {
-        guard self.viewModel.numberOfMessageGroups > 0 else {
+        guard viewModel.numberOfMessageGroups > 0 else {
             return
         }
-
-        self.tableView.reloadSections([self.viewModel.numberOfMessageGroups - 1], with: .none)
-
+        DispatchQueue.main.async {
+            UIView.transition(
+                with: self.tableView,
+                duration: 0.35,
+                options: .curveEaseIn,
+                animations: { self.tableView.reloadData() })
+        }
         self.scrollToBottom(true)
     }
 
@@ -180,13 +206,23 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     private func scrollToBottom(_ animated: Bool) {
-        let lastSectionIndex = self.tableView.numberOfSections - 1
-        guard lastSectionIndex >= 0 && self.tableView.numberOfRows(inSection: lastSectionIndex) > 0 else {
-            return
+        DispatchQueue.main.async {
+            let lastSectionIndex = self.tableView.numberOfSections - 1
+            guard lastSectionIndex >= 0 && self.tableView.numberOfRows(inSection: lastSectionIndex) > 0 else {
+                return
+            }
+
+            let lastIndexPath = IndexPath(row: self.tableView.numberOfRows(inSection: lastSectionIndex) - 1, section: lastSectionIndex)
+
+            self.tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: animated)
         }
+    }
 
-        let lastIndexPath = IndexPath(row: self.tableView.numberOfRows(inSection: lastSectionIndex) - 1, section: lastSectionIndex)
+    private func sizeHeaderFooterViews() {
+        let headerViewSize = self.headerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 100), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
+        self.headerView.bounds = CGRect(origin: .zero, size: headerViewSize)
 
-        self.tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: animated)
+        let footerViewSize = self.footerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 100), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
+        self.footerView.bounds = CGRect(origin: .zero, size: footerViewSize)
     }
 }

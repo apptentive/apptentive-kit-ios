@@ -14,17 +14,30 @@ public protocol MessageCenterViewModelDelegate: AnyObject {
 }
 
 /// A class that describes the data in message center and allows messages to be gathered and transmitted.
-public class MessageCenterViewModel {
+public class MessageCenterViewModel: MessageManagerDelegate {
+
+    /// The message list received from the backend when messages are refreshed.
+    var downloadedMessageList: MessageList? {
+        didSet {
+            if let receivedMessageList = downloadedMessageList {
+                self.assembleGroupedMessages(messages: receivedMessageList.messages)
+                self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+            }
+        }
+    }
+
     weak var interactionDelegate: InteractionDelegate?
     weak var delegate: MessageCenterViewModelDelegate?
 
     let interaction: Interaction
 
-    /// The list of messages between the consumer and the dashboard.
-    var messageList: MessageList {
+    /// The message manager object which contains the list of messages between the device and the dashboard.
+    var messageManager: MessageManager? {
         didSet {
-            self.assembleGroupedMessages(messages: self.messageList.messages)
-            self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+            if let messageList = self.messageManager?.messageList {
+                self.assembleGroupedMessages(messages: messageList.messages)
+                self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+            }
         }
     }
 
@@ -97,19 +110,25 @@ public class MessageCenterViewModel {
         self.groupDateFormatter.dateStyle = .long
         self.groupDateFormatter.timeStyle = .none
 
-        self.messageList = MessageList()
-        self.groupedMessages = [[]]
+        self.groupedMessages = []
 
-        self.interactionDelegate?.getMessages(completion: { messageList in
-            self.messageList = messageList
-            self.assembleGroupedMessages(messages: messageList.messages)
+        self.interactionDelegate?.messageCenterInForeground = true
+        self.interactionDelegate?.getMessages(completion: { messageManager in
+            self.messageManager = messageManager
+            self.messageManager?.delegate = self
+
         })
+
+    }
+
+    deinit {
+        self.interactionDelegate?.messageCenterInForeground = false
     }
 
     /// Adds the message to the array of messages and calls the sendMessage function from the InteractionDelegate  to send the Message to the Apptentive API.
     /// - Parameter message: The message to be sent.
     public func sendMessage(message: Message) {
-        self.messageList.messages.append(message)
+        self.messageManager?.messageList?.messages.append(message)
         self.interactionDelegate?.sendMessage(message)
     }
 

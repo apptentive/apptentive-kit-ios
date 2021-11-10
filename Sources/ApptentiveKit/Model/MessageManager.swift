@@ -8,8 +8,15 @@
 
 import Foundation
 
+/// Represents an object that is notified when messages are refreshed from the backend.
+protocol MessageManagerDelegate: AnyObject {
+    var downloadedMessageList: MessageList? { get set }
+}
+
 /// Provides multiple ways to interact with the MessageList.
 class MessageManager {
+
+    var delegate: MessageManagerDelegate?
 
     /// The Message List object.
     ///
@@ -17,6 +24,9 @@ class MessageManager {
     var messageList: MessageList? {
         didSet {
             self.lastFetchDate = Date()
+            if let messageList = messageList {
+                self.delegate?.downloadedMessageList = messageList
+            }
         }
     }
 
