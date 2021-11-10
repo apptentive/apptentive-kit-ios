@@ -69,7 +69,7 @@ class MessageCenterTests: XCTestCase {
         let messageList = MessageList(
             messages: [
                 Message(
-                    body: nil, attachments: [Message.Attachment(mediaType: "test", filename: "test", data: nil, url: nil)], isHidden: true, customData: data, id: nil, sentByLocalUser: true, isAutomated: true,
+                    body: nil, attachments: [Message.Attachment(mediaType: "test", filename: "test", url: nil, data: nil)], isHidden: true, customData: data, id: nil, sentByLocalUser: true, isAutomated: true,
                     sender: Message.Sender(id: "test", name: nil, profilePhotoURL: nil), sentDate: Date())
             ], endsWith: nil, hasMore: true)
         let messageManager = MessageManager()

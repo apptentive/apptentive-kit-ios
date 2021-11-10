@@ -8,7 +8,13 @@
 
 import Foundation
 
-/// An HTTP request body object that wraps updates that are sent to the Apptentive API.
+/// Represents an update request to be sent to the Apptentive API.
+///
+/// Payload objects are enqueued onto a payload queue and sent by the ``PayloadSender`` object.
+///
+/// The response from payload API requests are not used other than to confirm that the payload was
+/// sent successfully or that the failure in sending was unrecoverable (indicating that the request should
+/// not be retried).
 struct Payload: Codable, Equatable, CustomDebugStringConvertible {
     /// The payload contents that should be wrapped.
     let contents: PayloadContents
@@ -56,6 +62,15 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         self.init(contents: .message(MessageContents(with: message)), path: "messages", method: .post)
     }
 
+    var bodyParts: [HTTPBodyPart] {
+        if self.contents.additionalBodyParts.isEmpty {
+            return [.jsonEncoded(self)]
+        } else {
+            // For multipart requests, the JSON container is stripped off and the key is moved to the part name.
+            return [.jsonEncoded(self, name: self.contents.containerKey.rawValue)] + self.contents.additionalBodyParts
+        }
+    }
+
     /// Initializes a new payload.
     /// - Parameters:
     ///   - contents: The contents of the payload.
@@ -71,63 +86,99 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         self.method = method
     }
 
-    // This should only be used for testing.
-    // Items decoded with this decoder will differ from the encoded version.
+    /// Creates an object using data from the decoder.
+    ///
+    /// This implementation is only intended for testing. As such the decoded objects may differ from
+    /// the objects that were previously encoded.
+    /// - Parameter decoder: The decoder from which to request data.
+    /// - Throws: An error if the coding keys are invalid or a value could not be decoded.
     init(from decoder: Decoder) throws {
+        var nestedContainer: KeyedDecodingContainer<AllPossiblePayloadCodingKeys>
+
         let container = try decoder.container(keyedBy: PayloadTypeCodingKeys.self)
 
-        guard let containerKey = container.allKeys.first else {
-            throw ApptentiveError.internalInconsistency
-        }
+        if let containerKey = container.allKeys.first {
+            switch containerKey {
+            case .response:
+                self.contents = .surveyResponse(try container.decode(SurveyResponseContents.self, forKey: containerKey))
+                self.path = "surveys/<survey_id>/responses"
+                self.method = .post
 
-        switch containerKey {
-        case .response:
-            self.contents = .surveyResponse(try container.decode(SurveyResponseContents.self, forKey: containerKey))
-            self.path = "surveys/<survey_id>/responses"
-            self.method = .post
+            case .event:
+                self.contents = .event(try container.decode(EventContents.self, forKey: containerKey))
+                self.path = "events"
+                self.method = .post
 
-        case .event:
-            self.contents = .event(try container.decode(EventContents.self, forKey: containerKey))
-            self.path = "events"
-            self.method = .post
+            case .person:
+                self.contents = .person(try container.decode(PersonContents.self, forKey: containerKey))
+                self.path = "person"
+                self.method = .put
 
-        case .person:
-            self.contents = .person(try container.decode(PersonContents.self, forKey: containerKey))
-            self.path = "person"
-            self.method = .put
+            case .device:
+                self.contents = .device(try container.decode(DeviceContents.self, forKey: containerKey))
+                self.path = "device"
+                self.method = .put
 
-        case .device:
-            self.contents = .device(try container.decode(DeviceContents.self, forKey: containerKey))
-            self.path = "device"
-            self.method = .put
+            case .appRelease:
+                self.contents = .appRelease(try container.decode(AppReleaseContents.self, forKey: containerKey))
+                self.path = "app_release"
+                self.method = .put
 
-        case .appRelease:
-            self.contents = .appRelease(try container.decode(AppReleaseContents.self, forKey: containerKey))
-            self.path = "app_release"
-            self.method = .put
+            case .message:
+                self.contents = .message(try container.decode(MessageContents.self, forKey: containerKey))
+                self.path = "messages"
+                self.method = .post
+            }
 
-        case .message:
-            self.contents = .message(try container.decode(MessageContents.self, forKey: containerKey))
+            nestedContainer = try container.nestedContainer(keyedBy: AllPossiblePayloadCodingKeys.self, forKey: containerKey)
+        } else {
+            // If the outer container has no container key, assume this was multipart.
+            nestedContainer = try decoder.container(keyedBy: AllPossiblePayloadCodingKeys.self)
+
+            let body = try nestedContainer.decode(String.self, forKey: .body)
+            let isAutomated = try nestedContainer.decode(Bool.self, forKey: .isAutomated)
+            let isHidden = try nestedContainer.decode(Bool.self, forKey: .isHidden)
+
+            self.contents = .message(MessageContents(with: Message(body: body, isHidden: isHidden, isAutomated: isAutomated)))
             self.path = "messages"
             self.method = .post
         }
-
-        let nestedContainer = try container.nestedContainer(keyedBy: AllPossiblePayloadCodingKeys.self, forKey: containerKey)
 
         self.nonce = try nestedContainer.decode(String.self, forKey: .nonce)
         self.creationDate = try nestedContainer.decode(Date.self, forKey: .creationDate)
         self.creationUTCOffset = try nestedContainer.decode(Int.self, forKey: .creationUTCOffset)
     }
 
+    /// Encodes the payload to the specified encoder.
+    ///
+    /// Because of the format expected by the Apptentive API, the encoding process is unusual:
+    /// First it creates an outer container with a single key (from `PayloadTypeCodingKeys`)
+    /// that contains a nested container which uses a union of the set of coding keys of all
+    /// payload types, plus the boilerplate keys. The encoder then encodes the boilerplate parameters
+    /// common to all payload types. Finally it asks the payload contents to encode themselves
+    /// to the nested container via the `PayloadEncodable` protocol.
+    ///
+    /// An extra wrinkle is that for multipart requests, the outer container is left off, and what
+    /// would normally be the key for that container is used as the value for the `name` field
+    /// of the `Content-Disposition` header.
+    /// - Parameter encoder: the encoder to use to encode the payload.
+    /// - Throws: An error if the coding keys are invalid or a value could not be encoded.
     func encode(to encoder: Encoder) throws {
-        var encodingContainer = encoder.container(keyedBy: PayloadTypeCodingKeys.self)
-        var nestedContainer = encodingContainer.nestedContainer(keyedBy: AllPossiblePayloadCodingKeys.self, forKey: self.contents.containerKey)
+        var container: KeyedEncodingContainer<AllPossiblePayloadCodingKeys>
 
-        try nestedContainer.encode(self.nonce, forKey: .nonce)
-        try nestedContainer.encode(self.creationDate, forKey: .creationDate)
-        try nestedContainer.encode(self.creationUTCOffset, forKey: .creationUTCOffset)
+        if self.contents.additionalBodyParts.isEmpty {
+            var encodingContainer = encoder.container(keyedBy: PayloadTypeCodingKeys.self)
+            container = encodingContainer.nestedContainer(keyedBy: AllPossiblePayloadCodingKeys.self, forKey: self.contents.containerKey)
+        } else {
+            // For multipart requests, the outer container is left off.
+            container = encoder.container(keyedBy: AllPossiblePayloadCodingKeys.self)
+        }
 
-        try self.contents.encodeContents(to: &nestedContainer)
+        try container.encode(self.nonce, forKey: .nonce)
+        try container.encode(self.creationDate, forKey: .creationDate)
+        try container.encode(self.creationUTCOffset, forKey: .creationUTCOffset)
+
+        try self.contents.encodeContents(to: &container)
     }
 
     var debugDescription: String {
@@ -270,13 +321,22 @@ enum PayloadContents: Equatable {
             try messageContents.encodeContents(to: &container)
         }
     }
+
+    var additionalBodyParts: [HTTPBodyPart] {
+        switch self {
+        case .message(let messageContents):
+            return messageContents.attachmentBodyParts
+
+        default:
+            return []
+        }
+    }
 }
 
 /// Describes an object that can encode its contents
 /// (which must be added to the `AllPossiblePayloadCodingKeys` enumeration)
 /// to an existing keyed encoding container.
 protocol PayloadEncodable {
-
     /// Encodes the object's contents to the specified keyed encoding container.
     /// - Parameter container: The keyed encoding container that will be used to encode the object's contents.
     /// - Throws: An error if the encoding fails.

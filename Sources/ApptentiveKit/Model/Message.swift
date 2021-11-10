@@ -85,14 +85,14 @@ public struct Message: Codable {
     }
 
     /// Describes the media attachment assoiciated with each message.
-    struct Attachment: Codable {
+    struct Attachment: Codable, Equatable {
         /// The specific media type.
         let mediaType: String
         /// The filename of the media type.
         let filename: String
-        /// The data contents of the media.
-        let data: Data?
         /// The URL for the media type.
         let url: URL?
+        /// The data for the attachment.
+        let data: Data?
     }
 }

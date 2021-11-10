@@ -109,7 +109,12 @@ class HTTPClient {
         })
 
         request.httpBody.flatMap {
-            ApptentiveLogger.network.debug("Body: \(String(data: $0, encoding: .utf8) ?? "<encoding error>")")
+            if request.allHTTPHeaderFields?["Content-Type"]?.contains("multipart") ?? false {
+                ApptentiveLogger.network.debug("Body: (multipart, base64 encoded for debugging) \($0.base64EncodedString())")
+            } else {
+                // It's likely this is either plain text or JSON, so it can be treated as a string.
+                ApptentiveLogger.network.debug("Body: \(String(data: $0, encoding: .utf8) ?? "<encoding error>")")
+            }
         }
     }
 
@@ -173,4 +178,13 @@ enum HTTPMethod: String {
     case put = "PUT"
     case post = "POST"
     case delete = "DELETE"
+}
+
+/// The content type of the request.
+struct HTTPContentType {
+    static let json = "application/json"
+
+    static func multipart(boundary: String) -> String {
+        return "multipart/mixed; boundary=\(boundary)"
+    }
 }

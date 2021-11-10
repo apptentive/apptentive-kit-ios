@@ -1,6 +1,6 @@
 //
 //  LegacyConversation.swift
-//  ApptentiveUnitTests
+//  ApptentiveKit
 //
 //  Created by Frank Schmitt on 4/28/21.
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.

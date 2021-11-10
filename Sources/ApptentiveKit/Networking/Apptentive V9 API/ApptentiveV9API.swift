@@ -14,9 +14,6 @@ struct ApptentiveV9API: HTTPEndpoint {
     /// The HTTP method for this endpoint.
     let method: HTTPMethod
 
-    /// The HTTP body that should be sent with the request (if any).
-    let bodyEncodable: HTTPBodyEncodable?
-
     /// Whether this request requires conversation credentials (true for all but the initial conversation creation request).
     let requiresConversationCredentials: Bool
 
@@ -34,15 +31,30 @@ struct ApptentiveV9API: HTTPEndpoint {
     /// The JSON decoder used for decoding the HTTP response body.
     private let decoder: JSONDecoder
 
+    private let bodyParts: [HTTPBodyPart]
+
+    let boundaryString: String
+
+    private var contentType: String? {
+        switch self.bodyParts.count {
+        case 0:
+            return .none
+
+        case 1:
+            return self.bodyParts[0].contentType
+
+        default:
+            return HTTPContentType.multipart(boundary: self.boundaryString)
+        }
+    }
+
     // MARK: - Endpoints
 
     /// Builds a request to create a conversation on the server.
     /// - Parameter conversation: The conversation to be created.
     /// - Returns: A struct describing the HTTP request to be performed.
     static func createConversation(_ conversation: Conversation) -> Self {
-        let bodyObject = ConversationRequest(conversation: conversation)
-
-        return Self(credentials: conversation, path: "conversations", method: .post, bodyObject: HTTPBodyEncodable(value: bodyObject), requiresConversationCredentials: false)
+        return Self(credentials: conversation, path: "conversations", method: .post, bodyObject: ConversationRequest(conversation: conversation), requiresConversationCredentials: false)
     }
 
     /// Builds a request to retrieve an engagement manifest from the server.
@@ -107,8 +119,8 @@ struct ApptentiveV9API: HTTPEndpoint {
 
         return Self.buildHeaders(
             appCredentials: appCredentials,
-            contentType: ContentType.json,
-            accept: ContentType.json,
+            contentType: self.contentType,
+            accept: HTTPContentType.json,
             acceptCharset: "UTF-8",
             acceptLanguage: self.credentials.acceptLanguage ?? "en",
             apiVersion: Self.apiVersion,
@@ -119,8 +131,15 @@ struct ApptentiveV9API: HTTPEndpoint {
     /// - Throws: An error if the body fails to encode.
     /// - Returns: The HTTP body data for the request.
     func body() throws -> Data? {
-        return try self.bodyEncodable.flatMap {
-            try self.encoder.encode($0)
+        switch self.bodyParts.count {
+        case 0:
+            return nil
+
+        case 1:
+            return try Self.encode(self.bodyParts[0], with: self.encoder)
+
+        default:
+            return try Self.encodeMultipart(self.bodyParts, with: self.encoder, boundary: self.boundaryString)
         }
     }
 
@@ -151,14 +170,31 @@ struct ApptentiveV9API: HTTPEndpoint {
         return responseObject
     }
 
-    /// Initializes a new request for the endpoint.
+    /// Initializes a new request for the endpoint with an optional `Encodable` object to send as the body of the request.
     /// - Parameters:
     ///   - credentials: The provider of credentials to use when connecting to the API.
     ///   - path: The path of the request, scoped to the conversation if appropriate.
     ///   - method: The HTTP method for the request.
     ///   - bodyObject: The object that should be encoded for the HTTP body of the request.
     ///   - requiresConversationCredentials: Whether the request should send conversation credentials and be scoped to the conversation.
-    init(credentials: APICredentialsProviding, path: String, method: HTTPMethod, bodyObject: HTTPBodyEncodable? = nil, requiresConversationCredentials: Bool = true) {
+    init(credentials: APICredentialsProviding, path: String, method: HTTPMethod, bodyObject: Encodable? = nil, requiresConversationCredentials: Bool = true) {
+        var bodyParts = [HTTPBodyPart]()
+
+        if let bodyObject = bodyObject {
+            bodyParts.append(.jsonEncoded(bodyObject))
+        }
+
+        self.init(credentials: credentials, path: path, method: method, bodyParts: bodyParts, requiresConversationCredentials: requiresConversationCredentials)
+    }
+
+    /// Initializes a new request for the endpoint.
+    /// - Parameters:
+    ///   - credentials: The provider of credentials to use when connecting to the API.
+    ///   - path: The path of the request, scoped to the conversation if appropriate.
+    ///   - method: The HTTP method for the request.
+    ///   - bodyParts: An array of content to use as part of the request body (an empty array indicates no request body).
+    ///   - requiresConversationCredentials: Whether the request should send conversation credentials and be scoped to the conversation.
+    init(credentials: APICredentialsProviding, path: String, method: HTTPMethod, bodyParts: [HTTPBodyPart], requiresConversationCredentials: Bool = true) {
         self.encoder = JSONEncoder()
         self.encoder.dateEncodingStrategy = .secondsSince1970
 
@@ -168,9 +204,55 @@ struct ApptentiveV9API: HTTPEndpoint {
         self.credentials = credentials
         self.path = path
         self.method = method
-        self.bodyEncodable = bodyObject
+        self.bodyParts = bodyParts
 
         self.requiresConversationCredentials = requiresConversationCredentials
+        self.boundaryString = self.bodyParts.count > 1 ? Self.createRandomBase64String() : ""
+    }
+
+    static func encode(_ bodyPart: HTTPBodyPart, with encoder: JSONEncoder) throws -> Data {
+        return try bodyPart.content(using: encoder)
+    }
+
+    static func encodeMultipart(_ bodyParts: [HTTPBodyPart], with encoder: JSONEncoder, boundary boundaryString: String) throws -> Data {
+        guard let boundary = boundaryString.data(using: .utf8),
+            let dashes = "--".data(using: .utf8),
+            let crlf = "\r\n".data(using: .utf8)
+        else {
+            throw ApptentiveError.internalInconsistency
+        }
+
+        var result = Data()
+        try bodyParts.forEach { part in
+            guard let contentDispositionHeader = "Content-Disposition: \(part.contentDisposition)".data(using: .utf8),
+                let contentTypeHeader = "Content-Type: \(part.contentType)".data(using: .utf8)
+            else {
+                throw ApptentiveError.internalInconsistency
+            }
+
+            result.append(dashes + boundary + crlf)
+            result.append(contentDispositionHeader + crlf)
+            result.append(contentTypeHeader + crlf)
+            result.append(crlf)
+            result.append(try part.content(using: encoder))
+            result.append(crlf)
+        }
+
+        result.append(dashes + boundary + dashes)
+
+        return result
+    }
+
+    static func createRandomBase64String() -> String {
+        var bytes = [UInt8](repeating: 0, count: 32)
+        let result = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+
+        guard result == errSecSuccess else {
+            assertionFailure("Unable to generate multipart boundary string.")
+            return "com.apptentive.boundary"
+        }
+
+        return Data(bytes).base64EncodedString()
     }
 
     /// The API version to send for the request.
@@ -197,7 +279,7 @@ struct ApptentiveV9API: HTTPEndpoint {
     /// - Returns: A dictionary whose keys are header names and whose values are the corresponding header values.
     static func buildHeaders(
         appCredentials: Apptentive.AppCredentials,
-        contentType: String,
+        contentType: String?,
         accept: String,
         acceptCharset: String,
         acceptLanguage: String,
@@ -205,17 +287,20 @@ struct ApptentiveV9API: HTTPEndpoint {
         token: String?
     ) -> [String: String] {
         var headers = [
-            Headers.contentType: contentType,
-            Headers.apiVersion: apiVersion,
-            Headers.apptentiveKey: appCredentials.key,
-            Headers.apptentiveSignature: appCredentials.signature,
-            Headers.accept: accept,
-            Headers.acceptCharset: acceptCharset,
-            Headers.acceptLanguage: acceptLanguage,
+            Header.apiVersion: apiVersion,
+            Header.apptentiveKey: appCredentials.key,
+            Header.apptentiveSignature: appCredentials.signature,
+            Header.accept: accept,
+            Header.acceptCharset: acceptCharset,
+            Header.acceptLanguage: acceptLanguage,
         ]
 
+        if let contentType = contentType {
+            headers[Header.contentType] = contentType
+        }
+
         if let token = token {
-            headers[Headers.authorization] = "Bearer \(token)"
+            headers[Header.authorization] = "Bearer \(token)"
         }
 
         return headers
@@ -237,7 +322,7 @@ struct ApptentiveV9API: HTTPEndpoint {
     }
 
     /// The header names used for Apptentive API requests.
-    struct Headers {
+    struct Header {
         static let apptentiveKey = "APPTENTIVE-KEY"
         static let apptentiveSignature = "APPTENTIVE-SIGNATURE"
         static let apiVersion = "X-API-Version"
@@ -246,23 +331,6 @@ struct ApptentiveV9API: HTTPEndpoint {
         static let acceptCharset = "Accept-Charset"
         static let acceptLanguage = "Accept-Language"
         static let accept = "Accept"
-    }
-
-    /// The content type of the request.
-    struct ContentType {
-        static let json = "application/json"
-    }
-
-    /// A type-erasing `Encodable` container.
-    struct HTTPBodyEncodable: Encodable {
-        let value: Encodable
-
-        /// Encodes the value to the specified encoder.
-        /// - Parameter encoder: The encoder to which the value should be encoded.
-        /// - Throws: An error if encoding fails.
-        func encode(to encoder: Encoder) throws {
-            try self.value.encode(to: encoder)
-        }
     }
 
     /// A placeholder `Decoder` that doesn't choke on zero-length data.

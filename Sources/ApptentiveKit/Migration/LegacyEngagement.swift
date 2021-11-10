@@ -1,6 +1,6 @@
 //
 //  LegacyEngagement.swift
-//  ApptentiveUnitTests
+//  ApptentiveKit
 //
 //  Created by Frank Schmitt on 4/28/21.
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
@@ -20,8 +20,8 @@ class LegacyEngagement: NSObject, NSSecureCoding {
     }
 
     required init?(coder: NSCoder) {
-        self.interactions = coder.decodeObject(of: [NSMutableDictionary.self, LegacyCount.self], forKey: NSCodingKeys.interactions) as? [String: LegacyCount] ?? [:]
-        self.codePoints = coder.decodeObject(of: [NSMutableDictionary.self, LegacyCount.self], forKey: NSCodingKeys.codePoints) as? [String: LegacyCount] ?? [:]
+        self.interactions = coder.decodeObject(of: [NSMutableDictionary.self, LegacyCount.self, NSString.self], forKey: NSCodingKeys.interactions) as? [String: LegacyCount] ?? [:]
+        self.codePoints = coder.decodeObject(of: [NSMutableDictionary.self, LegacyCount.self, NSString.self], forKey: NSCodingKeys.codePoints) as? [String: LegacyCount] ?? [:]
     }
 
     struct NSCodingKeys {

@@ -18,6 +18,8 @@
 		011C64D3264D881400219243 /* Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011C64D2264D881400219243 /* Answer.swift */; };
 		011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011FF85F252D1AF700073EBC /* InteractionDelegate.swift */; };
 		01211C0B26810CC3009F0364 /* SurveyCardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01211C0A26810CC3009F0364 /* SurveyCardUITests.swift */; };
+		0126ECDA2739DC1B0037EEC3 /* HTTPBodyPart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0126ECD92739DC1B0037EEC3 /* HTTPBodyPart.swift */; };
+		0126ECDC273ACAE10037EEC3 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0126ECDB273ACAE10037EEC3 /* Media.xcassets */; };
 		012A1B60263A219500EBC073 /* LegacyConversationRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012A1B5F263A219500EBC073 /* LegacyConversationRepositoryTests.swift */; };
 		012A1B62263A21C400EBC073 /* Legacy Data in Resources */ = {isa = PBXBuildFile; fileRef = 012A1B61263A21C400EBC073 /* Legacy Data */; };
 		012A1B68263A27D100EBC073 /* LegacyEngagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012A1B66263A27CD00EBC073 /* LegacyEngagement.swift */; };
@@ -228,6 +230,8 @@
 		011C64D2264D881400219243 /* Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Answer.swift; sourceTree = "<group>"; };
 		011FF85F252D1AF700073EBC /* InteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionDelegate.swift; sourceTree = "<group>"; };
 		01211C0A26810CC3009F0364 /* SurveyCardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyCardUITests.swift; sourceTree = "<group>"; };
+		0126ECD92739DC1B0037EEC3 /* HTTPBodyPart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPBodyPart.swift; sourceTree = "<group>"; };
+		0126ECDB273ACAE10037EEC3 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		012A1B5F263A219500EBC073 /* LegacyConversationRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConversationRepositoryTests.swift; sourceTree = "<group>"; };
 		012A1B61263A21C400EBC073 /* Legacy Data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Legacy Data"; sourceTree = "<group>"; };
 		012A1B63263A250300EBC073 /* LegacyConversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConversation.swift; sourceTree = "<group>"; };
@@ -511,6 +515,7 @@
 				013D8E8824F038D3005EC4D1 /* HTTPClient.swift */,
 				0176159A25D1F9F900BB85C6 /* HTTPRequestRetrier.swift */,
 				017615A925D2234F00BB85C6 /* HTTPRetryPolicy.swift */,
+				0126ECD92739DC1B0037EEC3 /* HTTPBodyPart.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -773,6 +778,7 @@
 				015D6BCE250AC7AD00372759 /* MockEnvironment.swift */,
 				01B91FCF25CCB85500B8AFEE /* BackendTests.swift */,
 				01C7958325C1082800FD28F1 /* PersonAndDeviceTests.swift */,
+				0126ECDB273ACAE10037EEC3 /* Media.xcassets */,
 			);
 			path = "Unit Tests";
 			sourceTree = "<group>";
@@ -1097,6 +1103,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0126ECDC273ACAE10037EEC3 /* Media.xcassets in Resources */,
 				01974A9925770F0800C7D693 /* Test Criteria in Resources */,
 				01974A9A25770F0800C7D693 /* Test Manifests in Resources */,
 				012A1B62263A21C400EBC073 /* Legacy Data in Resources */,
@@ -1173,6 +1180,7 @@
 				015F2ACF24C8F2DD004B53E2 /* SurveyViewController.swift in Sources */,
 				017230EB253673960095AEAA /* Criteria.swift in Sources */,
 				014304012722305C00A07F79 /* MessageComposeView.swift in Sources */,
+				0126ECDA2739DC1B0037EEC3 /* HTTPBodyPart.swift in Sources */,
 				EF9F405B2711624D005D7209 /* MessageCenterViewModel.swift in Sources */,
 				013877C82603002100F3462A /* Apptentive+TemporaryAPI.swift in Sources */,
 				017230EC253673960095AEAA /* Field.swift in Sources */,
