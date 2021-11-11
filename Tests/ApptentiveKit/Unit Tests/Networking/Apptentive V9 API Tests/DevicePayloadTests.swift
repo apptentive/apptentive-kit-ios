@@ -11,12 +11,15 @@ import XCTest
 @testable import ApptentiveKit
 
 class DevicePayloadTests: XCTestCase {
-    func testDeviceEncoding() throws {
-        let jsonEncoder = JSONEncoder()
-        jsonEncoder.dateEncodingStrategy = .secondsSince1970
+    var testPayload: Payload!
+    let propertyListEncoder = PropertyListEncoder()
+    let propertyListDecoder = PropertyListDecoder()
+    let jsonEncoder = JSONEncoder()
+    let jsonDecoder = JSONDecoder()
 
-        let jsonDecoder = JSONDecoder()
-        jsonDecoder.dateDecodingStrategy = .secondsSince1970
+    override func setUp() {
+        self.jsonEncoder.dateEncodingStrategy = .secondsSince1970
+        self.jsonDecoder.dateDecodingStrategy = .secondsSince1970
 
         let environment = MockEnvironment()
 
@@ -26,11 +29,23 @@ class DevicePayloadTests: XCTestCase {
         device.customData["number"] = 42
         device.customData["bool"] = true
 
-        let devicePayload = Payload(wrapping: device)
+        self.testPayload = Payload(wrapping: device)
 
-        let encodedDevicePayload = try jsonEncoder.encode(devicePayload)
+        super.setUp()
+    }
 
-        let expectedJSONString = """
+    func testSerialization() throws {
+        let encodedPayloadData = try self.propertyListEncoder.encode(self.testPayload)
+        let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
+
+        XCTAssertEqual(self.testPayload, decodedPayload)
+    }
+
+    func testEncoding() throws {
+        let actualEncodedContent = try jsonEncoder.encode(self.testPayload.jsonObject)
+        let actualDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: actualEncodedContent)
+
+        let expectedEncodedContent = """
             {
               "device": {
                 "uuid": "A230943F-14C7-4C57-BEA2-39EFC51F284C",
@@ -48,47 +63,28 @@ class DevicePayloadTests: XCTestCase {
                 "integration_config": {
                 },
                 "locale_country_code": "US",
-                "os_build": "0.0.1",
+                "os_build": "1",
                 "client_created_at_utc_offset": -28800,
                 "utc_offset": -25200,
                 "locale_raw": "en_US",
-                "os_version": "0.0.12",
+                "os_version": "12.0",
                 "hardware": "iPhone0,0",
                 "carrier": null
               }
             }
-            """
+            """.data(using: .utf8)!
 
-        let encodedExpectedJSON = expectedJSONString.data(using: .utf8)!
+        let expectedDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: expectedEncodedContent)
 
-        let decodedExpectedJSON = try jsonDecoder.decode(Payload.self, from: encodedExpectedJSON)
-        let decodedDevicePayloadJSON = try jsonDecoder.decode(Payload.self, from: encodedDevicePayload)
+        XCTAssertNotNil(actualDecodedContent.nonce)
+        XCTAssertNotNil(expectedDecodedContent.nonce)
 
-        XCTAssertNotNil(decodedDevicePayloadJSON.nonce)
-        XCTAssertNotNil(decodedDevicePayloadJSON.creationDate)
-        XCTAssertNotNil(decodedDevicePayloadJSON.creationUTCOffset)
+        XCTAssertGreaterThan(actualDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
 
-        XCTAssertEqual(decodedExpectedJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
-        XCTAssertGreaterThan(decodedDevicePayloadJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertNotNil(actualDecodedContent.creationUTCOffset)
+        XCTAssertNotNil(expectedDecodedContent.creationUTCOffset)
 
-        guard case let PayloadContents.device(payload) = decodedDevicePayloadJSON.contents else {
-            return XCTFail("Not a device payload")
-        }
-
-        XCTAssertEqual(payload.uuid, environment.identifierForVendor)
-        XCTAssertEqual(payload.osName, environment.osName)
-        XCTAssertEqual(payload.osVersion, environment.osVersion.versionString)
-        XCTAssertEqual(payload.osBuild, environment.osBuild.versionString)
-        XCTAssertEqual(payload.hardware, environment.hardware)
-        XCTAssertEqual(payload.carrier, environment.carrier)
-        XCTAssertEqual(payload.contentSizeCategory, environment.contentSizeCategory.rawValue)
-        XCTAssertEqual(payload.localeRaw, environment.localeIdentifier)
-        XCTAssertEqual(payload.localeCountryCode, environment.localeRegionCode)
-        XCTAssertEqual(payload.localeLanguageCode, environment.preferredLocalization)
-        XCTAssertEqual(payload.utcOffset, environment.timeZoneSecondsFromGMT)
-
-        XCTAssertEqual(payload.customData["string"] as? String, "foo")
-        XCTAssertEqual(payload.customData["number"] as? Int, 42)
-        XCTAssertEqual(payload.customData["bool"] as? Bool, true)
+        XCTAssertEqual(expectedDecodedContent.specializedJSONObject, actualDecodedContent.specializedJSONObject)
     }
 }

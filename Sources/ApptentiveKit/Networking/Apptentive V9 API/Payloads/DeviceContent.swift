@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct DeviceContents: Equatable, Codable, PayloadEncodable {
+struct DeviceContent: Equatable, Codable, PayloadEncodable {
     let uuid: UUID?
     let osName: String?
     let osVersion: String?
@@ -41,7 +41,7 @@ struct DeviceContents: Equatable, Codable, PayloadEncodable {
         self.customData = device.customData
     }
 
-    func encodeContents(to container: inout KeyedEncodingContainer<AllPossiblePayloadCodingKeys>) throws {
+    func encodeContents(to container: inout KeyedEncodingContainer<Payload.AllPossibleCodingKeys>) throws {
         try container.encode(self.uuid, forKey: .uuid)
         try container.encode(self.osName, forKey: .osName)
         try container.encode(self.osVersion, forKey: .osVersion)

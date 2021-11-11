@@ -173,7 +173,7 @@ extension HTTPClientError: LocalizedError {
     }
 }
 
-enum HTTPMethod: String {
+enum HTTPMethod: String, Codable {
     case get = "GET"
     case put = "PUT"
     case post = "POST"

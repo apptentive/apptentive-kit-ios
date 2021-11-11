@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct PersonContents: Equatable, Codable, PayloadEncodable {
+struct PersonContent: Equatable, Codable, PayloadEncodable {
     let name: String?
     let emailAddress: String?
     let mParticleID: String?
@@ -21,7 +21,7 @@ struct PersonContents: Equatable, Codable, PayloadEncodable {
         self.customData = person.customData
     }
 
-    func encodeContents(to container: inout KeyedEncodingContainer<AllPossiblePayloadCodingKeys>) throws {
+    func encodeContents(to container: inout KeyedEncodingContainer<Payload.AllPossibleCodingKeys>) throws {
         try container.encode(self.name, forKey: .name)
         try container.encode(self.emailAddress, forKey: .emailAddress)
         try container.encode(self.mParticleID, forKey: .mParticleID)

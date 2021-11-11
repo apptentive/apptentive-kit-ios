@@ -1,5 +1,5 @@
 //
-//  SurveyResponseContents.swift
+//  SurveyResponseContent.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 9/21/20.
@@ -9,14 +9,14 @@
 import Foundation
 
 /// Encapsulates the payload contents for a survey response.
-struct SurveyResponseContents: Equatable, Decodable, PayloadEncodable {
+struct SurveyResponseContent: Equatable, Decodable, PayloadEncodable {
     let answers: SurveyAnswersRequestPart
 
     init(with response: SurveyResponse) {
         self.answers = SurveyAnswersRequestPart(answers: response.answers)
     }
 
-    func encodeContents(to container: inout KeyedEncodingContainer<AllPossiblePayloadCodingKeys>) throws {
+    func encodeContents(to container: inout KeyedEncodingContainer<Payload.AllPossibleCodingKeys>) throws {
         try container.encode(self.answers, forKey: .answers)
     }
 }

@@ -11,14 +11,14 @@ import Foundation
 /// The HTTP request body object sent when creating a conversation on the server.
 struct ConversationRequest: Codable, Equatable {
     init(conversation: Conversation) {
-        self.appRelease = AppReleaseContents(with: conversation.appRelease)
-        self.device = DeviceContents(with: conversation.device)
-        self.person = PersonContents(with: conversation.person)
+        self.appRelease = AppReleaseContent(with: conversation.appRelease)
+        self.device = DeviceContent(with: conversation.device)
+        self.person = PersonContent(with: conversation.person)
     }
 
-    let appRelease: AppReleaseContents
-    let person: PersonContents
-    let device: DeviceContents
+    let appRelease: AppReleaseContent
+    let person: PersonContent
+    let device: DeviceContent
 
     enum CodingKeys: String, CodingKey {
         case appRelease = "app_release"

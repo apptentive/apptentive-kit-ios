@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct AppReleaseContents: Equatable, Codable, PayloadEncodable {
+struct AppReleaseContent: Equatable, Codable, PayloadEncodable {
     var type: String
     var bundleIdentifier: String?
     var version: String?
@@ -57,7 +57,7 @@ struct AppReleaseContents: Equatable, Codable, PayloadEncodable {
         self.sdkDistributionVersion = appRelease.sdkDistributionVersion?.versionString
     }
 
-    func encodeContents(to container: inout KeyedEncodingContainer<AllPossiblePayloadCodingKeys>) throws {
+    func encodeContents(to container: inout KeyedEncodingContainer<Payload.AllPossibleCodingKeys>) throws {
         try container.encode(self.type, forKey: .type)
         try container.encode(self.bundleIdentifier, forKey: .bundleIdentifier)
         try container.encode(self.version, forKey: .version)

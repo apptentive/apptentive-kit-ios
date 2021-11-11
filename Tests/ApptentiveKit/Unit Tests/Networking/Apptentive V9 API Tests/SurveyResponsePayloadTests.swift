@@ -11,12 +11,15 @@ import XCTest
 @testable import ApptentiveKit
 
 class SurveyResponsePayloadTests: XCTestCase {
-    func testSurveyResponseEncoding() throws {
-        let jsonEncoder = JSONEncoder()
-        jsonEncoder.dateEncodingStrategy = .secondsSince1970
+    var testPayload: Payload!
+    let propertyListEncoder = PropertyListEncoder()
+    let propertyListDecoder = PropertyListDecoder()
+    let jsonEncoder = JSONEncoder()
+    let jsonDecoder = JSONDecoder()
 
-        let jsonDecoder = JSONDecoder()
-        jsonDecoder.dateDecodingStrategy = .secondsSince1970
+    override func setUp() {
+        self.jsonEncoder.dateEncodingStrategy = .secondsSince1970
+        self.jsonDecoder.dateDecodingStrategy = .secondsSince1970
 
         let surveyResponse = SurveyResponse(
             surveyID: "abc123",
@@ -37,11 +40,23 @@ class SurveyResponsePayloadTests: XCTestCase {
                 ],
             ])
 
-        let responsePayload = Payload(wrapping: surveyResponse)
+        self.testPayload = Payload(wrapping: surveyResponse)
 
-        let encodedResponsePayload = try jsonEncoder.encode(responsePayload)
+        super.setUp()
+    }
 
-        let expectedJSONString = """
+    func testSerialization() throws {
+        let encodedPayloadData = try self.propertyListEncoder.encode(self.testPayload)
+        let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
+
+        XCTAssertEqual(self.testPayload, decodedPayload)
+    }
+
+    func testEncoding() throws {
+        let actualEncodedContent = try jsonEncoder.encode(testPayload.jsonObject)
+        let actualDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: actualEncodedContent)
+
+        let expectedEncodedContent = """
             {
                 "response": {
                     "nonce": "abc123",
@@ -78,20 +93,19 @@ class SurveyResponsePayloadTests: XCTestCase {
                     }
                 }
             }
-            """
+            """.data(using: .utf8)!
 
-        let encodedExpectedJSON = expectedJSONString.data(using: .utf8)!
+        let expectedDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: expectedEncodedContent)
 
-        let decodedExpectedJSON = try jsonDecoder.decode(Payload.self, from: encodedExpectedJSON)
-        let decodedResponsePayloadJSON = try jsonDecoder.decode(Payload.self, from: encodedResponsePayload)
+        XCTAssertNotNil(actualDecodedContent.nonce)
+        XCTAssertNotNil(expectedDecodedContent.nonce)
 
-        XCTAssertEqual(decodedResponsePayloadJSON.contents, decodedExpectedJSON.contents)
+        XCTAssertGreaterThan(actualDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
 
-        XCTAssertNotNil(decodedResponsePayloadJSON.nonce)
-        XCTAssertNotNil(decodedResponsePayloadJSON.creationDate)
-        XCTAssertNotNil(decodedResponsePayloadJSON.creationUTCOffset)
+        XCTAssertNotNil(actualDecodedContent.creationUTCOffset)
+        XCTAssertNotNil(expectedDecodedContent.creationUTCOffset)
 
-        XCTAssertEqual(decodedExpectedJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
-        XCTAssertGreaterThan(decodedResponsePayloadJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.specializedJSONObject, actualDecodedContent.specializedJSONObject)
     }
 }

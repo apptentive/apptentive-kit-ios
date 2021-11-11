@@ -11,29 +11,44 @@ import XCTest
 @testable import ApptentiveKit
 
 class AppReleasePayloadTests: XCTestCase {
-    func testAppReleaseEncoding() throws {
-        let jsonEncoder = JSONEncoder()
-        jsonEncoder.dateEncodingStrategy = .secondsSince1970
+    var testPayload: Payload!
+    let propertyListEncoder = PropertyListEncoder()
+    let propertyListDecoder = PropertyListDecoder()
+    let jsonEncoder = JSONEncoder()
+    let jsonDecoder = JSONDecoder()
 
-        let jsonDecoder = JSONDecoder()
-        jsonDecoder.dateDecodingStrategy = .secondsSince1970
+    override func setUp() {
+        self.jsonEncoder.dateEncodingStrategy = .secondsSince1970
+        self.jsonDecoder.dateDecodingStrategy = .secondsSince1970
 
         let environment = MockEnvironment()
 
         let appRelease = AppRelease(environment: environment)
 
-        let appReleasePayload = Payload(wrapping: appRelease)
+        self.testPayload = Payload(wrapping: appRelease)
 
-        let encodedAppReleasePayload = try jsonEncoder.encode(appReleasePayload)
+        super.setUp()
+    }
 
-        let expectedJSONString = """
+    func testSerialization() throws {
+        let encodedPayloadData = try self.propertyListEncoder.encode(self.testPayload)
+        let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
+
+        XCTAssertEqual(self.testPayload, decodedPayload)
+    }
+
+    func testEncoding() throws {
+        let actualEncodedContent = try jsonEncoder.encode(self.testPayload.jsonObject)
+        let actualDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: actualEncodedContent)
+
+        let expectedEncodedContent = """
                         {
                           "app_release": {
                             "sdk_version": "0.0.0",
                             "dt_platform_version": "13.4",
                             "dt_platform_build": "17E218",
                             "cf_bundle_short_version_string": "0.0.0",
-                            "sdk_platform": "Apple",
+                            "sdk_platform": "iOS",
                             "client_created_at_utc_offset": -28800,
                             "cf_bundle_version": "1",
                             "app_store_receipt": {
@@ -54,45 +69,23 @@ class AppReleasePayloadTests: XCTestCase {
                             "dt_sdk_build": "17E218",
                             "sdk_distribution": null,
                             "sdk_distribution_version": null,
-                            "cf_bundle_identifier": "com.apptentive.test"
+                            "cf_bundle_identifier": "com.apptentive.test",
+                            "deployment_target": "12.1"
                           }
                         }
-            """
+            """.data(using: .utf8)!
 
-        let encodedExpectedJSON = expectedJSONString.data(using: .utf8)!
+        let expectedDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: expectedEncodedContent)
 
-        let decodedExpectedJSON = try jsonDecoder.decode(Payload.self, from: encodedExpectedJSON)
-        let decodedAppReleasePayloadJSON = try jsonDecoder.decode(Payload.self, from: encodedAppReleasePayload)
+        XCTAssertNotNil(actualDecodedContent.nonce)
+        XCTAssertNotNil(expectedDecodedContent.nonce)
 
-        XCTAssertNotNil(decodedAppReleasePayloadJSON.nonce)
-        XCTAssertNotNil(decodedAppReleasePayloadJSON.creationDate)
-        XCTAssertNotNil(decodedAppReleasePayloadJSON.creationUTCOffset)
+        XCTAssertGreaterThan(actualDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
 
-        XCTAssertEqual(decodedExpectedJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
-        XCTAssertGreaterThan(decodedAppReleasePayloadJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertNotNil(actualDecodedContent.creationUTCOffset)
+        XCTAssertNotNil(expectedDecodedContent.creationUTCOffset)
 
-        guard case let PayloadContents.appRelease(payload) = decodedAppReleasePayloadJSON.contents else {
-            return XCTFail("Not an appRelease payload")
-        }
-
-        XCTAssertEqual(payload.bundleIdentifier, environment.infoDictionary?["CFBundleIdentifier"] as? String)
-        XCTAssertEqual(payload.version, environment.infoDictionary?["CFBundleShortVersionString"] as? String)
-        XCTAssertEqual(payload.build, environment.infoDictionary?["CFBundleVersion"] as? String)
-        XCTAssertEqual(payload.compiler, environment.infoDictionary?["DTCompiler"] as? String)
-        XCTAssertEqual(payload.platformBuild, environment.infoDictionary?["DTPlatformBuild"] as? String)
-        XCTAssertEqual(payload.platformName, environment.infoDictionary?["DTPlatformName"] as? String)
-        XCTAssertEqual(payload.platformVersion, environment.infoDictionary?["DTPlatformVersion"] as? String)
-        XCTAssertEqual(payload.sdkBuild, environment.infoDictionary?["DTSDKBuild"] as? String)
-        XCTAssertEqual(payload.sdkName, environment.infoDictionary?["DTSDKName"] as? String)
-        XCTAssertEqual(payload.xcode, environment.infoDictionary?["DTXcode"] as? String)
-        XCTAssertEqual(payload.xcodeBuild, environment.infoDictionary?["DTXcodeBuild"] as? String)
-        XCTAssertEqual(payload.appStoreReceipt.hasReceipt, environment.appStoreReceiptURL != nil)
-        XCTAssertEqual(payload.isDebugBuild, environment.isDebugBuild)
-        XCTAssertEqual(payload.sdkVersion, environment.sdkVersion.versionString)
-        XCTAssertEqual(payload.sdkProgrammingLanguage, "Swift")
-        XCTAssertEqual(payload.sdkAuthorName, "Apptentive, Inc.")
-        XCTAssertEqual(payload.sdkPlatform, "iOS")
-        XCTAssertEqual(payload.sdkDistributionName, environment.distributionName)
-        XCTAssertEqual(payload.sdkDistributionVersion, environment.distributionVersion?.versionString)
+        XCTAssertEqual(expectedDecodedContent.specializedJSONObject, actualDecodedContent.specializedJSONObject)
     }
 }

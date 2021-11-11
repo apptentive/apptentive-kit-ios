@@ -11,20 +11,35 @@ import XCTest
 @testable import ApptentiveKit
 
 class EventPayloadTests: XCTestCase {
-    func testEventEncoding() throws {
-        let jsonEncoder = JSONEncoder()
-        jsonEncoder.dateEncodingStrategy = .secondsSince1970
+    var testPayload: Payload!
+    let propertyListEncoder = PropertyListEncoder()
+    let propertyListDecoder = PropertyListDecoder()
+    let jsonEncoder = JSONEncoder()
+    let jsonDecoder = JSONDecoder()
 
-        let jsonDecoder = JSONDecoder()
-        jsonDecoder.dateDecodingStrategy = .secondsSince1970
+    override func setUp() {
+        self.jsonEncoder.dateEncodingStrategy = .secondsSince1970
+        self.jsonDecoder.dateDecodingStrategy = .secondsSince1970
 
-        let event: Event = "Foo bar"
+        let event = Event(name: "Foo bar")
 
-        let eventPayload = Payload(wrapping: event)
+        self.testPayload = Payload(wrapping: event)
 
-        let encodedEventPayload = try jsonEncoder.encode(eventPayload)
+        super.setUp()
+    }
 
-        let expectedJSONString = """
+    func testSerialization() throws {
+        let encodedPayloadData = try self.propertyListEncoder.encode(self.testPayload)
+        let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
+
+        XCTAssertEqual(self.testPayload, decodedPayload)
+    }
+
+    func testEncoding() throws {
+        let actualEncodedContent = try jsonEncoder.encode(self.testPayload.jsonObject)
+        let actualDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: actualEncodedContent)
+
+        let expectedEncodedContent = """
             {
                 "event": {
                     "nonce": "abc123",
@@ -33,39 +48,32 @@ class EventPayloadTests: XCTestCase {
                     "label": "local#app#Foo bar"
                 }
             }
-            """
+            """.data(using: .utf8)!
 
-        let encodedExpectedJSON = expectedJSONString.data(using: .utf8)!
+        let expectedDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: expectedEncodedContent)
 
-        let decodedExpectedJSON = try jsonDecoder.decode(Payload.self, from: encodedExpectedJSON)
-        let decodedEventPayloadJSON = try jsonDecoder.decode(Payload.self, from: encodedEventPayload)
+        XCTAssertNotNil(actualDecodedContent.nonce)
+        XCTAssertNotNil(expectedDecodedContent.nonce)
 
-        XCTAssertEqual(decodedEventPayloadJSON.contents, decodedExpectedJSON.contents)
+        XCTAssertGreaterThan(actualDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
 
-        XCTAssertNotNil(decodedEventPayloadJSON.nonce)
-        XCTAssertNotNil(decodedEventPayloadJSON.creationDate)
-        XCTAssertNotNil(decodedEventPayloadJSON.creationUTCOffset)
+        XCTAssertNotNil(actualDecodedContent.creationUTCOffset)
+        XCTAssertNotNil(expectedDecodedContent.creationUTCOffset)
 
-        XCTAssertEqual(decodedExpectedJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
-        XCTAssertGreaterThan(decodedEventPayloadJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.specializedJSONObject, actualDecodedContent.specializedJSONObject)
     }
 
     func testInteractionEventEncoding() throws {
-        let jsonEncoder = JSONEncoder()
-        jsonEncoder.dateEncodingStrategy = .secondsSince1970
-
-        let jsonDecoder = JSONDecoder()
-        jsonDecoder.dateDecodingStrategy = .secondsSince1970
-
         let interaction = try InteractionTestHelpers.loadInteraction(named: "Survey")
 
         let event: Event = .launch(from: interaction)
+        let interactionPayload = Payload(wrapping: event)
 
-        let eventPayload = Payload(wrapping: event)
+        let actualEncodedContent = try jsonEncoder.encode(interactionPayload.jsonObject)
+        let actualDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: actualEncodedContent)
 
-        let encodedEventPayload = try jsonEncoder.encode(eventPayload)
-
-        let expectedJSONString = """
+        let expectedEncodedContent = """
             {
                 "event": {
                     "nonce": "abc123",
@@ -75,39 +83,32 @@ class EventPayloadTests: XCTestCase {
                     "interaction_id": "\(event.interaction!.id)"
                 }
             }
-            """
+            """.data(using: .utf8)!
 
-        let encodedExpectedJSON = expectedJSONString.data(using: .utf8)!
+        let expectedDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: expectedEncodedContent)
 
-        let decodedExpectedJSON = try jsonDecoder.decode(Payload.self, from: encodedExpectedJSON)
-        let decodedEventPayloadJSON = try jsonDecoder.decode(Payload.self, from: encodedEventPayload)
+        XCTAssertNotNil(actualDecodedContent.nonce)
+        XCTAssertNotNil(expectedDecodedContent.nonce)
 
-        XCTAssertEqual(decodedEventPayloadJSON.contents, decodedExpectedJSON.contents)
+        XCTAssertGreaterThan(actualDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
 
-        XCTAssertNotNil(decodedEventPayloadJSON.nonce)
-        XCTAssertNotNil(decodedEventPayloadJSON.creationDate)
-        XCTAssertNotNil(decodedEventPayloadJSON.creationUTCOffset)
+        XCTAssertNotNil(actualDecodedContent.creationUTCOffset)
+        XCTAssertNotNil(expectedDecodedContent.creationUTCOffset)
 
-        XCTAssertEqual(decodedExpectedJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
-        XCTAssertGreaterThan(decodedEventPayloadJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.specializedJSONObject, actualDecodedContent.specializedJSONObject)
     }
 
     func testEventUserInfoEncoding() throws {
-        let jsonEncoder = JSONEncoder()
-        jsonEncoder.dateEncodingStrategy = .secondsSince1970
-
-        let jsonDecoder = JSONDecoder()
-        jsonDecoder.dateDecodingStrategy = .secondsSince1970
-
         let interaction = try InteractionTestHelpers.loadInteraction(named: "NavigateToLink")
 
         let event: Event = .navigate(to: URL(string: "https://www.apptentive.com")!, success: true, interaction: interaction)
+        let interactionPayload = Payload(wrapping: event)
 
-        let eventPayload = Payload(wrapping: event)
+        let actualEncodedContent = try jsonEncoder.encode(interactionPayload.jsonObject)
+        let actualDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: actualEncodedContent)
 
-        let encodedEventPayload = try jsonEncoder.encode(eventPayload)
-
-        let expectedJSONString = """
+        let expectedEncodedContent = """
             {
                 "event": {
                     "nonce": "abc123",
@@ -121,20 +122,19 @@ class EventPayloadTests: XCTestCase {
                     }
                 }
             }
-            """
+            """.data(using: .utf8)!
 
-        let encodedExpectedJSON = expectedJSONString.data(using: .utf8)!
+        let expectedDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: expectedEncodedContent)
 
-        let decodedExpectedJSON = try jsonDecoder.decode(Payload.self, from: encodedExpectedJSON)
-        let decodedEventPayloadJSON = try jsonDecoder.decode(Payload.self, from: encodedEventPayload)
+        XCTAssertNotNil(actualDecodedContent.nonce)
+        XCTAssertNotNil(expectedDecodedContent.nonce)
 
-        XCTAssertEqual(decodedEventPayloadJSON.contents, decodedExpectedJSON.contents)
+        XCTAssertGreaterThan(actualDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
 
-        XCTAssertNotNil(decodedEventPayloadJSON.nonce)
-        XCTAssertNotNil(decodedEventPayloadJSON.creationDate)
-        XCTAssertNotNil(decodedEventPayloadJSON.creationUTCOffset)
+        XCTAssertNotNil(actualDecodedContent.creationUTCOffset)
+        XCTAssertNotNil(expectedDecodedContent.creationUTCOffset)
 
-        XCTAssertEqual(decodedExpectedJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
-        XCTAssertGreaterThan(decodedEventPayloadJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.specializedJSONObject, actualDecodedContent.specializedJSONObject)
     }
 }

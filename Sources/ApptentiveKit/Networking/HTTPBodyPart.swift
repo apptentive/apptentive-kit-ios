@@ -11,7 +11,7 @@ import Foundation
 typealias mediaType = String
 
 /// Defines the body of an HTTP request, or for multipart requests, one of the parts of the body of the request.
-struct HTTPBodyPart: Encodable {
+struct HTTPBodyPart {
     let contentDisposition: String
     let contentType: String
     let content: BodyPartData

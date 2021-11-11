@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Represents an update request to be sent to the Apptentive API.
+/// Stores the information needed to potentially make a deferred update to the Apptentive API.
 ///
 /// Payload objects are enqueued onto a payload queue and sent by the ``PayloadSender`` object.
 ///
@@ -16,17 +16,8 @@ import Foundation
 /// sent successfully or that the failure in sending was unrecoverable (indicating that the request should
 /// not be retried).
 struct Payload: Codable, Equatable, CustomDebugStringConvertible {
-    /// The payload contents that should be wrapped.
-    let contents: PayloadContents
-
-    /// A unique string that identifies this payload for deduplication on the server.
-    let nonce: String
-
-    /// The date/time at which the payload was created.
-    let creationDate: Date
-
-    /// The offset (in seconds) from UTC for the creation date.
-    let creationUTCOffset: Int
+    /// Represents the HTTP request body to use for the API request.
+    let jsonObject: JSONObject
 
     /// The HTTP method to use for the API request.
     let method: HTTPMethod
@@ -34,302 +25,330 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
     /// The path to use to build the URL for the API request.
     let path: String
 
-    /// Creates a new payload object that wraps a survey response.
-    /// - Parameter surveyResponse: The survey response to wrap.
-    init(wrapping surveyResponse: SurveyResponse) {
-        self.init(contents: .surveyResponse(SurveyResponseContents(with: surveyResponse)), path: "surveys/\(surveyResponse.surveyID)/responses", method: .post)
-    }
+    /// The attachments to send along with the request, if any.
+    let attachments: [Attachment]
 
-    /// Creates a new payload object that wraps an event.
-    /// - Parameter event: The event to wrap.
-    init(wrapping event: Event) {
-        self.init(contents: .event(EventContents(with: event)), path: "events", method: .post)
-    }
-
-    init(wrapping person: Person) {
-        self.init(contents: .person(PersonContents(with: person)), path: "person", method: .put)
-    }
-
-    init(wrapping device: Device) {
-        self.init(contents: .device(DeviceContents(with: device)), path: "device", method: .put)
-    }
-
-    init(wrapping appRelease: AppRelease) {
-        self.init(contents: .appRelease(AppReleaseContents(with: appRelease)), path: "app_release", method: .put)
-    }
-
-    init(wrapping message: Message) {
-        self.init(contents: .message(MessageContents(with: message)), path: "messages", method: .post)
-    }
-
+    /// The parts making up the body of the HTTP request.
+    ///
+    /// This array will contain a single item except for payloads that include attachments.
     var bodyParts: [HTTPBodyPart] {
-        if self.contents.additionalBodyParts.isEmpty {
-            return [.jsonEncoded(self)]
-        } else {
-            // For multipart requests, the JSON container is stripped off and the key is moved to the part name.
-            return [.jsonEncoded(self, name: self.contents.containerKey.rawValue)] + self.contents.additionalBodyParts
+        return [.jsonEncoded(self.jsonObject, name: self.jsonObject.firstBodyPartName)]
+            + self.attachments.map { attachment in
+                return .raw(attachment.data, mediaType: attachment.mediaType, filename: attachment.filename)
+            }
+    }
+
+    var debugDescription: String {
+        return "Payload(\(self.method) to \(self.path))"
+    }
+    /// Creates a new payload to add a survey response.
+    /// - Parameter surveyResponse: The survey response to add.
+    init(wrapping surveyResponse: SurveyResponse) {
+        self.init(specializedJSONObject: .surveyResponse(SurveyResponseContent(with: surveyResponse)), path: "surveys/\(surveyResponse.surveyID)/responses", method: .post)
+    }
+
+    /// Creates a new payload to add an event.
+    /// - Parameter event: The event to add.
+    init(wrapping event: Event) {
+        self.init(specializedJSONObject: .event(EventContent(with: event)), path: "events", method: .post)
+    }
+
+    /// Creates a new payload to update the person.
+    /// - Parameter person: The data with which to update the person.
+    init(wrapping person: Person) {
+        self.init(specializedJSONObject: .person(PersonContent(with: person)), path: "person", method: .put)
+    }
+
+    /// Creates a new payload to update the device.
+    /// - Parameter device: The data with which to update the device.
+    init(wrapping device: Device) {
+        self.init(specializedJSONObject: .device(DeviceContent(with: device)), path: "device", method: .put)
+    }
+
+    /// Creates a new payload to update the app release.
+    /// - Parameter appRelease: The data with which to update the app release.
+    init(wrapping appRelease: AppRelease) {
+        self.init(specializedJSONObject: .appRelease(AppReleaseContent(with: appRelease)), path: "app_release", method: .put)
+    }
+
+    /// Creates a new payload to send a message.
+    /// - Parameter message: The message to send.
+    init(wrapping message: Message) {
+        let attachments: [Attachment] = message.attachments.compactMap { messageAttachment in
+            guard let data = messageAttachment.data else {
+                assertionFailure("Outgoing message attachment missing its data.")
+                return nil
+            }
+
+            return Attachment(data: data, mediaType: messageAttachment.mediaType, filename: messageAttachment.filename)
         }
+
+        self.init(specializedJSONObject: .message(MessageContent(with: message)), path: "messages", method: .post, attachments: attachments)
     }
 
     /// Initializes a new payload.
     /// - Parameters:
-    ///   - contents: The contents of the payload.
+    ///   - specializedJSONObject: The payload-type-specific object used to create the JSON object.
     ///   - path: The path for the API request.
     ///   - method: The HTTP method for the API request.
-    private init(contents: PayloadContents, path: String, method: HTTPMethod) {
-        self.nonce = UUID().uuidString
-        self.creationDate = Date()
-        self.creationUTCOffset = TimeZone.current.secondsFromGMT()
-
-        self.contents = contents
+    ///   - attachments: The attachments to send with the payload, if any.
+    private init(specializedJSONObject: SpecializedJSONObject, path: String, method: HTTPMethod, attachments: [Attachment] = []) {
+        self.jsonObject = JSONObject(specializedJSONObject: specializedJSONObject, shouldStripContainer: !attachments.isEmpty)
         self.path = path
         self.method = method
+        self.attachments = attachments
     }
 
-    /// Creates an object using data from the decoder.
-    ///
-    /// This implementation is only intended for testing. As such the decoded objects may differ from
-    /// the objects that were previously encoded.
-    /// - Parameter decoder: The decoder from which to request data.
-    /// - Throws: An error if the coding keys are invalid or a value could not be decoded.
-    init(from decoder: Decoder) throws {
-        var nestedContainer: KeyedDecodingContainer<AllPossiblePayloadCodingKeys>
+    /// Represents JSON request data and augments it with universal parameters for the Apptentive API.
+    struct JSONObject: Codable, Equatable {
+        /// The per-type payload content that should be wrapped.
+        let specializedJSONObject: SpecializedJSONObject
 
-        let container = try decoder.container(keyedBy: PayloadTypeCodingKeys.self)
+        /// A unique string that identifies this payload for deduplication on the server.
+        let nonce: String
 
-        if let containerKey = container.allKeys.first {
-            switch containerKey {
-            case .response:
-                self.contents = .surveyResponse(try container.decode(SurveyResponseContents.self, forKey: containerKey))
-                self.path = "surveys/<survey_id>/responses"
-                self.method = .post
+        /// The date/time at which the payload was created.
+        let creationDate: Date
 
-            case .event:
-                self.contents = .event(try container.decode(EventContents.self, forKey: containerKey))
-                self.path = "events"
-                self.method = .post
+        /// The offset (in seconds) from UTC for the creation date.
+        let creationUTCOffset: Int
 
-            case .person:
-                self.contents = .person(try container.decode(PersonContents.self, forKey: containerKey))
-                self.path = "person"
-                self.method = .put
+        /// Whether the outer JSON container should be removed.
+        ///
+        /// This is true for JSON that will be included in a multipart request.
+        /// For multipart requests, the key for the container is used as the part's name.
+        let shouldStripContainer: Bool
 
-            case .device:
-                self.contents = .device(try container.decode(DeviceContents.self, forKey: containerKey))
-                self.path = "device"
-                self.method = .put
+        /// The name for JSON that will be included in a multipart request.
+        ///
+        /// Used as the value for the `name` attribute of the part's `Content-Disposition` header.
+        var firstBodyPartName: String? {
+            return self.shouldStripContainer ? self.specializedJSONObject.containerKey.rawValue : nil
+        }
 
-            case .appRelease:
-                self.contents = .appRelease(try container.decode(AppReleaseContents.self, forKey: containerKey))
-                self.path = "app_release"
-                self.method = .put
+        init(specializedJSONObject: SpecializedJSONObject, shouldStripContainer: Bool = false) {
+            self.specializedJSONObject = specializedJSONObject
+            self.shouldStripContainer = shouldStripContainer
 
-            case .message:
-                self.contents = .message(try container.decode(MessageContents.self, forKey: containerKey))
-                self.path = "messages"
-                self.method = .post
+            self.nonce = UUID().uuidString
+            self.creationDate = Date()
+            self.creationUTCOffset = TimeZone.current.secondsFromGMT()
+        }
+
+        init(from decoder: Decoder) throws {
+            var nestedContainer: KeyedDecodingContainer<Payload.AllPossibleCodingKeys>
+
+            let container = try decoder.container(keyedBy: PayloadTypeCodingKeys.self)
+
+            if let containerKey = container.allKeys.first {
+                switch containerKey {
+                case .response:
+                    self.specializedJSONObject = .surveyResponse(try container.decode(SurveyResponseContent.self, forKey: containerKey))
+
+                case .event:
+                    self.specializedJSONObject = .event(try container.decode(EventContent.self, forKey: containerKey))
+
+                case .person:
+                    self.specializedJSONObject = .person(try container.decode(PersonContent.self, forKey: containerKey))
+
+                case .device:
+                    self.specializedJSONObject = .device(try container.decode(DeviceContent.self, forKey: containerKey))
+
+                case .appRelease:
+                    self.specializedJSONObject = .appRelease(try container.decode(AppReleaseContent.self, forKey: containerKey))
+
+                case .message:
+                    self.specializedJSONObject = .message(try container.decode(MessageContent.self, forKey: containerKey))
+                }
+
+                nestedContainer = try container.nestedContainer(keyedBy: Payload.AllPossibleCodingKeys.self, forKey: containerKey)
+
+                self.shouldStripContainer = false
+            } else {
+                nestedContainer = try decoder.container(keyedBy: Payload.AllPossibleCodingKeys.self)
+
+                self.specializedJSONObject = .message(try MessageContent.init(from: decoder))
+
+                self.shouldStripContainer = true
             }
 
-            nestedContainer = try container.nestedContainer(keyedBy: AllPossiblePayloadCodingKeys.self, forKey: containerKey)
-        } else {
-            // If the outer container has no container key, assume this was multipart.
-            nestedContainer = try decoder.container(keyedBy: AllPossiblePayloadCodingKeys.self)
-
-            let body = try nestedContainer.decode(String.self, forKey: .body)
-            let isAutomated = try nestedContainer.decode(Bool.self, forKey: .isAutomated)
-            let isHidden = try nestedContainer.decode(Bool.self, forKey: .isHidden)
-
-            self.contents = .message(MessageContents(with: Message(body: body, isHidden: isHidden, isAutomated: isAutomated)))
-            self.path = "messages"
-            self.method = .post
+            self.nonce = try nestedContainer.decode(String.self, forKey: .nonce)
+            self.creationDate = try nestedContainer.decode(Date.self, forKey: .creationDate)
+            self.creationUTCOffset = try nestedContainer.decode(Int.self, forKey: .creationUTCOffset)
         }
 
-        self.nonce = try nestedContainer.decode(String.self, forKey: .nonce)
-        self.creationDate = try nestedContainer.decode(Date.self, forKey: .creationDate)
-        self.creationUTCOffset = try nestedContainer.decode(Int.self, forKey: .creationUTCOffset)
-    }
+        /// Encodes the payload to the specified encoder.
+        ///
+        /// Because of the format expected by the Apptentive API, the encoding process is unusual:
+        /// First it creates an outer container with a single key (from `PayloadTypeCodingKeys`)
+        /// that contains a nested container which uses a union of the set of coding keys of all
+        /// payload types, plus the boilerplate keys. The encoder then encodes the boilerplate parameters
+        /// common to all payload types. Finally it asks the payload contents to encode themselves
+        /// to the nested container via the `PayloadEncodable` protocol.
+        ///
+        /// An extra wrinkle is that for multipart requests, the outer container is left off, and what
+        /// would normally be the key for that container is used as the value for the `name` field
+        /// of the `Content-Disposition` header.
+        /// - Parameter encoder: the encoder to use to encode the payload.
+        /// - Throws: An error if the coding keys are invalid or a value could not be encoded.
+        func encode(to encoder: Encoder) throws {
+            var container: KeyedEncodingContainer<Payload.AllPossibleCodingKeys>
 
-    /// Encodes the payload to the specified encoder.
-    ///
-    /// Because of the format expected by the Apptentive API, the encoding process is unusual:
-    /// First it creates an outer container with a single key (from `PayloadTypeCodingKeys`)
-    /// that contains a nested container which uses a union of the set of coding keys of all
-    /// payload types, plus the boilerplate keys. The encoder then encodes the boilerplate parameters
-    /// common to all payload types. Finally it asks the payload contents to encode themselves
-    /// to the nested container via the `PayloadEncodable` protocol.
-    ///
-    /// An extra wrinkle is that for multipart requests, the outer container is left off, and what
-    /// would normally be the key for that container is used as the value for the `name` field
-    /// of the `Content-Disposition` header.
-    /// - Parameter encoder: the encoder to use to encode the payload.
-    /// - Throws: An error if the coding keys are invalid or a value could not be encoded.
-    func encode(to encoder: Encoder) throws {
-        var container: KeyedEncodingContainer<AllPossiblePayloadCodingKeys>
+            if self.shouldStripContainer {
+                // For multipart requests, the outer container is left off.
+                container = encoder.container(keyedBy: Payload.AllPossibleCodingKeys.self)
+            } else {
+                var encodingContainer = encoder.container(keyedBy: PayloadTypeCodingKeys.self)
+                container = encodingContainer.nestedContainer(keyedBy: Payload.AllPossibleCodingKeys.self, forKey: self.specializedJSONObject.containerKey)
+            }
 
-        if self.contents.additionalBodyParts.isEmpty {
-            var encodingContainer = encoder.container(keyedBy: PayloadTypeCodingKeys.self)
-            container = encodingContainer.nestedContainer(keyedBy: AllPossiblePayloadCodingKeys.self, forKey: self.contents.containerKey)
-        } else {
-            // For multipart requests, the outer container is left off.
-            container = encoder.container(keyedBy: AllPossiblePayloadCodingKeys.self)
+            try container.encode(self.nonce, forKey: .nonce)
+            try container.encode(self.creationDate, forKey: .creationDate)
+            try container.encode(self.creationUTCOffset, forKey: .creationUTCOffset)
+
+            try self.specializedJSONObject.encodeContents(to: &container)
         }
 
-        try container.encode(self.nonce, forKey: .nonce)
-        try container.encode(self.creationDate, forKey: .creationDate)
-        try container.encode(self.creationUTCOffset, forKey: .creationUTCOffset)
-
-        try self.contents.encodeContents(to: &container)
-    }
-
-    var debugDescription: String {
-        return "Payload(type: \(self.contents.containerKey.rawValue), nonce: \(self.nonce))"
-    }
-}
-
-enum PayloadTypeCodingKeys: String, CodingKey {
-    case response
-    case event
-    case person
-    case device
-    case appRelease = "app_release"
-    case message
-}
-
-/// The union of coding keys from all payload types.
-enum AllPossiblePayloadCodingKeys: String, CodingKey {
-    // Ubiquitous keys
-    case nonce
-    case creationDate = "client_created_at"
-    case creationUTCOffset = "client_created_at_utc_offset"
-    case sessionID = "session_id"
-
-    // Shared keys
-    case customData = "custom_data"
-
-    // Survey response keys
-    case answers
-
-    // Event keys
-    case label
-    case interactionID = "interaction_id"
-    case userInfo = "data"
-    case time
-    case location
-    case commerce
-
-    // Person keys
-    case emailAddress = "email"
-    case name
-    case mParticleID = "mparticle_id"
-
-    // Device keys
-    case uuid
-    case osName = "os_name"
-    case osVersion = "os_version"
-    case osBuild = "os_build"
-    case hardware
-    case carrier
-    case contentSizeCategory = "content_size_category"
-    case localeRaw = "locale_raw"
-    case localeCountryCode = "locale_country_code"
-    case localeLanguageCode = "locale_language_code"
-    case utcOffset = "utc_offset"
-    case integrationConfiguration = "integration_config"
-    case advertisingIdentifier = "advertiser_id"
-
-    // App release keys
-    case type
-    case bundleIdentifier = "cf_bundle_identifier"
-    case version = "cf_bundle_short_version_string"
-    case build = "cf_bundle_version"
-    case appStoreReceipt = "app_store_receipt"
-    case isDebugBuild = "debug"
-    case isOverridingStyles = "overriding_styles"
-    case deploymentTarget = "deployment_target"
-    case compiler = "dt_compiler"
-    case platformBuild = "dt_platform_build"
-    case platformName = "dt_platform_name"
-    case platformVersion = "dt_platform_version"
-    case sdkBuild = "dt_sdk_build"
-    case sdkName = "dt_sdk_name"
-    case xcode = "dt_xcode"
-    case xcodeBuild = "dt_xcode_build"
-    case sdkVersion = "sdk_version"
-    case sdkProgrammingLanguage = "sdk_programming_language"
-    case sdkAuthorName = "sdk_author_name"
-    case sdkPlatform = "sdk_platform"
-    case sdkDistributionVersion = "sdk_distribution_version"
-    case sdkDistributionName = "sdk_distribution"
-
-    // Message keys
-    case body
-    case isAutomated = "automated"
-    case isHidden = "hidden"
-}
-
-/// The contents of the payload.
-///
-/// Each payload type has an associated value corresponding to its content.
-enum PayloadContents: Equatable {
-    case surveyResponse(SurveyResponseContents)
-    case event(EventContents)
-    case person(PersonContents)
-    case device(DeviceContents)
-    case appRelease(AppReleaseContents)
-    case message(MessageContents)
-
-    var containerKey: PayloadTypeCodingKeys {
-        switch self {
-        case .surveyResponse:
-            return .response
-
-        case .event:
-            return .event
-
-        case .person:
-            return .person
-
-        case .device:
-            return .device
-
-        case .appRelease:
-            return .appRelease
-
-        case .message:
-            return .message
+        enum PayloadTypeCodingKeys: String, CodingKey {
+            case response
+            case event
+            case person
+            case device
+            case appRelease = "app_release"
+            case message
         }
     }
 
-    func encodeContents(to container: inout KeyedEncodingContainer<AllPossiblePayloadCodingKeys>) throws {
-        switch self {
-        case .surveyResponse(let surveyResponseContents):
-            try surveyResponseContents.encodeContents(to: &container)
+    /// Represents per-type JSON request data for the Apptentive API.
+    enum SpecializedJSONObject: Equatable {
+        case surveyResponse(SurveyResponseContent)
+        case event(EventContent)
+        case person(PersonContent)
+        case device(DeviceContent)
+        case appRelease(AppReleaseContent)
+        case message(MessageContent)
 
-        case .event(let eventContents):
-            try eventContents.encodeContents(to: &container)
+        var containerKey: JSONObject.PayloadTypeCodingKeys {
+            switch self {
+            case .surveyResponse:
+                return .response
 
-        case .person(let personContents):
-            try personContents.encodeContents(to: &container)
+            case .event:
+                return .event
 
-        case .device(let deviceContents):
-            try deviceContents.encodeContents(to: &container)
+            case .person:
+                return .person
 
-        case .appRelease(let appReleaseContents):
-            try appReleaseContents.encodeContents(to: &container)
+            case .device:
+                return .device
 
-        case .message(let messageContents):
-            try messageContents.encodeContents(to: &container)
+            case .appRelease:
+                return .appRelease
+
+            case .message:
+                return .message
+            }
+        }
+
+        func encodeContents(to container: inout KeyedEncodingContainer<Payload.AllPossibleCodingKeys>) throws {
+            switch self {
+            case .surveyResponse(let surveyResponseContents):
+                try surveyResponseContents.encodeContents(to: &container)
+
+            case .event(let eventContents):
+                try eventContents.encodeContents(to: &container)
+
+            case .person(let personContents):
+                try personContents.encodeContents(to: &container)
+
+            case .device(let deviceContents):
+                try deviceContents.encodeContents(to: &container)
+
+            case .appRelease(let appReleaseContents):
+                try appReleaseContents.encodeContents(to: &container)
+
+            case .message(let messageContents):
+                try messageContents.encodeContents(to: &container)
+            }
         }
     }
 
-    var additionalBodyParts: [HTTPBodyPart] {
-        switch self {
-        case .message(let messageContents):
-            return messageContents.attachmentBodyParts
+    /// The union of coding keys from all payload types.
+    enum AllPossibleCodingKeys: String, CodingKey {
+        // Ubiquitous keys
+        case nonce
+        case creationDate = "client_created_at"
+        case creationUTCOffset = "client_created_at_utc_offset"
+        case sessionID = "session_id"
 
-        default:
-            return []
-        }
+        // Shared keys
+        case customData = "custom_data"
+
+        // Survey response keys
+        case answers
+
+        // Event keys
+        case label
+        case interactionID = "interaction_id"
+        case userInfo = "data"
+        case time
+        case location
+        case commerce
+
+        // Person keys
+        case emailAddress = "email"
+        case name
+        case mParticleID = "mparticle_id"
+
+        // Device keys
+        case uuid
+        case osName = "os_name"
+        case osVersion = "os_version"
+        case osBuild = "os_build"
+        case hardware
+        case carrier
+        case contentSizeCategory = "content_size_category"
+        case localeRaw = "locale_raw"
+        case localeCountryCode = "locale_country_code"
+        case localeLanguageCode = "locale_language_code"
+        case utcOffset = "utc_offset"
+        case integrationConfiguration = "integration_config"
+        case advertisingIdentifier = "advertiser_id"
+
+        // App release keys
+        case type
+        case bundleIdentifier = "cf_bundle_identifier"
+        case version = "cf_bundle_short_version_string"
+        case build = "cf_bundle_version"
+        case appStoreReceipt = "app_store_receipt"
+        case isDebugBuild = "debug"
+        case isOverridingStyles = "overriding_styles"
+        case deploymentTarget = "deployment_target"
+        case compiler = "dt_compiler"
+        case platformBuild = "dt_platform_build"
+        case platformName = "dt_platform_name"
+        case platformVersion = "dt_platform_version"
+        case sdkBuild = "dt_sdk_build"
+        case sdkName = "dt_sdk_name"
+        case xcode = "dt_xcode"
+        case xcodeBuild = "dt_xcode_build"
+        case sdkVersion = "sdk_version"
+        case sdkProgrammingLanguage = "sdk_programming_language"
+        case sdkAuthorName = "sdk_author_name"
+        case sdkPlatform = "sdk_platform"
+        case sdkDistributionVersion = "sdk_distribution_version"
+        case sdkDistributionName = "sdk_distribution"
+
+        // Message keys
+        case body
+        case isAutomated = "automated"
+        case isHidden = "hidden"
+    }
+
+    struct Attachment: Codable, Equatable {
+        let data: Data
+        let mediaType: String
+        let filename: String
     }
 }
 
@@ -340,7 +359,7 @@ protocol PayloadEncodable {
     /// Encodes the object's contents to the specified keyed encoding container.
     /// - Parameter container: The keyed encoding container that will be used to encode the object's contents.
     /// - Throws: An error if the encoding fails.
-    func encodeContents(to container: inout KeyedEncodingContainer<AllPossiblePayloadCodingKeys>) throws
+    func encodeContents(to container: inout KeyedEncodingContainer<Payload.AllPossibleCodingKeys>) throws
 }
 
 /// An empty object corresponding to the expected response when sending a payload.

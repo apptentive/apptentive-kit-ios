@@ -11,12 +11,15 @@ import XCTest
 @testable import ApptentiveKit
 
 class PersonPayloadTests: XCTestCase {
-    func testPersonEncoding() throws {
-        let jsonEncoder = JSONEncoder()
-        jsonEncoder.dateEncodingStrategy = .secondsSince1970
+    var testPayload: Payload!
+    let propertyListEncoder = PropertyListEncoder()
+    let propertyListDecoder = PropertyListDecoder()
+    let jsonEncoder = JSONEncoder()
+    let jsonDecoder = JSONDecoder()
 
-        let jsonDecoder = JSONDecoder()
-        jsonDecoder.dateDecodingStrategy = .secondsSince1970
+    override func setUp() {
+        self.jsonEncoder.dateEncodingStrategy = .secondsSince1970
+        self.jsonDecoder.dateDecodingStrategy = .secondsSince1970
 
         var person = Person()
 
@@ -28,11 +31,23 @@ class PersonPayloadTests: XCTestCase {
         person.customData["number"] = 42
         person.customData["bool"] = true
 
-        let personPayload = Payload(wrapping: person)
+        self.testPayload = Payload(wrapping: person)
 
-        let encodedPersonPayload = try jsonEncoder.encode(personPayload)
+        super.setUp()
+    }
 
-        let expectedJSONString = """
+    func testSerialization() throws {
+        let encodedPayloadData = try self.propertyListEncoder.encode(self.testPayload)
+        let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
+
+        XCTAssertEqual(self.testPayload, decodedPayload)
+    }
+
+    func testEncoding() throws {
+        let actualEncodedContent = try jsonEncoder.encode(self.testPayload.jsonObject)
+        let actualDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: actualEncodedContent)
+
+        let expectedEncodedContent = """
             {
                 "person": {
                     "name": "Testy McTestface",
@@ -49,29 +64,19 @@ class PersonPayloadTests: XCTestCase {
                     "label": "local#app#Foo bar"
                 }
             }
-            """
+            """.data(using: .utf8)!
 
-        let encodedExpectedJSON = expectedJSONString.data(using: .utf8)!
+        let expectedDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: expectedEncodedContent)
 
-        let decodedExpectedJSON = try jsonDecoder.decode(Payload.self, from: encodedExpectedJSON)
-        let decodedPersonPayloadJSON = try jsonDecoder.decode(Payload.self, from: encodedPersonPayload)
+        XCTAssertNotNil(actualDecodedContent.nonce)
+        XCTAssertNotNil(expectedDecodedContent.nonce)
 
-        XCTAssertNotNil(decodedPersonPayloadJSON.nonce)
-        XCTAssertNotNil(decodedPersonPayloadJSON.creationDate)
-        XCTAssertNotNil(decodedPersonPayloadJSON.creationUTCOffset)
+        XCTAssertGreaterThan(actualDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
 
-        XCTAssertEqual(decodedExpectedJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
-        XCTAssertGreaterThan(decodedPersonPayloadJSON.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertNotNil(actualDecodedContent.creationUTCOffset)
+        XCTAssertNotNil(expectedDecodedContent.creationUTCOffset)
 
-        guard case let PayloadContents.person(payload) = decodedPersonPayloadJSON.contents else {
-            return XCTFail("Not a person payload")
-        }
-
-        XCTAssertEqual(payload.name, "Testy McTestface")
-        XCTAssertEqual(payload.emailAddress, "test@example.com")
-        XCTAssertEqual(payload.mParticleID, "abc123")
-        XCTAssertEqual(payload.customData["string"] as? String, "foo")
-        XCTAssertEqual(payload.customData["number"] as? Int, 42)
-        XCTAssertEqual(payload.customData["bool"] as? Bool, true)
+        XCTAssertEqual(expectedDecodedContent.specializedJSONObject, actualDecodedContent.specializedJSONObject)
     }
 }

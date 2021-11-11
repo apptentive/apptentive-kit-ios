@@ -9,7 +9,7 @@
 import Foundation
 
 /// Encodes an event so that it can be sent as a payload.
-struct EventContents: Equatable, Decodable, PayloadEncodable {
+struct EventContent: Equatable, Decodable, PayloadEncodable {
 
     /// The event label.
     let label: String
@@ -28,7 +28,7 @@ struct EventContents: Equatable, Decodable, PayloadEncodable {
         self.userInfo = event.userInfo
     }
 
-    func encodeContents(to container: inout KeyedEncodingContainer<AllPossiblePayloadCodingKeys>) throws {
+    func encodeContents(to container: inout KeyedEncodingContainer<Payload.AllPossibleCodingKeys>) throws {
         try container.encode(self.label, forKey: .label)
         try container.encodeIfPresent(self.interactionID, forKey: .interactionID)
 
