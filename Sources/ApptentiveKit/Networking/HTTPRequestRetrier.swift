@@ -49,7 +49,9 @@ class HTTPRequestRetrier: HTTPRequestStarting {
         let wrapper = RequestWrapper(endpoint: endpoint)
 
         let request = self.client.request(endpoint) { (result: Result<T, Error>) in
-            self.processResult(result, identifier: identifier, completion: completion)
+            self.dispatchQueue.async {
+                self.processResult(result, identifier: identifier, completion: completion)
+            }
         }
 
         wrapper.request = request
@@ -84,10 +86,7 @@ class HTTPRequestRetrier: HTTPRequestStarting {
         case .success:
             self.retryPolicy.resetRetryDelay()
             self.requests[identifier] = nil
-
-            self.dispatchQueue.async {
-                completion(result)
-            }
+            completion(result)
 
         case .failure(let error as HTTPClientError):
             if self.retryPolicy.shouldRetry(inCaseOf: error) {
@@ -114,11 +113,8 @@ class HTTPRequestRetrier: HTTPRequestStarting {
             }
 
         default:
+            completion(result)
             self.requests[identifier] = nil
-
-            self.dispatchQueue.async {
-                completion(result)
-            }
         }
     }
 
