@@ -12,7 +12,7 @@ import XCTest
 
 class PayloadSenderTests: XCTestCase {
     var requestRetrier = SpyRequestStarter()
-    var repository = SpyRepository(containerURL: URL(string: "file:///tmp")!, filename: "PayloadQueue", fileManager: FileManager.default)
+    var saver = SpySaver(containerURL: URL(string: "file:///tmp")!, filename: "PayloadQueue", fileManager: FileManager.default)
     var payloadSender: PayloadSender!
     var credentialsProvider = MockCredentialsProvider(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), conversationCredentials: Conversation.ConversationCredentials(token: "def", id: "456"), acceptLanguage: "en")
 
@@ -21,19 +21,19 @@ class PayloadSenderTests: XCTestCase {
     }
 
     func testNormalOperation() throws {
-        self.payloadSender.repository = self.repository
+        self.payloadSender.saver = self.saver
 
         self.payloadSender.send(Payload(wrapping: "test1"))
         self.payloadSender.send(Payload(wrapping: "test2"))
         self.payloadSender.send(Payload(wrapping: "test3"))
 
-        // Payload sender should not save queue to repository by default.
-        XCTAssertEqual(self.repository.payloads.count, 0)
+        // Payload sender should not save queue to saver by default.
+        XCTAssertEqual(self.saver.payloads.count, 0)
 
         try self.payloadSender.savePayloadsIfNeeded()
 
-        // Payload sender should save queue to repository when asked.
-        XCTAssertEqual(self.repository.payloads.count, 3)
+        // Payload sender should save queue to saver when asked.
+        XCTAssertEqual(self.saver.payloads.count, 3)
 
         // Mock the payload send request to succeed.
         self.requestRetrier.result = .success(PayloadResponse())
@@ -51,7 +51,7 @@ class PayloadSenderTests: XCTestCase {
                 try self.payloadSender.savePayloadsIfNeeded()
 
                 // Payload queue should be empty
-                XCTAssertEqual(self.repository.payloads.count, 0)
+                XCTAssertEqual(self.saver.payloads.count, 0)
 
                 // Retrier should have made a request.
                 XCTAssertEqual(self.requestRetrier.requests.count, 4)
@@ -66,19 +66,19 @@ class PayloadSenderTests: XCTestCase {
     }
 
     func testHTTPClientError() throws {
-        self.payloadSender.repository = self.repository
+        self.payloadSender.saver = self.saver
 
         self.payloadSender.send(Payload(wrapping: "test1"))
         self.payloadSender.send(Payload(wrapping: "test2"))
         self.payloadSender.send(Payload(wrapping: "test3"))
 
-        // Payload sender should not save queue to repository by default.
-        XCTAssertEqual(self.repository.payloads.count, 0)
+        // Payload sender should not save queue to saver by default.
+        XCTAssertEqual(self.saver.payloads.count, 0)
 
         try self.payloadSender.savePayloadsIfNeeded()
 
-        // Payload sender should save queue to repository when asked.
-        XCTAssertEqual(self.repository.payloads.count, 3)
+        // Payload sender should save queue to saver when asked.
+        XCTAssertEqual(self.saver.payloads.count, 3)
 
         // Mock the payload send request to fail.
         self.requestRetrier.result = .failure(HTTPClientError.clientError(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations/1234/events")!, statusCode: 422, httpVersion: nil, headerFields: nil)!, nil))
@@ -96,7 +96,7 @@ class PayloadSenderTests: XCTestCase {
                 try self.payloadSender.savePayloadsIfNeeded()
 
                 // Payload queue should be empty
-                XCTAssertEqual(self.repository.payloads.count, 0)
+                XCTAssertEqual(self.saver.payloads.count, 0)
 
                 // Retrier should have made a request.
                 XCTAssertEqual(self.requestRetrier.requests.count, 4)
@@ -124,23 +124,23 @@ class PayloadSenderTests: XCTestCase {
     }
 
     func testImportantPayload() {
-        self.payloadSender.repository = self.repository
+        self.payloadSender.saver = self.saver
 
         self.payloadSender.send(Payload(wrapping: "test1"), persistEagerly: true)
 
-        // Payload sender should save queue to repository when `persistEagerly` is set.
-        XCTAssertEqual(self.repository.payloads.count, 1)
+        // Payload sender should save queue to saver when `persistEagerly` is set.
+        XCTAssertEqual(self.saver.payloads.count, 1)
     }
 
     func testDrain() throws {
-        self.payloadSender.repository = self.repository
+        self.payloadSender.saver = self.saver
 
         self.payloadSender.send(Payload(wrapping: "test1"))
         self.payloadSender.send(Payload(wrapping: "test2"))
         self.payloadSender.send(Payload(wrapping: "test3"))
 
-        // Payload sender should not save queue to repository by default.
-        XCTAssertEqual(self.repository.payloads.count, 0)
+        // Payload sender should not save queue to saver by default.
+        XCTAssertEqual(self.saver.payloads.count, 0)
 
         // Mock the payload send request to succeed.
         self.requestRetrier.result = .success(PayloadResponse())
@@ -189,12 +189,8 @@ class PayloadSenderTests: XCTestCase {
         }
     }
 
-    class SpyRepository: FileRepository<[Payload]> {
+    class SpySaver: Saver<[Payload]> {
         var payloads = [Payload]()
-
-        override func load() throws -> [Payload] {
-            return self.payloads
-        }
 
         override func save(_ object: [Payload]) throws {
             self.payloads = object

@@ -14,7 +14,9 @@ class BackendTests: XCTestCase {
     var backend: Backend!
     var requestor: SpyRequestor!
 
-    override func setUp() {
+    override func setUpWithError() throws {
+        try MockEnvironment.cleanContainerURL()
+
         let environment = MockEnvironment()
         let queue = DispatchQueue(label: "Test Queue")
 

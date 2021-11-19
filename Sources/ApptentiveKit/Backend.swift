@@ -46,8 +46,8 @@ class Backend {
 
     var messageCenterInForeground: Bool = false
 
-    /// The file repository used to load and save the conversation from/to persistent storage.
-    private var conversationRepository: PropertyListRepository<Conversation>?
+    /// The saver used to load and save the conversation from/to persistent storage.
+    private var conversationSaver: PropertyListSaver<Conversation>?
 
     /// The object that determines whether an interaction should be presented when an event is engaged.
     private var targeter: Targeter
@@ -144,12 +144,19 @@ class Backend {
     func protectedDataDidBecomeAvailable(containerURL: URL, environment: GlobalEnvironment) throws {
         try self.createContainerDirectoryIfNeeded(containerURL: containerURL, fileManager: environment.fileManager)
 
-        self.conversationRepository = PropertyListRepository<Conversation>(containerURL: containerURL, filename: "Conversation", fileManager: environment.fileManager)
-        self.payloadSender.repository = PayloadSender.createRepository(containerURL: containerURL, filename: "PayloadQueue", fileManager: environment.fileManager)
-        self.messageManager.messageListRepository = MessageManager.createRepository(containerURL: containerURL, filename: "MessageList", fileManager: environment.fileManager)
+        self.conversationSaver = PropertyListSaver<Conversation>(containerURL: containerURL, filename: CurrentLoader.conversationFilename, fileManager: environment.fileManager)
+        self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename, fileManager: environment.fileManager)
+        self.messageManager.messageListSaver = MessageManager.createSaver(containerURL: containerURL, filename: CurrentLoader.messagesFilename, fileManager: environment.fileManager)
 
-        // On the first call to `protectedDataDidBecomeAvailable(containerURL:environment:)`, update the in-memory conversation with data from any saved conversation.
-        try self.updateWithSavedConversationIfNeeded(containerURL: containerURL, environment: environment)
+        if self.conversationNeedsLoading {
+            CurrentLoader.loadLatestVersion(containerURL: containerURL, environment: environment) { loader in
+                try self.loadConversation(from: loader)
+                try self.payloadSender.load(from: loader)
+                try self.messageManager.load(from: loader)
+            }
+        } else {
+            ApptentiveLogger.default.info("In-memory conversation already contains data from any saved conversation.")
+        }
 
         // Because of potentially unbalanced calls to `load(containerURL:environment)` and `unload()`,
         // we suspend (but don't discard) the persistence timer. Therefore it should only be created once.
@@ -162,9 +169,9 @@ class Backend {
     ///
     /// Called when the device is locked with the app in the foreground.
     func protectedDataWillBecomeUnavailable() {
-        self.messageManager.messageListRepository = nil
-        self.payloadSender.repository = nil
-        self.conversationRepository = nil
+        self.messageManager.messageListSaver = nil
+        self.payloadSender.saver = nil
+        self.conversationSaver = nil
     }
 
     func willEnterForeground(environment: GlobalEnvironment) {
@@ -276,47 +283,19 @@ class Backend {
         self.payloadSender.send(Payload(wrapping: message), persistEagerly: true)
     }
 
-    /// Updates the in-memory conversation with the contents of a saved current or legacy conversation the first time it is called.
-    ///
-    /// Subsequent calls will have no effect.
-    /// - Parameters:
-    ///   - containerURL: The URL for the directory in which to look for the legacy conversation file.
-    ///   - environment: The Environment object used by the legacy conversation repository migration process.
-    /// - Throws: An error if the conversation file exists but can't be read, or if the saved conversation can't be merged with the in-memory conversation.
-    private func updateWithSavedConversationIfNeeded(containerURL: URL, environment: GlobalEnvironment) throws {
-        if self.conversationNeedsLoading {
-            guard let conversationRepository = self.conversationRepository else {
-                throw ApptentiveError.internalInconsistency
-            }
+    // MARK: - Private
 
-            if conversationRepository.fileExists {
-                ApptentiveLogger.default.info("Loading previously-saved conversation.")
+    /// Loads the conversation using the specified loader.
+    /// - Parameter loader: The loader that translates the stored conversation to the current format, if needed.
+    /// - Throws: An error if loading or merging the conversation fails.
+    private func loadConversation(from loader: Loader) throws {
+        let previousConversation = try loader.loadConversation()
+        self.conversation = try previousConversation.merged(with: self.conversation)
 
-                let savedConversation = try conversationRepository.load()
+        self.conversationNeedsLoading = false
 
-                self.conversation = try savedConversation.merged(with: self.conversation)
-
-                self.processChanges(from: savedConversation)
-            } else {
-                let legacyConversationRepository = LegacyConversationRepository(containerURL: containerURL, filename: "conversation-v1.meta", environment: environment)
-
-                if legacyConversationRepository.fileExists {
-                    ApptentiveLogger.default.info("Loading legacy conversation.")
-
-                    let legacyConversation = try legacyConversationRepository.load()
-
-                    self.conversation = try legacyConversation.merged(with: self.conversation)
-
-                    self.processChanges(from: legacyConversation)
-                } else {
-                    ApptentiveLogger.default.info("No current or legacy conversation found. Continuing with newly-created conversation.")
-                }
-            }
-
-            self.conversationNeedsLoading = false
-        } else {
-            ApptentiveLogger.default.info("In-memory conversation already contains data from any saved conversation.")
-        }
+        self.processChanges(from: previousConversation)
+        try self.saveConversationIfNeeded()
     }
 
     private func presentInteraction(_ interaction: Interaction, completion: ((Result<Bool, Error>) -> Void)?) throws {
@@ -401,12 +380,16 @@ class Backend {
             self.createConversationOnServer()
         }  // else we can't really do anything because we can't talk to the API.
 
-        // Mark the conversation as needing to be saved.
-        self.conversationNeedsSaving = true
+        if self.conversation != oldValue {
+            // Mark the conversation as needing to be saved.
+            self.conversationNeedsSaving = true
+        }
     }
 
     /// Saves the conversation and payload queue to persistent storage if needed.
-    func saveToPersistentStorageIfNeeded() {
+    ///
+    /// Would be private but needs to be internal for testing.
+    internal func saveToPersistentStorageIfNeeded() {
         do {
             try self.saveConversationIfNeeded()
             try self.payloadSender.savePayloadsIfNeeded()
@@ -418,8 +401,8 @@ class Backend {
 
     /// Saves the conversation to persistent storage.
     private func saveConversationIfNeeded() throws {
-        if let repository = self.conversationRepository, self.conversationNeedsSaving {
-            try repository.save(self.conversation)
+        if let saver = self.conversationSaver, self.conversationNeedsSaving {
+            try saver.save(self.conversation)
             self.conversationNeedsSaving = false
         }
     }
@@ -476,7 +459,7 @@ class Backend {
     }
 
     /// Retrieves a message list from the Apptentive API.
-    func getMessagesIfNeeded() {
+    private func getMessagesIfNeeded() {
         if ((self.messageManager.lastFetchDate ?? Date.distantPast) + self.messagePollingInterval) < Date() {
             self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessageList, Error>) in
                 switch result {

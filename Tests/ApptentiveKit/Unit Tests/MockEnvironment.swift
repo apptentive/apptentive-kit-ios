@@ -11,6 +11,19 @@ import UIKit
 @testable import ApptentiveKit
 
 struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
+    static let applicationSupportURL = URL(string: "file:///tmp/")!
+    static let containerName = "com.apptentive.feedback"
+
+    static func cleanContainerURL() throws {
+        let containerURL = self.applicationSupportURL.appendingPathComponent(self.containerName)
+
+        if FileManager.default.fileExists(atPath: containerURL.path) {
+            try FileManager.default.removeItem(at: containerURL)
+        }
+
+        try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true, attributes: [:])
+    }
+
     var identifierForVendor: UUID? = UUID(uuidString: "A230943F-14C7-4C57-BEA2-39EFC51F284C")
     var osName: String = "iOS"
     var osVersion: Version = "12.0"
@@ -49,7 +62,7 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
     var delegate: EnvironmentDelegate?
 
     func applicationSupportURL() throws -> URL {
-        return URL(string: "file:///tmp/")!
+        return Self.applicationSupportURL
     }
 
     var shouldOpenURLSucceed = true

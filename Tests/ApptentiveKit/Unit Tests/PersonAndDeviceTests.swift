@@ -40,6 +40,8 @@ class PersonAndDeviceTests: XCTestCase {
     var dispatchQueue: DispatchQueue!
 
     override func setUpWithError() throws {
+        try MockEnvironment.cleanContainerURL()
+
         self.dispatchQueue = DispatchQueue(label: "Test Queue")
 
         self.environment = MockEnvironment()
