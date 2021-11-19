@@ -267,7 +267,7 @@ class Backend {
     }
 
     func recordResponse(_ answers: [Answer], for questionID: String) {
-        self.conversation.interactions.invoke(for: questionID, with: answers)
+        self.conversation.interactions.record(answers, for: questionID)
     }
 
     /// Queues the specified message to be sent by the payload sender.

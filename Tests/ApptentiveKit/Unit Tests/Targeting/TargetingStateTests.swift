@@ -115,13 +115,13 @@ class TargetingStateTests: XCTestCase {
     }
 
     func testExistingInteraction() throws {
-        self.conversation.interactions.invoke(
-            for: "abc123",
-            with: [.choice("abc123"), .freeform("hey"), .other("def456", "you"), .range(-2)])
+        self.conversation.interactions.record(
+            [.choice("abc123"), .freeform("hey"), .other("def456", "you"), .range(-2)],
+            for: "abc123")
 
-        XCTAssertEqual(try self.conversation.value(for: "interactions/abc123/invokes/total") as? Int, 1)
-        XCTAssertEqual(try self.conversation.value(for: "interactions/abc123/invokes/cf_bundle_version") as? Int, 1)
-        XCTAssertEqual(try self.conversation.value(for: "interactions/abc123/invokes/cf_bundle_short_version_string") as? Int, 1)
+        XCTAssertEqual(try self.conversation.value(for: "interactions/abc123/invokes/total") as? Int, 0)
+        XCTAssertEqual(try self.conversation.value(for: "interactions/abc123/invokes/cf_bundle_version") as? Int, 0)
+        XCTAssertEqual(try self.conversation.value(for: "interactions/abc123/invokes/cf_bundle_short_version_string") as? Int, 0)
         XCTAssertEqual(
             try self.conversation.value(for: "interactions/abc123/answers/value") as? Set<Answer.Value>,
             Set([.string("hey"), .string("you"), .int(-2)]))
@@ -129,11 +129,9 @@ class TargetingStateTests: XCTestCase {
             try self.conversation.value(for: "interactions/abc123/answers/id") as? Set<String>,
             Set(["abc123", "def456"]))
 
-        guard let lastInvoked = try self.conversation.value(for: "interactions/abc123/last_invoked_at") as? Date else {
-            return XCTFail("Can't get date from conversation's interactions/abc123/last_invoked_at")
+        if try self.conversation.value(for: "interactions/abc123/last_invoked_at") != nil {
+            return XCTFail("interactions/abc123/last_invoked_at should be nil")
         }
-
-        XCTAssertEqual(lastInvoked.timeIntervalSince1970, Date().timeIntervalSince1970, accuracy: 1)
 
         self.conversation.interactions.resetBuild()
 

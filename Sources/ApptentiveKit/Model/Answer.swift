@@ -11,7 +11,7 @@ import Foundation
 /// An object describing an answer to a question.
 ///
 /// Questions that accept multiple answers will have more than one answer in the array for a particular question.
-enum Answer: Equatable, Codable {
+enum Answer: Equatable, Codable, Hashable {
     case choice(String)
     case freeform(String)
     case range(Int)

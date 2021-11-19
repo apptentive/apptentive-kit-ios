@@ -22,12 +22,22 @@ struct EngagementMetrics: Equatable, Codable {
     /// Calls `invoke` on the specified engagement metric.
     ///
     /// If no engagement metric exists for the specified key, one will be created.
-    /// - Parameters:
-    ///   - key: The key corresponding to the engagement metric to be invoked.
-    ///   - answers: The answers provided by the user, if any.
-    mutating func invoke(for key: String, with answers: [Answer] = []) {
+    /// - Parameter key: The key corresponding to the engagement metric to be invoked.
+    mutating func invoke(for key: String) {
         var metric = metrics[key] ?? EngagementMetric()
-        metric.invoke(with: answers)
+        metric.invoke()
+        self.metrics[key] = metric
+    }
+
+    /// Calls `record` on the specified engagement metric.
+    ///
+    /// If no engagement metric exists for the specified key, one will be created.
+    /// - Parameters:
+    ///   - answers: The interaction responses (answers) to be recorded.
+    ///   - key: The key corresponding to the engagement metric for which to record answers.
+    mutating func record(_ answers: [Answer], for key: String) {
+        var metric = metrics[key] ?? EngagementMetric()
+        metric.record(answers)
         self.metrics[key] = metric
     }
 
