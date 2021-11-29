@@ -30,7 +30,8 @@ extension Apptentive {
             let question = UIColor(named: "question", in: bundle, compatibleWith: nil),
             let messageBubbleInboundColor = UIColor(named: "messageBubbleInbound", in: bundle, compatibleWith: nil),
             let messageLabelInboundColor = UIColor(named: "messageLabelInbound", in: bundle, compatibleWith: nil),
-            let greetingSubmitButton = UIColor(named: "greetingSubmitButton", in: bundle, compatibleWith: nil)
+            let greetingSubmitButton = UIColor(named: "greetingSubmitButton", in: bundle, compatibleWith: nil),
+            let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil)
         else {
             assertionFailure("Unable to locate color asset(s).")
             return
@@ -105,7 +106,7 @@ extension Apptentive {
         UIColor.apptentiveSubmitButton = buttonTintColor
         UIColor.apptentiveQuestionLabel = question
         UIColor.apptentiveMessageBubbleInbound = messageBubbleInboundColor
-        UIColor.apptentiveMessageBubbleOutbound = buttonTintColor
+        UIColor.apptentiveMessageBubbleOutbound = messageBubbleOutboundColor
         UIColor.apptentiveBrandingImage = buttonTintColor
         UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
