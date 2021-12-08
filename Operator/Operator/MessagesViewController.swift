@@ -24,6 +24,8 @@ class MessagesViewController: UITableViewController, UIImagePickerControllerDele
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath {
+        case [0,0]:
+            self.apptentive.presentMessageCenter(from: self)
         case [1,1]:
             self.sendAttachmentImage()
         case [1,2]:

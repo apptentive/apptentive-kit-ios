@@ -75,4 +75,62 @@ class BackendTests: XCTestCase {
 
         self.wait(for: [expectation], timeout: 5)
     }
+
+    func testMessageCenterCustomData() {
+        let expectation = XCTestExpectation(description: "First message sent with custom data")
+
+        self.requestor.extraCompletion = {
+            if self.requestor.request?.url == URL(string: "https://api.apptentive.com/conversations/def456/messages") {
+                if let body = self.requestor.request?.httpBody {
+                    let jsonObject = try! JSONDecoder().decode(Payload.JSONObject.self, from: body)
+
+                    guard case Payload.SpecializedJSONObject.message(let expectedMessageContent) = jsonObject.specializedJSONObject else {
+                        return XCTFail("Expected message JSON")
+                    }
+
+                    XCTAssertEqual(expectedMessageContent.customData?["string"] as? String, "string")
+                    XCTAssertEqual(expectedMessageContent.customData?["number"] as? Int, 5)
+                    XCTAssertEqual(expectedMessageContent.customData?["boolean"] as? Bool, true)
+                } else {
+                    XCTFail("Expected HTTP body.")
+                }
+                expectation.fulfill()
+            }
+        }
+
+        var customData = CustomData()
+
+        customData["string"] = "string"
+        customData["number"] = 5
+        customData["boolean"] = true
+
+        self.backend.messageCenterCustomData = customData
+
+        self.backend.sendMessage(Message(body: "Test Message"))
+
+        self.wait(for: [expectation], timeout: 5)
+
+        let expectation2 = XCTestExpectation(description: "Subsequent message sent without custom data")
+
+        self.requestor.extraCompletion = {
+            if self.requestor.request?.url == URL(string: "https://api.apptentive.com/conversations/def456/messages") {
+                if let body = self.requestor.request?.httpBody {
+                    let jsonObject = try! JSONDecoder().decode(Payload.JSONObject.self, from: body)
+
+                    guard case Payload.SpecializedJSONObject.message(let expectedMessageContent) = jsonObject.specializedJSONObject else {
+                        return XCTFail("Expected message JSON")
+                    }
+
+                    XCTAssertNil(expectedMessageContent.customData)
+                } else {
+                    XCTFail("Expected HTTP body.")
+                }
+                expectation2.fulfill()
+            }
+        }
+
+        self.backend.sendMessage(Message(body: "Test Message 2"))
+
+        self.wait(for: [expectation2], timeout: 5)
+    }
 }

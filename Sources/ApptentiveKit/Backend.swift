@@ -44,7 +44,14 @@ class Backend {
         }
     }
 
-    var messageCenterInForeground: Bool = false
+    var messageCenterInForeground: Bool = false {
+        didSet {
+            if !messageCenterInForeground {
+                // If message center is dismissed, clear any unsent custom data
+                self.messageCenterCustomData = nil
+            }
+        }
+    }
 
     /// The saver used to load and save the conversation from/to persistent storage.
     private var conversationSaver: PropertyListSaver<Conversation>?
@@ -81,6 +88,9 @@ class Backend {
             return self.configuration?.messageCenter.backgroundPollingInterval ?? 600
         }
     }
+
+    /// The custom data to send with the first message sent after presenting Message Center.
+    var messageCenterCustomData: CustomData?
 
     /// Initializes a new backend instance.
     /// - Parameters:
@@ -273,14 +283,29 @@ class Backend {
         }
     }
 
+    /// Records a response to an interaction for use later in targeting.
+    /// - Parameters:
+    ///   - answers: The answers that make up the response.
+    ///   - questionID: The identifier associated with the question or note.
     func recordResponse(_ answers: [Answer], for questionID: String) {
         self.conversation.interactions.record(answers, for: questionID)
     }
 
     /// Queues the specified message to be sent by the payload sender.
+    ///
+    /// If custom data was set when Message Center was presented,
+    /// the custom data is attached to the message (and removed
+    /// so that it won't be attached again to future messages).
     /// - Parameter message: The message to send.
     func sendMessage(_ message: Message) {
-        self.payloadSender.send(Payload(wrapping: message), persistEagerly: true)
+        var messageWithCustomData = message
+
+        if let customData = self.messageCenterCustomData {
+            messageWithCustomData.customData = customData
+            self.messageCenterCustomData = nil
+        }
+
+        self.payloadSender.send(Payload(wrapping: messageWithCustomData), persistEagerly: true)
     }
 
     // MARK: - Private

@@ -48,34 +48,39 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
         self.interaction = interaction
     }
 
-    /// Convenience property for a launch event.
+    /// Convenience method for a `launch` event.
     static func launch(from interaction: Interaction? = nil) -> Self {
         return Self(internalName: "launch", interaction: interaction)
     }
 
-    /// Convenience property for an exit event.
+    /// Convenience method for an `exit` event.
     static func exit(from interaction: Interaction? = nil) -> Self {
         return Self(internalName: "exit", interaction: interaction)
     }
 
-    /// Convenience property for a submit event (e.g. a survey).
+    /// Convenience method for a `submit` event (e.g. a survey).
     static func submit(from interaction: Interaction?) -> Self {
         return Self(internalName: "submit", interaction: interaction)
     }
 
-    /// Convenience property for a cancel event (e.g. a survey).
+    /// Convenience method for a `cancel` event (e.g. a survey).
     static func cancel(from interaction: Interaction?) -> Self {
         return Self(internalName: "cancel", interaction: interaction)
     }
 
-    /// Convenience property for a continue_partial event (e.g. a survey).
+    /// Convenience method for a `continue_partial` event (e.g. a survey).
     static func continuePartial(from interaction: Interaction?) -> Self {
         return Self(internalName: "continue_partial", interaction: interaction)
     }
 
-    /// Convenience property for a cancel_partial event (e.g. a survey).
+    /// Convenience method for a `cancel_partial` event (e.g. a survey).
     static func cancelPartial(from interaction: Interaction?) -> Self {
         return Self(internalName: "cancel_partial", interaction: interaction)
+    }
+
+    /// Convenience property for a `show_message_center` event (presents message center).
+    static var showMessageCenter: Self {
+        return Self(internalName: "show_message_center")
     }
 
     /// Returns a `#`-separated string incorporating the vendor, interaction and name, all appropriately percent-escaped.

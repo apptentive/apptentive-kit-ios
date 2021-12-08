@@ -176,6 +176,32 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
     }
 
+    // MARK: Message Center
+
+    /// Presents Apptentive's Message Center using the specified view controller for presentation.
+    /// - Parameters:
+    ///   - viewController: The view controller from which to present Message Center.
+    ///   - completion: Called with the result of the message center presentation request.
+    public func presentMessageCenter(from viewController: UIViewController?, completion: ((Result<Bool, Error>) -> Void)? = nil) {
+        self.engage(event: .showMessageCenter, from: viewController, completion: completion)
+    }
+
+    /// Presents Apptentive's Message Center using the specified view controller for presentation,
+    /// attaching the specified custom data to the first message (if any) sent by the user.
+    /// - Parameters:
+    ///   - viewController: The view controller from which to present Message Center.
+    ///   - customData: The custom data to send along with the message.
+    ///   - completion: Called with the result of the message center presentation request.
+    public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData?, completion: ((Result<Bool, Error>) -> Void)? = nil) {
+        if let customData = customData {
+            self.backendQueue.async {
+                self.backend.messageCenterCustomData = customData
+            }
+        }
+
+        self.presentMessageCenter(from: viewController, completion: completion)
+    }
+
     /// Sends the specified text as a hidden message to the app's dashboard.
     /// - Parameter text: The text to send in the body of the message.
     @objc(sendAttachmentText:)

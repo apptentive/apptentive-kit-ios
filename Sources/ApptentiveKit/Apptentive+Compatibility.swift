@@ -149,32 +149,55 @@ extension Apptentive {
         return [:]
     }
 
-    @available(*, deprecated, message: "Message Center is not implemented and this method will always result in false.")
+    @available(*, deprecated, message: "This feature is not implemented and will always result in false.")
     @objc public func queryCanShowMessageCenter(completion: @escaping (Bool) -> Void) {
         completion(false)
     }
 
-    @available(*, deprecated, message: "Message Center is not implemented and this method will always result in false.")
-    @objc public func presentMessageCenter(from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
-        completion?(false)
+    @available(swift, deprecated: 5.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
+    @objc(presentMessageCenterFromViewController:completion:)
+    public func presentMessageCenterCompat(from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
+        self.presentMessageCenter(from: viewController) { result in
+            switch result {
+            case .success(let didShow):
+                completion?(didShow)
+
+            default:
+                completion?(false)
+            }
+        }
     }
 
-    @available(*, deprecated, message: "Message Center is not implemented and this method will always result in false.")
-    @objc public func presentMessageCenter(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?, completion: ((Bool) -> Void)? = nil) {
-        completion?(false)
+    @objc(presentMessageCenterFromViewController:withCustomData:)
+    public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?) {
+        self.presentMessageCenter(from: viewController, with: Self.convertCustomData(customData))
     }
 
-    @available(*, deprecated, message: "Message Center is not implemented and this method will always result in false.")
+    @available(swift, deprecated: 5.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
+    @objc(presentMessageCenterFromViewController:withCustomData:completion:)
+    public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?, completion: ((Bool) -> Void)? = nil) {
+        self.presentMessageCenter(from: viewController, with: Self.convertCustomData(customData)) { result in
+            switch result {
+            case .success(let didShow):
+                completion?(didShow)
+
+            default:
+                completion?(false)
+            }
+        }
+    }
+
+    @available(*, deprecated, message: "This feature is not implemented and this method will always result in false.")
     @objc public func dismissMessageCenter(animated: Bool, completion: (() -> Void)? = nil) {
         completion?()
     }
 
-    @available(*, deprecated, message: "Message Center is not implemented and this property will always return 0.")
+    @available(*, deprecated, message: "This feature is not implemented and this property will always return 0.")
     @objc public var unreadMessageCount: UInt {
         return 0
     }
 
-    @available(*, deprecated, message: "Message Center is not implemented and this property will return an empty view.")
+    @available(*, deprecated, message: "This feature is not implemented and this property will return an empty view.")
     @objc public func unreadMessageCountAccessoryView(apptentiveHeart: Bool) -> UIView {
         return UIView(frame: .zero)
     }
@@ -327,6 +350,30 @@ extension Apptentive {
         set {
             ApptentiveLogger.logLevel = newValue.logLevel
         }
+    }
+
+    private static func convertCustomData(_ legacyCustomData: [AnyHashable: Any]?) -> CustomData {
+        guard let legacyCustomData = legacyCustomData else {
+            return CustomData()
+        }
+
+        var migratedCustomData = CustomData()
+
+        for (key, value) in legacyCustomData {
+            guard let key = key as? String else {
+                assertionFailure("Custom data keys must be strings.")
+                continue
+            }
+
+            guard let value = value as? CustomDataCompatible else {
+                assertionFailure("Custom data values must be strings, numbers, or booleans.")
+                continue
+            }
+
+            migratedCustomData[key] = value
+        }
+
+        return migratedCustomData
     }
 }
 

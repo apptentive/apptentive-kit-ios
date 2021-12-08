@@ -409,9 +409,6 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <connections>
-                                            <segue destination="TlF-L7-Pa5" kind="presentation" id="cbZ-g6-pXW"/>
-                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -433,6 +430,9 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="TlF-L7-Pa5" kind="presentation" id="rSu-m7-otg"/>
+                                        </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="EnL-cF-Zgq" style="IBUITableViewCellStyleDefault" id="V2P-GJ-0bU">
                                         <rect key="frame" x="0.0" y="141" width="414" height="43.5"/>
