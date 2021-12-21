@@ -9,7 +9,17 @@
 import Foundation
 
 /// The HTTP request body object sent when creating a conversation on the server.
-struct ConversationRequest: Codable, Equatable {
+struct ConversationRequest: Codable, Equatable, HTTPBodyPart {
+    var contentType: String = HTTPContentType.json
+
+    var filename: String? = nil
+
+    var parameterName: String? = nil
+
+    func content(using encoder: JSONEncoder) throws -> Data {
+        return try encoder.encode(self)
+    }
+
     init(conversation: Conversation) {
         self.appRelease = AppReleaseContent(with: conversation.appRelease)
         self.device = DeviceContent(with: conversation.device)

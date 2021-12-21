@@ -177,11 +177,11 @@ struct ApptentiveV9API: HTTPEndpoint {
     ///   - method: The HTTP method for the request.
     ///   - bodyObject: The object that should be encoded for the HTTP body of the request.
     ///   - requiresConversationCredentials: Whether the request should send conversation credentials and be scoped to the conversation.
-    init(credentials: APICredentialsProviding, path: String, method: HTTPMethod, bodyObject: Encodable? = nil, requiresConversationCredentials: Bool = true) {
+    init(credentials: APICredentialsProviding, path: String, method: HTTPMethod, bodyObject: HTTPBodyPart? = nil, requiresConversationCredentials: Bool = true) {
         var bodyParts = [HTTPBodyPart]()
 
         if let bodyObject = bodyObject {
-            bodyParts.append(.jsonEncoded(bodyObject))
+            bodyParts.append(bodyObject)
         }
 
         self.init(credentials: credentials, path: path, method: method, bodyParts: bodyParts, requiresConversationCredentials: requiresConversationCredentials)

@@ -32,10 +32,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
     ///
     /// This array will contain a single item except for payloads that include attachments.
     var bodyParts: [HTTPBodyPart] {
-        return [.jsonEncoded(self.jsonObject, name: self.jsonObject.firstBodyPartName)]
-            + self.attachments.map { attachment in
-                return .raw(attachment.data, mediaType: attachment.mediaType, filename: attachment.filename)
-            }
+        return [self.jsonObject] + self.attachments
     }
 
     var debugDescription: String {
@@ -73,17 +70,8 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
 
     /// Creates a new payload to send a message.
     /// - Parameter message: The message to send.
-    init(wrapping message: Message) {
-        let attachments: [Attachment] = message.attachments.compactMap { messageAttachment in
-            guard let data = messageAttachment.data else {
-                assertionFailure("Outgoing message attachment missing its data.")
-                return nil
-            }
-
-            return Attachment(data: data, mediaType: messageAttachment.mediaType, filename: messageAttachment.filename)
-        }
-
-        self.init(specializedJSONObject: .message(MessageContent(with: message)), path: "messages", method: .post, attachments: attachments)
+    init(wrapping message: OutgoingMessage) {
+        self.init(specializedJSONObject: .message(MessageContent(with: message)), path: "messages", method: .post, attachments: message.attachments)
     }
 
     /// Initializes a new payload.
@@ -100,7 +88,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
     }
 
     /// Represents JSON request data and augments it with universal parameters for the Apptentive API.
-    struct JSONObject: Codable, Equatable {
+    struct JSONObject: Codable, Equatable, HTTPBodyPart {
         /// The per-type payload content that should be wrapped.
         let specializedJSONObject: SpecializedJSONObject
 
@@ -122,8 +110,18 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         /// The name for JSON that will be included in a multipart request.
         ///
         /// Used as the value for the `name` attribute of the part's `Content-Disposition` header.
-        var firstBodyPartName: String? {
+        var parameterName: String? {
             return self.shouldStripContainer ? self.specializedJSONObject.containerKey.rawValue : nil
+        }
+
+        var filename: String? = nil
+
+        var contentType: String {
+            return HTTPContentType.json
+        }
+
+        func content(using encoder: JSONEncoder) throws -> Data {
+            return try encoder.encode(self)
         }
 
         init(specializedJSONObject: SpecializedJSONObject, shouldStripContainer: Bool = false) {
@@ -345,10 +343,30 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         case isHidden = "hidden"
     }
 
-    struct Attachment: Codable, Equatable {
-        let data: Data
-        let mediaType: String
-        let filename: String
+    /// Describes the media attachment assoiciated with each message.
+    struct Attachment: Codable, Equatable, HTTPBodyPart {
+        /// The value for the `name` part of the `Content-Disposition` header.
+        var parameterName: String? = "file[]"
+        /// The value for the `Content-Type` header.
+        var contentType: String
+        /// The filename to use in the `Content-Disposition` header.
+        let filename: String?
+        /// The URL for the file type.
+        let contents: AttachmentContents
+
+        func content(using encoder: JSONEncoder) throws -> Data {
+            switch self.contents {
+            case .file(let url):
+                return try Data(contentsOf: url)
+            case .data(let data):
+                return data
+            }
+        }
+
+        enum AttachmentContents: Codable, Equatable {
+            case file(URL)
+            case data(Data)
+        }
     }
 }
 

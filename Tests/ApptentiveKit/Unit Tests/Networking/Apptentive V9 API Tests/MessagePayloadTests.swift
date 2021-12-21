@@ -27,7 +27,7 @@ class MessagePayloadTests: XCTestCase {
         customData["number"] = 42
         customData["bool"] = true
 
-        let message = Message(body: "Test Message", isHidden: true, customData: customData, sentDate: Date())
+        let message = OutgoingMessage(body: "Test Message", customData: customData, isHidden: true)
 
         self.testPayload = Payload(wrapping: message)
 
@@ -37,10 +37,10 @@ class MessagePayloadTests: XCTestCase {
         let data1 = image1.pngData()!
         let data2 = image2.jpegData(compressionQuality: 0.5)!
 
-        let attachment1 = Message.Attachment(mediaType: "image/png", filename: "logo", url: nil, data: data1)
-        let attachment2 = Message.Attachment(mediaType: "image/jpeg", filename: "dog", url: nil, data: data2)
+        let attachment1 = Payload.Attachment(contentType: "image/png", filename: "logo", contents: .data(data1))
+        let attachment2 = Payload.Attachment(contentType: "image/jpeg", filename: "dog", contents: .data(data2))
 
-        let messageWithAttachments = Message(body: "Test Attachments", attachments: [attachment1, attachment2], isHidden: true, isAutomated: false)
+        let messageWithAttachments = OutgoingMessage(body: "Test Attachments", attachments: [attachment1, attachment2], isAutomated: false, isHidden: true)
 
         self.attachmentTestPayload = Payload(wrapping: messageWithAttachments)
 
@@ -99,17 +99,10 @@ class MessagePayloadTests: XCTestCase {
         XCTAssertEqual(parts[1].contentType, "image/png")
         XCTAssertEqual(parts[2].contentType, "image/jpeg")
 
-        XCTAssertEqual(parts[0].contentDisposition, "form-data; name=\"message\"")
-        XCTAssertEqual(parts[1].contentDisposition, "form-data; name=\"file[]\"; filename=\"logo\"")
-        XCTAssertEqual(parts[2].contentDisposition, "form-data; name=\"file[]\"; filename=\"dog\"")
+        let content0Data = try parts[0].content(using: self.jsonEncoder)
+        let actualDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: content0Data)
 
-        guard case HTTPBodyPart.BodyPartData.jsonEncoded(let content0Encodable) = parts[0].content else {
-            return XCTFail("Multipart first part is not JSON")
-        }
-
-        guard let actualDecodedContent = content0Encodable as? Payload.JSONObject,
-            case Payload.SpecializedJSONObject.message(let actualMessageContent) = actualDecodedContent.specializedJSONObject
-        else {
+        guard case Payload.SpecializedJSONObject.message(let actualMessageContent) = actualDecodedContent.specializedJSONObject else {
             return XCTFail("Multipart first part is not message-related")
         }
 
@@ -131,14 +124,8 @@ class MessagePayloadTests: XCTestCase {
 
         XCTAssertEqual(actualMessageContent, expectedMessageContent)
 
-        guard case HTTPBodyPart.BodyPartData.raw(let content1Data) = parts[1].content,
-            case HTTPBodyPart.BodyPartData.raw(let content2Data) = parts[2].content
-        else {
-            return XCTFail("Attachment body parts are not raw data")
-        }
-
-        XCTAssertEqual(content1Data, self.attachmentTestPayload.attachments[0].data)
-        XCTAssertEqual(content2Data, self.attachmentTestPayload.attachments[1].data)
+        try XCTAssertEqual(parts[1].content(using: self.jsonEncoder), self.attachmentTestPayload.attachments[0].content(using: self.jsonEncoder))
+        try XCTAssertEqual(parts[2].content(using: self.jsonEncoder), self.attachmentTestPayload.attachments[1].content(using: self.jsonEncoder))
     }
 
     func testSerializationWithAttachments() throws {

@@ -11,7 +11,7 @@ import XCTest
 
 @testable import ApptentiveKit
 
-class MessageCenterTests: XCTestCase {
+class MessageCenterViewModelTests: XCTestCase {
     var environment = MockEnvironment()
     var viewModel: MessageCenterViewModel?
     var spySender: SpyInteractionDelegate?
@@ -61,12 +61,11 @@ class MessageCenterTests: XCTestCase {
 
     func testMessageListPersistence() throws {
         let containerURL = try self.environment.applicationSupportURL().appendingPathComponent("com.apptentive.feedback")
-        let data = CustomData()
         let messageList = MessageList(
             messages: [
-                Message(
-                    body: nil, attachments: [Message.Attachment(mediaType: "test", filename: "test", url: nil, data: nil)], isHidden: true, customData: data, id: nil, sentByLocalUser: true, isAutomated: true,
-                    sender: Message.Sender(id: "test", name: nil, profilePhotoURL: nil), sentDate: Date())
+                MessageList.Message(
+                    id: "abc123", body: "test", attachments: [MessageList.Message.Attachment(contentType: "test", filename: "test", url: URL(string: "https://example.com")!)],
+                    sender: MessageList.Message.Sender(id: "def456", name: "Testy McTestface", profilePhotoURL: URL(string: "https://example.com")), sentDate: Date(), sentByLocalUser: true, isAutomated: true, isHidden: true)
             ], endsWith: nil, hasMore: true)
         let messageManager = MessageManager()
         messageManager.messageList = messageList
@@ -82,11 +81,23 @@ class MessageCenterTests: XCTestCase {
     }
 
     func testGetMessage() {
-        let message = Message(body: "Test", sentDate: Date())
-        self.spySender?.messageManager?.messageList = MessageList(messages: [message], endsWith: nil, hasMore: false)
+        let messageList = MessageList(
+            messages: [
+                MessageList.Message(
+                    id: "abc123", body: "test", attachments: [MessageList.Message.Attachment(contentType: "test", filename: "test", url: URL(string: "https://example.com")!)],
+                    sender: MessageList.Message.Sender(id: "def456", name: "Testy McTestface", profilePhotoURL: URL(string: "https://example.com")), sentDate: Date(), sentByLocalUser: true, isAutomated: true, isHidden: true)
+            ], endsWith: nil, hasMore: true)
+
+        self.spySender?.messageManager.messageList = messageList
 
         self.spySender?.getMessages(completion: { messageManager in
-            XCTAssertEqual(messageManager.messageList?.messages[0].body, "Test")
+            XCTAssertEqual(messageManager.messageList?.messages[0].body, "test")
         })
+    }
+
+    func testSendMessage() {
+        self.viewModel?.sendMessage(withBody: "Test")
+
+        XCTAssertEqual(self.spySender?.message, OutgoingMessage(body: "Test"))
     }
 }

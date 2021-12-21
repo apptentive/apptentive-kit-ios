@@ -189,8 +189,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     @objc func sendMessage() {
-        let message = Message(body: self.composeContainerView.composeView.textView.text)
-        self.viewModel.sendMessage(message: message)
+        self.viewModel.sendMessage(withBody: self.composeContainerView.composeView.textView.text)
 
         self.composeContainerView.composeView.textView.text = ""
         self.composeContainerView.composeView.textView.resignFirstResponder()

@@ -20,7 +20,20 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     var downloadedMessageList: MessageList? {
         didSet {
             if let receivedMessageList = downloadedMessageList {
-                self.assembleGroupedMessages(messages: receivedMessageList.messages)
+                self.assembleGroupedMessages(
+                    messages: receivedMessageList.messages.map { (message: MessageList.Message) -> Message in
+                        let attachments = message.attachments.compactMap { attachment -> Message.Attachment? in
+                            guard let url = attachment.url else {
+                                return nil
+                            }
+
+                            return Message.Attachment(mediaType: attachment.contentType, filename: attachment.filename, url: url)
+                        }
+                        let sender = message.sender.flatMap { Message.Sender(id: $0.id, name: $0.name, profilePhotoURL: $0.profilePhotoURL) }
+
+                        return Message(
+                            id: message.id, sentByLocalUser: message.sentByLocalUser, isAutomated: message.isAutomated, isHidden: message.isHidden, attachments: attachments, sender: sender, body: message.body, sentDate: message.sentDate, wasRead: false)
+                    })
                 self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
             }
         }
@@ -35,7 +48,20 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     var messageManager: MessageManager? {
         didSet {
             if let messageList = self.messageManager?.messageList {
-                self.assembleGroupedMessages(messages: messageList.messages)
+                self.assembleGroupedMessages(
+                    messages: messageList.messages.map { (message: MessageList.Message) -> Message in
+                        let attachments = message.attachments.compactMap { attachment -> Message.Attachment? in
+                            guard let url = attachment.url else {
+                                return nil
+                            }
+
+                            return Message.Attachment(mediaType: attachment.contentType, filename: attachment.filename, url: url)
+                        }
+                        let sender = message.sender.flatMap { Message.Sender(id: $0.id, name: $0.name, profilePhotoURL: $0.profilePhotoURL) }
+
+                        return Message(
+                            id: message.id, sentByLocalUser: message.sentByLocalUser, isAutomated: message.isAutomated, isHidden: message.isHidden, attachments: attachments, sender: sender, body: message.body, sentDate: message.sentDate, wasRead: false)
+                    })
                 self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
             }
         }
@@ -125,10 +151,11 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.interactionDelegate?.messageCenterInForeground = false
     }
 
-    /// Adds the message to the array of messages and calls the sendMessage function from the InteractionDelegate  to send the Message to the Apptentive API.
-    /// - Parameter message: The message to be sent.
-    public func sendMessage(message: Message) {
-        self.messageManager?.messageList?.messages.append(message)
+    /// Creates a message with the specified body and tells the interaction delegate to send it.
+    /// - Parameter body: The body of the message to be sent.
+    public func sendMessage(withBody body: String) {
+        let message = OutgoingMessage(body: body)
+
         self.interactionDelegate?.sendMessage(message)
     }
 

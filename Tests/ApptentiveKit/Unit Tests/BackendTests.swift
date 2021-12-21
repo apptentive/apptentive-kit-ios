@@ -106,7 +106,7 @@ class BackendTests: XCTestCase {
 
         self.backend.messageCenterCustomData = customData
 
-        self.backend.sendMessage(Message(body: "Test Message"))
+        self.backend.sendMessage(OutgoingMessage(body: "Test Message"))
 
         self.wait(for: [expectation], timeout: 5)
 
@@ -129,7 +129,7 @@ class BackendTests: XCTestCase {
             }
         }
 
-        self.backend.sendMessage(Message(body: "Test Message 2"))
+        self.backend.sendMessage(OutgoingMessage(body: "Test Message 2"))
 
         self.wait(for: [expectation2], timeout: 5)
     }

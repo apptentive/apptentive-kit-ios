@@ -297,7 +297,7 @@ class Backend {
     /// the custom data is attached to the message (and removed
     /// so that it won't be attached again to future messages).
     /// - Parameter message: The message to send.
-    func sendMessage(_ message: Message) {
+    func sendMessage(_ message: OutgoingMessage) {
         var messageWithCustomData = message
 
         if let customData = self.messageCenterCustomData {

@@ -41,7 +41,7 @@ class ApptentiveV9APITests: XCTestCase {
     func testBuildRequest() throws {
         let path = "foo"
         let method = HTTPMethod.delete
-        let bodyObject = MockCodable(foo: "foo", bar: "bar")
+        let bodyObject = MockHTTPBodyPart(foo: "foo", bar: "bar")
         let baseURL = URL(string: "https://api.example.com/")!
         var conversation = Conversation(environment: MockEnvironment())
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
@@ -71,21 +71,21 @@ class ApptentiveV9APITests: XCTestCase {
     func testBuildMultipartRequest() throws {
         let path = "foo"
         let method = HTTPMethod.delete
-        let bodyObject = MockCodable(foo: "foo", bar: "bar")
+        let bodyObject = MockHTTPBodyPart(foo: "foo", bar: "bar")
         let baseURL = URL(string: "https://api.example.com/")!
         var conversation = Conversation(environment: MockEnvironment())
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
         conversation.conversationCredentials = Conversation.ConversationCredentials(token: "def", id: "456")
 
-        let part1 = HTTPBodyPart.jsonEncoded(bodyObject)
+        let part1 = bodyObject
 
         let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: type(of: self)), compatibleWith: nil)!
         let data1 = image1.pngData()!
-        let part2 = HTTPBodyPart.raw(data1, mediaType: "image/png", filename: "logo")
+        let part2 = Payload.Attachment(contentType: "image/png", filename: "logo", contents: .data(data1))
 
         let image2 = UIImage(named: "dog", in: Bundle(for: type(of: self)), compatibleWith: nil)!
         let data2 = image2.jpegData(compressionQuality: 0.5)!
-        let part3 = HTTPBodyPart.raw(data2, mediaType: "image/jpeg", filename: "dog")
+        let part3 = Payload.Attachment(contentType: "image/jpeg", filename: "dog", contents: .data(data2))
 
         let endpoint = ApptentiveV9API(credentials: conversation, path: path, method: method, bodyParts: [part1, part2, part3])
 
@@ -130,7 +130,7 @@ class ApptentiveV9APITests: XCTestCase {
         XCTAssertEqual(parts[1].headers, expectedPartHeaders[1])
         XCTAssertEqual(parts[2].headers, expectedPartHeaders[2])
 
-        let decodedBodyObject = try JSONDecoder().decode(MockCodable.self, from: parts[0].content)
+        let decodedBodyObject = try JSONDecoder().decode(MockHTTPBodyPart.self, from: parts[0].content)
         XCTAssertEqual(bodyObject, decodedBodyObject)
         XCTAssertEqual(parts[1].content, data1)
         XCTAssertEqual(parts[2].content, data2)
@@ -400,10 +400,10 @@ class ApptentiveV9APITests: XCTestCase {
         let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: type(of: self)), compatibleWith: nil)!
         let image2 = UIImage(named: "dog", in: Bundle(for: type(of: self)), compatibleWith: nil)!
 
-        let attachment1 = Message.Attachment(mediaType: "image/png", filename: "apptentive-logo", url: nil, data: image1.pngData())
-        let attachment2 = Message.Attachment(mediaType: "image/jpeg", filename: "dog", url: nil, data: image2.jpegData(compressionQuality: 0.5))
+        let attachment1 = Payload.Attachment(contentType: "image/png", filename: "apptentive-logo", contents: .data(image1.pngData()!))
+        let attachment2 = Payload.Attachment(contentType: "image/jpeg", filename: "dog", contents: .data(image2.jpegData(compressionQuality: 0.5)!))
 
-        let message = Message(body: "Test Message", attachments: [attachment1, attachment2])
+        let message = OutgoingMessage(body: "Test Message", attachments: [attachment1, attachment2])
 
         let expectation = XCTestExpectation()
 
@@ -498,7 +498,17 @@ class ApptentiveV9APITests: XCTestCase {
         let content: Data
     }
 
-    struct MockCodable: Codable, Equatable {
+    struct MockHTTPBodyPart: Codable, Equatable, HTTPBodyPart {
+        var contentType: String = HTTPContentType.json
+
+        var filename: String? = nil
+
+        var parameterName: String? = nil
+
+        func content(using encoder: JSONEncoder) throws -> Data {
+            return try encoder.encode(self)
+        }
+
         let foo: String
         let bar: String
     }

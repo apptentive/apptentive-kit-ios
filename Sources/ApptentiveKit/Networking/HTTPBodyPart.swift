@@ -10,53 +10,19 @@ import Foundation
 
 typealias mediaType = String
 
-/// Defines the body of an HTTP request, or for multipart requests, one of the parts of the body of the request.
-struct HTTPBodyPart {
-    let contentDisposition: String
-    let contentType: String
-    let content: BodyPartData
+protocol HTTPBodyPart {
+    var contentType: String { get }
+    var contentDisposition: String { get }
+    var filename: String? { get }
+    var parameterName: String? { get }
 
-    init(contentDisposition: String, contentType: String, data: BodyPartData) {
-        self.contentDisposition = contentDisposition
-        self.contentType = contentType
-        self.content = data
-    }
+    func content(using encoder: JSONEncoder) throws -> Data
+}
 
-    static func jsonEncoded(_ encodable: Encodable, name: String? = nil) -> Self {
-        return self.init(contentDisposition: "form-data; name=\"\(name ?? "data")\"", contentType: HTTPContentType.json, data: .jsonEncoded(encodable))
-    }
-
-    static func raw(_ data: Data, mediaType: String, filename: String? = nil, parameterName: String? = nil) -> Self {
-        return self.init(contentDisposition: "form-data; name=\"\(parameterName ?? "file[]")\"; filename=\"\(filename ?? "File")\"", contentType: mediaType, data: .raw(data))
-    }
-
-    func content(using encoder: JSONEncoder) throws -> Data {
-        switch self.content {
-        case .raw(let data):
-            return data
-
-        case .jsonEncoded:
-            return try encoder.encode(self.content)
-        }
-    }
-
-    /// Describes the content of a body part, either as raw `Data` or an unencoded JSON-encodable object.
-    ///
-    /// In order to make building requests non-throwing, the conversion of a JSON-encodable body part
-    /// is deferred until the request is converted to a `URLRequest`, meaning that all content
-    /// can't be stored as a raw `Data` object.
-    enum BodyPartData: Encodable {
-        case raw(Data)
-        case jsonEncoded(Encodable)
-
-        func encode(to encoder: Encoder) throws {
-            switch self {
-            case .jsonEncoded(let encodable):
-                return try encodable.encode(to: encoder)
-
-            default:
-                throw ApptentiveError.internalInconsistency
-            }
-        }
+extension HTTPBodyPart {
+    var contentDisposition: String {
+        ["form-data", "name=\"\(self.parameterName ?? "data")\"", self.filename.flatMap { "filename=\"\($0)\"" }]
+            .compactMap { $0 }
+            .joined(separator: "; ")
     }
 }

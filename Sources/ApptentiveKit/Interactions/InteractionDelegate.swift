@@ -19,7 +19,7 @@ protocol MessageProviding: AnyObject {
 protocol MessageSending: AnyObject {
     /// Sends the message object to the Apptentive API.
     /// - Parameter message: The message to be sent.
-    func sendMessage(_ message: Message)
+    func sendMessage(_ message: OutgoingMessage)
 
     var messageCenterInForeground: Bool { get set }
 }
