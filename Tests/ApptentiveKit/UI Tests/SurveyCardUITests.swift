@@ -11,7 +11,9 @@ import XCTest
 class SurveyCardUITests: XCTestCase {
 
     override func setUpWithError() throws {
-        XCUIApplication().launch()
+        let app = XCUIApplication()
+        app.launchArguments = ["-layerSpeed", "500"]
+        app.launch()
 
         XCUIApplication().tables.staticTexts["SurveyCard"].tap()
     }

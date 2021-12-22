@@ -10,7 +10,9 @@ import XCTest
 
 class TextModalUITests: XCTestCase {
     override func setUp() {
-        XCUIApplication().launch()
+        let app = XCUIApplication()
+        app.launchArguments = ["-layerSpeed", "500"]
+        app.launch()
     }
 
     func testLaunch() throws {

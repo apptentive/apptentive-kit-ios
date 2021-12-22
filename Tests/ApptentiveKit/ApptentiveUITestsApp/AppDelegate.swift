@@ -14,9 +14,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-        // Override point for customization after application launch.
+        UIApplication.shared.keyWindow?.layer.speed = UserDefaults.standard.float(forKey: "layerSpeed")
 
+        // Copy conversation data files so that the UI has stuff to display.
         do {
             let containerURL = try self.applicationSupportURL().appendingPathComponent("com.apptentive.feedback")
 

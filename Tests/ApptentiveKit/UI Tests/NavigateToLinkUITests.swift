@@ -10,7 +10,9 @@ import XCTest
 
 class NavigateToLinkUITests: XCTestCase {
     override func setUp() {
-        XCUIApplication().launch()
+        let app = XCUIApplication()
+        app.launchArguments = ["-layerSpeed", "500"]
+        app.launch()
     }
 
     func testHappyPath() {
@@ -20,7 +22,7 @@ class NavigateToLinkUITests: XCTestCase {
 
         tablesQuery.staticTexts["NavigateToLink"].tap()
 
-        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        // let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
 
         // This is causing problems in CI. Reevaluate once we migrate away from Travis.
         //        guard let connectionString = safari.buttons["URL"].value as? String else {
