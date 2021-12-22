@@ -16,10 +16,12 @@ class DeviceTests: XCTestCase {
 
         device.customData["string"] = "string"
         device.customData["number"] = 5
+        device.customData["float"] = 1.1
         device.customData["boolean"] = true
 
         XCTAssertEqual(device.customData["string"] as? String, "string")
         XCTAssertEqual(device.customData["number"] as? Int, 5)
+        XCTAssertEqual(device.customData["float"] as? Double, 1.1)
         XCTAssertEqual(device.customData["boolean"] as? Bool, true)
     }
 

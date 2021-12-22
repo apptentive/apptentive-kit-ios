@@ -95,7 +95,7 @@ class MessagePayloadTests: XCTestCase {
 
         XCTAssertEqual(parts.count, 3)
 
-        XCTAssertEqual(parts[0].contentType, "application/json")
+        XCTAssertEqual(parts[0].contentType, "application/json;charset=UTF-8")
         XCTAssertEqual(parts[1].contentType, "image/png")
         XCTAssertEqual(parts[2].contentType, "image/jpeg")
 

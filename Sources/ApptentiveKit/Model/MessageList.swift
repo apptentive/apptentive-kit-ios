@@ -104,10 +104,14 @@ struct MessageList: Codable {
             let filename: String
             /// The URL for downloading the attachment data.
             let url: URL?
+            /// The size of attachment data in bytes.
+            let size: Int?
 
             enum CodingKeys: String, CodingKey {
                 case contentType = "content_type"
-                case filename, url
+                case filename = "original_name"
+                case size
+                case url
             }
         }
     }

@@ -4,7 +4,7 @@
     "id":"5dd70b8f8bc3a0017909240c",
     "nonce":"5ED6FDBC-7E7C-463B-A57A-EFC5ABA13895",
     "inbound":true,
-    "attachments":[]
+    "attachments":[{"original_name": "file.txt", "url": "https://example.com/file.txt", "size": 123, "content_type": "text/plain"}]
     ,"created_at":1574374287.478,
     "sender":{"id":"5dd709938bc3a004a50f410c"
     ,"name":null,

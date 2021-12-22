@@ -103,8 +103,10 @@ class TargetingStateTests: XCTestCase {
         XCTAssertEqual(lastInvoked.timeIntervalSince1970, Date().timeIntervalSince1970, accuracy: 1)
 
         self.conversation.codePoints.resetBuild()
+        self.conversation.codePoints.resetVersion()
 
         XCTAssertEqual(try self.conversation.value(for: "code_point/local#app#test/invokes/cf_bundle_version") as? Int, 0)
+        XCTAssertEqual(try self.conversation.value(for: "code_point/local#app#test/invokes/cf_bundle_short_version_string") as? Int, 0)
     }
 
     func testUnseenCodePoint() throws {
@@ -134,8 +136,10 @@ class TargetingStateTests: XCTestCase {
         }
 
         self.conversation.interactions.resetBuild()
+        self.conversation.interactions.resetVersion()
 
         XCTAssertEqual(try self.conversation.value(for: "interactions/abc123/invokes/cf_bundle_version") as? Int, 0)
+        XCTAssertEqual(try self.conversation.value(for: "interactions/abc123/invokes/cf_bundle_short_version_string") as? Int, 0)
     }
 
     func testUnseenInteraction() throws {

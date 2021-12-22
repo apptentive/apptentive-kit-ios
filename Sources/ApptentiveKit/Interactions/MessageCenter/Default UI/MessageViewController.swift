@@ -6,9 +6,11 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
+import PhotosUI
 import UIKit
 
-class MessageViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate {
+class MessageViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate, PHPickerViewControllerDelegate, UIImagePickerControllerDelegate & UINavigationControllerDelegate, UIDocumentPickerDelegate {
+
     let viewModel: MessageCenterViewModel
     let headerView: GreetingHeaderView
     let footerView: MessageListFooterView
@@ -55,6 +57,13 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.composeContainerView.composeView.placeholderLabel.text = self.viewModel.composerPlaceholderText
         self.composeContainerView.composeView.sendButton.setTitle(self.viewModel.composerSendButtonTitle, for: .normal)
         self.composeContainerView.composeView.sendButton.addTarget(self, action: #selector(sendMessage), for: .touchUpInside)
+        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+        self.composeContainerView.composeView.sendButton.accessibilityLabel = self.viewModel.composerSendButtonTitle
+
+        self.composeContainerView.composeView.attachmentButton.addTarget(self, action: #selector(addAttachment), for: .touchUpInside)
+        self.composeContainerView.composeView.attachmentButton.isEnabled = self.viewModel.canAddAttachment
+        self.composeContainerView.composeView.sendButton.accessibilityLabel = self.viewModel.composerAttachButtonTitle
+
         self.textViewDidChange(self.composeContainerView.composeView.textView)
 
         self.tableView.tableHeaderView = self.headerView
@@ -146,23 +155,79 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         let textSize = textView.sizeThatFits(CGSize(width: textView.bounds.inset(by: textView.textContainerInset).width, height: CGFloat.greatestFiniteMagnitude))
 
         self.composeContainerView.composeView.textViewHeightConstraint?.constant = textSize.height
-        self.composeContainerView.composeView.sendButton.isEnabled = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+        self.viewModel.messageBody = textView.text
+    }
+
+    // MARK: - UIImagePickerControllerDelegate
+
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        picker.dismiss(animated: true, completion: nil)
+        let info = MessageViewController.convertFromUIImagePickerControllerInfoKeyDictionary(info)
+        if let image = info[MessageViewController.convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.originalImage)] as? UIImage {
+            do {
+                try self.viewModel.addImageAttachment(image)
+            } catch let error {
+                ApptentiveLogger.default.error("Error adding attachment: \(error)")
+            }
+        } else {
+            ApptentiveLogger.default.debug("Unable to find picked image!")
+        }
+
+    }
+
+    // MARK: - PHPickerViewControllerDelegate
+
+    @available(iOS 14, *)
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true, completion: nil)
+        for result in results {
+            result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
+                if let error = error {
+                    ApptentiveLogger.default.debug("Error selecting images from PHPicker: \(error).")
+                }
+                guard let image = object as? UIImage else {
+                    ApptentiveLogger.default.error("Expected UIImage from PHPickerViewController.")
+                    return
+                }
+
+                do {
+                    try self.viewModel.addImageAttachment(image)
+                } catch let error {
+                    ApptentiveLogger.default.error("Error adding attachment: \(error)")
+                }
+            }
+        }
+    }
+
+    // MARK: - UIDocumentPickerDelegate
+
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
+        controller.dismiss(animated: true)
+        do {
+            try self.viewModel.addFileAttachment(at: url)
+        } catch let error {
+            ApptentiveLogger.default.error("Error adding attachment: \(error)")
+        }
     }
 
     // MARK: - View Model Delegate
 
-    func messageCenterViewModelMessageListDidUpdate(_: MessageCenterViewModel) {
+    func messageCenterViewModelMessageListDidUpdate(_ viewModel: MessageCenterViewModel) {
         guard viewModel.numberOfMessageGroups > 0 else {
             return
         }
-        DispatchQueue.main.async {
-            UIView.transition(
-                with: self.tableView,
-                duration: 0.35,
-                options: .curveEaseIn,
-                animations: { self.tableView.reloadData() })
-        }
+
+        self.tableView.reloadData()
         self.scrollToBottom(true)
+    }
+
+    func messageCenterViewModelCanAddAttachmentDidUpdate(_ viewModel: MessageCenterViewModel) {
+        self.composeContainerView.composeView.attachmentButton.isEnabled = viewModel.canAddAttachment
+    }
+
+    func messageCenterViewModelCanSendMessageDidUpdate(_ viewModel: MessageCenterViewModel) {
+        self.composeContainerView.composeView.sendButton.isEnabled = viewModel.canSendMessage
     }
 
     // MARK: - Notifications
@@ -188,8 +253,16 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.dismiss()
     }
 
+    @objc func addAttachment() {
+        self.showAttachmentOptions()
+    }
+
     @objc func sendMessage() {
-        self.viewModel.sendMessage(withBody: self.composeContainerView.composeView.textView.text)
+        do {
+            try self.viewModel.sendMessage()
+        } catch let error {
+            ApptentiveLogger.default.error("Error when trying to send message: \(error).")
+        }
 
         self.composeContainerView.composeView.textView.text = ""
         self.composeContainerView.composeView.textView.resignFirstResponder()
@@ -223,5 +296,56 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
         let footerViewSize = self.footerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 100), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
         self.footerView.bounds = CGRect(origin: .zero, size: footerViewSize)
+    }
+
+    private func showAttachmentOptions() {
+        let alertController = UIAlertController(title: "Select an attachment type.", message: nil, preferredStyle: .actionSheet)
+        alertController.addAction(
+            UIAlertAction(
+                title: "Images", style: .default,
+                handler: { _ in
+                    if #available(iOS 14, *) {
+                        var config = PHPickerConfiguration()
+                        config.selectionLimit = self.viewModel.remainingAttachmentSlots
+                        config.filter = PHPickerFilter.images
+
+                        let pickerViewController = PHPickerViewController(configuration: config)
+                        pickerViewController.delegate = self
+                        self.present(pickerViewController, animated: true, completion: nil)
+                    } else {
+                        let imagePickerController = UIImagePickerController()
+                        imagePickerController.sourceType = .photoLibrary
+                        imagePickerController.delegate = self
+                        self.present(imagePickerController, animated: true, completion: nil)
+                    }
+
+                }))
+
+        alertController.addAction(
+            UIAlertAction(
+                title: "Files", style: .default,
+                handler: { _ in
+                    if #available(iOS 14.0, *) {
+                        let filePicker = UIDocumentPickerViewController(forOpeningContentTypes: UIDocumentPickerViewController.allUTTypes)
+                        filePicker.delegate = self
+                        self.present(filePicker, animated: true, completion: nil)
+                    } else {
+                        let filePicker = UIDocumentPickerViewController(documentTypes: UIDocumentPickerViewController.allFileTypes, in: .import)
+                        filePicker.delegate = self
+                        self.present(filePicker, animated: true, completion: nil)
+                    }
+                }))
+
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alertController.view.accessibilityIdentifier = "AddAttachment"
+        self.present(alertController, animated: true, completion: nil)
+    }
+
+    private static func convertFromUIImagePickerControllerInfoKeyDictionary(_ input: [UIImagePickerController.InfoKey: Any]) -> [String: Any] {
+        return Dictionary(uniqueKeysWithValues: input.map { key, value in (key.rawValue, value) })
+    }
+
+    private static func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
+        return input.rawValue
     }
 }

@@ -438,7 +438,9 @@ class Backend {
         persistenceTimer.setEventHandler { [weak self] in
             ApptentiveLogger.default.debug("Running periodic persistence task")
             self?.saveToPersistentStorageIfNeeded()
-            self?.getMessagesIfNeeded()
+            if self?.conversation.conversationCredentials != nil {
+                self?.getMessagesIfNeeded()
+            }
         }
 
         persistenceTimer.resume()

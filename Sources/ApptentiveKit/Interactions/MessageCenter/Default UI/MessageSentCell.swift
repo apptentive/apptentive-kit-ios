@@ -8,6 +8,7 @@
 
 import UIKit
 
+//FIXME: The sent bubble image right corner is cutoff.
 class MessageSentCell: UITableViewCell {
     let messageLabel: UILabel
     let dateLabel: UILabel

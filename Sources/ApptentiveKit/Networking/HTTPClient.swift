@@ -110,7 +110,7 @@ class HTTPClient {
 
         request.httpBody.flatMap {
             if request.allHTTPHeaderFields?["Content-Type"]?.contains("multipart") ?? false {
-                ApptentiveLogger.network.debug("Body: (multipart, base64 encoded for debugging) \($0.base64EncodedString())")
+                ApptentiveLogger.network.debug("Body: <multipart>")
             } else {
                 // It's likely this is either plain text or JSON, so it can be treated as a string.
                 ApptentiveLogger.network.debug("Body: \(String(data: $0, encoding: .utf8) ?? "<encoding error>")")
@@ -182,7 +182,11 @@ enum HTTPMethod: String, Codable {
 
 /// The content type of the request.
 struct HTTPContentType {
-    static let json = "application/json"
+    // Note: for some reason the charset part is absolutely required by the API for certain multi-part requests
+    // (those with both a body and attachments). Adding a space after the semicolon seems to break it.
+    // Making it not match the Accept header value also seems to break it (even with an Accept-Charset).
+    // You are advised to not change this.
+    static let json = "application/json;charset=UTF-8"
 
     static func multipart(boundary: String) -> String {
         return "multipart/mixed; boundary=\(boundary)"

@@ -144,6 +144,8 @@
 		01E7984B251C312200D24A05 /* SurveyResponseContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7984A251C312200D24A05 /* SurveyResponseContent.swift */; };
 		01E7986B251C32F200D24A05 /* SurveyResponsePayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7985D251C32A300D24A05 /* SurveyResponsePayloadTests.swift */; };
 		01EAECF2277132D90012B8C9 /* MessageCenterViewModel+Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EAECF1277132D90012B8C9 /* MessageCenterViewModel+Message.swift */; };
+		01EAECF5277280580012B8C9 /* BackgroundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EAECF4277280580012B8C9 /* BackgroundTests.swift */; };
+		01EAECF72772B9B90012B8C9 /* SDK Data in Resources */ = {isa = PBXBuildFile; fileRef = 01EAECF62772B9B90012B8C9 /* SDK Data */; };
 		01EB6C0624773AD90067F4B9 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 01EB6C0524773AD90067F4B9 /* Defaults.plist */; };
 		01ED6193257724250023208C /* TextModalViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ED61802577240A0023208C /* TextModalViewModelTests.swift */; };
 		01ED6199257724580023208C /* InteractionTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ED6198257724580023208C /* InteractionTestHelpers.swift */; };
@@ -177,6 +179,7 @@
 		EF9F405F271182E2005D7209 /* MessageCenterConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */; };
 		EF9F40AB27178F5E005D7209 /* MessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AA27178F5E005D7209 /* MessageViewController.swift */; };
 		EF9F40B0271894C7005D7209 /* MessageReceivedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */; };
+		EFC7887F273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7887E273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -371,6 +374,8 @@
 		01E7984A251C312200D24A05 /* SurveyResponseContent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyResponseContent.swift; sourceTree = "<group>"; };
 		01E7985D251C32A300D24A05 /* SurveyResponsePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyResponsePayloadTests.swift; sourceTree = "<group>"; };
 		01EAECF1277132D90012B8C9 /* MessageCenterViewModel+Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MessageCenterViewModel+Message.swift"; sourceTree = "<group>"; };
+		01EAECF4277280580012B8C9 /* BackgroundTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTests.swift; sourceTree = "<group>"; };
+		01EAECF62772B9B90012B8C9 /* SDK Data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "SDK Data"; sourceTree = "<group>"; };
 		01EB6C0524773AD90067F4B9 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Defaults.plist; sourceTree = "<group>"; };
 		01ED6166257723D20023208C /* TextModalUITests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextModalUITests.swift; sourceTree = "<group>"; };
 		01ED61802577240A0023208C /* TextModalViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextModalViewModelTests.swift; sourceTree = "<group>"; };
@@ -406,6 +411,7 @@
 		EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterConfiguration.swift; sourceTree = "<group>"; };
 		EF9F40AA27178F5E005D7209 /* MessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewController.swift; sourceTree = "<group>"; };
 		EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReceivedCell.swift; sourceTree = "<group>"; };
+		EFC7887E273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDocumentPickerViewController+FileTypes.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -884,6 +890,7 @@
 			isa = PBXGroup;
 			children = (
 				0165B7D125804336001DF54E /* AppleRatingDialogUITests.swift */,
+				01EAECF4277280580012B8C9 /* BackgroundTests.swift */,
 				019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */,
 				01ED6285257B113E0023208C /* NavigateToLinkUITests.swift */,
 				1F323D44240EED3000A678BC /* SurveyUITests.swift */,
@@ -899,6 +906,7 @@
 		1F323D4F240EEE0400A678BC /* ApptentiveUITestsApp */ = {
 			isa = PBXGroup;
 			children = (
+				01EAECF62772B9B90012B8C9 /* SDK Data */,
 				0170A04D24DA2D9300234BE6 /* Interactions */,
 				1F323D50240EEE0400A678BC /* AppDelegate.swift */,
 				1F323D6A240F2F0500A678BC /* ViewController.swift */,
@@ -946,6 +954,7 @@
 				014304002722305C00A07F79 /* MessageComposeView.swift */,
 				EF0E661527229687007A6457 /* GreetingHeaderView.swift */,
 				EF18B1BE2723104600F53D3A /* MessageListFooterView.swift */,
+				EFC7887E273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift */,
 			);
 			path = "Default UI";
 			sourceTree = "<group>";
@@ -1170,6 +1179,7 @@
 				1F323D5A240EEE0500A678BC /* Preview Assets.xcassets in Resources */,
 				1F323D57240EEE0500A678BC /* Assets.xcassets in Resources */,
 				010ADF442458F8C3005D63FE /* Main.storyboard in Resources */,
+				01EAECF72772B9B90012B8C9 /* SDK Data in Resources */,
 				0170A04E24DA2D9300234BE6 /* Interactions in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1184,6 +1194,7 @@
 				0165B7C4258042D3001DF54E /* AppleRatingDialogController.swift in Sources */,
 				013D8EA724F09B01005EC4D1 /* Person.swift in Sources */,
 				015F2AEC24CA2A94004B53E2 /* SurveySubmitView.swift in Sources */,
+				EFC7887F273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift in Sources */,
 				013D8EB924F5C99B005EC4D1 /* Backend.swift in Sources */,
 				01870CF0264358D800DC8796 /* QuestionCardView.swift in Sources */,
 				EF18B1BF2723104600F53D3A /* MessageListFooterView.swift in Sources */,
@@ -1345,6 +1356,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				01ED61B3257726C60023208C /* TextModalUITests.swift in Sources */,
+				01EAECF5277280580012B8C9 /* BackgroundTests.swift in Sources */,
 				01211C0B26810CC3009F0364 /* SurveyCardUITests.swift in Sources */,
 				1F323D45240EED3000A678BC /* SurveyUITests.swift in Sources */,
 				EF5FC3E125801734003E127B /* NotImplementedAlertUITests.swift in Sources */,

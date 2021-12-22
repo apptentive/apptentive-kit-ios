@@ -35,6 +35,7 @@ struct MessageCenterConfiguration: Codable {
 
     struct Composer: Codable {
         let title, hintText, sendButton, sendStart: String
+        let attachmentButton: String?
         let sendOk, sendFail, closeText, closeConfirmBody: String
         let closeDiscardButton, closeCancelButton: String
 
@@ -42,6 +43,7 @@ struct MessageCenterConfiguration: Codable {
             case title
             case hintText = "hint_text"
             case sendButton = "send_button"
+            case attachmentButton = "attachment_button"
             case sendStart = "send_start"
             case sendOk = "send_ok"
             case sendFail = "send_fail"

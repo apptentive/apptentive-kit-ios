@@ -111,7 +111,6 @@ class HTTPRequestRetrier: HTTPRequestStarting {
                 ApptentiveLogger.network.info("Permanent failure when sending request with identifier “\(identifier)”: \(error.localizedDescription).")
                 fallthrough
             }
-
         default:
             completion(result)
             self.requests[identifier] = nil

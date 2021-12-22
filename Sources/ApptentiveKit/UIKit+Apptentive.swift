@@ -61,10 +61,27 @@ extension UIButton {
 
 extension UIImage {
 
+    /// The image to use for the add attachment button for message center.
+    public static var apptentiveMessageAttachmentButton: UIImage? = {
+        if #available(iOS 13.0, *) {
+            return UIImage.init(systemName: "paperclip.circle.fill")?.withRenderingMode(.alwaysTemplate)
+        } else {
+            return UIImage(named: "attachmentButton", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        }
+    }()
+    /// The image to use for the button that sends messages for message center.
+    public static var apptentiveMessageSendButton: UIImage? = {
+        if #available(iOS 13.0, *) {
+            return UIImage.init(systemName: "paperplane.circle.fill")?.withRenderingMode(.alwaysTemplate)
+        } else {
+            return UIImage(named: "sendButton", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        }
+    }()
+
     /// The image to use for the greeting header view for message center.
     public static var apptentiveMessageHeader: UIImage? = {
         if #available(iOS 13.0, *) {
-            return UIImage.init(systemName: "bubble.left.and.bubble.right.fill")
+            return UIImage.init(systemName: "bubble.left.and.bubble.right.fill")?.withTintColor(.apptentiveMessageCenterAttachmentButton)
         } else {
             return UIImage(named: "messageHeader", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9))
         }
@@ -115,6 +132,11 @@ extension UIImage {
 }
 
 extension UIColor {
+
+    /// The border color to use for the message text view.
+    public static var apptentiveMessageCenterTextViewBorder: UIColor = {
+        return .darkGray
+    }()
 
     /// The text color for the textfield text color for the message center greeting.
     public static var messageCenterGreetingProfileInputText: UIColor = {

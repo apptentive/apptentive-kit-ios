@@ -207,7 +207,7 @@ struct ApptentiveV9API: HTTPEndpoint {
         self.bodyParts = bodyParts
 
         self.requiresConversationCredentials = requiresConversationCredentials
-        self.boundaryString = self.bodyParts.count > 1 ? Self.createRandomBase64String() : ""
+        self.boundaryString = Self.createRandomString()
     }
 
     static func encode(_ bodyPart: HTTPBodyPart, with encoder: JSONEncoder) throws -> Data {
@@ -240,19 +240,15 @@ struct ApptentiveV9API: HTTPEndpoint {
 
         result.append(dashes + boundary + dashes)
 
+        guard let url = URL(string: "file:///tmp/attach.hex") else { throw ApptentiveError.internalInconsistency }
+
+        try result.write(to: url)
+
         return result
     }
 
-    static func createRandomBase64String() -> String {
-        var bytes = [UInt8](repeating: 0, count: 32)
-        let result = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-
-        guard result == errSecSuccess else {
-            assertionFailure("Unable to generate multipart boundary string.")
-            return "com.apptentive.boundary"
-        }
-
-        return Data(bytes).base64EncodedString()
+    static func createRandomString() -> String {
+        return UUID().uuidString.replacingOccurrences(of: "-", with: "")
     }
 
     /// The API version to send for the request.

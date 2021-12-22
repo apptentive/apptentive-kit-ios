@@ -64,7 +64,7 @@ class MessageCenterViewModelTests: XCTestCase {
         let messageList = MessageList(
             messages: [
                 MessageList.Message(
-                    id: "abc123", body: "test", attachments: [MessageList.Message.Attachment(contentType: "test", filename: "test", url: URL(string: "https://example.com")!)],
+                    id: "abc123", body: "test", attachments: [MessageList.Message.Attachment(contentType: "test", filename: "test", url: URL(string: "https://example.com")!, size: nil)],
                     sender: MessageList.Message.Sender(id: "def456", name: "Testy McTestface", profilePhotoURL: URL(string: "https://example.com")), sentDate: Date(), sentByLocalUser: true, isAutomated: true, isHidden: true)
             ], endsWith: nil, hasMore: true)
         let messageManager = MessageManager()
@@ -84,7 +84,7 @@ class MessageCenterViewModelTests: XCTestCase {
         let messageList = MessageList(
             messages: [
                 MessageList.Message(
-                    id: "abc123", body: "test", attachments: [MessageList.Message.Attachment(contentType: "test", filename: "test", url: URL(string: "https://example.com")!)],
+                    id: "abc123", body: "test", attachments: [MessageList.Message.Attachment(contentType: "test", filename: "test", url: URL(string: "https://example.com")!, size: nil)],
                     sender: MessageList.Message.Sender(id: "def456", name: "Testy McTestface", profilePhotoURL: URL(string: "https://example.com")), sentDate: Date(), sentByLocalUser: true, isAutomated: true, isHidden: true)
             ], endsWith: nil, hasMore: true)
 
@@ -95,9 +95,21 @@ class MessageCenterViewModelTests: XCTestCase {
         })
     }
 
-    func testSendMessage() {
-        self.viewModel?.sendMessage(withBody: "Test")
+    func testSendMessage() throws {
+        self.viewModel?.messageBody = "Test"
+
+        try self.viewModel?.sendMessage()
 
         XCTAssertEqual(self.spySender?.message, OutgoingMessage(body: "Test"))
+    }
+    
+    @available(iOS 13.0, *)
+    func testAddImageAttachment() throws {
+        let image = UIImage.init(systemName: "doc")!
+        let queue = DispatchQueue(label: "AddImage")
+        self.viewModel?.messageBody = "Test"
+        try queue.sync {
+            try self.viewModel?.addImageAttachment(image)
+        }
     }
 }

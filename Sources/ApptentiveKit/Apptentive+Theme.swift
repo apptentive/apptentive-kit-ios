@@ -30,8 +30,9 @@ extension Apptentive {
             let question = UIColor(named: "question", in: bundle, compatibleWith: nil),
             let messageBubbleInboundColor = UIColor(named: "messageBubbleInbound", in: bundle, compatibleWith: nil),
             let messageLabelInboundColor = UIColor(named: "messageLabelInbound", in: bundle, compatibleWith: nil),
-            let greetingSubmitButton = UIColor(named: "greetingSubmitButton", in: bundle, compatibleWith: nil),
-            let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil)
+            let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil),
+            let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil),
+            let greetingSubmitButton = UIColor(named: "greetingSubmitButton", in: bundle, compatibleWith: nil)
         else {
             assertionFailure("Unable to locate color asset(s).")
             return
@@ -112,6 +113,7 @@ extension Apptentive {
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
         UIColor.apptentiveMessageCenterAttachmentButton = buttonTintColor
         UIColor.apptentiveMessageCenterGreetingSendMessageButton = greetingSubmitButton
+        UIColor.apptentiveMessageCenterTextViewBorder = messageTextInputBorderColor
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder

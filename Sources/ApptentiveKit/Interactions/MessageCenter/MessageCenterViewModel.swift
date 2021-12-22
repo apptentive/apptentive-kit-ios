@@ -7,14 +7,21 @@
 //
 
 import Foundation
+import MobileCoreServices
+import UIKit
 
 /// Represents an object that can be notified of a change to the message list.
 public protocol MessageCenterViewModelDelegate: AnyObject {
     func messageCenterViewModelMessageListDidUpdate(_: MessageCenterViewModel)
+
+    func messageCenterViewModelCanAddAttachmentDidUpdate(_: MessageCenterViewModel)
+
+    func messageCenterViewModelCanSendMessageDidUpdate(_: MessageCenterViewModel)
 }
 
 /// A class that describes the data in message center and allows messages to be gathered and transmitted.
 public class MessageCenterViewModel: MessageManagerDelegate {
+    static let maxAttachmentCount = 4
 
     /// The message list received from the backend when messages are refreshed.
     var downloadedMessageList: MessageList? {
@@ -34,7 +41,10 @@ public class MessageCenterViewModel: MessageManagerDelegate {
                         return Message(
                             id: message.id, sentByLocalUser: message.sentByLocalUser, isAutomated: message.isAutomated, isHidden: message.isHidden, attachments: attachments, sender: sender, body: message.body, sentDate: message.sentDate, wasRead: false)
                     })
-                self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+                DispatchQueue.main.async {
+                    self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+                }
+
             }
         }
     }
@@ -62,7 +72,9 @@ public class MessageCenterViewModel: MessageManagerDelegate {
                         return Message(
                             id: message.id, sentByLocalUser: message.sentByLocalUser, isAutomated: message.isAutomated, isHidden: message.isHidden, attachments: attachments, sender: sender, body: message.body, sentDate: message.sentDate, wasRead: false)
                     })
-                self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+                DispatchQueue.main.async {
+                    self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+                }
             }
         }
     }
@@ -76,8 +88,11 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// The title for the composer window.
     public let composerTitle: String
 
-    ///The title text  for the send button on the composer.
+    /// The title text for the send button on the composer.
     public let composerSendButtonTitle: String
+
+    /// The title text for the attach button in the composer.
+    public let composerAttachButtonTitle: String
 
     /// The hint text displayed in the text box for the composer.
     public let composerPlaceholderText: String
@@ -119,6 +134,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.branding = configuration.branding
         self.composerTitle = configuration.composer.title
         self.composerSendButtonTitle = configuration.composer.sendButton
+        self.composerAttachButtonTitle = configuration.composer.attachmentButton ?? "Add Attachment"
         self.composerPlaceholderText = configuration.composer.hintText
         self.composerCloseConfirmBody = configuration.composer.closeConfirmBody
         self.composerCloseDiscardButtonTitle = configuration.composer.closeDiscardButton
@@ -151,12 +167,16 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.interactionDelegate?.messageCenterInForeground = false
     }
 
-    /// Creates a message with the specified body and tells the interaction delegate to send it.
-    /// - Parameter body: The body of the message to be sent.
-    public func sendMessage(withBody body: String) {
-        let message = OutgoingMessage(body: body)
+    /// Adds the message to the array of messages and calls the sendMessage function from the InteractionDelegate  to send the Message to the Apptentive API.
+    /// - Throws: If the message has no body or attachments.
+    public func sendMessage() throws {
+        guard let message = self.draftMessage else {
+            throw MessageCenterViewModelError.messageHasNoBodyOrAttachments
+        }
 
         self.interactionDelegate?.sendMessage(message)
+
+        self.draftMessage = nil
     }
 
     /// Registers that the Message Center was successfully presented to the user.
@@ -227,6 +247,103 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         return self.message(at: indexPath).sender?.profilePhotoURL
     }
 
+    /// Attaches an image to the draft message.
+    /// - Parameter image: The image to attach.
+    /// - Throws: If attachment count greater than max or unable to get data from the image.
+    public func addImageAttachment(_ image: UIImage) throws {
+        guard self.canAddAttachment else {
+            throw MessageCenterViewModelError.attachmentCountGreaterThanMax
+        }
+
+        guard let data = image.jpegData(compressionQuality: 0.95) else {
+            throw MessageCenterViewModelError.unableToGetJPEGData
+        }
+
+        // ItemProvider calls its completion block off the main queue, so jump to the main queue for the UI updates.
+        DispatchQueue.main.async {
+            self.addAttachment(filename: self.getAttachmentFilename(), data: data, mediaType: "image/jpeg")
+        }
+    }
+
+    /// Attaches a file to the draft message.
+    /// - Parameter at: The URL of the file to attach.
+    /// - Throws: If attachment count is greater than the max allowed.
+    public func addFileAttachment(at: URL) throws {
+        guard self.canAddAttachment else {
+            throw MessageCenterViewModelError.attachmentCountGreaterThanMax
+        }
+
+        // Read the data into memory on a background queue.
+        DispatchQueue.global(qos: .utility).async {
+            if let data = try? Data(contentsOf: at) {
+                // Perform UI updates on the main queue.
+                DispatchQueue.main.async {
+                    self.addAttachment(filename: self.getAttachmentFilename(), data: data, mediaType: self.mediaType(for: at))
+                }
+            } else {
+                ApptentiveLogger.default.error("Unable to get data for attachment file at \(at).")
+            }
+        }
+    }
+
+    /// Removes an attachment from the draft message.
+    /// - Parameter index: The index of the attachment to remove.
+    /// - Throws: If the attachment index is out of range.
+    public func removeAttachment(at index: Int) throws {
+        guard let draftMessage = self.draftMessage, draftMessage.attachments.count > index else {
+            throw MessageCenterViewModelError.attachmentIndexOutOfRange
+        }
+
+        self.draftMessage?.attachments.remove(at: index)
+    }
+
+    /// The body of the draft message.
+    public var messageBody: String? {
+        get {
+            self.draftMessage?.body
+        }
+        set {
+            if self.draftMessage == nil {
+                self.draftMessage = OutgoingMessage()
+            }
+
+            self.draftMessage?.body = newValue
+
+            self.delegate?.messageCenterViewModelCanSendMessageDidUpdate(self)
+        }
+    }
+
+    /// The difference between the maximum number of attachments and the number
+    /// of attachments currently in the draft message.
+    var remainingAttachmentSlots: Int {
+        return Self.maxAttachmentCount - (self.draftMessage?.attachments.count ?? 0)
+    }
+
+    /// Whether the Add Attachment button should be enabled.
+    var canAddAttachment: Bool {
+        return self.remainingAttachmentSlots > 0
+    }
+
+    /// Whether the send button should be enabled.
+    var canSendMessage: Bool {
+        return self.draftMessage?.attachments.isEmpty == false || self.draftMessage?.body?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+    }
+
+    // MARK: - Private
+
+    private var draftMessage: OutgoingMessage?
+
+    private func addAttachment(filename: String, data: Data, mediaType: String) {
+        if self.draftMessage == nil {
+            self.draftMessage = OutgoingMessage()
+        }
+
+        self.draftMessage?.attachments.append(Payload.Attachment(contentType: mediaType, filename: filename, contents: .data(data)))
+
+        self.delegate?.messageCenterViewModelCanSendMessageDidUpdate(self)
+        self.delegate?.messageCenterViewModelCanAddAttachmentDidUpdate(self)
+    }
+
     private func message(at indexPath: IndexPath) -> Message {
         return self.groupedMessages[indexPath.section][indexPath.row]
     }
@@ -244,4 +361,30 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             self.groupedMessages.append(values ?? [])
         }
     }
+
+    private func mediaType(for url: URL) -> String {
+        let pathExtension = url.pathExtension
+
+        if let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as NSString, nil)?.takeRetainedValue() {
+            if let mimetype = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() {
+                return mimetype as String
+            }
+        }
+        return "application/octet-stream"
+    }
+
+    private func getAttachmentFilename() -> String {
+        guard let draftMessage = self.draftMessage else {
+            return "Attachment"
+        }
+
+        return "Attachment \(draftMessage.attachments.count + 1)"
+    }
+}
+
+public enum MessageCenterViewModelError: Error {
+    case attachmentCountGreaterThanMax
+    case attachmentIndexOutOfRange
+    case messageHasNoBodyOrAttachments
+    case unableToGetJPEGData
 }

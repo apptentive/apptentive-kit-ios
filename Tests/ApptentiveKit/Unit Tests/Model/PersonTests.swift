@@ -16,10 +16,12 @@ class PersonTests: XCTestCase {
 
         person.customData["string"] = "string"
         person.customData["number"] = 5
+        person.customData["float"] = 1.1
         person.customData["boolean"] = true
 
         XCTAssertEqual(person.customData["string"] as? String, "string")
         XCTAssertEqual(person.customData["number"] as? Int, 5)
+        XCTAssertEqual(person.customData["float"] as? Double, 1.1)
         XCTAssertEqual(person.customData["boolean"] as? Bool, true)
     }
 

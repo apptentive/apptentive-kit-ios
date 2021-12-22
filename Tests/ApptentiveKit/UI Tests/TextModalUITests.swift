@@ -18,8 +18,8 @@ class TextModalUITests: XCTestCase {
 
         tablesQuery.staticTexts["TextModal"].tap()
 
-        XCTAssertTrue(XCUIApplication().staticTexts["Message Title"].exists)
-        XCTAssertTrue(XCUIApplication().staticTexts["Message content."].exists)
+        XCTAssertTrue(XCUIApplication().alerts.element.staticTexts["Message Title"].exists)
+        XCTAssertTrue(XCUIApplication().alerts.element.staticTexts["Message content."].exists)
         XCTAssertTrue(XCUIApplication().buttons["Message Center"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Survey"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Link"].exists)

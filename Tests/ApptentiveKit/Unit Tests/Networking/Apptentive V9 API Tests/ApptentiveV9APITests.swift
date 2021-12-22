@@ -56,9 +56,9 @@ class ApptentiveV9APITests: XCTestCase {
             "APPTENTIVE-SIGNATURE": "123",
             "X-API-Version": "11",
             "User-Agent": "Apptentive/1.2.3 (Apple)",
-            "Content-Type": "application/json",
+            "Content-Type": "application/json;charset=UTF-8",
             "Authorization": "Bearer def",
-            "Accept": "application/json",
+            "Accept": "application/json;charset=UTF-8",
             "Accept-Charset": "UTF-8",
             "Accept-Language": "en",
         ]
@@ -98,7 +98,7 @@ class ApptentiveV9APITests: XCTestCase {
             "User-Agent": "Apptentive/1.2.3 (Apple)",
             "Content-Type": "multipart/mixed; boundary=\(endpoint.boundaryString)",
             "Authorization": "Bearer def",
-            "Accept": "application/json",
+            "Accept": "application/json;charset=UTF-8",
             "Accept-Charset": "UTF-8",
             "Accept-Language": "en",
         ]
@@ -113,7 +113,7 @@ class ApptentiveV9APITests: XCTestCase {
 
         let expectedPartHeaders = [
             [
-                "Content-Type": "application/json",
+                "Content-Type": "application/json;charset=UTF-8",
                 "Content-Disposition": "form-data; name=\"data\"",
             ],
             [
@@ -400,8 +400,11 @@ class ApptentiveV9APITests: XCTestCase {
         let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: type(of: self)), compatibleWith: nil)!
         let image2 = UIImage(named: "dog", in: Bundle(for: type(of: self)), compatibleWith: nil)!
 
-        let attachment1 = Payload.Attachment(contentType: "image/png", filename: "apptentive-logo", contents: .data(image1.pngData()!))
-        let attachment2 = Payload.Attachment(contentType: "image/jpeg", filename: "dog", contents: .data(image2.jpegData(compressionQuality: 0.5)!))
+        let data1 = image1.pngData()!
+        let data2 = image2.jpegData(compressionQuality: 0.5)!
+
+        let attachment1 = Payload.Attachment(contentType: "image/png", filename: "apptentive-logo", contents: .data(data1))
+        let attachment2 = Payload.Attachment(contentType: "image/jpeg", filename: "dog", contents: .data(data2))
 
         let message = OutgoingMessage(body: "Test Message", attachments: [attachment1, attachment2])
 
@@ -415,9 +418,42 @@ class ApptentiveV9APITests: XCTestCase {
 
             XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
 
-            // let parts = self.parseMultipartBody(request.request?.httpBody)
+            // get boundary from content type `multipart/mixed; boundary=<boundary>`
+            guard let contentType = requestor.request?.allHTTPHeaderFields?["Content-Type"],
+                  let boundaryAttribute = contentType.components(separatedBy: "; ").last,
+                  let boundary = boundaryAttribute.components(separatedBy: "=").last else {
+                return XCTFail("Unable to get boundary from Content-Type header.")
+            }
 
-            expectation.fulfill()
+            guard let body = requestor.request?.httpBody else {
+                return XCTFail("No multipart body.")
+            }
+
+            do {
+                let parts = try self.parseMultipartBody(body, boundary: boundary)
+
+                XCTAssertEqual(parts[0].headers["Content-Type"], "application/json;charset=UTF-8")
+                XCTAssertEqual(parts[0].headers["Content-Disposition"], "form-data; name=\"message\"")
+                let message = try JSONDecoder().decode(Payload.JSONObject.self, from: parts[0].content)
+
+                guard case Payload.SpecializedJSONObject.message(let messageContent) = message.specializedJSONObject else {
+                    return XCTFail("Message payload doesn't contain message stuff")
+                }
+
+                XCTAssertEqual(messageContent.body, "Test Message")
+
+                XCTAssertEqual(parts[1].headers["Content-Type"], "image/png")
+                XCTAssertEqual(parts[1].headers["Content-Disposition"], "form-data; name=\"file[]\"; filename=\"apptentive-logo\"")
+                XCTAssertEqual(parts[1].content, data1)
+
+                XCTAssertEqual(parts[2].headers["Content-Type"], "image/jpeg")
+                XCTAssertEqual(parts[2].headers["Content-Disposition"], "form-data; name=\"file[]\"; filename=\"dog\"")
+                XCTAssertEqual(parts[2].content, data2)
+
+                expectation.fulfill()
+            } catch let error {
+                XCTFail("Error decoding multipart body: \(error).")
+            }
         }
 
         payloadSender.send(Payload(wrapping: message))

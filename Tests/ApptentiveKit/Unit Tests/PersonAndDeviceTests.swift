@@ -145,6 +145,7 @@ class PersonAndDeviceTests: XCTestCase {
 
         self.apptentive.personName = "Testy McTestface"
         self.apptentive.personEmailAddress = "test@example.com"
+        self.apptentive.mParticleID = "abc123"
 
         self.apptentive.personCustomData["string"] = "bar"
         self.apptentive.personCustomData["number"] = 43
@@ -186,6 +187,7 @@ class PersonAndDeviceTests: XCTestCase {
                     DispatchQueue.main.async {
                         XCTAssertEqual(self.apptentive.personName, "Testy McTestface")
                         XCTAssertEqual(self.apptentive.personEmailAddress, "test@example.com")
+                        XCTAssertEqual(self.apptentive.mParticleID, "abc123")
 
                         XCTAssertEqual(self.apptentive.personCustomData["string"] as? String, "bar")
                         XCTAssertEqual(self.apptentive.personCustomData["number"] as? Int, 43)
