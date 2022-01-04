@@ -35,6 +35,7 @@ pipeline {
           steps {
             script {
               sh 'bundle exec fastlane clean'
+              sh 'bundle exec fastlane action clear_derived_data'
             }
           }
         }
