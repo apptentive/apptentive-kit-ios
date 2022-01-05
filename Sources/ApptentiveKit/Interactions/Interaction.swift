@@ -62,4 +62,10 @@ public struct Interaction: Decodable {
         case messageCenter(MessageCenterConfiguration)
         case notImplemented
     }
+
+    internal init(id: String, configuration: Interaction.InteractionConfiguration, typeName: String) {
+        self.id = id
+        self.configuration = configuration
+        self.typeName = typeName
+    }
 }

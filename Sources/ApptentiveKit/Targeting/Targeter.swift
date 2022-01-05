@@ -22,11 +22,6 @@ class Targeter {
         }
     }
 
-    /// Creates a new targeter with an empty engagement manifest.
-    init() {
-        self.engagementManifest = EngagementManifest(interactions: [], targets: [:])
-    }
-
     /// Creates a new targeter with the specified engagement manifest.
     /// - Parameter engagementManifest: The engagement manifest to use for targeting and describing interactions.
     init(engagementManifest: EngagementManifest) {

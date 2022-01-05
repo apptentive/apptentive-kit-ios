@@ -102,6 +102,7 @@
 		017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC95325310E9400C7A47F /* EngagementManifest.swift */; };
 		017FC9922531101500C7A47F /* TargeterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC9752531101500C7A47F /* TargeterTests.swift */; };
 		017FC9942531101500C7A47F /* EventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017FC9772531101500C7A47F /* EventTests.swift */; };
+		0182080F2783B6C30010469D /* EngagementManifest+Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0182080E2783B6C30010469D /* EngagementManifest+Placeholder.swift */; };
 		01822BBA2565727D006ADB3B /* SurveyQuestionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */; };
 		01870CEA2643582F00DC8796 /* CardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01870CE92643582F00DC8796 /* CardViewController.swift */; };
 		01870CEE264358D800DC8796 /* AdvanceButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01870CEB264358D800DC8796 /* AdvanceButton.swift */; };
@@ -326,6 +327,7 @@
 		017FC95325310E9400C7A47F /* EngagementManifest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EngagementManifest.swift; sourceTree = "<group>"; };
 		017FC9752531101500C7A47F /* TargeterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TargeterTests.swift; sourceTree = "<group>"; };
 		017FC9772531101500C7A47F /* EventTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventTests.swift; sourceTree = "<group>"; };
+		0182080E2783B6C30010469D /* EngagementManifest+Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EngagementManifest+Placeholder.swift"; sourceTree = "<group>"; };
 		01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyQuestionHeaderView.swift; sourceTree = "<group>"; };
 		01870CE92643582F00DC8796 /* CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardViewController.swift; sourceTree = "<group>"; };
 		01870CEB264358D800DC8796 /* AdvanceButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdvanceButton.swift; sourceTree = "<group>"; };
@@ -478,6 +480,7 @@
 				011C64D2264D881400219243 /* Answer.swift */,
 				017BAAF5268299C90035DA1E /* Random.swift */,
 				01B1FD2E270E52B3008EA104 /* Configuration.swift */,
+				0182080E2783B6C30010469D /* EngagementManifest+Placeholder.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1196,6 +1199,7 @@
 				015F2AEC24CA2A94004B53E2 /* SurveySubmitView.swift in Sources */,
 				EFC7887F273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift in Sources */,
 				013D8EB924F5C99B005EC4D1 /* Backend.swift in Sources */,
+				0182080F2783B6C30010469D /* EngagementManifest+Placeholder.swift in Sources */,
 				01870CF0264358D800DC8796 /* QuestionCardView.swift in Sources */,
 				EF18B1BF2723104600F53D3A /* MessageListFooterView.swift in Sources */,
 				015F2AB224C7A6DB004B53E2 /* SurveyConfiguration.swift in Sources */,

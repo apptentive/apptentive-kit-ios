@@ -28,7 +28,7 @@ final class TargeterTests: XCTestCase {
     }
 
     func testNoManifest() throws {
-        let targeter = Targeter()
+        let targeter = Targeter(engagementManifest: EngagementManifest.placeholder)
 
         XCTAssertNil(try targeter.interactionData(for: "event_4", state: targetingState)?.id)
     }

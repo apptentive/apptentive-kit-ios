@@ -99,11 +99,12 @@ class Backend {
     ///   - baseURL: The URL where the Apptentive API is based.
     convenience init(queue: DispatchQueue, environment: ConversationEnvironment, baseURL: URL) {
         let conversation = Conversation(environment: environment)
+        let targeter = Targeter(engagementManifest: EngagementManifest.placeholder)
         let client = HTTPClient(requestor: URLSession(configuration: Self.urlSessionConfiguration), baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: environment.sdkVersion))
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier)
 
-        self.init(queue: queue, conversation: conversation, targeter: Targeter(), messageManager: MessageManager(), requestRetrier: requestRetrier, payloadSender: payloadSender)
+        self.init(queue: queue, conversation: conversation, targeter: targeter, messageManager: MessageManager(), requestRetrier: requestRetrier, payloadSender: payloadSender)
     }
 
     /// This initializer intended for testing only.

@@ -31,7 +31,7 @@ class BackendTests: XCTestCase {
         let payloadSender = PayloadSender(requestRetrier: requestRetrier)
         payloadSender.credentialsProvider = conversation
 
-        self.backend = Backend(queue: queue, conversation: conversation, targeter: Targeter(), messageManager: MessageManager(), requestRetrier: requestRetrier, payloadSender: payloadSender)
+        self.backend = Backend(queue: queue, conversation: conversation, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: MessageManager(), requestRetrier: requestRetrier, payloadSender: payloadSender)
     }
 
     func testPersonChange() {
