@@ -12,7 +12,7 @@ typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesti
 
 /// Describes an object that can receive the MessageManager from the backend.
 protocol MessageProviding: AnyObject {
-    func getMessages(completion: @escaping (MessageManager) -> Void)
+    var messageManager: MessageManager { get }
 }
 
 /// Describes an object that can send messages from the Message Center interaction.
@@ -20,8 +20,6 @@ protocol MessageSending: AnyObject {
     /// Sends the message object to the Apptentive API.
     /// - Parameter message: The message to be sent.
     func sendMessage(_ message: OutgoingMessage)
-
-    var messageCenterInForeground: Bool { get set }
 }
 
 /// Describes an object that can send responses from Survey interactions.

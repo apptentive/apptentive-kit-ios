@@ -28,10 +28,12 @@ class BackendTests: XCTestCase {
         let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://api.apptentive.com/")!, userAgent: "foo")
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
 
-        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         payloadSender.credentialsProvider = conversation
 
-        self.backend = Backend(queue: queue, conversation: conversation, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: MessageManager(), requestRetrier: requestRetrier, payloadSender: payloadSender)
+        self.backend = Backend(
+            queue: queue, conversation: conversation, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: MessageManager(notificationCenter: NotificationCenter.default), requestRetrier: requestRetrier,
+            payloadSender: payloadSender)
     }
 
     func testPersonChange() {
@@ -104,7 +106,7 @@ class BackendTests: XCTestCase {
         customData["number"] = 5
         customData["boolean"] = true
 
-        self.backend.messageCenterCustomData = customData
+        self.backend.messageManager.customData = customData
 
         self.backend.sendMessage(OutgoingMessage(body: "Test Message"))
 

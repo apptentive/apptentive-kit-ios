@@ -22,7 +22,7 @@ class SpyInteractionDelegate: InteractionDelegate {
     var responses: [String: [Answer]] = [:]
     var termsOfService: TermsOfService?
     var message: OutgoingMessage?
-    var messageManager = MessageManager()
+    var messageManager = MessageManager(notificationCenter: NotificationCenter.default)
 
     func engage(event: Event) {
         self.engagedEvent = event

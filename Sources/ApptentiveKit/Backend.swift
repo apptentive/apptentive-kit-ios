@@ -44,15 +44,6 @@ class Backend {
         }
     }
 
-    var messageCenterInForeground: Bool = false {
-        didSet {
-            if !messageCenterInForeground {
-                // If message center is dismissed, clear any unsent custom data
-                self.messageCenterCustomData = nil
-            }
-        }
-    }
-
     /// The saver used to load and save the conversation from/to persistent storage.
     private var conversationSaver: PropertyListSaver<Conversation>?
 
@@ -63,7 +54,14 @@ class Backend {
 
     private var requestRetrier: HTTPRequestRetrier
 
-    private var configuration: Configuration?
+    private var configuration: Configuration? {
+        didSet {
+            if let configuration = self.configuration {
+                self.messageManager.foregroundPollingInterval = configuration.messageCenter.foregroundPollingInterval
+                self.messageManager.backgroundPollingInterval = configuration.messageCenter.backgroundPollingInterval
+            }
+        }
+    }
 
     /// The completion handler that should be called when conversation credentials are loaded/retrieved.
     private var connectCompletion: ((Result<ConnectionType, Error>) -> Void)?
@@ -80,18 +78,6 @@ class Backend {
     /// A flag indicating whether the persistenc timer is active.
     private var persistenceTimerActive = false
 
-    /// The interval at which to poll for new messages.
-    private var messagePollingInterval: TimeInterval {
-        if self.messageCenterInForeground {
-            return self.configuration?.messageCenter.foregroundPollingInterval ?? 15
-        } else {
-            return self.configuration?.messageCenter.backgroundPollingInterval ?? 600
-        }
-    }
-
-    /// The custom data to send with the first message sent after presenting Message Center.
-    var messageCenterCustomData: CustomData?
-
     /// Initializes a new backend instance.
     /// - Parameters:
     ///   - queue: The dispatch queue on which the backend instance should run.
@@ -100,11 +86,12 @@ class Backend {
     convenience init(queue: DispatchQueue, environment: ConversationEnvironment, baseURL: URL) {
         let conversation = Conversation(environment: environment)
         let targeter = Targeter(engagementManifest: EngagementManifest.placeholder)
+        let messageManager = MessageManager(notificationCenter: NotificationCenter.default)
         let client = HTTPClient(requestor: URLSession(configuration: Self.urlSessionConfiguration), baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: environment.sdkVersion))
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
-        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
 
-        self.init(queue: queue, conversation: conversation, targeter: targeter, messageManager: MessageManager(), requestRetrier: requestRetrier, payloadSender: payloadSender)
+        self.init(queue: queue, conversation: conversation, targeter: targeter, messageManager: messageManager, requestRetrier: requestRetrier, payloadSender: payloadSender)
     }
 
     /// This initializer intended for testing only.
@@ -157,7 +144,7 @@ class Backend {
 
         self.conversationSaver = PropertyListSaver<Conversation>(containerURL: containerURL, filename: CurrentLoader.conversationFilename, fileManager: environment.fileManager)
         self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename, fileManager: environment.fileManager)
-        self.messageManager.messageListSaver = MessageManager.createSaver(containerURL: containerURL, filename: CurrentLoader.messagesFilename, fileManager: environment.fileManager)
+        self.messageManager.saver = MessageManager.createSaver(containerURL: containerURL, filename: CurrentLoader.messagesFilename, fileManager: environment.fileManager)
 
         if self.conversationNeedsLoading {
             CurrentLoader.loadLatestVersion(containerURL: containerURL, environment: environment) { loader in
@@ -180,7 +167,7 @@ class Backend {
     ///
     /// Called when the device is locked with the app in the foreground.
     func protectedDataWillBecomeUnavailable() {
-        self.messageManager.messageListSaver = nil
+        self.messageManager.saver = nil
         self.payloadSender.saver = nil
         self.conversationSaver = nil
     }
@@ -301,12 +288,15 @@ class Backend {
     func sendMessage(_ message: OutgoingMessage) {
         var messageWithCustomData = message
 
-        if let customData = self.messageCenterCustomData {
+        if let customData = self.messageManager.customData {
             messageWithCustomData.customData = customData
-            self.messageCenterCustomData = nil
+            self.messageManager.customData = nil
         }
 
-        self.payloadSender.send(Payload(wrapping: messageWithCustomData), persistEagerly: true)
+        let payload = Payload(wrapping: messageWithCustomData)
+        self.payloadSender.send(payload, persistEagerly: true)
+
+        self.messageManager.addQueuedMessage(message, nonce: payload.jsonObject.nonce, sentDate: payload.jsonObject.creationDate)
     }
 
     // MARK: - Private
@@ -419,6 +409,7 @@ class Backend {
         do {
             try self.saveConversationIfNeeded()
             try self.payloadSender.savePayloadsIfNeeded()
+            try self.messageManager.saveMessagesIfNeeded()
         } catch let error {
             ApptentiveLogger.default.error("Unable to save files to persistent storage: \(error).")
             assertionFailure("Unable to save files to persistent storage: \(error.localizedDescription)")
@@ -488,17 +479,12 @@ class Backend {
 
     /// Retrieves a message list from the Apptentive API.
     private func getMessagesIfNeeded() {
-        if ((self.messageManager.lastFetchDate ?? Date.distantPast) + self.messagePollingInterval) < Date() {
-            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessageList, Error>) in
+        if self.messageManager.messagesNeedDownloading {
+            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessagesResponse, Error>) in
                 switch result {
-                case .success(let messageList):
+                case .success(let messagesResponse):
                     ApptentiveLogger.default.debug("Message List received.")
-                    self.messageManager.messageList = messageList
-                    do {
-                        try self.messageManager.saveMessagesToDisk()
-                    } catch let error {
-                        ApptentiveLogger.default.error("Unable to save messages to disk: \(error)")
-                    }
+                    self.messageManager.update(with: messagesResponse)
                 case .failure(let error):
                     ApptentiveLogger.network.error("Failed to download message list: \(error)")
                 }

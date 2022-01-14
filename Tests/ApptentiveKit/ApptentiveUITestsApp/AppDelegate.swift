@@ -7,15 +7,12 @@
 //
 
 import UIKit
-import ApptentiveKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        UIApplication.shared.keyWindow?.layer.speed = UserDefaults.standard.float(forKey: "layerSpeed")
-
+    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // Copy conversation data files so that the UI has stuff to display.
         do {
             let containerURL = try self.applicationSupportURL().appendingPathComponent("com.apptentive.feedback")
@@ -30,6 +27,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch let error {
             print("Error copying message list: \(error)")
         }
+
+        return true
+    }
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        UIApplication.shared.keyWindow?.layer.speed = UserDefaults.standard.float(forKey: "layerSpeed")
 
         return true
     }

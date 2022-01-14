@@ -208,7 +208,7 @@ class ApptentiveV9APITests: XCTestCase {
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
         let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
-        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         payloadSender.credentialsProvider = conversation
 
         let surveyResponse = SurveyResponse(surveyID: "789", answers: ["1": [Answer.freeform("foo")]])
@@ -242,7 +242,7 @@ class ApptentiveV9APITests: XCTestCase {
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
         let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
-        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         payloadSender.credentialsProvider = conversation
 
         let event = Event(name: "Foobar")
@@ -276,7 +276,7 @@ class ApptentiveV9APITests: XCTestCase {
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
         let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
-        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         payloadSender.credentialsProvider = conversation
 
         var customData = CustomData()
@@ -315,7 +315,7 @@ class ApptentiveV9APITests: XCTestCase {
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
         let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
-        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         payloadSender.credentialsProvider = conversation
 
         var customData = CustomData()
@@ -355,7 +355,7 @@ class ApptentiveV9APITests: XCTestCase {
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
         let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
-        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         payloadSender.credentialsProvider = conversation
 
         let appRelease = AppRelease(environment: MockEnvironment())
@@ -389,7 +389,7 @@ class ApptentiveV9APITests: XCTestCase {
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
         let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
-        let payloadSender = PayloadSender(requestRetrier: requestRetrier)
+        let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         payloadSender.credentialsProvider = conversation
 
         var customData = CustomData()
@@ -420,8 +420,9 @@ class ApptentiveV9APITests: XCTestCase {
 
             // get boundary from content type `multipart/mixed; boundary=<boundary>`
             guard let contentType = requestor.request?.allHTTPHeaderFields?["Content-Type"],
-                  let boundaryAttribute = contentType.components(separatedBy: "; ").last,
-                  let boundary = boundaryAttribute.components(separatedBy: "=").last else {
+                let boundaryAttribute = contentType.components(separatedBy: "; ").last,
+                let boundary = boundaryAttribute.components(separatedBy: "=").last
+            else {
                 return XCTFail("Unable to get boundary from Content-Type header.")
             }
 
@@ -461,7 +462,100 @@ class ApptentiveV9APITests: XCTestCase {
         self.wait(for: [expectation], timeout: 5)
     }
 
-    func parseMultipartBody(_ body: Data, boundary boundaryString: String) throws -> [BodyPart] {
+    func testGetInteractions() throws {
+        let baseURL = URL(string: "http://example.com")!
+        var conversation = Conversation(environment: MockEnvironment())
+        let requestor = SpyRequestor(responseData: try JSONEncoder().encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789")))
+        conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
+        conversation.conversationCredentials = Conversation.ConversationCredentials(token: "def", id: "456")
+
+        let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
+
+        let expectation = XCTestExpectation()
+        let _ = client.request(ApptentiveV9API.getInteractions(with: conversation)) { (result: Result<ConversationResponse, Error>) in
+            XCTAssertNotNil(requestor.request)
+            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
+            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/456/interactions"))
+            XCTAssertEqual(requestor.request?.httpMethod, "GET")
+
+            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                XCTFail("Error (fake) getting interactions: \(error)")
+            }
+
+            expectation.fulfill()
+        }
+
+        self.wait(for: [expectation], timeout: 5)
+    }
+
+    func testGetConfiguration() throws {
+        let baseURL = URL(string: "http://example.com")!
+        var conversation = Conversation(environment: MockEnvironment())
+        let requestor = SpyRequestor(responseData: try JSONEncoder().encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789")))
+        conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
+        conversation.conversationCredentials = Conversation.ConversationCredentials(token: "def", id: "456")
+
+        let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
+
+        let expectation = XCTestExpectation()
+        let _ = client.request(ApptentiveV9API.getConfiguration(with: conversation)) { (result: Result<ConversationResponse, Error>) in
+            XCTAssertNotNil(requestor.request)
+            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
+            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/456/configuration"))
+            XCTAssertEqual(requestor.request?.httpMethod, "GET")
+
+            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                XCTFail("Error (fake) getting configuration: \(error)")
+            }
+
+            expectation.fulfill()
+        }
+
+        self.wait(for: [expectation], timeout: 5)
+    }
+
+    func testGetMessages() throws {
+        let baseURL = URL(string: "http://example.com")!
+        var conversation = Conversation(environment: MockEnvironment())
+        let requestor = SpyRequestor(responseData: try JSONEncoder().encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789")))
+        conversation.appCredentials = Apptentive.AppCredentials(key: "abc", signature: "123")
+        conversation.conversationCredentials = Conversation.ConversationCredentials(token: "def", id: "456")
+
+        let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
+
+        let expectation = XCTestExpectation()
+        let _ = client.request(ApptentiveV9API.getMessages(with: conversation)) { (result: Result<ConversationResponse, Error>) in
+            XCTAssertNotNil(requestor.request)
+            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
+            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/456/messages"))
+            XCTAssertEqual(requestor.request?.httpMethod, "GET")
+
+            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                XCTFail("Error (fake) getting messages: \(error)")
+            }
+
+            expectation.fulfill()
+        }
+
+        self.wait(for: [expectation], timeout: 5)
+    }
+
+    private func parseMultipartBody(_ body: Data, boundary boundaryString: String) throws -> [BodyPart] {
         let boundary = boundaryString.data(using: .utf8)!
         let crlf = "\r\n".data(using: .utf8)!
         let dashes = "--".data(using: .utf8)!
@@ -491,7 +585,7 @@ class ApptentiveV9APITests: XCTestCase {
         return result
     }
 
-    func parseMultipartPart(_ part: Data) throws -> BodyPart {
+    private func parseMultipartPart(_ part: Data) throws -> BodyPart {
         let crlf = "\r\n".data(using: .utf8)!
         var headers = [String: String]()
 

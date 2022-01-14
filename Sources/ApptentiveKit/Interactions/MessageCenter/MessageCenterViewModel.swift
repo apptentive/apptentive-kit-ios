@@ -21,63 +21,41 @@ public protocol MessageCenterViewModelDelegate: AnyObject {
 
 /// A class that describes the data in message center and allows messages to be gathered and transmitted.
 public class MessageCenterViewModel: MessageManagerDelegate {
-    static let maxAttachmentCount = 4
-
-    /// The message list received from the backend when messages are refreshed.
-    var downloadedMessageList: MessageList? {
-        didSet {
-            if let receivedMessageList = downloadedMessageList {
-                self.assembleGroupedMessages(
-                    messages: receivedMessageList.messages.map { (message: MessageList.Message) -> Message in
-                        let attachments = message.attachments.compactMap { attachment -> Message.Attachment? in
-                            guard let url = attachment.url else {
-                                return nil
-                            }
-
-                            return Message.Attachment(mediaType: attachment.contentType, filename: attachment.filename, url: url)
-                        }
-                        let sender = message.sender.flatMap { Message.Sender(id: $0.id, name: $0.name, profilePhotoURL: $0.profilePhotoURL) }
-
-                        return Message(
-                            id: message.id, sentByLocalUser: message.sentByLocalUser, isAutomated: message.isAutomated, isHidden: message.isHidden, attachments: attachments, sender: sender, body: message.body, sentDate: message.sentDate, wasRead: false)
-                    })
-                DispatchQueue.main.async {
-                    self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+    // MARK: Message Manager Delegate
+    func messageManagerMessagesDidChange(_ messageManager: MessageManager) {
+        let messageViewModels = messageManager.messageList.messages.map { (message: MessageList.Message) -> Message in
+            let attachments = message.attachments.compactMap { attachment -> Message.Attachment? in
+                guard let url = attachment.url else {
+                    return nil
                 }
 
+                return Message.Attachment(mediaType: attachment.contentType, filename: attachment.filename, url: url)
             }
+            let sender = message.sender.flatMap { Message.Sender(name: $0.name, profilePhotoURL: $0.profilePhoto) }
+
+            return Message(
+                sentByLocalUser: Self.sentByLocalUser(message), isAutomated: message.status == .automated, isHidden: message.status == .hidden, attachments: attachments, sender: sender, body: message.body, sentDate: message.sentDate, wasRead: false)
+        }
+
+        self.assembleGroupedMessages(messages: messageViewModels)
+
+        self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+    }
+
+    static func sentByLocalUser(_ message: MessageList.Message) -> Bool {
+        switch message.status {
+        case .queued, .sending, .sent:
+            return true
+        default:
+            return false
         }
     }
 
+    static let maxAttachmentCount = 4
     weak var interactionDelegate: InteractionDelegate?
     weak var delegate: MessageCenterViewModelDelegate?
 
     let interaction: Interaction
-
-    /// The message manager object which contains the list of messages between the device and the dashboard.
-    var messageManager: MessageManager? {
-        didSet {
-            if let messageList = self.messageManager?.messageList {
-                self.assembleGroupedMessages(
-                    messages: messageList.messages.map { (message: MessageList.Message) -> Message in
-                        let attachments = message.attachments.compactMap { attachment -> Message.Attachment? in
-                            guard let url = attachment.url else {
-                                return nil
-                            }
-
-                            return Message.Attachment(mediaType: attachment.contentType, filename: attachment.filename, url: url)
-                        }
-                        let sender = message.sender.flatMap { Message.Sender(id: $0.id, name: $0.name, profilePhotoURL: $0.profilePhotoURL) }
-
-                        return Message(
-                            id: message.id, sentByLocalUser: message.sentByLocalUser, isAutomated: message.isAutomated, isHidden: message.isHidden, attachments: attachments, sender: sender, body: message.body, sentDate: message.sentDate, wasRead: false)
-                    })
-                DispatchQueue.main.async {
-                    self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
-                }
-            }
-        }
-    }
 
     /// The title for the message center window.
     public let headingTitle: String
@@ -154,17 +132,16 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
         self.groupedMessages = []
 
-        self.interactionDelegate?.messageCenterInForeground = true
-        self.interactionDelegate?.getMessages(completion: { messageManager in
-            self.messageManager = messageManager
-            self.messageManager?.delegate = self
-
-        })
-
+        if let messageManager = self.interactionDelegate?.messageManager {
+            messageManager.delegate = self
+            self.draftMessage = messageManager.draftMessage
+            self.messageManagerMessagesDidChange(messageManager)
+        }
     }
 
     deinit {
-        self.interactionDelegate?.messageCenterInForeground = false
+        self.interactionDelegate?.messageManager.draftMessage = self.draftMessage
+        self.interactionDelegate?.messageManager.delegate = nil
     }
 
     /// Adds the message to the array of messages and calls the sendMessage function from the InteractionDelegate  to send the Message to the Apptentive API.

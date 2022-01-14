@@ -10,9 +10,14 @@ import Foundation
 
 /// Sends fire-and-forget updates to the API.
 class PayloadSender {
+    static let errorKey = "error"
+    static let payloadKey = "payload"
 
     /// The HTTP client to use to send payloads to the API.
     let requestRetrier: HTTPRequestStarting
+
+    /// The notification center to use to post notifications.
+    let notificationCenter: NotificationCenter
 
     /// The provider of credentials to use when connecting to the API.
     var credentialsProvider: APICredentialsProviding? {
@@ -24,9 +29,12 @@ class PayloadSender {
     }
 
     /// Creates a new payload sender.
-    /// - Parameter requestRetrier: The HTTPRequestRetrier instance to use to connect to the API.
-    init(requestRetrier: HTTPRequestStarting) {
+    /// - Parameters:
+    ///   - requestRetrier: The HTTPRequestRetrier instance to use to connect to the API.
+    ///   - notificationCenter: The NotificationCenter object on which to post notifications about payload status.
+    init(requestRetrier: HTTPRequestStarting, notificationCenter: NotificationCenter) {
         self.requestRetrier = requestRetrier
+        self.notificationCenter = notificationCenter
         self.payloads = [Payload]()
     }
 
@@ -42,6 +50,8 @@ class PayloadSender {
         ApptentiveLogger.payload.debug("Enqueuing new \(payload).")
 
         self.payloads.append(payload)
+
+        self.notificationCenter.post(name: Notification.Name.payloadEnqueued, object: self, userInfo: [Self.payloadKey: payload])
 
         if persistEagerly {
             do {
@@ -113,7 +123,7 @@ class PayloadSender {
     private var drainCompletionHandler: (() -> Void)?
 
     /// The payloads waiting to be sent.
-    private var payloads: [Payload] {
+    private(set) var payloads: [Payload] {
         didSet {
             if self.payloads != oldValue {
                 self.payloadsNeedSaving = true
@@ -166,9 +176,11 @@ class PayloadSender {
             switch result {
             case .success:
                 ApptentiveLogger.payload.debug("Successfully sent \(firstPayload). Removing from queue.")
+                self.notificationCenter.post(name: Notification.Name.payloadSent, object: self, userInfo: [Self.payloadKey: firstPayload])
 
             case .failure(let error):
                 ApptentiveLogger.payload.error("Permanent failure when sending \(firstPayload): \(error.localizedDescription). Removing from queue.")
+                self.notificationCenter.post(name: Notification.Name.payloadFailed, object: self, userInfo: [Self.payloadKey: firstPayload, Self.errorKey: error])
             }
 
             self.payloads.removeFirst()
@@ -177,5 +189,14 @@ class PayloadSender {
 
             self.sendPayloads()
         }
+
+        self.notificationCenter.post(name: Notification.Name.payloadSending, object: self, userInfo: [Self.payloadKey: firstPayload])
     }
+}
+
+extension Notification.Name {
+    static let payloadEnqueued = Notification.Name("com.apptentive.payloadEnqueued")
+    static let payloadSending = Notification.Name("com.apptentive.payloadSending")
+    static let payloadSent = Notification.Name("com.apptentive.payloadSent")
+    static let payloadFailed = Notification.Name("com.apptentive.payloadFailed")
 }

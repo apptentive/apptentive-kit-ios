@@ -15,17 +15,28 @@ class PayloadSenderTests: XCTestCase {
     var saver = SpySaver(containerURL: URL(string: "file:///tmp")!, filename: "PayloadQueue", fileManager: FileManager.default)
     var payloadSender: PayloadSender!
     var credentialsProvider = MockCredentialsProvider(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), conversationCredentials: Conversation.ConversationCredentials(token: "def", id: "456"), acceptLanguage: "en")
+    var notificationCenter = MockNotificationCenter()
 
     override func setUp() {
-        self.payloadSender = PayloadSender(requestRetrier: self.requestRetrier)
+        self.payloadSender = PayloadSender(requestRetrier: self.requestRetrier, notificationCenter: self.notificationCenter)
     }
 
     func testNormalOperation() throws {
         self.payloadSender.saver = self.saver
 
-        self.payloadSender.send(Payload(wrapping: "test1"))
-        self.payloadSender.send(Payload(wrapping: "test2"))
-        self.payloadSender.send(Payload(wrapping: "test3"))
+        let payloads = [
+            Payload(wrapping: "test1"),
+            Payload(wrapping: "test2"),
+            Payload(wrapping: "test3"),
+        ]
+
+        self.payloadSender.send(payloads[0])
+        self.payloadSender.send(payloads[1])
+        self.payloadSender.send(payloads[2])
+
+        let nonces = payloads.map { $0.jsonObject.nonce }
+
+        XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
 
         // Payload sender should not save queue to saver by default.
         XCTAssertEqual(self.saver.payloads.count, 0)
@@ -42,11 +53,15 @@ class PayloadSenderTests: XCTestCase {
         payloadSender.credentialsProvider = self.credentialsProvider
 
         // Send one straggler payload while the requests are running.
-        self.payloadSender.send(Payload(wrapping: "test4"))
+        let straggler = Payload(wrapping: "test4")
+
+        self.payloadSender.send(straggler)
 
         let expectation = XCTestExpectation(description: "PayloadSender sends payloads")
 
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(500)) {
+            XCTAssertEqual(self.notificationCenter.sendingNonces, nonces + [straggler.jsonObject.nonce])
+
             do {
                 try self.payloadSender.savePayloadsIfNeeded()
 
@@ -55,6 +70,9 @@ class PayloadSenderTests: XCTestCase {
 
                 // Retrier should have made a request.
                 XCTAssertEqual(self.requestRetrier.requests.count, 4)
+
+                XCTAssertEqual(self.notificationCenter.sentNonces, nonces + [straggler.jsonObject.nonce])
+                XCTAssertEqual(self.notificationCenter.failedNonces, [])
             } catch let error {
                 XCTFail(error.localizedDescription)
             }
@@ -68,9 +86,19 @@ class PayloadSenderTests: XCTestCase {
     func testHTTPClientError() throws {
         self.payloadSender.saver = self.saver
 
-        self.payloadSender.send(Payload(wrapping: "test1"))
-        self.payloadSender.send(Payload(wrapping: "test2"))
-        self.payloadSender.send(Payload(wrapping: "test3"))
+        let payloads = [
+            Payload(wrapping: "test1"),
+            Payload(wrapping: "test2"),
+            Payload(wrapping: "test3"),
+        ]
+
+        self.payloadSender.send(payloads[0])
+        self.payloadSender.send(payloads[1])
+        self.payloadSender.send(payloads[2])
+
+        let nonces = payloads.map { $0.jsonObject.nonce }
+
+        XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
 
         // Payload sender should not save queue to saver by default.
         XCTAssertEqual(self.saver.payloads.count, 0)
@@ -87,16 +115,23 @@ class PayloadSenderTests: XCTestCase {
         payloadSender.credentialsProvider = self.credentialsProvider
 
         // Send one straggler payload while the requests are running.
-        self.payloadSender.send(Payload(wrapping: "test4"))
+        let straggler = Payload(wrapping: "test4")
+
+        self.payloadSender.send(straggler)
 
         let expectation = XCTestExpectation(description: "PayloadSender sends payloads")
 
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(500)) {
+            XCTAssertEqual(self.notificationCenter.sendingNonces, nonces + [straggler.jsonObject.nonce])
+
             do {
                 try self.payloadSender.savePayloadsIfNeeded()
 
                 // Payload queue should be empty
                 XCTAssertEqual(self.saver.payloads.count, 0)
+
+                XCTAssertEqual(self.notificationCenter.failedNonces, nonces + [straggler.jsonObject.nonce])
+                XCTAssertEqual(self.notificationCenter.failedErrors.count, 4)
 
                 // Retrier should have made a request.
                 XCTAssertEqual(self.requestRetrier.requests.count, 4)
@@ -135,9 +170,19 @@ class PayloadSenderTests: XCTestCase {
     func testDrain() throws {
         self.payloadSender.saver = self.saver
 
-        self.payloadSender.send(Payload(wrapping: "test1"))
-        self.payloadSender.send(Payload(wrapping: "test2"))
-        self.payloadSender.send(Payload(wrapping: "test3"))
+        let payloads = [
+            Payload(wrapping: "test1"),
+            Payload(wrapping: "test2"),
+            Payload(wrapping: "test3"),
+        ]
+
+        self.payloadSender.send(payloads[0])
+        self.payloadSender.send(payloads[1])
+        self.payloadSender.send(payloads[2])
+
+        let nonces = payloads.map { $0.jsonObject.nonce }
+
+        XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
 
         // Payload sender should not save queue to saver by default.
         XCTAssertEqual(self.saver.payloads.count, 0)
@@ -148,11 +193,23 @@ class PayloadSenderTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Payload sender finishes draining")
 
         self.payloadSender.drain {
+            XCTAssertEqual(self.notificationCenter.sendingNonces, nonces)
+            XCTAssertEqual(self.notificationCenter.sentNonces, nonces)
+            XCTAssertEqual(self.notificationCenter.failedNonces, [])
+
             XCTAssertEqual(self.requestRetrier.requests.count, 3)
 
             // Try sending another payload, making sure we'll be suspended.
             DispatchQueue.main.async {
-                self.payloadSender.send(Payload(wrapping: "test4"))
+                let straggler = Payload(wrapping: "test4")
+
+                self.payloadSender.send(straggler)
+
+                XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces + [straggler.jsonObject.nonce])
+                XCTAssertEqual(self.notificationCenter.sentNonces, nonces)
+                XCTAssertEqual(self.notificationCenter.failedNonces, [])
+
+                XCTAssertEqual(self.notificationCenter.sendingNonces, nonces)
 
                 // Payload sender should be suspended and not send the last request.
                 XCTAssertEqual(self.requestRetrier.requests.count, 3)
@@ -203,5 +260,40 @@ class PayloadSenderTests: XCTestCase {
         var conversationCredentials: Conversation.ConversationCredentials?
 
         var acceptLanguage: String?
+    }
+}
+
+class MockNotificationCenter: NotificationCenter {
+    var postedNotifications = [Notification]()
+
+    override func post(name aName: NSNotification.Name, object anObject: Any?, userInfo aUserInfo: [AnyHashable: Any]? = nil) {
+        self.postedNotifications.append(Notification(name: aName, object: anObject, userInfo: aUserInfo))
+    }
+}
+
+extension MockNotificationCenter {
+    var enqueuedNonces: [String] {
+        postedNotifications.filter { $0.name == .payloadEnqueued }
+            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.jsonObject.nonce }
+    }
+
+    var sendingNonces: [String] {
+        postedNotifications.filter { $0.name == .payloadSending }
+            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.jsonObject.nonce }
+    }
+
+    var sentNonces: [String] {
+        postedNotifications.filter { $0.name == .payloadSent }
+            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.jsonObject.nonce }
+    }
+
+    var failedNonces: [String] {
+        postedNotifications.filter { $0.name == .payloadFailed }
+            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.jsonObject.nonce }
+    }
+
+    var failedErrors: [Error] {
+        postedNotifications.filter { $0.name == .payloadFailed }
+            .compactMap { $0.userInfo?[PayloadSender.errorKey] as? Error }
     }
 }

@@ -102,7 +102,7 @@ class MessageCenterViewModelTests: XCTestCase {
 
         XCTAssertEqual(self.spySender?.message, OutgoingMessage(body: "Test"))
     }
-    
+
     @available(iOS 13.0, *)
     func testAddImageAttachment() throws {
         let image = UIImage.init(systemName: "doc")!

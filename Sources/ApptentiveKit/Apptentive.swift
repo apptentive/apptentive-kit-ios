@@ -195,7 +195,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData?, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         if let customData = customData {
             self.backendQueue.async {
-                self.backend.messageCenterCustomData = customData
+                self.backend.messageManager.customData = customData
             }
         }
 
@@ -342,6 +342,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
             self.backend.sendMessage(message)
         }
     }
+
     /// Receives the message manager from the backend.
     /// - Parameter completion: A completion handler to be called when the message center view model is initialized.
     func getMessages(completion: @escaping (MessageManager) -> Void) {
@@ -353,12 +354,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
     }
 
-    var messageCenterInForeground: Bool = false {
-        didSet {
-            self.backendQueue.async {
-                self.backend.messageCenterInForeground = self.messageCenterInForeground
-            }
-        }
+    var messageManager: MessageManager {
+        self.backend.messageManager
     }
 
     // MARK: EnvironmentDelegate

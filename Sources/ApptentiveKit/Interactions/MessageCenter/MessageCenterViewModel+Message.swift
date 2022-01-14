@@ -11,9 +11,6 @@ import Foundation
 extension MessageCenterViewModel {
     /// Represents a message in the Message Center UI.
     public struct Message {
-        /// The message id.
-        public let id: String?
-
         /// Indicates if the message is being received from the dashboard.
         public let sentByLocalUser: Bool
 
@@ -40,9 +37,6 @@ extension MessageCenterViewModel {
 
         /// The information associated with the sender of the message.
         public struct Sender: Equatable {
-            /// The id associated with the sender.
-            let id: String
-
             /// The sender's name.
             var name: String?
 
