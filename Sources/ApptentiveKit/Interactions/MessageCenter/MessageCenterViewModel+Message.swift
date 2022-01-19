@@ -35,6 +35,74 @@ extension MessageCenterViewModel {
         /// Whether the message was displayed to the user.
         public var wasRead: Bool
 
+        /// The formatter for the sent date labels.
+        public var sentDateFormatter: DateFormatter
+
+        /// A human-readable string of the date that the message was sent.
+        public var sentDateString: String {
+            return self.sentDateFormatter.string(from: self.sentDate)
+        }
+
+        ///  The name of the sender, if any.
+        public var senderName: String? {
+            return self.sender?.name
+        }
+
+        /// Returns a URL pointing to the an image for the sender (if any).
+        public var senderImageURL: URL? {
+            return self.sender?.profilePhotoURL
+        }
+
+        /// Indicates if the message has attachments.
+        public var messageIncludesAttachments: MessageAttachmentStatus {
+            switch self.attachments.isEmpty {
+            case true:
+                return .noAttachments
+            case false:
+                return .hasAttachments
+            }
+        }
+
+        /// Indicates if the message is outbound or inbound.
+        public var messageState: MessageStatus {
+            switch self.sentByLocalUser {
+            case true:
+                return .outbound
+            case false:
+                return .inbound
+            }
+        }
+
+        init(sentByLocalUser: Bool, isAutomated: Bool, isHidden: Bool, attachments: [Attachment], sender: Sender?, body: String?, sentDate: Date, wasRead: Bool) {
+            self.sentByLocalUser = sentByLocalUser
+            self.isAutomated = isAutomated
+            self.isHidden = isHidden
+            self.attachments = attachments
+            self.sender = sender
+            self.body = body
+            self.sentDate = sentDate
+            self.wasRead = wasRead
+            self.sentDateFormatter = DateFormatter()
+            self.sentDateFormatter.dateStyle = .none
+            self.sentDateFormatter.timeStyle = .short
+        }
+
+        /// Defines the status of the message whether it is an inbound message or outbound.
+        public enum MessageStatus {
+            /// The message is coming from the server.
+            case inbound
+            /// The message is being sent from the device.
+            case outbound
+        }
+
+        /// Defines the status of the message attachments.
+        public enum MessageAttachmentStatus {
+            /// The message has no attachments.
+            case noAttachments
+            /// The message has attachments.
+            case hasAttachments
+        }
+
         /// The information associated with the sender of the message.
         public struct Sender: Equatable {
             /// The sender's name.

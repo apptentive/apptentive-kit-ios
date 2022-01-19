@@ -117,9 +117,9 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell: UITableViewCell
-        let sentByLocalUser = viewModel.sentByLocalUser(at: indexPath)
+        let message = self.viewModel.message(at: indexPath)
 
-        if sentByLocalUser {
+        if message.messageState == .outbound {
             cell = tableView.dequeueReusableCell(withIdentifier: self.messageSentCellID, for: indexPath)
         } else {
             cell = tableView.dequeueReusableCell(withIdentifier: self.messageReceivedCellID, for: indexPath)
@@ -127,16 +127,16 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
         cell.selectionStyle = .none
 
-        switch (sentByLocalUser, cell) {
-        case (false, let receivedCell as MessageReceivedCell):
-            receivedCell.messageLabel.text = self.viewModel.messageText(at: indexPath)
-            receivedCell.dateLabel.text = self.viewModel.sentDateString(at: indexPath)
-            receivedCell.senderLabel.text = self.viewModel.senderName(at: indexPath)
-            receivedCell.profileImageView.url = self.viewModel.senderImageURL(at: indexPath)
+        switch (message.messageState, cell) {
+        case (.inbound, let receivedCell as MessageReceivedCell):
+            receivedCell.messageLabel.text = message.body
+            receivedCell.dateLabel.text = message.sentDateString
+            receivedCell.senderLabel.text = message.senderName
+            receivedCell.profileImageView.url = message.senderImageURL
 
-        case (true, let sentCell as MessageSentCell):
-            sentCell.messageLabel.text = self.viewModel.messageText(at: indexPath)
-            sentCell.dateLabel.text = self.viewModel.sentDateString(at: indexPath)
+        case (.outbound, let sentCell as MessageSentCell):
+            sentCell.messageLabel.text = message.body
+            sentCell.dateLabel.text = message.sentDateString
 
         default:
             assertionFailure("Cell type doesn't match inbound value")

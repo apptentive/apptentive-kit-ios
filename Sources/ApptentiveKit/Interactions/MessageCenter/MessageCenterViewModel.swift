@@ -189,41 +189,6 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         }
     }
 
-    /// Returns whether the message at the specified index path is inbound (sent from the Apptentive dashboard).
-    /// - Parameter indexPath: the index path of the message.
-    /// - Returns: whether the message is inbound.
-    public func sentByLocalUser(at indexPath: IndexPath) -> Bool {
-        return self.message(at: indexPath).sentByLocalUser
-    }
-
-    /// Returns the text of the message at the specified index path.
-    /// - Parameter indexPath: the index path of the message.
-    /// - Returns: the text of the message.
-    public func messageText(at indexPath: IndexPath) -> String? {
-        return self.message(at: indexPath).body
-    }
-
-    /// Returns the date that the message at the specified index path was sent.
-    /// - Parameter indexPath: the index path of the message.
-    /// - Returns: a human-readable string of the date that the message was sent.
-    public func sentDateString(at indexPath: IndexPath) -> String {
-        return self.sentDateFormatter.string(from: self.message(at: indexPath).sentDate)
-    }
-
-    /// Returns the name of the sender (if any) of the message at the specified index path.
-    /// - Parameter indexPath: the index path of the message.
-    /// - Returns: The name of the sender, if any.
-    public func senderName(at indexPath: IndexPath) -> String? {
-        return self.message(at: indexPath).sender?.name
-    }
-
-    /// Returns a URL pointing to the an image for the sender (if any) of the message at the specified index path.
-    /// - Parameter indexPath: the index path of the message.
-    /// - Returns: A URL for the image, if one is available.
-    public func senderImageURL(at indexPath: IndexPath) -> URL? {
-        return self.message(at: indexPath).sender?.profilePhotoURL
-    }
-
     /// Attaches an image to the draft message.
     /// - Parameter image: The image to attach.
     /// - Throws: If attachment count greater than max or unable to get data from the image.
@@ -274,6 +239,13 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.draftMessage?.attachments.remove(at: index)
     }
 
+    /// Provides a message for the index path.
+    /// - Parameter indexPath: The index path of the message to provide.
+    /// - Returns: The message object.
+    public func message(at indexPath: IndexPath) -> Message {
+        return self.groupedMessages[indexPath.section][indexPath.row]
+    }
+
     /// The body of the draft message.
     public var messageBody: String? {
         get {
@@ -319,10 +291,6 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
         self.delegate?.messageCenterViewModelCanSendMessageDidUpdate(self)
         self.delegate?.messageCenterViewModelCanAddAttachmentDidUpdate(self)
-    }
-
-    private func message(at indexPath: IndexPath) -> Message {
-        return self.groupedMessages[indexPath.section][indexPath.row]
     }
 
     private func assembleGroupedMessages(messages: [Message]) {
