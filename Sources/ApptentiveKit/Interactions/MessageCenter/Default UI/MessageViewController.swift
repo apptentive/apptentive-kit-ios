@@ -279,16 +279,8 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     private func scrollToBottom(_ animated: Bool) {
-        DispatchQueue.main.async {
-            let lastSectionIndex = self.tableView.numberOfSections - 1
-            guard lastSectionIndex >= 0 && self.tableView.numberOfRows(inSection: lastSectionIndex) > 0 else {
-                return
-            }
-
-            let lastIndexPath = IndexPath(row: self.tableView.numberOfRows(inSection: lastSectionIndex) - 1, section: lastSectionIndex)
-
-            self.tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: animated)
-        }
+        let verticalContentOffset = self.tableView.contentSize.height + self.tableView.adjustedContentInset.bottom - self.tableView.bounds.height
+        self.tableView.setContentOffset(CGPoint(x: 0, y: verticalContentOffset), animated: animated)
     }
 
     private func sizeHeaderFooterViews() {
