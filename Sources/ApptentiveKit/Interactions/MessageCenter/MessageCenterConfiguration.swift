@@ -65,7 +65,7 @@ struct MessageCenterConfiguration: Codable {
 
     struct Greeting: Codable {
         let title, body: String
-        let imageURL: String
+        let imageURL: URL
 
         enum CodingKeys: String, CodingKey {
             case title, body

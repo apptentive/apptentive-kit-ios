@@ -31,8 +31,7 @@ extension Apptentive {
             let messageBubbleInboundColor = UIColor(named: "messageBubbleInbound", in: bundle, compatibleWith: nil),
             let messageLabelInboundColor = UIColor(named: "messageLabelInbound", in: bundle, compatibleWith: nil),
             let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil),
-            let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil),
-            let greetingSubmitButton = UIColor(named: "greetingSubmitButton", in: bundle, compatibleWith: nil)
+            let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil)
         else {
             assertionFailure("Unable to locate color asset(s).")
             return
@@ -84,14 +83,6 @@ extension Apptentive {
         tableViewAppearance.separatorColor = backgroundColor
 
         // Apptentive UIKit extensions overrides
-
-        //This is set in UIKit+Apptentive.
-        //        let messageSentBubble = UIImage(named: "messageSentBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9))
-        //        UIImage.apptentiveSentMessageBubble = messageSentBubble
-        //
-        //        let messageReceivedBubble = UIImage(named: "messageReceivedBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9))
-        //        UIImage.apptentiveReceivedMessageBubble = messageReceivedBubble
-
         UITableView.Style.apptentive = .grouped
 
         UIColor.apptentiveInstructionsLabel = instructionsLabelColor
@@ -108,11 +99,9 @@ extension Apptentive {
         UIColor.apptentiveQuestionLabel = question
         UIColor.apptentiveMessageBubbleInbound = messageBubbleInboundColor
         UIColor.apptentiveMessageBubbleOutbound = messageBubbleOutboundColor
-        UIColor.apptentiveBrandingImage = buttonTintColor
         UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
         UIColor.apptentiveMessageCenterAttachmentButton = buttonTintColor
-        UIColor.apptentiveMessageCenterGreetingSendMessageButton = greetingSubmitButton
         UIColor.apptentiveMessageCenterTextViewBorder = messageTextInputBorderColor
 
         if #available(iOS 13.0, *) {

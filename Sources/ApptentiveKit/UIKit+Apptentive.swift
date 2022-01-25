@@ -89,12 +89,12 @@ extension UIImage {
 
     /// The image to use as the chat bubble for outbound messages.
     public static var apptentiveSentMessageBubble: UIImage? = {
-        return UIImage(named: "messageSentBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9))
+        return UIImage(named: "messageSentBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 18, right: 18))
     }()
 
     /// The image to use as the chat bubble for inbound messages.
     public static var apptentiveReceivedMessageBubble: UIImage? = {
-        return UIImage(named: "messageReceivedBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9))
+        return UIImage(named: "messageReceivedBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 18, bottom: 18, right: 9))
     }()
 
     /// The image to use for the top navigation bar for surveys.
@@ -138,42 +138,22 @@ extension UIColor {
         return .darkGray
     }()
 
-    /// The text color for the textfield text color for the message center greeting.
-    public static var messageCenterGreetingProfileInputText: UIColor = {
-        return .gray
-    }()
-
-    /// The text color for the profile suggestion label for the message center greeting.
-    public static var apptentiveProfileSuggesstionLabel: UIColor = {
-        return .darkGray
-    }()
-
-    /// The color to use for the submit button for the greeting view for message center.
-    public static var apptentiveMessageCenterGreetingSendMessageButton: UIColor = {
-        return .blue
-    }()
-
-    /// The color to use for the attachment button for the greeting view for message center.
+    /// The color to use for the attachment button for the compose view for message center.
     public static var apptentiveMessageCenterAttachmentButton: UIColor = {
         return .blue
     }()
 
-    /// The color to use for the text view placeholder for the greeting view for message center.
+    /// The color to use for the text view placeholder for the compose view for message center.
     public static var apptentiveMessageTextViewPlaceholder: UIColor = {
         return .lightGray
     }()
 
-    /// The color to use for the text view border for the greeting view for message center.
+    /// The color to use for the text view border for the compose view for message center.
     public static var apptentiveMessageTextViewBorder: UIColor = {
         return .gray
     }()
 
-    /// The color to use for the branding image on the greeting header view for message center.
-    public static var apptentiveBrandingImage: UIColor = {
-        return .systemBlue
-    }()
-
-    /// The color to use for the status on the greeting header view for message center.
+    /// The color to use for the status message in message center.
     public static var apptentiveMessageCenterStatus: UIColor = {
         return .gray
     }()

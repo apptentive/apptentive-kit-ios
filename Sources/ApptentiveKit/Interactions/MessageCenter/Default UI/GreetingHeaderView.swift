@@ -12,14 +12,16 @@ class GreetingHeaderView: UIView {
 
     let greetingTitleLabel: UILabel
     let greetingBodyLabel: UILabel
-    let brandingImageView: UIImageView
-    let stackView: UIStackView
+    let brandingImageView: ApptentiveImageView
+    let innerStackView: UIStackView
+    let outerStackView: UIStackView
 
     override init(frame: CGRect) {
         self.greetingTitleLabel = UILabel(frame: .zero)
         self.greetingBodyLabel = UILabel(frame: .zero)
-        self.brandingImageView = UIImageView(frame: .zero)
-        self.stackView = UIStackView(frame: .zero)
+        self.brandingImageView = ApptentiveImageView()
+        self.innerStackView = UIStackView(frame: .zero)
+        self.outerStackView = UIStackView(frame: .zero)
         super.init(frame: frame)
         setupViews()
     }
@@ -48,22 +50,29 @@ class GreetingHeaderView: UIView {
         self.brandingImageView.translatesAutoresizingMaskIntoConstraints = false
         self.brandingImageView.layer.masksToBounds = true
         self.brandingImageView.layer.cornerRadius = 10
-        self.brandingImageView.image = .apptentiveMessageHeader
-        self.brandingImageView.tintColor = .apptentiveBrandingImage
         self.brandingImageView.contentMode = .scaleAspectFit
 
-        self.stackView.translatesAutoresizingMaskIntoConstraints = false
-        self.stackView.axis = .vertical
-        self.stackView.alignment = .center
-        self.stackView.distribution = .equalSpacing
-        self.stackView.spacing = 8
-        self.stackView.spacing = 0
+        self.innerStackView.translatesAutoresizingMaskIntoConstraints = false
+        self.innerStackView.axis = .vertical
+        self.innerStackView.alignment = .center
+        self.innerStackView.distribution = .equalSpacing
+        self.innerStackView.spacing = 8
+        self.innerStackView.spacing = 0
 
-        self.stackView.addArrangedSubview(self.brandingImageView)
-        self.stackView.addArrangedSubview(self.greetingTitleLabel)
-        self.stackView.addArrangedSubview(self.greetingBodyLabel)
+        self.innerStackView.addArrangedSubview(self.greetingTitleLabel)
+        self.innerStackView.addArrangedSubview(self.greetingBodyLabel)
 
-        self.addSubview(stackView)
+        self.outerStackView.translatesAutoresizingMaskIntoConstraints = false
+        self.outerStackView.axis = self.traitCollection.verticalSizeClass == .compact ? .horizontal : .vertical
+        self.outerStackView.alignment = .center
+        self.outerStackView.distribution = .equalSpacing
+        self.outerStackView.spacing = 8
+        self.outerStackView.spacing = 0
+
+        self.outerStackView.addArrangedSubview(self.brandingImageView)
+        self.outerStackView.addArrangedSubview(self.innerStackView)
+
+        self.addSubview(outerStackView)
 
         setConstraints()
     }
@@ -72,11 +81,14 @@ class GreetingHeaderView: UIView {
         NSLayoutConstraint.activate([
             self.brandingImageView.widthAnchor.constraint(equalToConstant: 50),
             self.brandingImageView.heightAnchor.constraint(equalToConstant: 50),
-            self.stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
-            self.stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
-            self.stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
-            self.stackView.heightAnchor.constraint(equalTo: self.heightAnchor),
+            self.outerStackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            self.outerStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
+            self.outerStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
+            self.outerStackView.heightAnchor.constraint(equalTo: self.heightAnchor),
         ])
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        self.outerStackView.axis = self.traitCollection.verticalSizeClass == .compact ? .horizontal : .vertical
+    }
 }

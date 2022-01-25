@@ -90,6 +90,9 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// The text body for the greeting message.
     public let greetingBody: String
 
+    /// The URL of the image to load into the greeting view.
+    public let greetingImageURL: URL
+
     ///the message describing customer's hours, expected time until response.
     public let statusBody: String
 
@@ -119,6 +122,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.composerCloseCancelButtonTitle = configuration.composer.closeCancelButton
         self.greetingTitle = configuration.greeting.title
         self.greetingBody = configuration.greeting.body
+        self.greetingImageURL = configuration.greeting.imageURL
         self.statusBody = configuration.status.body
         self.automatedMessageBody = configuration.automatedMessage?.body ?? "We're sorry to hear that you don't love this app! Is there anything we could do to make it better?"
 

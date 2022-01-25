@@ -21,9 +21,8 @@ class MessageSentCell: UITableViewCell {
 
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
         self.contentView.addSubview(self.bubbleImageView)
-        // TODO: Should this be a subview or just a backgound?
-        self.bubbleImageView.addSubview(self.messageLabel)
-        self.bubbleImageView.addSubview(self.dateLabel)
+        self.contentView.addSubview(self.messageLabel)
+        self.contentView.addSubview(self.dateLabel)
 
         setupViews()
     }
@@ -62,20 +61,19 @@ class MessageSentCell: UITableViewCell {
     private func setConstraints() {
         NSLayoutConstraint.activate(
             [
+                self.bubbleImageView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
+                self.bubbleImageView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -10),
+                self.bubbleImageView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.contentView.bottomAnchor, multiplier: -2.0),
+                self.bubbleImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 60),
+
                 self.messageLabel.topAnchor.constraint(equalTo: self.bubbleImageView.topAnchor, constant: 10),
                 self.messageLabel.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 10),
                 self.messageLabel.trailingAnchor.constraint(equalTo: self.bubbleImageView.trailingAnchor, constant: -30),
                 self.messageLabel.bottomAnchor.constraint(equalTo: self.dateLabel.topAnchor, constant: -10),
 
-                self.dateLabel.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 10),
-                self.dateLabel.trailingAnchor.constraint(equalTo: self.bubbleImageView.trailingAnchor, constant: 30),
+                self.dateLabel.leadingAnchor.constraint(equalTo: self.messageLabel.leadingAnchor),
+                self.dateLabel.trailingAnchor.constraint(equalTo: self.messageLabel.trailingAnchor),
                 self.bubbleImageView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.dateLabel.bottomAnchor, multiplier: 2.0),
-                self.dateLabel.heightAnchor.constraint(equalToConstant: 10),
-
-                self.bubbleImageView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
-                self.bubbleImageView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -30),
-                self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.bubbleImageView.bottomAnchor, multiplier: 2.0),
-                self.bubbleImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 300),
             ]
         )
     }

@@ -69,6 +69,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.tableView.tableHeaderView = self.headerView
         self.headerView.greetingTitleLabel.text = self.viewModel.greetingTitle
         self.headerView.greetingBodyLabel.text = self.viewModel.greetingBody
+        self.headerView.brandingImageView.url = self.viewModel.greetingImageURL
 
         self.tableView.tableFooterView = self.footerView
         self.footerView.statusTextLabel.text = self.viewModel.statusBody
