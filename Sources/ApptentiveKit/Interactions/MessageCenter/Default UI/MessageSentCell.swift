@@ -63,7 +63,7 @@ class MessageSentCell: UITableViewCell {
             [
                 self.bubbleImageView.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
                 self.bubbleImageView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -10),
-                self.bubbleImageView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.contentView.bottomAnchor, multiplier: -2.0),
+                self.bubbleImageView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -10),
                 self.bubbleImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 60),
 
                 self.messageLabel.topAnchor.constraint(equalTo: self.bubbleImageView.topAnchor, constant: 10),

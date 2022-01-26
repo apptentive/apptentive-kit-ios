@@ -10,7 +10,7 @@ import Foundation
 
 struct MessagesResponse: Codable {
     let messages: [Message]
-    let endsWith: String
+    let endsWith: String?
     let hasMore: Bool
 
     struct Message: Codable {
