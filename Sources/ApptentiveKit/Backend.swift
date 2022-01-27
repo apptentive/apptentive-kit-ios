@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import MobileCoreServices
+import UIKit
 
 /// The backend includes internal top-level methods used by the SDK.
 ///
@@ -137,14 +139,17 @@ class Backend {
     /// This method may be called multiple times if the device is locked with the app in the foreground and then unlocked.
     /// - Parameters:
     ///   - containerURL: A file URL corresponding to the container directory for Apptentive files.
+    ///   - cachesURL: A file URL corresponding to the caches directory used for storing message attachments.
     ///   - environment: An object implementing the `GlobalEnvironment` protocol.
     /// - Throws: An error if the conversation file exists but can't be read, or if the saved conversation can't be merged with the in-memory conversation.
-    func protectedDataDidBecomeAvailable(containerURL: URL, environment: GlobalEnvironment) throws {
+    func protectedDataDidBecomeAvailable(containerURL: URL, cachesURL: URL, environment: GlobalEnvironment) throws {
         try self.createContainerDirectoryIfNeeded(containerURL: containerURL, fileManager: environment.fileManager)
+        try self.createContainerDirectoryIfNeeded(containerURL: cachesURL, fileManager: environment.fileManager)
 
         self.conversationSaver = PropertyListSaver<Conversation>(containerURL: containerURL, filename: CurrentLoader.conversationFilename, fileManager: environment.fileManager)
         self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename, fileManager: environment.fileManager)
         self.messageManager.saver = MessageManager.createSaver(containerURL: containerURL, filename: CurrentLoader.messagesFilename, fileManager: environment.fileManager)
+        self.messageManager.attachmentCacheURL = cachesURL
 
         if self.conversationNeedsLoading {
             CurrentLoader.loadLatestVersion(containerURL: containerURL, environment: environment) { loader in
@@ -294,6 +299,7 @@ class Backend {
         }
 
         let payload = Payload(wrapping: messageWithCustomData)
+
         self.payloadSender.send(payload, persistEagerly: true)
 
         self.messageManager.addQueuedMessage(message, nonce: payload.jsonObject.nonce, sentDate: payload.jsonObject.creationDate)

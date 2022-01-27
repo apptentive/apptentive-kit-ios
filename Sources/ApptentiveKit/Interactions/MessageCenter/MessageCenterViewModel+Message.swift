@@ -11,6 +11,9 @@ import Foundation
 extension MessageCenterViewModel {
     /// Represents a message in the Message Center UI.
     public struct Message {
+        /// The nonce of the message.
+        public let nonce: String
+
         /// Indicates if the message is being received from the dashboard.
         public let sentByLocalUser: Bool
 
@@ -73,7 +76,8 @@ extension MessageCenterViewModel {
             }
         }
 
-        init(sentByLocalUser: Bool, isAutomated: Bool, isHidden: Bool, attachments: [Attachment], sender: Sender?, body: String?, sentDate: Date, wasRead: Bool) {
+        init(nonce: String, sentByLocalUser: Bool, isAutomated: Bool, isHidden: Bool, attachments: [Attachment], sender: Sender?, body: String?, sentDate: Date, wasRead: Bool) {
+            self.nonce = nonce
             self.sentByLocalUser = sentByLocalUser
             self.isAutomated = isAutomated
             self.isHidden = isHidden

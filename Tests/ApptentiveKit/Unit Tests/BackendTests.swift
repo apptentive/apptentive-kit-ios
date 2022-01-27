@@ -13,12 +13,15 @@ import XCTest
 class BackendTests: XCTestCase {
     var backend: Backend!
     var requestor: SpyRequestor!
+    var messageManager: MessageManager!
 
     override func setUpWithError() throws {
         try MockEnvironment.cleanContainerURL()
 
         let environment = MockEnvironment()
         let queue = DispatchQueue(label: "Test Queue")
+        self.messageManager = MessageManager(notificationCenter: NotificationCenter.default)
+        self.messageManager.attachmentCacheURL = URL(string: "file:///tmp/")!
 
         var conversation = Conversation(environment: environment)
         conversation.appCredentials = Apptentive.AppCredentials(key: "123abc", signature: "456def")
@@ -78,7 +81,7 @@ class BackendTests: XCTestCase {
         self.wait(for: [expectation], timeout: 5)
     }
 
-    func testMessageCenterCustomData() {
+    func testMessageCenterCustomData() throws {
         let expectation = XCTestExpectation(description: "First message sent with custom data")
 
         self.requestor.extraCompletion = {

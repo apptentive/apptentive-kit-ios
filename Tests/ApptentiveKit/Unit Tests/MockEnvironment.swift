@@ -11,6 +11,7 @@ import UIKit
 @testable import ApptentiveKit
 
 struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
+
     static let applicationSupportURL = URL(string: "file:///tmp/")!
     static let containerName = "com.apptentive.feedback"
 
@@ -62,6 +63,10 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
     var delegate: EnvironmentDelegate?
 
     func applicationSupportURL() throws -> URL {
+        return Self.applicationSupportURL
+    }
+
+    func cachesURL() throws -> URL {
         return Self.applicationSupportURL
     }
 

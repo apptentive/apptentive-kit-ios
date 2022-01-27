@@ -10,6 +10,7 @@ import UIKit
 
 /// The main interface to the Apptentive SDK.
 public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
+
     /// The shared instance of the Apptentive SDK.
     ///
     /// This object is created lazily upon access.
@@ -259,7 +260,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         self.backendQueue = backendQueue ?? DispatchQueue(label: "com.apptentive.backend", qos: .default, autoreleaseFrequency: .workItem)
         self.environment = environment ?? Environment()
         self.containerDirectory = containerDirectory ?? "com.apptentive.feedback"
-
         self.backend = Backend(queue: self.backendQueue, environment: self.environment, baseURL: self.baseURL)
 
         self.interactionPresenter = InteractionPresenter()
@@ -294,6 +294,73 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     static var alreadyInitialized = false
 
     // MARK: InteractionDelegate
+
+    func loadAttachmentDataFromDisk() throws -> [Data] {
+
+        let fileURL = try self.environment.applicationSupportURL().appendingPathComponent(self.containerDirectory)
+
+        let fileList = try self.environment.fileManager.contentsOfDirectory(atPath: fileURL.path)
+        var attachmentURLs: [URL] = []
+        fileList.forEach({
+            if $0.contains("Attachment") {
+                let url = fileURL.appendingPathComponent($0)
+                attachmentURLs.append(url)
+
+            }
+        })
+
+        var attachmentData: [Data] = []
+
+        try attachmentURLs.forEach({
+
+            let data = try Data(contentsOf: $0)
+            attachmentData.append(data)
+
+        })
+        return attachmentData
+
+    }
+
+    func deleteAttachmentFromDisk(fileName: String, index: Int, mediaType: String) {
+        let uniqueID = "\(index)-\(fileName)"
+        var fileExtension = ""
+
+        if mediaType.contains("image") {
+            fileExtension = "png"
+        } else {
+            fileExtension = String(mediaType.suffix(3))
+        }
+        self.backendQueue.async {
+            do {
+                let fileURL = try self.environment.applicationSupportURL().appendingPathComponent(self.containerDirectory).appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
+                try self.environment.fileManager.removeItem(at: fileURL)
+            } catch {
+                ApptentiveLogger.default.error("Error retrieving application support url or deleting attachment to disk: \(error)")
+            }
+        }
+    }
+
+    func saveAttachmentToDisk(fileName: String, index: Int, mediaType: String, data: Data) {
+        let uniqueID = "\(index)-\(fileName)"
+        var fileExtension = ""
+
+        if mediaType.contains("image") {
+            fileExtension = "png"
+        } else {
+            fileExtension = String(mediaType.suffix(3))
+        }
+
+        self.backendQueue.async {
+            do {
+                let fileURL = try self.environment.applicationSupportURL().appendingPathComponent(self.containerDirectory).appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
+
+                self.backend.messageManager.saveAttachmentToDisk(payloadContents: nil, data: data, url: nil, fileURL: fileURL)
+
+            } catch {
+                ApptentiveLogger.default.error("Error retrieving application support url: \(error)")
+            }
+        }
+    }
 
     func send(surveyResponse: SurveyResponse) {
         ApptentiveLogger.interaction.info("Enqueueing survey response.")
@@ -364,8 +431,9 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         self.backendQueue.async {
             do {
                 let containerURL = try environment.applicationSupportURL().appendingPathComponent(self.containerDirectory)
+                let cachesURL = try environment.cachesURL().appendingPathComponent(self.containerDirectory)
 
-                try self.backend.protectedDataDidBecomeAvailable(containerURL: containerURL, environment: environment)
+                try self.backend.protectedDataDidBecomeAvailable(containerURL: containerURL, cachesURL: cachesURL, environment: environment)
 
                 self.person.merge(with: self.backend.conversation.person)
                 self.device.merge(with: self.backend.conversation.device)

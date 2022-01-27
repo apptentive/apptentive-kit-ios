@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 protocol MessageManagerDelegate: AnyObject {
     // TODO: Pass message array instead of message manager?
@@ -17,8 +18,9 @@ class MessageManager {
     var foregroundPollingInterval: TimeInterval
     var backgroundPollingInterval: TimeInterval
     var customData: CustomData?
-
+    var attachmentURLs = [URL: Any]()
     var notificationCenter: NotificationCenter
+    var attachmentCacheURL: URL?
 
     weak var delegate: MessageManagerDelegate? {
         didSet {
@@ -89,6 +91,15 @@ class MessageManager {
         self.messageList.additionalDownloadableMessagesExist = messagesResponse.hasMore
         self.messageList.lastDownloadedMessageID = messagesResponse.endsWith
         self.messageList.lastFetchDate = Date()
+
+        for message in self.messageList.messages {
+            for (index, attachment) in message.attachments.enumerated() {
+                if let fileURL = self.createAttachmentURL(fileName: attachment.filename, fileType: attachment.contentType, nonce: message.nonce, index: index) {
+                    self.saveAttachmentToDisk(payloadContents: nil, data: nil, url: attachment.url, fileURL: fileURL)
+                    self.loadAttachmentURLAndData(fileURL: fileURL)
+                }
+            }
+        }
     }
 
     func saveMessagesIfNeeded() throws {
@@ -100,6 +111,17 @@ class MessageManager {
 
     func addQueuedMessage(_ message: OutgoingMessage, nonce: String, sentDate: Date) {
         self.messageList.messages.append(Self.convert(outgoingMessage: message, nonce: nonce, sentDate: sentDate))
+
+        // Put the attachments  into the cache
+        for (index, attachment) in message.attachments.enumerated() {
+            // TODO: handle case of URL attachment contents
+            if let fileName = attachment.filename,
+                let fileURL = self.createAttachmentURL(fileName: fileName, fileType: attachment.contentType, nonce: nonce, index: index)
+            {
+                self.saveAttachmentToDisk(payloadContents: attachment.contents, data: nil, url: nil, fileURL: fileURL)
+                self.loadAttachmentURLAndData(fileURL: fileURL)
+            }
+        }
     }
 
     @objc private func payloadSending(_ notification: Notification) {
@@ -123,6 +145,102 @@ class MessageManager {
         if let index = self.messageList.messages.firstIndex(where: { $0.nonce == payload.jsonObject.nonce }) {
             self.messageList.messages[index].status = status
         }  // else this probably wasn't a message payload.
+    }
+
+    /// Creates the local url which points to a location to save the attachment at.
+    /// - Parameters:
+    ///  -  fileName: The file name of the attachment.
+    ///  -  fileType: The media type of the attachment.
+    ///  -  nonce: The unique identifier associated with the message that the attachment is tied to.
+    ///  -  index: The index of attachment in order it was added to the message.
+    /// - Returns: The file url where the attachment will be placed.
+    func createAttachmentURL(fileName: String, fileType: String, nonce: String, index: Int) -> URL? {
+        guard let attachmentCacheURL = self.attachmentCacheURL else {
+            assertionFailure("Attempting to create attachment URL with no cache URL set")
+            return nil
+        }
+
+        var fileExtension = ""
+        let indexString = "\(index)-Index"
+        if fileType.contains("image") {
+            // TODO: don't special-case png?
+            fileExtension = "png"
+        } else {
+            let fileDataExtension = String(fileType.suffix(3))
+            fileExtension = fileDataExtension
+        }
+        let uniqueID = "\(nonce)-\(indexString)-\(fileName)"
+
+        let attachmentURL = attachmentCacheURL.appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
+
+        return attachmentURL
+    }
+
+    /// Saves the attachment to persistence in the cache directory.
+    ///
+    /// - Parameters:
+    ///    -    payloadContents: When the message is being sent the payload contents of the attachment is passed here. This should be set to nil if the attachment being saved is not sent locally.
+    ///    -    data: When attachment drafts are saved pass attachment draft data here. This should be set to nil if the attachment being saved is not a draft.
+    ///    -    url: The attachment url when the attachment is sent from the server. This should be set to nil if the attachment being saved is not sent from the server.
+    ///    -    fileURL: The local file url to save the attachment.
+    func saveAttachmentToDisk(payloadContents: Payload.Attachment.AttachmentContents?, data: Data?, url: URL?, fileURL: URL) {
+        if !FileManager.default.fileExists(atPath: fileURL.path) {
+            var attachmentData: Data?
+
+            if let contents = payloadContents {
+                switch contents {
+                case .data(let data):
+                    attachmentData = data
+                case .file(let url):
+                    // TODO: Just move the file?
+                    do {
+                        let data = try Data(contentsOf: url)
+                        attachmentData = data
+                    } catch {
+                        ApptentiveLogger.default.error("Error converting url to data: \(error)")
+                    }
+
+                }
+            } else if let url = url,
+                // TODO: Use a data task?
+                let data = try? Data(contentsOf: url)
+            {
+                attachmentData = data
+            } else if let data = data {
+                attachmentData = data
+            }
+
+            do {
+                try attachmentData?.write(to: fileURL, options: [.atomic])
+            } catch {
+                ApptentiveLogger.default.error("Error saving attachment data to disk: \(error)")
+            }
+        }
+    }
+
+    /// Loads the attachment data from the local url and inserts the url and its corresponding thumbnail image or file data in the attachmentURls dictionary in the message manager.
+    /// - Parameter fileURL: The local url pointing to where the attachment is saved at.
+    func loadAttachmentURLAndData(fileURL: URL) {
+        do {
+            let data = try Data(contentsOf: fileURL)
+            // TODO: don't special-case png?
+            if fileURL.pathExtension == "png" {
+                let options =
+                    [
+                        kCGImageSourceCreateThumbnailWithTransform: true,
+                        kCGImageSourceCreateThumbnailFromImageAlways: true,
+                        kCGImageSourceThumbnailMaxPixelSize: 300,
+                    ] as CFDictionary
+                guard let source = CGImageSourceCreateWithData(data as CFData, nil), let imageReference = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else { return }
+                let thumbnail = UIImage(cgImage: imageReference)
+
+                attachmentURLs[fileURL] = thumbnail
+            } else {
+                attachmentURLs[fileURL] = data
+            }
+        } catch {
+            ApptentiveLogger.default.error("Not able to load attachment data from local url: \(error)")
+        }
     }
 
     static func createSaver(containerURL: URL, filename: String, fileManager: FileManager) -> PropertyListSaver<MessageList> {
@@ -167,7 +285,6 @@ class MessageManager {
 
     static func convert(outgoingMessage: OutgoingMessage, nonce: String, sentDate: Date) -> MessageList.Message {
         let attachments = outgoingMessage.attachments.map { attachment in
-            // TODO: better filename fallback? Or make filename non-optional?
             MessageList.Message.Attachment(contentType: attachment.contentType, filename: attachment.filename ?? "Attachment", url: nil, size: nil)
         }
 

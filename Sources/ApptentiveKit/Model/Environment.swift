@@ -30,6 +30,7 @@ protocol PlatformEnvironment {
     func applicationSupportURL() throws -> URL
     func requestReview(completion: @escaping (Bool) -> Void)
     func open(_ url: URL, completion: @escaping (Bool) -> Void)
+    func cachesURL() throws -> URL
 
     func startBackgroundTask()
     func endBackgroundTask()
@@ -260,6 +261,15 @@ class Environment: GlobalEnvironment {
     /// - Returns: A file URL pointing to the directory.
     func applicationSupportURL() throws -> URL {
         return try self.fileManager.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    }
+
+    /// Retrieves URL of the Caches directory in the app's data container.
+    /// - Throws: An error if the directory cannot be found.
+    /// - Returns: A file URL pointing to the directory.
+    func cachesURL() throws -> URL {
+        return try self.fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        //        let cachesURL = self.fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+        //        return cachesURL[0]
     }
 
     /// Requests a review using `SKStoreReviewController`.

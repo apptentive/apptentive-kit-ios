@@ -8,7 +8,14 @@
 
 import Foundation
 
-typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & TermsOfServiceProviding & MessageSending & MessageProviding
+typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & TermsOfServiceProviding & MessageSending & MessageProviding & DraftAttachmentPersisting
+
+/// Describes an object that can save, delete and load the draft attachments to disk.
+protocol DraftAttachmentPersisting: AnyObject {
+    func saveAttachmentToDisk(fileName: String, index: Int, mediaType: String, data: Data)
+    func deleteAttachmentFromDisk(fileName: String, index: Int, mediaType: String)
+    func loadAttachmentDataFromDisk() throws -> [Data]
+}
 
 /// Describes an object that can receive the MessageManager from the backend.
 protocol MessageProviding: AnyObject {

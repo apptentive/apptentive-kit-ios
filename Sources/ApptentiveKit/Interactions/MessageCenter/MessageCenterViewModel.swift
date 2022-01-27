@@ -21,6 +21,7 @@ public protocol MessageCenterViewModelDelegate: AnyObject {
 
 /// A class that describes the data in message center and allows messages to be gathered and transmitted.
 public class MessageCenterViewModel: MessageManagerDelegate {
+
     // MARK: Message Manager Delegate
     func messageManagerMessagesDidChange(_ messageManager: MessageManager) {
         let messageViewModels = messageManager.messageList.messages.map { (message: MessageList.Message) -> Message in
@@ -34,7 +35,8 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             let sender = message.sender.flatMap { Message.Sender(name: $0.name, profilePhotoURL: $0.profilePhoto) }
 
             return Message(
-                sentByLocalUser: Self.sentByLocalUser(message), isAutomated: message.status == .automated, isHidden: message.status == .hidden, attachments: attachments, sender: sender, body: message.body, sentDate: message.sentDate, wasRead: false)
+                nonce: message.nonce, sentByLocalUser: Self.sentByLocalUser(message), isAutomated: message.status == .automated, isHidden: message.status == .hidden, attachments: attachments, sender: sender, body: message.body, sentDate: message.sentDate,
+                wasRead: false)
         }
 
         self.assembleGroupedMessages(messages: messageViewModels)
@@ -44,7 +46,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
     static func sentByLocalUser(_ message: MessageList.Message) -> Bool {
         switch message.status {
-        case .queued, .sending, .sent:
+        case .queued, .sending, .sent, .automated:
             return true
         default:
             return false
@@ -108,6 +110,9 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// The formatter for the group headers.
     public var groupDateFormatter: DateFormatter
 
+    /// The saved attachment draft data .
+    public var savedAttachmentDraftData: [Data]
+
     init(configuration: MessageCenterConfiguration, interaction: Interaction, delegate: InteractionDelegate) {
         self.interactionDelegate = delegate
         self.interaction = interaction
@@ -135,11 +140,20 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.groupDateFormatter.timeStyle = .none
 
         self.groupedMessages = []
+        self.savedAttachmentDraftData = []
 
         if let messageManager = self.interactionDelegate?.messageManager {
             messageManager.delegate = self
             self.draftMessage = messageManager.draftMessage
             self.messageManagerMessagesDidChange(messageManager)
+        }
+
+        do {
+            if let savedAttachmentData = try self.interactionDelegate?.loadAttachmentDataFromDisk() {
+                self.savedAttachmentDraftData = savedAttachmentData
+            }
+        } catch {
+            ApptentiveLogger.default.error("Error loading attachment from disk.")
         }
     }
 
@@ -157,6 +171,15 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
         self.interactionDelegate?.sendMessage(message)
 
+        DispatchQueue.global(qos: .background).async {
+            if let attachments = self.draftMessage?.attachments {
+                for (index, attachment) in attachments.enumerated() {
+                    if let filename = attachment.filename {
+                        self.interactionDelegate?.deleteAttachmentFromDisk(fileName: filename, index: index, mediaType: attachment.contentType)
+                    }
+                }
+            }
+        }
         self.draftMessage = nil
     }
 
@@ -201,13 +224,24 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             throw MessageCenterViewModelError.attachmentCountGreaterThanMax
         }
 
-        guard let data = image.jpegData(compressionQuality: 0.95) else {
-            throw MessageCenterViewModelError.unableToGetJPEGData
+        guard let data = image.pngData() else {
+            throw MessageCenterViewModelError.unableToGetImageData
         }
 
+        let fileName = self.getAttachmentFilename()
         // ItemProvider calls its completion block off the main queue, so jump to the main queue for the UI updates.
         DispatchQueue.main.async {
-            self.addAttachment(filename: self.getAttachmentFilename(), data: data, mediaType: "image/jpeg")
+            self.addAttachment(filename: fileName, data: data, mediaType: "image/jpeg")
+        }
+
+        DispatchQueue.global(qos: .background).async {
+            if let attachments = self.draftMessage?.attachments {
+                for (index, attachemnt) in attachments.enumerated() {
+                    if attachemnt.filename == fileName {
+                        self.interactionDelegate?.saveAttachmentToDisk(fileName: self.getAttachmentFilename(), index: index, mediaType: "image/jpeg", data: data)
+                    }
+                }
+            }
         }
     }
 
@@ -218,14 +252,22 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         guard self.canAddAttachment else {
             throw MessageCenterViewModelError.attachmentCountGreaterThanMax
         }
-
+        let fileName = self.getAttachmentFilename()
         // Read the data into memory on a background queue.
         DispatchQueue.global(qos: .utility).async {
             if let data = try? Data(contentsOf: at) {
                 // Perform UI updates on the main queue.
                 DispatchQueue.main.async {
-                    self.addAttachment(filename: self.getAttachmentFilename(), data: data, mediaType: self.mediaType(for: at))
+                    self.addAttachment(filename: fileName, data: data, mediaType: self.mediaType(for: at))
                 }
+
+                guard let attachments = self.draftMessage?.attachments else { return }
+                for (index, attachment) in attachments.enumerated() {
+                    if attachment.filename == fileName {
+                        self.interactionDelegate?.saveAttachmentToDisk(fileName: fileName, index: index, mediaType: self.mediaType(for: at), data: data)
+                    }
+                }
+
             } else {
                 ApptentiveLogger.default.error("Unable to get data for attachment file at \(at).")
             }
@@ -236,11 +278,13 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// - Parameter index: The index of the attachment to remove.
     /// - Throws: If the attachment index is out of range.
     public func removeAttachment(at index: Int) throws {
-        guard let draftMessage = self.draftMessage, draftMessage.attachments.count > index else {
+        guard let draftMessage = self.draftMessage, draftMessage.attachments.count > index, let attachment = self.draftMessage?.attachments[index], let fileName = attachment.filename else {
             throw MessageCenterViewModelError.attachmentIndexOutOfRange
         }
 
         self.draftMessage?.attachments.remove(at: index)
+
+        self.interactionDelegate?.deleteAttachmentFromDisk(fileName: fileName, index: index, mediaType: attachment.contentType)
     }
 
     /// Provides a message for the index path.
@@ -264,6 +308,60 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
             self.delegate?.messageCenterViewModelCanSendMessageDidUpdate(self)
         }
+    }
+
+    /// Returns the list of attachments at the index path.
+    /// - Parameter indexPath: The index of the row.
+    /// - Returns: The array of attachment objects associated with the index path.
+    public func attachments(at indexPath: IndexPath) -> [MessageCenterViewModel.Message.Attachment] {
+        return self.message(at: indexPath).attachments
+    }
+
+    /// Returns the list of attachment urls at the index path intended for Quick Look.
+    /// - Parameter indexPath: The index of the row.
+    /// - Returns: The array of local urls pointing to the attachment to be  used for Quick Look.
+    public func attachmentURLs(at indexPath: IndexPath) -> [URL]? {
+        let message = self.message(at: indexPath)
+
+        var attachmentURls: [URL] = []
+        guard let messageManager = self.interactionDelegate?.messageManager else {
+            assertionFailure("Expected to have message manager.")
+            return nil
+        }
+
+        for url in messageManager.attachmentURLs.keys {
+            if url.absoluteString.contains(message.nonce) {
+                attachmentURls.append(url)
+            }
+        }
+        return attachmentURls
+    }
+
+    /// Returns an array of thumbnail images at the index path.
+    /// - Parameter indexPath: The index of the row.
+    /// - Returns: The array of thumbnails associated with the index path.
+    public func attachmentThumbnails(at indexPath: IndexPath) -> [UIImageView]? {
+        let message = self.message(at: indexPath)
+        var thumbnails: [UIImageView] = []
+        guard let messageManager = self.interactionDelegate?.messageManager else {
+            assertionFailure("Expected to have message manager.")
+            return nil
+        }
+        for url in messageManager.attachmentURLs.keys {
+            if url.absoluteString.contains(message.nonce) {
+                //TODO: include jpeg as well
+                if url.pathExtension == "png" {
+                    guard let image = messageManager.attachmentURLs[url] as? UIImage else { return nil }
+                    let imageView = UIImageView(image: image)
+                    thumbnails.append(imageView)
+                } else {
+                    let image = UIImage.apptentiveMessageFileThumbnail
+                    let imageview = UIImageView(image: image)
+                    thumbnails.append(imageview)
+                }
+            }
+        }
+        return thumbnails
     }
 
     /// The difference between the maximum number of attachments and the number
@@ -335,5 +433,5 @@ public enum MessageCenterViewModelError: Error {
     case attachmentCountGreaterThanMax
     case attachmentIndexOutOfRange
     case messageHasNoBodyOrAttachments
-    case unableToGetJPEGData
+    case unableToGetImageData
 }

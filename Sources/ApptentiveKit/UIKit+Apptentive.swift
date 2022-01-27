@@ -61,6 +61,15 @@ extension UIButton {
 
 extension UIImage {
 
+    /// The image to use for the file thumbnail for message center.
+    public static var apptentiveMessageFileThumbnail: UIImage? = {
+        if #available(iOS 13.0, *) {
+            return UIImage.init(systemName: "doc")?.withRenderingMode(.alwaysTemplate)
+        } else {
+            return UIImage(named: "doc", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        }
+    }()
+
     /// The image to use for the add attachment button for message center.
     public static var apptentiveMessageAttachmentButton: UIImage? = {
         if #available(iOS 13.0, *) {

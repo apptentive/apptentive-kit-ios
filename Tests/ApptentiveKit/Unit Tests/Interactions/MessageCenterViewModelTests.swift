@@ -65,7 +65,7 @@ class MessageCenterViewModelTests: XCTestCase {
             messages: [
                 MessageList.Message(
                     id: "abc123", body: "test", attachments: [MessageList.Message.Attachment(contentType: "test", filename: "test", url: URL(string: "https://example.com")!, size: nil)],
-                    sender: MessageList.Message.Sender(id: "def456", name: "Testy McTestface", profilePhotoURL: URL(string: "https://example.com")), sentDate: Date(), sentByLocalUser: true, isAutomated: true, isHidden: true)
+                    sender: MessageList.Message.Sender(id: "def456", name: "Testy McTestface", profilePhotoURL: URL(string: "https://example.com")), sentDate: Date(), sentByLocalUser: true, isAutomated: true, isHidden: true, nonce: UUID().uuidString)
             ], endsWith: nil, hasMore: true)
         let messageManager = MessageManager()
         messageManager.messageList = messageList
@@ -85,7 +85,7 @@ class MessageCenterViewModelTests: XCTestCase {
             messages: [
                 MessageList.Message(
                     id: "abc123", body: "test", attachments: [MessageList.Message.Attachment(contentType: "test", filename: "test", url: URL(string: "https://example.com")!, size: nil)],
-                    sender: MessageList.Message.Sender(id: "def456", name: "Testy McTestface", profilePhotoURL: URL(string: "https://example.com")), sentDate: Date(), sentByLocalUser: true, isAutomated: true, isHidden: true)
+                    sender: MessageList.Message.Sender(id: "def456", name: "Testy McTestface", profilePhotoURL: URL(string: "https://example.com")), sentDate: Date(), sentByLocalUser: true, isAutomated: true, isHidden: true, nonce: UUID().uuidString)
             ], endsWith: nil, hasMore: true)
 
         self.spySender?.messageManager.messageList = messageList
@@ -112,4 +112,46 @@ class MessageCenterViewModelTests: XCTestCase {
             try self.viewModel?.addImageAttachment(image)
         }
     }
+
+    func testSavingAndLoadingAttachmentDraftToDisk() throws {
+        let data = Data()
+        let attachment = Payload.Attachment(contentType: "image", filename: "Attachment 1", contents: .data(data))
+        self.spySender?.saveAttachmentToDisk(fileName: attachment.filename!, index: 0, mediaType: attachment.contentType, data: data)
+        let loadedDataList = try self.spySender?.loadAttachmentDataFromDisk()
+        let loadedData = loadedDataList?[0]
+        XCTAssertNotNil(loadedData)
+    }
+
+    func testDeletingAttachmentDraftToDisk() throws {
+        let data = Data()
+        let attachment = Payload.Attachment(contentType: "image", filename: "Attachment 1", contents: .data(data))
+        self.spySender?.saveAttachmentToDisk(fileName: attachment.filename!, index: 0, mediaType: attachment.contentType, data: data)
+        self.spySender?.deleteAttachmentFromDisk(fileName: attachment.filename!, index: 0, mediaType: attachment.contentType)
+        if let loadedDataList = try self.spySender?.loadAttachmentDataFromDisk() {
+            XCTAssertTrue(loadedDataList.isEmpty)
+        }
+    }
+
+    func testReturningAttachmentsForIndexPath() {
+        let indexPath = IndexPath(row: 0, section: 0)
+        let url = URL(string: "https://attachments.apptentive.com/5f35712b4abf9904b600001e/61d3de21d1f13c70ca0467c9/61d3de666c86a016c603ee4d/61d3de666c86a016c603ee4e")!
+        let attachment = MessageCenterViewModel.Message.Attachment(mediaType: "image", filename: "Attachment 1", url: url)
+        let message = MessageCenterViewModel.Message(id: nil, nonce: "nonce", sentByLocalUser: true, isAutomated: false, isHidden: false, attachments: [attachment], sender: nil, body: nil, sentDate: Date(), wasRead: true)
+        self.viewModel?.groupedMessages.append([message])
+        let loadedAttachment = self.viewModel?.attachments(at: indexPath).first
+        XCTAssertEqual(loadedAttachment?.filename, "Attachment 1")
+    }
+
+    func testAttachmentURLsForIndexPath() {
+        let indexPath = IndexPath(row: 0, section: 0)
+        let url = URL(string: "https://attachments.apptentive.com/5f35712b4abf9904b600001e/61d3de21d1f13c70ca0467c9/61d3de666c86a016c603ee4d/61d3de666c86a016c603ee4e")!
+        let attachment = MessageCenterViewModel.Message.Attachment(mediaType: "image", filename: "Attachment 1", url: url)
+        let message = MessageCenterViewModel.Message(id: nil, nonce: "61d3de666c86a016c603ee4e", sentByLocalUser: true, isAutomated: false, isHidden: true, attachments: [attachment], sender: nil, body: nil, sentDate: Date(), wasRead: false)
+        self.viewModel?.groupedMessages.append([message])
+        self.viewModel?.messageManager?.attachmentURLs[url] = UIImageView(image: UIImage())
+        if let attachmentURL = self.viewModel?.attachmentURLs(at: indexPath)?[0] {
+            XCTAssertTrue(attachmentURL.absoluteString.contains("61d3de666c86a016c603ee4e"))
+        }
+    }
+
 }

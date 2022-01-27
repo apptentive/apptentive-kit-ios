@@ -7,9 +7,17 @@
 //
 
 import XCTest
+
 @testable import ApptentiveKit
 
 class MessageManagerTests: XCTestCase {
+    var messageManager: MessageManager!
+
+    override func setUp() {
+        self.messageManager = MessageManager(notificationCenter: NotificationCenter.default)
+        self.messageManager.attachmentCacheURL = URL(string: "file:///tmp/")!
+    }
+
     func testMergeMessages() {
         let attachment = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "Dog.jpg", url: URL(string: "https://example.com/dog.jpg")!, size: 123)
         let sender = MessageList.Message.Sender(name: "Testy McTestface", profilePhoto: URL(string: "https://example.com/avi.jpg")!)
@@ -21,17 +29,16 @@ class MessageManagerTests: XCTestCase {
             Date().addingTimeInterval(-100),
         ]
 
-
         let existing: [MessageList.Message] = [
             .init(nonce: "abc", body: "Hey", attachments: [], sender: nil, sentDate: dates[0], status: .sent),
             .init(nonce: "def", body: nil, attachments: [attachment], sender: sender, sentDate: dates[1], status: .read),
-            .init(nonce: "ghi", body: "Yo", attachments: [], sender: nil, sentDate: dates[2], status: .sent)
+            .init(nonce: "ghi", body: "Yo", attachments: [], sender: nil, sentDate: dates[2], status: .sent),
         ]
 
         let updated: [MessageList.Message] = [
             .init(nonce: "abc", body: "Hey", attachments: [], sender: nil, sentDate: dates[0], status: .sent),
             .init(nonce: "def", body: nil, attachments: [attachment], sender: sender, sentDate: dates[1], status: .unread),
-            .init(nonce: "jkl", body: "Sup?", attachments: [], sender: sender, sentDate: dates[3], status: .unread)
+            .init(nonce: "jkl", body: "Sup?", attachments: [], sender: sender, sentDate: dates[3], status: .unread),
         ]
 
         let merged = MessageManager.merge(existing, with: updated)
@@ -111,4 +118,22 @@ class MessageManagerTests: XCTestCase {
 
         XCTAssertEqual(MessageManager.status(of: message2), .sent)
     }
+
+    func testSavingAndLoadingAttachmentToDisk() throws {
+        let data = Data()
+        if let fileURL = self.messageManager.createAttachmentURL(fileName: "Attachment 1", fileType: "image", nonce: UUID().uuidString, index: 0) {
+            self.messageManager.saveAttachmentToDisk(payloadContents: nil, data: data, url: nil, fileURL: fileURL)
+            self.messageManager.loadAttachmentURLAndData(fileURL: fileURL)
+            if let url = self.messageManager.attachmentURLs.first?.key {
+                XCTAssertTrue(url.absoluteString.contains("Attachment 1"))
+            }
+        }
+    }
+
+    func testCreatingFileURL() {
+        if let fileURL = self.messageManager.createAttachmentURL(fileName: "Attachment 1", fileType: "image", nonce: UUID().uuidString, index: 0) {
+            XCTAssertTrue(fileURL.absoluteString.contains("Attachment"))
+        }
+    }
+
 }
