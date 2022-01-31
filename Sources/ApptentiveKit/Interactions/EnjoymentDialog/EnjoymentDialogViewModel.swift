@@ -8,10 +8,12 @@
 
 import Foundation
 
+typealias EnjoymentDialogInteractionDelegate = EventEngaging
+
 /// Describes the values needed to configure a view for the EnjoymentDialog ("Love Dialog") interaction.
 public class EnjoymentDialogViewModel: AlertViewModel {
     let interaction: Interaction
-    let delegate: EventEngaging
+    let interactionDelegate: EnjoymentDialogInteractionDelegate
 
     /// The "Do you love this app" question part of the dialog.
     public let title: String?
@@ -22,9 +24,9 @@ public class EnjoymentDialogViewModel: AlertViewModel {
     /// The "yes" and "no" buttons for the dialog.
     public let buttons: [AlertButtonModel]
 
-    init(configuration: EnjoymentDialogConfiguration, interaction: Interaction, delegate: EventEngaging) {
+    init(configuration: EnjoymentDialogConfiguration, interaction: Interaction, interactionDelegate: EnjoymentDialogInteractionDelegate) {
         self.interaction = interaction
-        self.delegate = delegate
+        self.interactionDelegate = interactionDelegate
 
         self.title = configuration.title
         self.message = nil
@@ -32,24 +34,24 @@ public class EnjoymentDialogViewModel: AlertViewModel {
             AlertButtonModel(
                 title: configuration.noText, style: .default,
                 action: {
-                    delegate.engage(event: .no(from: interaction))
+                    interactionDelegate.engage(event: .no(from: interaction))
                 }),
             AlertButtonModel(
                 title: configuration.yesText, style: .default,
                 action: {
-                    delegate.engage(event: .yes(from: interaction))
+                    interactionDelegate.engage(event: .yes(from: interaction))
                 }),
         ]
     }
 
     /// Engages a launch event for the interaction.
     public func launch() {
-        self.delegate.engage(event: .launch(from: self.interaction))
+        self.interactionDelegate.engage(event: .launch(from: self.interaction))
     }
 
     /// Engages a cancel event for the interaction (not used by the default implementation).
     public func cancel() {
-        self.delegate.engage(event: .cancel(from: self.interaction))
+        self.interactionDelegate.engage(event: .cancel(from: self.interaction))
     }
 }
 

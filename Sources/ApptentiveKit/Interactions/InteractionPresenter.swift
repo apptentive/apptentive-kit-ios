@@ -37,11 +37,11 @@ open class InteractionPresenter {
             AppleRatingDialogController(interaction: interaction, delegate: delegate).requestReview()
 
         case .enjoymentDialog(let configuration):
-            let viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
+            let viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             try self.presentEnjoymentDialog(with: viewModel)
 
         case .navigateToLink(let configuration):
-            let controller = NavigateToLinkController(configuration: configuration, interaction: interaction, delegate: delegate)
+            let controller = NavigateToLinkController(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             controller.navigateToLink()
 
         case .survey(let configuration):
@@ -49,11 +49,11 @@ open class InteractionPresenter {
             try self.presentSurvey(with: viewModel)
 
         case .textModal(let configuration):
-            let viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
+            let viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             try self.presentTextModal(with: viewModel)
 
         case .messageCenter(let configuration):
-            let viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, delegate: delegate)
+            let viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             try self.presentMessageCenter(with: viewModel)
 
         case .notImplemented:

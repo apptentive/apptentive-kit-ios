@@ -27,7 +27,7 @@ class NavigateToLinkControllerTests: XCTestCase {
 
         self.spyInteractionDelegate = SpyInteractionDelegate()
 
-        self.controller = NavigateToLinkController(configuration: configuration, interaction: interaction, delegate: self.spyInteractionDelegate!)
+        self.controller = NavigateToLinkController(configuration: configuration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate!)
     }
 
     func testNavigateToLinkSuccess() {

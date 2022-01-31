@@ -26,7 +26,7 @@ class TextModalViewModelTests: XCTestCase {
         }
 
         self.spySender = SpyInteractionDelegate()
-        self.viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, delegate: self.spySender!)
+        self.viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender!)
     }
 
     func testTextModal() {

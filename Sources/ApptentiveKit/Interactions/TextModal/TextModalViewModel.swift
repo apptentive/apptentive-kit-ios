@@ -8,10 +8,12 @@
 
 import UIKit
 
+typealias TextModalInteractionDelegate = EventEngaging & InvocationInvoking & ResponseRecording
+
 /// Describes the values needed to configure a view for the TextModal ("Note") interaction.
 public class TextModalViewModel: AlertViewModel {
     let interaction: Interaction
-    let delegate: EventEngaging & InvocationInvoking & ResponseRecording
+    let interactionDelegate: TextModalInteractionDelegate
 
     /// The "Do you love this app" question part of the dialog.
     public let title: String?
@@ -22,9 +24,9 @@ public class TextModalViewModel: AlertViewModel {
     /// The "yes" and "no" buttons for the dialog.
     public let buttons: [AlertButtonModel]
 
-    required init(configuration: TextModalConfiguration, interaction: Interaction, delegate: EventEngaging & InvocationInvoking & ResponseRecording) {
+    required init(configuration: TextModalConfiguration, interaction: Interaction, interactionDelegate: TextModalInteractionDelegate) {
         self.interaction = interaction
-        self.delegate = delegate
+        self.interactionDelegate = interactionDelegate
 
         self.title = configuration.title
         self.message = configuration.body
@@ -33,11 +35,11 @@ public class TextModalViewModel: AlertViewModel {
             AlertButtonModel(title: action.label, style: .default) {
 
                 var textModalAction = TextModalAction(label: action.label, position: index, invokedInteractionID: nil, actionID: action.id)
-                TextModalViewModel.recordResponse(textModalAction: textModalAction, delegate: delegate, interaction: interaction)
+                TextModalViewModel.recordResponse(textModalAction: textModalAction, delegate: interactionDelegate, interaction: interaction)
 
                 switch action.actionType {
                 case .dismiss:
-                    delegate.engage(event: .dismiss(for: interaction, action: textModalAction))
+                    interactionDelegate.engage(event: .dismiss(for: interaction, action: textModalAction))
 
                 case .interaction:
 
@@ -46,10 +48,10 @@ public class TextModalViewModel: AlertViewModel {
                         return assertionFailure("TextModal interaction button missing invocations.")
                     }
 
-                    delegate.invoke(invocations) { (invokedInteractionID) in
+                    interactionDelegate.invoke(invocations) { (invokedInteractionID) in
                         if let invokedInteractionID = invokedInteractionID {
                             textModalAction.invokedInteractionID = invokedInteractionID
-                            delegate.engage(event: .interaction(for: interaction, action: textModalAction))
+                            interactionDelegate.engage(event: .interaction(for: interaction, action: textModalAction))
                         }
                     }
                 }
@@ -66,12 +68,12 @@ public class TextModalViewModel: AlertViewModel {
 
     /// Engages a launch event for the interaction.
     public func launch() {
-        self.delegate.engage(event: .launch(from: self.interaction))
+        self.interactionDelegate.engage(event: .launch(from: self.interaction))
     }
 
     /// Engages a cancel event for the interaction (not used by the default implementation).
     public func cancel() {
-        self.delegate.engage(event: .cancel(from: self.interaction))
+        self.interactionDelegate.engage(event: .cancel(from: self.interaction))
     }
 }
 

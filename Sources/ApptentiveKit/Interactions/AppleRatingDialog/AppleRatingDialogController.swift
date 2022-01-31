@@ -9,14 +9,16 @@
 import StoreKit
 import UIKit
 
+typealias AppleRatingDialogInteractionDelegate = EventEngaging & ReviewRequesting
+
 class AppleRatingDialogController {
     let interaction: Interaction
-    let delegate: EventEngaging & ReviewRequesting
+    let delegate: AppleRatingDialogInteractionDelegate
 
     private var didShowReviewController = false
     private let reviewWindowTimeout = 1
 
-    init(interaction: Interaction, delegate: EventEngaging & ReviewRequesting) {
+    init(interaction: Interaction, delegate: AppleRatingDialogInteractionDelegate) {
         self.interaction = interaction
         self.delegate = delegate
     }

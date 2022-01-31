@@ -8,20 +8,22 @@
 
 import UIKit
 
+typealias NavigateToLinkInteractionDelegate = EventEngaging & URLOpening
+
 class NavigateToLinkController {
     let configuration: NavigateToLinkConfiguration
     let interaction: Interaction
-    let delegate: EventEngaging & URLOpening
+    let interactionDelegate: NavigateToLinkInteractionDelegate
 
-    init(configuration: NavigateToLinkConfiguration, interaction: Interaction, delegate: EventEngaging & URLOpening) {
+    init(configuration: NavigateToLinkConfiguration, interaction: Interaction, interactionDelegate: NavigateToLinkInteractionDelegate) {
         self.configuration = configuration
         self.interaction = interaction
-        self.delegate = delegate
+        self.interactionDelegate = interactionDelegate
     }
 
     func navigateToLink() {
-        self.delegate.open(self.configuration.url) { (success) in
-            self.delegate.engage(event: .navigate(to: self.configuration.url, success: success, interaction: self.interaction))
+        self.interactionDelegate.open(self.configuration.url) { (success) in
+            self.interactionDelegate.engage(event: .navigate(to: self.configuration.url, success: success, interaction: self.interaction))
         }
     }
 }

@@ -26,7 +26,7 @@ class EnjoymentDialogViewModelTests: XCTestCase {
         }
 
         self.spySender = SpyInteractionDelegate()
-        self.viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, delegate: self.spySender!)
+        self.viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender!)
     }
 
     func testEnjoymentDialog() {
