@@ -130,13 +130,13 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
         switch (message.messageState, cell) {
         case (.inbound, let receivedCell as MessageReceivedCell):
-            receivedCell.messageLabel.text = message.body
+            receivedCell.messageText.text = message.body
             receivedCell.dateLabel.text = message.sentDateString
             receivedCell.senderLabel.text = message.senderName
             receivedCell.profileImageView.url = message.senderImageURL
 
         case (.outbound, let sentCell as MessageSentCell):
-            sentCell.messageLabel.text = message.body
+            sentCell.messageText.text = message.body
             sentCell.dateLabel.text = message.sentDateString
 
         default:

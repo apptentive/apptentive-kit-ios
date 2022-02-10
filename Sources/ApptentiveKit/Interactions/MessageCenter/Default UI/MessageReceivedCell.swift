@@ -9,14 +9,14 @@
 import UIKit
 
 class MessageReceivedCell: UITableViewCell {
-    let messageLabel: UILabel
+    let messageText: UITextView
     let profileImageView: ApptentiveImageView
     let senderLabel: UILabel
     let dateLabel: UILabel
     let bubbleImageView: UIImageView
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        self.messageLabel = UILabel(frame: .zero)
+        self.messageText = UITextView(frame: .zero)
         self.dateLabel = UILabel(frame: .zero)
         self.senderLabel = UILabel(frame: .zero)
         self.profileImageView = ApptentiveImageView()
@@ -26,7 +26,7 @@ class MessageReceivedCell: UITableViewCell {
 
         self.contentView.addSubview(self.bubbleImageView)
         self.contentView.addSubview(self.senderLabel)
-        self.contentView.addSubview(self.messageLabel)
+        self.contentView.addSubview(self.messageText)
         self.contentView.addSubview(self.dateLabel)
         self.contentView.addSubview(self.profileImageView)
 
@@ -40,7 +40,7 @@ class MessageReceivedCell: UITableViewCell {
     private func setupViews() {
         self.backgroundColor = .clear
 
-        self.messageLabel.textColor = .apptentiveMessageLabelInbound
+        self.messageText.textColor = .apptentiveMessageLabelInbound
         self.senderLabel.textColor = .apptentiveMessageLabelInbound
         self.dateLabel.textColor = .apptentiveMessageLabelInbound
 
@@ -58,15 +58,14 @@ class MessageReceivedCell: UITableViewCell {
         self.dateLabel.textAlignment = .left
         self.dateLabel.adjustsFontForContentSizeCategory = true
 
-        self.messageLabel.font = .apptentiveMessageLabel
-        self.messageLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.messageLabel.numberOfLines = 0
-        self.messageLabel.lineBreakMode = .byWordWrapping
-        self.messageLabel.adjustsFontSizeToFitWidth = true
-        self.messageLabel.minimumScaleFactor = 0.5
-        self.messageLabel.sizeToFit()
-        self.messageLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
-        self.messageLabel.adjustsFontForContentSizeCategory = true
+        self.messageText.font = .apptentiveMessageLabel
+        self.messageText.translatesAutoresizingMaskIntoConstraints = false
+        self.messageText.isEditable = false
+        self.messageText.isScrollEnabled = false
+        self.messageText.backgroundColor = .apptentiveMessageBubbleInbound
+        self.messageText.sizeToFit()
+        self.messageText.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        self.messageText.adjustsFontForContentSizeCategory = true
 
         self.senderLabel.translatesAutoresizingMaskIntoConstraints = false
         self.senderLabel.numberOfLines = 0
@@ -89,10 +88,11 @@ class MessageReceivedCell: UITableViewCell {
                 self.senderLabel.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 20),
                 self.senderLabel.trailingAnchor.constraint(equalTo: self.bubbleImageView.trailingAnchor, constant: -10),
 
-                self.messageLabel.topAnchor.constraint(equalTo: self.senderLabel.bottomAnchor, constant: 10),
-                self.messageLabel.leadingAnchor.constraint(equalTo: self.senderLabel.leadingAnchor),
-                self.messageLabel.trailingAnchor.constraint(equalTo: self.senderLabel.trailingAnchor),
-                self.messageLabel.bottomAnchor.constraint(equalTo: self.dateLabel.topAnchor, constant: -10),
+                self.messageText.topAnchor.constraint(equalTo: self.senderLabel.bottomAnchor, constant: 10),
+                self.messageText.leadingAnchor.constraint(equalTo: self.senderLabel.leadingAnchor),
+                self.messageText.trailingAnchor.constraint(equalTo: self.senderLabel.trailingAnchor),
+                self.messageText.bottomAnchor.constraint(equalTo: self.dateLabel.topAnchor, constant: -10),
+                self.messageText.heightAnchor.constraint(greaterThanOrEqualTo: self.dateLabel.heightAnchor, multiplier: 2.0),
 
                 self.dateLabel.leadingAnchor.constraint(equalTo: self.senderLabel.leadingAnchor),
                 self.dateLabel.trailingAnchor.constraint(equalTo: self.senderLabel.trailingAnchor),

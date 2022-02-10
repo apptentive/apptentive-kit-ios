@@ -10,18 +10,18 @@ import UIKit
 
 //FIXME: The sent bubble image right corner is cutoff.
 class MessageSentCell: UITableViewCell {
-    let messageLabel: UILabel
+    let messageText: UITextView
     let dateLabel: UILabel
     let bubbleImageView: UIImageView
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        self.messageLabel = UILabel(frame: .zero)
+        self.messageText = UITextView(frame: .zero)
         self.dateLabel = UILabel(frame: .zero)
         self.bubbleImageView = UIImageView(image: .apptentiveSentMessageBubble)
 
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
         self.contentView.addSubview(self.bubbleImageView)
-        self.contentView.addSubview(self.messageLabel)
+        self.contentView.addSubview(self.messageText)
         self.contentView.addSubview(self.dateLabel)
 
         setupViews()
@@ -44,16 +44,15 @@ class MessageSentCell: UITableViewCell {
         self.dateLabel.textAlignment = .left
         self.dateLabel.adjustsFontForContentSizeCategory = true
 
-        self.messageLabel.textColor = .apptentiveMessageLabelOutbound
-        self.messageLabel.font = .apptentiveMessageLabel
-        self.messageLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.messageLabel.numberOfLines = 0
-        self.messageLabel.lineBreakMode = .byWordWrapping
-        self.messageLabel.adjustsFontSizeToFitWidth = true
-        self.messageLabel.minimumScaleFactor = 0.5
-        self.messageLabel.sizeToFit()
-        self.messageLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
-        self.messageLabel.adjustsFontForContentSizeCategory = true
+        self.messageText.textColor = .apptentiveMessageLabelOutbound
+        self.messageText.font = .apptentiveMessageLabel
+        self.messageText.translatesAutoresizingMaskIntoConstraints = false
+        self.messageText.backgroundColor = .apptentiveMessageBubbleOutbound
+        self.messageText.isScrollEnabled = false
+        self.messageText.isEditable = false
+        self.messageText.sizeToFit()
+        self.messageText.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        self.messageText.adjustsFontForContentSizeCategory = true
 
         setConstraints()
     }
@@ -66,13 +65,14 @@ class MessageSentCell: UITableViewCell {
                 self.bubbleImageView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -10),
                 self.bubbleImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 60),
 
-                self.messageLabel.topAnchor.constraint(equalTo: self.bubbleImageView.topAnchor, constant: 10),
-                self.messageLabel.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 10),
-                self.messageLabel.trailingAnchor.constraint(equalTo: self.bubbleImageView.trailingAnchor, constant: -30),
-                self.messageLabel.bottomAnchor.constraint(equalTo: self.dateLabel.topAnchor, constant: -10),
+                self.messageText.topAnchor.constraint(equalTo: self.bubbleImageView.topAnchor, constant: 10),
+                self.messageText.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 10),
+                self.messageText.trailingAnchor.constraint(equalTo: self.bubbleImageView.trailingAnchor, constant: -30),
+                self.messageText.bottomAnchor.constraint(equalTo: self.dateLabel.topAnchor, constant: -10),
+                self.messageText.heightAnchor.constraint(greaterThanOrEqualTo: self.dateLabel.heightAnchor, multiplier: 2.0),
 
-                self.dateLabel.leadingAnchor.constraint(equalTo: self.messageLabel.leadingAnchor),
-                self.dateLabel.trailingAnchor.constraint(equalTo: self.messageLabel.trailingAnchor),
+                self.dateLabel.leadingAnchor.constraint(equalTo: self.messageText.leadingAnchor),
+                self.dateLabel.trailingAnchor.constraint(equalTo: self.messageText.trailingAnchor),
                 self.bubbleImageView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.dateLabel.bottomAnchor, multiplier: 2.0),
             ]
         )
