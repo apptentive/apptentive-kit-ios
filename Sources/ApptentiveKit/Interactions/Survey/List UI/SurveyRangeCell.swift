@@ -42,7 +42,7 @@ class SurveyRangeCell: UITableViewCell {
             NSLayoutConstraint.activate([
                 segmentedControl.heightAnchor.constraint(equalToConstant: 44),
                 segmentedControl.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 7),
-                segmentedControl.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -10),
+                self.contentView.trailingAnchor.constraint(equalTo: segmentedControl.trailingAnchor, constant: 10),
                 segmentedControl.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
             ])
         }
@@ -77,7 +77,7 @@ class SurveyRangeCell: UITableViewCell {
             NSLayoutConstraint.activate([
                 stackView.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 10),
                 stackView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 15),
-                stackView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -15),
+                self.contentView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: 15),
                 self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: stackView.bottomAnchor, multiplier: 1.0),
             ])
         }

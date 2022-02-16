@@ -68,10 +68,30 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         self.init(specializedJSONObject: .appRelease(AppReleaseContent(with: appRelease)), path: "app_release", method: .put)
     }
 
+    /// - Parameter message:
+
     /// Creates a new payload to send a message.
-    /// - Parameter message: The message to send.
-    init(wrapping message: OutgoingMessage) {
-        self.init(specializedJSONObject: .message(MessageContent(with: message)), path: "messages", method: .post, attachments: message.attachments)
+    /// - Parameters:
+    ///   - message: The message to send.
+    ///   - customData: The custom data to attach to the message.
+    ///   - attachmentURLProvider: An object conforming to `AttachmentURLProviding` to provide the URL for any stored attachments.
+    init(wrapping message: MessageList.Message, customData: CustomData? = nil, attachmentURLProvider: AttachmentURLProviding) {
+        let attachments = message.attachments.compactMap { (attachment: MessageList.Message.Attachment) -> Payload.Attachment? in
+            var contents: Attachment.AttachmentContents
+
+            if let url = attachmentURLProvider.url(for: attachment) {
+                contents = .file(url)
+            } else if case .inMemory(let data) = attachment.storage {
+                contents = .data(data)
+            } else {
+                assertionFailure("Unexpected attachment storage type for outgoing message.")
+                return nil
+            }
+
+            return Attachment(contentType: attachment.contentType, filename: attachment.filename, contents: contents)
+        }
+
+        self.init(specializedJSONObject: .message(MessageContent(with: message, customData: customData)), path: "messages", method: .post, attachments: attachments)
     }
 
     /// Initializes a new payload.
@@ -81,7 +101,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
     ///   - method: The HTTP method for the API request.
     ///   - attachments: The attachments to send with the payload, if any.
     private init(specializedJSONObject: SpecializedJSONObject, path: String, method: HTTPMethod, attachments: [Attachment] = []) {
-        self.jsonObject = JSONObject(specializedJSONObject: specializedJSONObject, shouldStripContainer: !attachments.isEmpty)
+        self.jsonObject = JSONObject(specializedJSONObject: specializedJSONObject, shouldStripContainer: attachments.count > 0)
         self.path = path
         self.method = method
         self.attachments = attachments

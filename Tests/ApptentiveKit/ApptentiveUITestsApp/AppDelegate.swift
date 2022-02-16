@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 try FileManager.default.copyItem(at: dataURL, to: destinationURL)
             }
         } catch let error {
-            print("Error copying message list: \(error)")
+            print("Error copying conversation files: \(error)")
         }
 
         return true

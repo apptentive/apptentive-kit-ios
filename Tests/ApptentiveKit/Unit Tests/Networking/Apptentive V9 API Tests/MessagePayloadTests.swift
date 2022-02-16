@@ -27,9 +27,9 @@ class MessagePayloadTests: XCTestCase {
         customData["number"] = 42
         customData["bool"] = true
 
-        let message = OutgoingMessage(body: "Test Message", customData: customData, isHidden: true)
+        let message = MessageList.Message(nonce: "draft", body: "Test Message", isHidden: true, status: .draft)
 
-        self.testPayload = Payload(wrapping: message)
+        self.testPayload = Payload(wrapping: message, customData: customData, attachmentURLProvider: MockAttachmentURLProviding())
 
         let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: type(of: self)), compatibleWith: nil)!
         let image2 = UIImage(named: "dog", in: Bundle(for: type(of: self)), compatibleWith: nil)!
@@ -37,12 +37,12 @@ class MessagePayloadTests: XCTestCase {
         let data1 = image1.pngData()!
         let data2 = image2.jpegData(compressionQuality: 0.5)!
 
-        let attachment1 = Payload.Attachment(contentType: "image/png", filename: "logo", contents: .data(data1))
-        let attachment2 = Payload.Attachment(contentType: "image/jpeg", filename: "dog", contents: .data(data2))
+        let attachment1 = MessageList.Message.Attachment(contentType: "image/png", filename: "logo", storage: .inMemory(data1))
+        let attachment2 = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "dog", storage: .inMemory(data2))
 
-        let messageWithAttachments = OutgoingMessage(body: "Test Attachments", attachments: [attachment1, attachment2], isAutomated: false, isHidden: true)
+        let messageWithAttachments = MessageList.Message(nonce: "draft", body: "Test Attachments", attachments: [attachment1, attachment2], isHidden: true, status: .draft)
 
-        self.attachmentTestPayload = Payload(wrapping: messageWithAttachments)
+        self.attachmentTestPayload = Payload(wrapping: messageWithAttachments, customData: nil, attachmentURLProvider: MockAttachmentURLProviding())
 
         super.setUp()
     }
@@ -133,5 +133,11 @@ class MessagePayloadTests: XCTestCase {
         let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
 
         XCTAssertEqual(self.attachmentTestPayload, decodedPayload)
+    }
+}
+
+class MockAttachmentURLProviding: AttachmentURLProviding {
+    func url(for attachment: MessageList.Message.Attachment) -> URL? {
+        return Bundle(for: type(of: self)).url(forResource: "dog", withExtension: "jpg")
     }
 }

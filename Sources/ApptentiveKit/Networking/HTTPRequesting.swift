@@ -11,12 +11,22 @@ import Foundation
 /// Describes the methods needed for an `HTTPClient` object to perform an HTTP request.
 protocol HTTPRequesting {
     func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> HTTPCancellable
+
+    func download(_ url: URL, completion: @escaping (URL?, URLResponse?, Error?) -> Void) -> HTTPCancellable
 }
 
 /// An extension on `URLSession` that allows it to conform to `HTTPRequesting`.
 extension URLSession: HTTPRequesting {
     func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> HTTPCancellable {
         let task = self.dataTask(with: request, completionHandler: completion)
+
+        task.resume()
+
+        return URLSessionTaskCancellable(task: task)
+    }
+
+    func download(_ url: URL, completion: @escaping (URL?, URLResponse?, Error?) -> Void) -> HTTPCancellable {
+        let task = self.downloadTask(with: url, completionHandler: completion)
 
         task.resume()
 

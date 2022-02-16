@@ -38,8 +38,8 @@ class MessageListFooterView: UIView {
         NSLayoutConstraint.activate([
             self.statusTextLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 10),
             self.statusTextLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            self.statusTextLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
-            self.statusTextLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10),
+            self.trailingAnchor.constraint(equalTo: self.statusTextLabel.trailingAnchor, constant: 10),
+            self.bottomAnchor.constraint(equalTo: self.statusTextLabel.bottomAnchor, constant: 10),
         ])
     }
 

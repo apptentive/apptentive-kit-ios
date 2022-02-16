@@ -16,6 +16,7 @@ class MessageCenterUITests: XCTestCase {
     }
 
     func testHappyPath() {
+        let app = XCUIApplication()
         XCUIApplication().activate()
 
         let tablesQuery = XCUIApplication().tables
@@ -24,6 +25,51 @@ class MessageCenterUITests: XCTestCase {
 
         let _ = XCUIApplication().navigationBars["Message Center"].waitForExistence(timeout: 2.0)
         XCTAssertTrue(XCUIApplication().navigationBars["Message Center"].exists, "Name should exist")
+
+        let sendButton = app.buttons["sendButton"]
+        let attachmentButton = app.buttons["attachmentButton"]
+        let composeTextView = app.textViews["composeTextView"]
+
+        XCTAssertFalse(sendButton.isEnabled)
+
+        composeTextView.tap()
+        app.typeText("Test Message")
+
+        attachmentButton.tap()
+        app.buttons["Images"].tap()
+
+        app /*@START_MENU_TOKEN@*/.scrollViews.otherElements.images[
+            "Photo, August 08, 2012, 2:55 PM"
+        ] /*[[".otherElements[\"Photos\"].scrollViews.otherElements",".otherElements[\"Photo, March 30, 2018, 12:14 PM, Photo, August 08, 2012, 2:55 PM, Photo, August 08, 2012, 2:29 PM, Photo, August 08, 2012, 11:52 AM, Photo, October 09, 2009, 2:09 PM, Photo, March 12, 2011, 4:17 PM\"].images[\"Photo, August 08, 2012, 2:55 PM\"]",".images[\"Photo, August 08, 2012, 2:55 PM\"]",".scrollViews.otherElements"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,0]]@END_MENU_TOKEN@*/
+            .tap()
+        app /*@START_MENU_TOKEN@*/.scrollViews.otherElements.images[
+            "Photo, August 08, 2012, 2:29 PM"
+        ] /*[[".otherElements[\"Photos\"].scrollViews.otherElements",".otherElements[\"Photo, March 30, 2018, 12:14 PM, Photo, August 08, 2012, 2:55 PM, Photo, August 08, 2012, 2:29 PM, Photo, August 08, 2012, 11:52 AM, Photo, October 09, 2009, 2:09 PM, Photo, March 12, 2011, 4:17 PM\"].images[\"Photo, August 08, 2012, 2:29 PM\"]",".images[\"Photo, August 08, 2012, 2:29 PM\"]",".scrollViews.otherElements"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,0]]@END_MENU_TOKEN@*/
+            .tap()
+        app /*@START_MENU_TOKEN@*/.scrollViews.otherElements.images[
+            "Photo, March 12, 2011, 4:17 PM"
+        ] /*[[".otherElements[\"Photos\"].scrollViews.otherElements",".otherElements[\"Photo, March 30, 2018, 12:14 PM, Photo, August 08, 2012, 2:55 PM, Photo, August 08, 2012, 2:29 PM, Photo, August 08, 2012, 11:52 AM, Photo, October 09, 2009, 2:09 PM, Photo, March 12, 2011, 4:17 PM\"].images[\"Photo, March 12, 2011, 4:17 PM\"]",".images[\"Photo, March 12, 2011, 4:17 PM\"]",".scrollViews.otherElements"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,0]]@END_MENU_TOKEN@*/
+            .tap()
+        app /*@START_MENU_TOKEN@*/.scrollViews.otherElements.images[
+            "Photo, October 09, 2009, 2:09 PM"
+        ] /*[[".otherElements[\"Photos\"].scrollViews.otherElements",".otherElements[\"Photo, March 30, 2018, 12:14 PM, Photo, August 08, 2012, 2:55 PM, Photo, August 08, 2012, 2:29 PM, Photo, August 08, 2012, 11:52 AM, Photo, October 09, 2009, 2:09 PM, Photo, March 12, 2011, 4:17 PM\"].images[\"Photo, October 09, 2009, 2:09 PM\"]",".images[\"Photo, October 09, 2009, 2:09 PM\"]",".scrollViews.otherElements"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,0]]@END_MENU_TOKEN@*/
+            .tap()
+
+        app.navigationBars["Photos"].buttons["Add"].tap()
+
+        if app.buttons["Remove IMG_0001.jpeg"].waitForExistence(timeout: 5.0) {
+            app.buttons["Remove IMG_0001.jpeg"].tap()
+
+            attachmentButton.tap()
+            app.buttons["Files"].tap()
+            app.buttons["Cancel"].tap()
+
+            XCTAssertFalse(app.buttons["Remove IMG_0001.jpeg"].exists)
+
+            sendButton.tap()
+        } else {
+            XCTFail("Remove button didn't show up")
+        }
     }
 
     func testUIDocumentPicker() {
@@ -53,10 +99,9 @@ class MessageCenterUITests: XCTestCase {
         attachmentButton.tap()
         let imagesButton = XCUIApplication().buttons["Images"]
         XCTAssertTrue(imagesButton.exists)
-        //        imagesButton.tap()
-        //        let predicate = NSPredicate(format: "label CONTAINS %@", "Photos")
-        //        let imagePickerText = XCUIApplication().staticTexts.containing(predicate).firstMatch
-        //        XCTAssertTrue(imagePickerText.waitForExistence(timeout: 10))
-
+        imagesButton.tap()
+        let predicate = NSPredicate(format: "label CONTAINS %@", "Photos")
+        let imagePickerText = XCUIApplication().staticTexts.containing(predicate).firstMatch
+        XCTAssertTrue(imagePickerText.waitForExistence(timeout: 10))
     }
 }

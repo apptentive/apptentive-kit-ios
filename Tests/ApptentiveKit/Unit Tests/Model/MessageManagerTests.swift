@@ -15,11 +15,38 @@ class MessageManagerTests: XCTestCase {
 
     override func setUp() {
         self.messageManager = MessageManager(notificationCenter: NotificationCenter.default)
-        self.messageManager.attachmentCacheURL = URL(string: "file:///tmp/")!
+    }
+
+    func testPrepareDraftMessageForSending() throws {
+        XCTAssertThrowsError(try self.messageManager.prepareDraftMessageForSending())
+
+        var customData = CustomData()
+        customData["String"] = "string"
+
+        self.messageManager.draftMessage.body = "Hey"
+        self.messageManager.customData = customData
+
+        let result = try self.messageManager.prepareDraftMessageForSending()
+        XCTAssertEqual(result.0.body, "Hey")
+        XCTAssertEqual(result.1, customData)
+
+        XCTAssertNil(self.messageManager.draftMessage.body)
+        XCTAssertNil(self.messageManager.customData)
+    }
+
+    func testAddQueuedMessage() {
+        self.messageManager.addQueuedMessage(MessageList.Message(nonce: "def456", sentDate: Date.distantPast, status: .draft), with: "abc123")
+
+        let message = self.messageManager.messageList.messages.last
+
+        // Nonce, sentDate, and status should be updated.
+        XCTAssertEqual(message?.nonce, "abc123")
+        XCTAssertEqual((message?.sentDate.timeIntervalSince1970)!, Date().timeIntervalSince1970, accuracy: 1.0)
+        XCTAssertEqual(message?.status, .queued)
     }
 
     func testMergeMessages() {
-        let attachment = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "Dog.jpg", url: URL(string: "https://example.com/dog.jpg")!, size: 123)
+        let attachment = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "Dog.jpg", storage: .remote(URL(string: "https://example.com/dog.jpg")!, size: 123))
         let sender = MessageList.Message.Sender(name: "Testy McTestface", profilePhoto: URL(string: "https://example.com/avi.jpg")!)
 
         let dates: [Date] = [
@@ -41,7 +68,7 @@ class MessageManagerTests: XCTestCase {
             .init(nonce: "jkl", body: "Sup?", attachments: [], sender: sender, sentDate: dates[3], status: .unread),
         ]
 
-        let merged = MessageManager.merge(existing, with: updated)
+        let merged = MessageManager.merge(existing, with: updated, attachmentManager: nil)
 
         XCTAssertEqual(merged.count, 4)
 
@@ -75,7 +102,7 @@ class MessageManagerTests: XCTestCase {
         let attachment = MessagesResponse.Message.Attachment(contentType: "image/jpeg", filename: "dog.jpg", url: URL(string: "https://example.com/dog.jpg")!, size: 123)
         let sender = MessagesResponse.Message.Sender(name: "Testy McTestface", profilePhoto: URL(string: "https://example.com/avi.jpg")!)
 
-        let downloadedMessage = MessagesResponse.Message(id: "abc", nonce: "def", sentByLocalUser: false, body: "Body", attachments: [attachment], sender: sender, isHidden: false, isAutomated: false, sentDate: Date())
+        let downloadedMessage = MessagesResponse.Message(id: "abc", nonce: "def", sentFromDevice: false, body: "Body", attachments: [attachment], sender: sender, isHidden: false, isAutomated: false, sentDate: Date())
 
         let convertedMessage = MessageManager.convert(downloadedMessage: downloadedMessage)
 
@@ -84,56 +111,25 @@ class MessageManagerTests: XCTestCase {
         XCTAssertEqual(convertedMessage.body, "Body")
         XCTAssertEqual(convertedMessage.attachments[0].contentType, attachment.contentType)
         XCTAssertEqual(convertedMessage.attachments[0].filename, attachment.filename)
-        XCTAssertEqual(convertedMessage.attachments[0].url, attachment.url)
-        XCTAssertEqual(convertedMessage.attachments[0].size, attachment.size)
+        XCTAssertEqual(convertedMessage.attachments[0].storage, .remote(attachment.url, size: 123))
         XCTAssertEqual(convertedMessage.sender?.name, sender.name)
         XCTAssertEqual(convertedMessage.sender?.profilePhoto, sender.profilePhoto)
     }
 
-    func testConvertOutgoingMessage() {
-        let attachment = Payload.Attachment(contentType: "image/jpeg", filename: "dog.jpg", contents: .file(URL(string: "file:///tmp/attachment.jpg")!))
-
-        let outgoingMessage = OutgoingMessage(body: "Body", attachments: [attachment], customData: nil, isAutomated: false, isHidden: false)
-
-        let convertedMessage = MessageManager.convert(outgoingMessage: outgoingMessage, nonce: "def", sentDate: Date())
-
-        XCTAssertEqual(convertedMessage.nonce, "def")
-        XCTAssertEqual(convertedMessage.status, .queued)
-        XCTAssertEqual(convertedMessage.body, "Body")
-        XCTAssertEqual(convertedMessage.attachments[0].contentType, attachment.contentType)
-        XCTAssertEqual(convertedMessage.attachments[0].filename, attachment.filename)
-        XCTAssertNil(convertedMessage.sender)
-    }
-
     func testStatus() {
-        let message0 = MessagesResponse.Message(id: "abc", nonce: "def", sentByLocalUser: false, body: "Body", attachments: [], sender: nil, isHidden: true, isAutomated: false, sentDate: Date())
+        let message1 = MessagesResponse.Message(id: "abc", nonce: "def", sentFromDevice: false, body: "Body", attachments: [], sender: nil, isHidden: false, isAutomated: false, sentDate: Date())
 
-        XCTAssertEqual(MessageManager.status(of: message0), .hidden)
+        XCTAssertEqual(MessageManager.status(of: message1), .unread)
 
-        let message1 = MessagesResponse.Message(id: "abc", nonce: "def", sentByLocalUser: true, body: "Body", attachments: [], sender: nil, isHidden: false, isAutomated: true, sentDate: Date())
-
-        XCTAssertEqual(MessageManager.status(of: message1), .automated)
-
-        let message2 = MessagesResponse.Message(id: "abc", nonce: "def", sentByLocalUser: true, body: "Body", attachments: [], sender: nil, isHidden: false, isAutomated: false, sentDate: Date())
+        let message2 = MessagesResponse.Message(id: "abc", nonce: "def", sentFromDevice: true, body: "Body", attachments: [], sender: nil, isHidden: false, isAutomated: false, sentDate: Date())
 
         XCTAssertEqual(MessageManager.status(of: message2), .sent)
     }
 
-    func testSavingAndLoadingAttachmentToDisk() throws {
-        let data = Data()
-        if let fileURL = self.messageManager.createAttachmentURL(fileName: "Attachment 1", fileType: "image", nonce: UUID().uuidString, index: 0) {
-            self.messageManager.saveAttachmentToDisk(payloadContents: nil, data: data, url: nil, fileURL: fileURL)
-            self.messageManager.loadAttachmentURLAndData(fileURL: fileURL)
-            if let url = self.messageManager.attachmentURLs.first?.key {
-                XCTAssertTrue(url.absoluteString.contains("Attachment 1"))
-            }
-        }
-    }
+    func testNewDraftMessage() {
+        let draft = MessageManager.newDraftMessage()
 
-    func testCreatingFileURL() {
-        if let fileURL = self.messageManager.createAttachmentURL(fileName: "Attachment 1", fileType: "image", nonce: UUID().uuidString, index: 0) {
-            XCTAssertTrue(fileURL.absoluteString.contains("Attachment"))
-        }
+        XCTAssertEqual(draft.nonce, "draft")
+        XCTAssertEqual(draft.status, .draft)
     }
-
 }

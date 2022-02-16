@@ -403,10 +403,10 @@ class ApptentiveV9APITests: XCTestCase {
         let data1 = image1.pngData()!
         let data2 = image2.jpegData(compressionQuality: 0.5)!
 
-        let attachment1 = Payload.Attachment(contentType: "image/png", filename: "apptentive-logo", contents: .data(data1))
-        let attachment2 = Payload.Attachment(contentType: "image/jpeg", filename: "dog", contents: .data(data2))
+        let attachment1 = MessageList.Message.Attachment(contentType: "image/png", filename: "apptentive-logo", storage: .inMemory(data1))
+        let attachment2 = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "dog", storage: .inMemory(data2))
 
-        let message = OutgoingMessage(body: "Test Message", attachments: [attachment1, attachment2])
+        let message = MessageList.Message(nonce: "draft", body: "Test Message", attachments: [attachment1, attachment2], status: .draft)
 
         let expectation = XCTestExpectation()
 
@@ -457,7 +457,8 @@ class ApptentiveV9APITests: XCTestCase {
             }
         }
 
-        payloadSender.send(Payload(wrapping: message))
+        let payload = Payload(wrapping: message, customData: nil, attachmentURLProvider: MockAttachmentURLProviding())
+        payloadSender.send(payload)
 
         self.wait(for: [expectation], timeout: 5)
     }

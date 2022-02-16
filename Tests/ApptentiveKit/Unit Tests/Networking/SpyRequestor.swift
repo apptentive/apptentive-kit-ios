@@ -12,13 +12,18 @@ import Foundation
 
 class SpyRequestor: HTTPRequesting {
     var request: URLRequest?
-    var responseData: Data
+    var responseData: Data?
+    var temporaryURL: URL?
     var extraCompletion: (() -> Void)?
     var delay: TimeInterval = 0
     var error: HTTPClientError?
 
     init(responseData: Data) {
         self.responseData = responseData
+    }
+
+    init(temporaryURL: URL) {
+        self.temporaryURL = temporaryURL
     }
 
     func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> HTTPCancellable {
@@ -45,6 +50,30 @@ class SpyRequestor: HTTPRequesting {
 
         return FakeHTTPCancellable()
     }
+
+    func download(_ url: URL, completion: @escaping (URL?, URLResponse?, Error?) -> Void) -> HTTPCancellable {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(self.delay / 1000.0))) {
+            switch self.error {
+            case .clientError(let response, _):
+                completion(self.temporaryURL, response, nil)
+
+            case .serverError(let response, _):
+                completion(self.temporaryURL, response, nil)
+
+            case .none:
+                let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "1.1", headerFields: [:])
+                completion(self.temporaryURL, response, nil)
+
+            default:
+                completion(self.temporaryURL, nil, self.error)
+            }
+
+            self.extraCompletion?()
+        }
+
+        return FakeHTTPCancellable()
+    }
+
 }
 
 struct FakeHTTPCancellable: HTTPCancellable {

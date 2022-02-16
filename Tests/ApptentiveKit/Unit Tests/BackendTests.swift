@@ -18,16 +18,16 @@ class BackendTests: XCTestCase {
     override func setUpWithError() throws {
         try MockEnvironment.cleanContainerURL()
 
+        self.requestor = SpyRequestor(responseData: Data())
         let environment = MockEnvironment()
         let queue = DispatchQueue(label: "Test Queue")
         self.messageManager = MessageManager(notificationCenter: NotificationCenter.default)
-        self.messageManager.attachmentCacheURL = URL(string: "file:///tmp/")!
+        self.messageManager.attachmentManager = AttachmentManager(fileManager: environment.fileManager, requestor: self.requestor, cacheContainerURL: URL(string: "file:///tmp/")!, savedContainerURL: URL(string: "file:///tmp/")!)
 
         var conversation = Conversation(environment: environment)
         conversation.appCredentials = Apptentive.AppCredentials(key: "123abc", signature: "456def")
         conversation.conversationCredentials = Conversation.ConversationCredentials(token: "abc123", id: "def456")
 
-        self.requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://api.apptentive.com/")!, userAgent: "foo")
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
 
@@ -35,7 +35,7 @@ class BackendTests: XCTestCase {
         payloadSender.credentialsProvider = conversation
 
         self.backend = Backend(
-            queue: queue, conversation: conversation, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: MessageManager(notificationCenter: NotificationCenter.default), requestRetrier: requestRetrier,
+            queue: queue, conversation: conversation, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: self.messageManager, requestRetrier: requestRetrier,
             payloadSender: payloadSender)
     }
 
@@ -111,7 +111,9 @@ class BackendTests: XCTestCase {
 
         self.backend.messageManager.customData = customData
 
-        self.backend.sendMessage(OutgoingMessage(body: "Test Message"))
+        self.backend.messageManager.draftMessage.body = "Hey"
+        let (message, customData2) = try self.backend.messageManager.prepareDraftMessageForSending()
+        try self.backend.sendMessage(message, with: customData2)
 
         self.wait(for: [expectation], timeout: 5)
 
@@ -134,7 +136,7 @@ class BackendTests: XCTestCase {
             }
         }
 
-        self.backend.sendMessage(OutgoingMessage(body: "Test Message 2"))
+        try self.backend.sendMessage(MessageList.Message(nonce: "draft", body: "Test Message 2", status: .draft))
 
         self.wait(for: [expectation2], timeout: 5)
     }

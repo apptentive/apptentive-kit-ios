@@ -149,7 +149,7 @@ class Backend {
         self.conversationSaver = PropertyListSaver<Conversation>(containerURL: containerURL, filename: CurrentLoader.conversationFilename, fileManager: environment.fileManager)
         self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename, fileManager: environment.fileManager)
         self.messageManager.saver = MessageManager.createSaver(containerURL: containerURL, filename: CurrentLoader.messagesFilename, fileManager: environment.fileManager)
-        self.messageManager.attachmentCacheURL = cachesURL
+        self.messageManager.attachmentManager = AttachmentManager(fileManager: environment.fileManager, requestor: URLSession.shared, cacheContainerURL: cachesURL, savedContainerURL: containerURL)
 
         if self.conversationNeedsLoading {
             CurrentLoader.loadLatestVersion(containerURL: containerURL, environment: environment) { loader in
@@ -172,6 +172,7 @@ class Backend {
     ///
     /// Called when the device is locked with the app in the foreground.
     func protectedDataWillBecomeUnavailable() {
+        self.messageManager.attachmentManager = nil
         self.messageManager.saver = nil
         self.payloadSender.saver = nil
         self.conversationSaver = nil
@@ -289,20 +290,20 @@ class Backend {
     /// If custom data was set when Message Center was presented,
     /// the custom data is attached to the message (and removed
     /// so that it won't be attached again to future messages).
-    /// - Parameter message: The message to send.
-    func sendMessage(_ message: OutgoingMessage) {
-        var messageWithCustomData = message
-
-        if let customData = self.messageManager.customData {
-            messageWithCustomData.customData = customData
-            self.messageManager.customData = nil
+    /// - Parameters:
+    ///   - message: The message to send.
+    ///   - customData: The custom data to attach to the message.
+    /// - Throws: An error if the message can't be sent.
+    func sendMessage(_ message: MessageList.Message, with customData: CustomData? = nil) throws {
+        guard let attachmentManager = self.messageManager.attachmentManager else {
+            throw ApptentiveError.internalInconsistency
         }
 
-        let payload = Payload(wrapping: messageWithCustomData)
+        let payload = Payload(wrapping: message, customData: customData, attachmentURLProvider: attachmentManager)
 
         self.payloadSender.send(payload, persistEagerly: true)
 
-        self.messageManager.addQueuedMessage(message, nonce: payload.jsonObject.nonce, sentDate: payload.jsonObject.creationDate)
+        self.messageManager.addQueuedMessage(message, with: payload.jsonObject.nonce)
     }
 
     // MARK: - Private

@@ -28,6 +28,8 @@ class PayloadSender {
         }
     }
 
+    var attachmentManger: AttachmentManager?
+
     /// Creates a new payload sender.
     /// - Parameters:
     ///   - requestRetrier: The HTTPRequestRetrier instance to use to connect to the API.

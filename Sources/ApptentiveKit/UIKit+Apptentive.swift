@@ -63,37 +63,17 @@ extension UIImage {
 
     /// The image to use for the file thumbnail for message center.
     public static var apptentiveMessageFileThumbnail: UIImage? = {
-        if #available(iOS 13.0, *) {
-            return UIImage.init(systemName: "doc")?.withRenderingMode(.alwaysTemplate)
-        } else {
-            return UIImage(named: "doc", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-        }
+        return apptentiveImage(named: "doc")
     }()
 
     /// The image to use for the add attachment button for message center.
     public static var apptentiveMessageAttachmentButton: UIImage? = {
-        if #available(iOS 13.0, *) {
-            return UIImage.init(systemName: "paperclip.circle.fill")?.withRenderingMode(.alwaysTemplate)
-        } else {
-            return UIImage(named: "attachmentButton", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-        }
-    }()
-    /// The image to use for the button that sends messages for message center.
-    public static var apptentiveMessageSendButton: UIImage? = {
-        if #available(iOS 13.0, *) {
-            return UIImage.init(systemName: "paperplane.circle.fill")?.withRenderingMode(.alwaysTemplate)
-        } else {
-            return UIImage(named: "sendButton", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-        }
+        return apptentiveImage(named: "paperclip.circle.fill")
     }()
 
-    /// The image to use for the greeting header view for message center.
-    public static var apptentiveMessageHeader: UIImage? = {
-        if #available(iOS 13.0, *) {
-            return UIImage.init(systemName: "bubble.left.and.bubble.right.fill")?.withTintColor(.apptentiveMessageCenterAttachmentButton)
-        } else {
-            return UIImage(named: "messageHeader", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9))
-        }
+    /// The image to use for the button that sends messages for message center.
+    public static var apptentiveMessageSendButton: UIImage? = {
+        return apptentiveImage(named: "paperplane.circle.fill")
     }()
 
     /// The image to use as the chat bubble for outbound messages.
@@ -104,6 +84,16 @@ extension UIImage {
     /// The image to use as the chat bubble for inbound messages.
     public static var apptentiveReceivedMessageBubble: UIImage? = {
         return UIImage(named: "messageReceivedBubble", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 18, bottom: 18, right: 9))
+    }()
+
+    /// The image to use for attachment placeholders in messages and the composer.
+    public static var apptentiveAttachmentPlaceholder: UIImage? = {
+        return UIImage(named: "document", in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal).resizableImage(withCapInsets: UIEdgeInsets(top: 14, left: 4, bottom: 4, right: 14))
+    }()
+
+    /// The image to use for the attachment delete button.
+    public static var apptentiveAttachmentRemoveButton: UIImage? = {
+        return .apptentiveImage(named: "xmark.circle.fill")
     }()
 
     /// The image to use for the top navigation bar for surveys.
@@ -131,12 +121,14 @@ extension UIImage {
         return apptentiveImage(named: "checkmark.square.fill")
     }()
 
-    static func apptentiveImage(named imageName: String) -> UIImage? {
+    static func apptentiveImage(named: String) -> UIImage? {
         if #available(iOS 13.0, *) {
-            return UIImage(systemName: imageName)
-        } else {
-            return UIImage(named: imageName, in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            if let result = UIImage(systemName: named) {
+                return result
+            }
         }
+
+        return UIImage(named: named, in: Bundle.module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
     }
 }
 
@@ -164,17 +156,29 @@ extension UIColor {
 
     /// The color to use for the status message in message center.
     public static var apptentiveMessageCenterStatus: UIColor = {
-        return .gray
+        if #available(iOS 13.0, *) {
+            return .secondaryLabel
+        } else {
+            return .darkGray
+        }
     }()
 
     /// The color to use for the greeting body on the greeting header view for message center.
     public static var apptentiveMessageCenterGreetingBody: UIColor = {
-        return .darkGray
+        if #available(iOS 13.0, *) {
+            return .secondaryLabel
+        } else {
+            return .darkGray
+        }
     }()
 
     /// The color to use for the greeting title on the greeting header view for message center.
     public static var apptentiveMessageCenterGreetingTitle: UIColor = {
-        return .darkGray
+        if #available(iOS 13.0, *) {
+            return .secondaryLabel
+        } else {
+            return .darkGray
+        }
     }()
 
     /// The color to use for the message bubble view for inbound messages.
@@ -349,6 +353,7 @@ extension UIColor {
     }()
 
     /// The color to use for the footer label text for surveys.
+    // TODO: Pick a less ambiguous name (this is for Thank You text)
     public static var apptentiveSubmitLabel: UIColor = {
         if #available(iOS 13.0, *) {
             return .label
@@ -405,6 +410,11 @@ extension UIFont {
         return .preferredFont(forTextStyle: .body)
     }()
 
+    /// The font to use for attachment placeholder file extension labels.
+    public static var apptentiveMessageCenterAttachmentLabel: UIFont = {
+        return .preferredFont(forTextStyle: .caption1)
+    }()
+
     /// The font used for all survey question labels.
     public static var apptentiveQuestionLabel: UIFont = {
         return .preferredFont(forTextStyle: .body)
@@ -451,6 +461,7 @@ extension UIFont {
     }()
 
     /// The font used for the survey confirmation label and the survey submit button.
+    // TODO: Clarify that this is the Thank You text (not the submit button text)
     public static var apptentiveSubmitLabel: UIFont = {
         return .preferredFont(forTextStyle: .headline)
     }()

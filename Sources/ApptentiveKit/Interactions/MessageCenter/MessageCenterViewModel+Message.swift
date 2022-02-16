@@ -6,22 +6,20 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import Foundation
+import QuickLook
+import UIKit
 
 extension MessageCenterViewModel {
     /// Represents a message in the Message Center UI.
-    public struct Message {
+    public class Message {
         /// The nonce of the message.
         public let nonce: String
 
-        /// Indicates if the message is being received from the dashboard.
-        public let sentByLocalUser: Bool
+        /// Indicates if the message is outbound or inbound.
+        public let direction: Direction
 
         /// Indicates whether the message is a Context Message (shown after a "Don't Love" response triggered Message Center).
         public let isAutomated: Bool
-
-        /// Indicates whether the message shows in the message list to the consumer.
-        public let isHidden: Bool
 
         /// The set of media attachments associated with the message.
         public let attachments: [Attachment]
@@ -35,80 +33,81 @@ extension MessageCenterViewModel {
         /// When when the message was created.
         public let sentDate: Date
 
-        /// Whether the message was displayed to the user.
-        public var wasRead: Bool
-
-        /// The formatter for the sent date labels.
-        public var sentDateFormatter: DateFormatter
-
         /// A human-readable string of the date that the message was sent.
-        public var sentDateString: String {
-            return self.sentDateFormatter.string(from: self.sentDate)
-        }
+        public let sentDateString: String
 
-        ///  The name of the sender, if any.
-        public var senderName: String? {
-            return self.sender?.name
-        }
+        /// A textual representation of the message status.
+        public var statusText: String? {
+            guard case .sentFromDevice(let status) = self.direction else {
+                return nil
+            }
 
-        /// Returns a URL pointing to the an image for the sender (if any).
-        public var senderImageURL: URL? {
-            return self.sender?.profilePhotoURL
-        }
+            switch status {
+            case .draft:
+                return nil
 
-        /// Indicates if the message has attachments.
-        public var messageIncludesAttachments: MessageAttachmentStatus {
-            switch self.attachments.isEmpty {
-            case true:
-                return .noAttachments
-            case false:
-                return .hasAttachments
+            case .queued:
+                return "Waiting…"
+
+            case .sending:
+                return "Sending…"
+
+            case .sent:
+                return "Sent \(self.sentDateString)"
+
+            case .failed:
+                return "Fail to Send"
             }
         }
 
-        /// Indicates if the message is outbound or inbound.
-        public var messageState: MessageStatus {
-            switch self.sentByLocalUser {
-            case true:
-                return .outbound
-            case false:
-                return .inbound
-            }
-        }
-
-        init(nonce: String, sentByLocalUser: Bool, isAutomated: Bool, isHidden: Bool, attachments: [Attachment], sender: Sender?, body: String?, sentDate: Date, wasRead: Bool) {
+        init(nonce: String, direction: Direction, isAutomated: Bool, attachments: [Attachment], sender: Sender?, body: String?, sentDate: Date, sentDateString: String) {
             self.nonce = nonce
-            self.sentByLocalUser = sentByLocalUser
+            self.direction = direction
             self.isAutomated = isAutomated
-            self.isHidden = isHidden
             self.attachments = attachments
             self.sender = sender
             self.body = body
             self.sentDate = sentDate
-            self.wasRead = wasRead
-            self.sentDateFormatter = DateFormatter()
-            self.sentDateFormatter.dateStyle = .none
-            self.sentDateFormatter.timeStyle = .short
+            self.sentDateString = sentDateString
         }
 
         /// Defines the status of the message whether it is an inbound message or outbound.
-        public enum MessageStatus {
+        public enum Direction {
             /// The message is coming from the server.
-            case inbound
+            case sentFromDashboard(ReadStatus)
             /// The message is being sent from the device.
-            case outbound
+            case sentFromDevice(SentStatus)
         }
 
-        /// Defines the status of the message attachments.
-        public enum MessageAttachmentStatus {
-            /// The message has no attachments.
-            case noAttachments
-            /// The message has attachments.
-            case hasAttachments
+        /// The status of a message sent from the device.
+        public enum SentStatus: Codable, Equatable {
+            /// The message is a draft that is being composed.
+            case draft
+
+            /// The message is waiting to be sent, either behind other payloads, or because the device is offline.
+            case queued
+
+            /// The message is currently being transmitted to the API.
+            case sending
+
+            /// The message was sent.
+            case sent
+
+            /// The message sending attempt permanently failed.
+            case failed
+        }
+
+        /// The status of a message sent to the device.
+        public enum ReadStatus: Codable, Equatable {
+            /// The message has been displayed to the user.
+            case read
+
+            /// The message has not yet been displayed to the user.
+            case unread
         }
 
         /// The information associated with the sender of the message.
-        public struct Sender: Equatable {
+        public struct Sender {
             /// The sender's name.
             var name: String?
 
@@ -117,15 +116,63 @@ extension MessageCenterViewModel {
         }
 
         /// An attachment that can be associated with a message.
-        public struct Attachment: Equatable {
-            /// The specific media type.
-            let mediaType: String
+        public class Attachment: NSObject, QLPreviewItem {
+            /// The file extension to show as a placeholder.
+            let fileExtension: String?
 
-            /// The filename of the media type.
-            let filename: String
+            /// The thumbnail image for the attachment, if any.
+            var thumbnail: UIImage?
 
-            /// The URL for the attachment.
-            let url: URL
+            /// The attachment download progress from 0 to 1.
+            var downloadProgress: Float
+
+            /// The file URL on the device where the attachment is cached.
+            var localURL: URL?
+
+            internal init(fileExtension: String?, thumbnailData: Data?, localURL: URL?, downloadProgress: Float) {
+                self.fileExtension = fileExtension
+                self.thumbnail = thumbnailData.flatMap { UIImage(data: $0) }
+                self.localURL = localURL
+                self.downloadProgress = downloadProgress
+            }
+
+            internal init(localURL: URL) {
+                self.fileExtension = localURL.pathExtension
+                self.localURL = localURL
+                self.downloadProgress = 1
+            }
+
+            /// The friendly name of the attachment (whose actual filename has a UUID prepended to it).
+            public var displayName: String {
+                return self.localURL.flatMap({ AttachmentManager.friendlyFilename(for: $0) }) ?? "Attachment"
+            }
+
+            /// The URL for the `QLPreviewController` to use to preview the attachment.
+            public var previewItemURL: URL? {
+                return self.localURL
+            }
+
+            /// The title for the `QLPreviewController` to display for the attachment.
+            public var previewItemTitle: String? {
+                return self.displayName
+            }
+
+            public override var accessibilityLabel: String? {
+                get {
+                    return self.displayName
+                }
+                set {}
+            }
+
+            /// The `accessibilityLabel` to associate with the button that removes the attachment from a draft message.
+            public var removeButtonAccessibilityLabel: String {
+                "Remove \(self.displayName)"
+            }
+
+            /// The `accessibilityLabel` to associate with the control that presents a detailed view of the attachment.
+            public var viewButtonAccessibilityLabel: String {
+                "View \(self.displayName)"
+            }
         }
     }
 }

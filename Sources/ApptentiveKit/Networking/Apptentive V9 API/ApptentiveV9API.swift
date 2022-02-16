@@ -240,10 +240,6 @@ struct ApptentiveV9API: HTTPEndpoint {
 
         result.append(dashes + boundary + dashes)
 
-        guard let url = URL(string: "file:///tmp/attach.hex") else { throw ApptentiveError.internalInconsistency }
-
-        try result.write(to: url)
-
         return result
     }
 

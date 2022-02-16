@@ -10,7 +10,6 @@ import UIKit
 
 /// The main interface to the Apptentive SDK.
 public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
-
     /// The shared instance of the Apptentive SDK.
     ///
     /// This object is created lazily upon access.
@@ -207,7 +206,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     /// - Parameter text: The text to send in the body of the message.
     @objc(sendAttachmentText:)
     public func sendAttachment(_ text: String) {
-        self.sendMessage(OutgoingMessage(body: text, isHidden: true))
+        self.sendMessage(MessageList.Message(nonce: "hidden", body: text, attachments: [], sentDate: Date(), isHidden: true))
     }
 
     /// Sends the specified image (encoded as a JPEG at 95% quality) attached to a hidden message to the app's dashboard.
@@ -218,8 +217,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
             return assertionFailure("Unable to convert image to JPEG data.")
         }
 
-        let attachment = Payload.Attachment(contentType: "image/jpeg", filename: "image", contents: .data(imageData))
-        self.sendMessage(OutgoingMessage(attachments: [attachment], isHidden: true))
+        let attachment = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "image.jpeg", storage: .inMemory(imageData))
+        self.sendMessage(.init(nonce: "hidden", attachments: [attachment], isHidden: true))
     }
 
     /// Sends the specified data attached to a hidden message to the app's dashboard.
@@ -228,8 +227,14 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     ///   - mediaType: The media type for the file.
     @objc(sendAttachmentData:mimeType:)
     public func sendAttachment(_ fileData: Data, mediaType: String) {
-        let attachment = Payload.Attachment(contentType: mediaType, filename: "file", contents: .data(fileData))
-        self.sendMessage(OutgoingMessage(attachments: [attachment], isHidden: true))
+        var filename = "file"
+
+        if let pathExtension = AttachmentManager.pathExtension(for: mediaType) {
+            filename.append(".\([pathExtension])")
+        }
+
+        let attachment = MessageList.Message.Attachment(contentType: mediaType, filename: filename, storage: .inMemory(fileData))
+        self.sendMessage(.init(nonce: "hidden", attachments: [attachment], isHidden: true))
     }
 
     /// Creates a new Apptentive SDK object using the specified URL to communicate with the Apptentive API.
@@ -295,73 +300,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
 
     // MARK: InteractionDelegate
 
-    func loadAttachmentDataFromDisk() throws -> [Data] {
-
-        let fileURL = try self.environment.applicationSupportURL().appendingPathComponent(self.containerDirectory)
-
-        let fileList = try self.environment.fileManager.contentsOfDirectory(atPath: fileURL.path)
-        var attachmentURLs: [URL] = []
-        fileList.forEach({
-            if $0.contains("Attachment") {
-                let url = fileURL.appendingPathComponent($0)
-                attachmentURLs.append(url)
-
-            }
-        })
-
-        var attachmentData: [Data] = []
-
-        try attachmentURLs.forEach({
-
-            let data = try Data(contentsOf: $0)
-            attachmentData.append(data)
-
-        })
-        return attachmentData
-
-    }
-
-    func deleteAttachmentFromDisk(fileName: String, index: Int, mediaType: String) {
-        let uniqueID = "\(index)-\(fileName)"
-        var fileExtension = ""
-
-        if mediaType.contains("image") {
-            fileExtension = "png"
-        } else {
-            fileExtension = String(mediaType.suffix(3))
-        }
-        self.backendQueue.async {
-            do {
-                let fileURL = try self.environment.applicationSupportURL().appendingPathComponent(self.containerDirectory).appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
-                try self.environment.fileManager.removeItem(at: fileURL)
-            } catch {
-                ApptentiveLogger.default.error("Error retrieving application support url or deleting attachment to disk: \(error)")
-            }
-        }
-    }
-
-    func saveAttachmentToDisk(fileName: String, index: Int, mediaType: String, data: Data) {
-        let uniqueID = "\(index)-\(fileName)"
-        var fileExtension = ""
-
-        if mediaType.contains("image") {
-            fileExtension = "png"
-        } else {
-            fileExtension = String(mediaType.suffix(3))
-        }
-
-        self.backendQueue.async {
-            do {
-                let fileURL = try self.environment.applicationSupportURL().appendingPathComponent(self.containerDirectory).appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
-
-                self.backend.messageManager.saveAttachmentToDisk(payloadContents: nil, data: data, url: nil, fileURL: fileURL)
-
-            } catch {
-                ApptentiveLogger.default.error("Error retrieving application support url: \(error)")
-            }
-        }
-    }
-
     func send(surveyResponse: SurveyResponse) {
         ApptentiveLogger.interaction.info("Enqueueing survey response.")
 
@@ -402,27 +340,89 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         }
     }
 
-    /// Delegates the sending of a message to the backend.
-    /// - Parameter message: The message to be sent.
-    func sendMessage(_ message: OutgoingMessage) {
+    func sendDraftMessage(completion: @escaping (Result<Void, Error>) -> Void) {
         self.backendQueue.async {
-            self.backend.sendMessage(message)
+            completion(
+                Result(catching: {
+                    let (message, customData) = try self.backend.messageManager.prepareDraftMessageForSending()
+                    try self.backend.sendMessage(message, with: customData)
+                }))
         }
     }
 
     /// Receives the message manager from the backend.
     /// - Parameter completion: A completion handler to be called when the message center view model is initialized.
-    func getMessages(completion: @escaping (MessageManager) -> Void) {
+    func getMessages(completion: @escaping ([MessageList.Message]) -> Void) {
         self.backendQueue.async {
-            let messageManager = self.backend.messageManager
+            let messageList = self.backend.messageManager.messageList.messages
             DispatchQueue.main.async {
-                completion(messageManager)
+                completion(messageList)
             }
         }
     }
 
-    var messageManager: MessageManager {
-        self.backend.messageManager
+    var messageManagerDelegate: MessageManagerDelegate? {
+        get {
+            self.backend.messageManager.delegate
+        }
+        set {
+            self.backend.messageManager.delegate = newValue
+        }
+    }
+
+    func setDraftMessageBody(_ body: String?) {
+        self.backendQueue.async {
+            self.backend.messageManager.draftMessage.body = body
+        }
+    }
+
+    func getDraftMessage(completion: @escaping (MessageList.Message) -> Void) {
+        self.backendQueue.async {
+            completion(self.backend.messageManager.draftMessage)
+        }
+    }
+
+    func addDraftAttachment(data: Data, name: String?, mediaType: String, completion: (Result<URL, Error>) -> Void) {
+        // This has to block until the file is created to work with the file/photo picker API
+        self.backendQueue.sync {
+            completion(
+                Result(catching: {
+                    try self.backend.messageManager.addDraftAttachment(data: data, name: name, mediaType: mediaType)
+                }))
+        }
+    }
+
+    func addDraftAttachment(url: URL, completion: (Result<URL, Error>) -> Void) {
+        // This has to block until the file is created to work with the file/photo picker API
+        self.backendQueue.sync {
+            completion(
+                Result(catching: {
+                    try self.backend.messageManager.addDraftAttachment(url: url)
+                }))
+        }
+    }
+
+    func removeDraftAttachment(at index: Int, completion: (Result<Void, Error>) -> Void) {
+        self.backendQueue.sync {
+            completion(
+                Result(catching: {
+                    try self.backend.messageManager.removeDraftAttachment(at: index)
+                }))
+        }
+    }
+
+    func urlForAttachment(at index: Int, in message: MessageList.Message) -> URL? {
+        guard let attachmentManager = self.backend.messageManager.attachmentManager else {
+            return nil
+        }
+
+        return attachmentManager.url(for: message.attachments[index])
+    }
+
+    func loadAttachment(at index: Int, in message: MessageList.Message, completion: @escaping (Result<URL, Error>) -> Void) {
+        self.backendQueue.async {
+            self.backend.messageManager.loadAttachment(at: index, in: message, completion: completion)
+        }
     }
 
     // MARK: EnvironmentDelegate
@@ -493,9 +493,19 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
             self.backend.conversation.device = self.device
         }
     }
+
+    private func sendMessage(_ message: MessageList.Message) {
+        self.backendQueue.async {
+            do {
+                try self.backend.sendMessage(message)
+            } catch let error {
+                ApptentiveLogger.default.error("Error sending message: \(error)")
+            }
+        }
+    }
 }
 
-enum ApptentiveError: Error {
+public enum ApptentiveError: Error {
     case internalInconsistency
     case invalidCustomDataType(Any?)
     case fileExistsAtContainerDirectoryPath

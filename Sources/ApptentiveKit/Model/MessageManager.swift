@@ -10,23 +10,28 @@ import Foundation
 import UIKit
 
 protocol MessageManagerDelegate: AnyObject {
-    // TODO: Pass message array instead of message manager?
-    func messageManagerMessagesDidChange(_ messageManager: MessageManager)
+    // This protocol's methods are called on a background queue.
+    func messageManagerMessagesDidChange(_ messageList: [MessageList.Message])
+    func messageManagerDraftMessageDidChange(_ draftMessage: MessageList.Message)
 }
 
 class MessageManager {
     var foregroundPollingInterval: TimeInterval
     var backgroundPollingInterval: TimeInterval
     var customData: CustomData?
-    var attachmentURLs = [URL: Any]()
-    var notificationCenter: NotificationCenter
-    var attachmentCacheURL: URL?
+    let notificationCenter: NotificationCenter
+    var attachmentManager: AttachmentManager?
+    var draftAttachmentNumber: Int
+
+    static var thumbnailSize = CGSize(width: 44, height: 44)
 
     weak var delegate: MessageManagerDelegate? {
         didSet {
             if let _ = self.delegate {
+                // When presenting, trigger a refresh of the message list at the next opportunity.
                 self.messageList.lastFetchDate = .distantPast
             } else {
+                // When closing, clear out any unsent custom data.
                 self.customData = nil
             }
         }
@@ -40,22 +45,15 @@ class MessageManager {
         didSet {
             if self.messageList != oldValue {
                 if self.messageList.messages != oldValue.messages {
-                    DispatchQueue.main.async {
-                        self.delegate?.messageManagerMessagesDidChange(self)
-                    }
+                    self.delegate?.messageManagerMessagesDidChange(self.messageList.messages)
+                }
+
+                if self.messageList.draftMessage != oldValue.draftMessage {
+                    self.delegate?.messageManagerDraftMessageDidChange(self.messageList.draftMessage)
                 }
 
                 self.messageListNeedsSaving = true
             }
-        }
-    }
-
-    var draftMessage: OutgoingMessage? {
-        get {
-            return self.messageList.draftMessage
-        }
-        set {
-            self.messageList.draftMessage = newValue
         }
     }
 
@@ -68,11 +66,12 @@ class MessageManager {
     var saver: Saver<MessageList>?
 
     init(notificationCenter: NotificationCenter) {
-        self.messageList = MessageList(messages: [])
+        self.messageList = MessageList(messages: [], draftMessage: .init(nonce: "draft", status: .draft))
         self.messageListNeedsSaving = false
         self.foregroundPollingInterval = 30
         self.backgroundPollingInterval = 300
         self.notificationCenter = notificationCenter
+        self.draftAttachmentNumber = 1
 
         notificationCenter.addObserver(self, selector: #selector(payloadSending), name: Notification.Name.payloadSending, object: nil)
         notificationCenter.addObserver(self, selector: #selector(payloadSent), name: Notification.Name.payloadSent, object: nil)
@@ -81,25 +80,18 @@ class MessageManager {
 
     func load(from loader: Loader) throws {
         if let loadedMessageList = try loader.loadMessages() {
-            self.messageList.messages = Self.merge(loadedMessageList.messages, with: self.messageList.messages)
+            self.messageList.messages = Self.merge(loadedMessageList.messages, with: self.messageList.messages, attachmentManager: self.attachmentManager)
+            self.messageList.draftMessage = loadedMessageList.draftMessage
+            self.draftAttachmentNumber = loadedMessageList.draftMessage.attachments.count + 1
             self.messageList.lastFetchDate = max(loadedMessageList.lastFetchDate ?? .distantPast, self.messageList.lastFetchDate ?? .distantPast)
         }
     }
 
     func update(with messagesResponse: MessagesResponse) {
-        self.messageList.messages = Self.merge(self.messageList.messages, with: messagesResponse.messages.map { Self.convert(downloadedMessage: $0) })
+        self.messageList.messages = Self.merge(self.messageList.messages, with: messagesResponse.messages.map { Self.convert(downloadedMessage: $0) }, attachmentManager: self.attachmentManager)
         self.messageList.additionalDownloadableMessagesExist = messagesResponse.hasMore
         self.messageList.lastDownloadedMessageID = messagesResponse.endsWith
         self.messageList.lastFetchDate = Date()
-
-        for message in self.messageList.messages {
-            for (index, attachment) in message.attachments.enumerated() {
-                if let fileURL = self.createAttachmentURL(fileName: attachment.filename, fileType: attachment.contentType, nonce: message.nonce, index: index) {
-                    self.saveAttachmentToDisk(payloadContents: nil, data: nil, url: attachment.url, fileURL: fileURL)
-                    self.loadAttachmentURLAndData(fileURL: fileURL)
-                }
-            }
-        }
     }
 
     func saveMessagesIfNeeded() throws {
@@ -109,22 +101,134 @@ class MessageManager {
         }
     }
 
-    func addQueuedMessage(_ message: OutgoingMessage, nonce: String, sentDate: Date) {
-        self.messageList.messages.append(Self.convert(outgoingMessage: message, nonce: nonce, sentDate: sentDate))
-
-        // Put the attachments  into the cache
-        for (index, attachment) in message.attachments.enumerated() {
-            // TODO: handle case of URL attachment contents
-            if let fileName = attachment.filename,
-                let fileURL = self.createAttachmentURL(fileName: fileName, fileType: attachment.contentType, nonce: nonce, index: index)
-            {
-                self.saveAttachmentToDisk(payloadContents: attachment.contents, data: nil, url: nil, fileURL: fileURL)
-                self.loadAttachmentURLAndData(fileURL: fileURL)
-            }
+    var draftMessage: MessageList.Message {
+        get {
+            self.messageList.draftMessage
+        }
+        set {
+            self.messageList.draftMessage = newValue
         }
     }
 
-    @objc private func payloadSending(_ notification: Notification) {
+    func addDraftAttachment(data: Data, name: String?, mediaType: String) throws -> URL {
+        guard let attachmentManager = self.attachmentManager else {
+            throw MessageError.missingAttachmentManager
+        }
+
+        let index = self.messageList.draftMessage.attachments.count
+        let filename = self.filename(for: name, mediaType: mediaType)
+
+        let url = try attachmentManager.store(data: data, filename: filename)
+        let newAttachment = MessageList.Message.Attachment(contentType: mediaType, filename: filename, storage: .saved(path: url.lastPathComponent), thumbnailData: nil)
+
+        self.messageList.draftMessage.attachments.append(newAttachment)
+
+        AttachmentManager.createThumbnail(of: Self.thumbnailSize, for: url) { result in
+            if case .success(let image) = result, let thumbnailData = image.pngData() {
+                self.messageList.draftMessage.attachments[index].thumbnailData = thumbnailData
+            }
+        }
+
+        return url
+    }
+
+    func addDraftAttachment(url: URL) throws -> URL {
+        guard let attachmentManager = self.attachmentManager else {
+            throw MessageError.missingAttachmentManager
+        }
+
+        let filename = url.lastPathComponent
+        let url = try attachmentManager.store(url: url, filename: filename)
+        let newAttachment = MessageList.Message.Attachment(contentType: AttachmentManager.mediaType(for: filename), filename: filename, storage: .saved(path: url.lastPathComponent), thumbnailData: nil)
+
+        let index = self.messageList.draftMessage.attachments.count
+        self.messageList.draftMessage.attachments.append(newAttachment)
+
+        AttachmentManager.createThumbnail(of: Self.thumbnailSize, for: url) { result in
+            if case .success(let image) = result, let thumbnailData = image.pngData() {
+                self.messageList.draftMessage.attachments[index].thumbnailData = thumbnailData
+            }
+        }
+
+        return url
+    }
+
+    func removeDraftAttachment(at index: Int) throws {
+        guard let attachmentManager = self.attachmentManager else {
+            throw MessageError.missingAttachmentManager
+        }
+
+        let attachmentToRemove = self.messageList.draftMessage.attachments[index]
+        try attachmentManager.removeStorage(for: attachmentToRemove)
+        self.messageList.draftMessage.attachments.remove(at: index)
+    }
+
+    func loadAttachment(at index: Int, in message: MessageList.Message, completion: @escaping (Result<URL, Error>) -> Void) {
+        guard let attachmentManager = self.attachmentManager else {
+            return completion(.failure(MessageError.missingAttachmentManager))
+        }
+
+        guard let messageIndex = self.messageList.messages.firstIndex(of: message) else {
+            return assertionFailure("Can't find index of message in message list")
+        }
+
+        let attachment = message.attachments[index]
+
+        attachmentManager.download(
+            attachment,
+            completion: { result in
+                switch result {
+                case .success(let url):
+                    self.messageList.messages[messageIndex].attachments[index].storage = .cached(path: url.lastPathComponent)
+
+                    if attachment.thumbnailData == nil {
+                        AttachmentManager.createThumbnail(of: Self.thumbnailSize, for: url) { result in
+                            if case .success(let image) = result, let thumbnailData = image.pngData() {
+                                self.messageList.messages[messageIndex].attachments[index].thumbnailData = thumbnailData
+                            }
+                        }
+                    }
+                    completion(.success(url))
+
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            },
+            progress: { progress in
+                self.messageList.messages[messageIndex].attachments[index].downloadProgress = Float(progress)
+            })
+    }
+
+    func prepareDraftMessageForSending() throws -> (MessageList.Message, CustomData?) {
+        let customData = self.customData
+        let message = self.messageList.draftMessage
+
+        guard message.body?.isEmpty == false || message.attachments.isEmpty == false else {
+            throw MessageError.emptyBodyAndAttachments
+        }
+
+        self.customData = nil
+        self.messageList.draftMessage = Self.newDraftMessage()
+        self.draftAttachmentNumber = 1
+
+        return (message, customData)
+    }
+
+    /// Called when a message is added to the payload queue so that it can be tracked in the message list.
+    /// - Parameters:
+    ///   - message: The message that was enqueued.
+    ///   - nonce: The `nonce` (SDK-assigned unique ID) of the message.
+    func addQueuedMessage(_ message: MessageList.Message, with nonce: String) {
+        var newMessage = message
+
+        newMessage.nonce = nonce
+        newMessage.sentDate = Date()
+        newMessage.status = .queued
+
+        self.messageList.messages.append(newMessage)
+    }
+
+    @objc func payloadSending(_ notification: Notification) {
         self.updateStatus(to: .sending, for: notification)
     }
 
@@ -136,123 +240,16 @@ class MessageManager {
         self.updateStatus(to: .failed, for: notification)
     }
 
-    private func updateStatus(to status: MessageList.Message.Status, for notification: Notification) {
-        guard let payload = notification.userInfo?[PayloadSender.payloadKey] as? Payload
-        else {
-            return assertionFailure("Should be able to find payload in payload sender notification's userInfo.")
-        }
-
-        if let index = self.messageList.messages.firstIndex(where: { $0.nonce == payload.jsonObject.nonce }) {
-            self.messageList.messages[index].status = status
-        }  // else this probably wasn't a message payload.
-    }
-
-    /// Creates the local url which points to a location to save the attachment at.
-    /// - Parameters:
-    ///  -  fileName: The file name of the attachment.
-    ///  -  fileType: The media type of the attachment.
-    ///  -  nonce: The unique identifier associated with the message that the attachment is tied to.
-    ///  -  index: The index of attachment in order it was added to the message.
-    /// - Returns: The file url where the attachment will be placed.
-    func createAttachmentURL(fileName: String, fileType: String, nonce: String, index: Int) -> URL? {
-        guard let attachmentCacheURL = self.attachmentCacheURL else {
-            assertionFailure("Attempting to create attachment URL with no cache URL set")
-            return nil
-        }
-
-        var fileExtension = ""
-        let indexString = "\(index)-Index"
-        if fileType.contains("image") {
-            // TODO: don't special-case png?
-            fileExtension = "png"
-        } else {
-            let fileDataExtension = String(fileType.suffix(3))
-            fileExtension = fileDataExtension
-        }
-        let uniqueID = "\(nonce)-\(indexString)-\(fileName)"
-
-        let attachmentURL = attachmentCacheURL.appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
-
-        return attachmentURL
-    }
-
-    /// Saves the attachment to persistence in the cache directory.
-    ///
-    /// - Parameters:
-    ///    -    payloadContents: When the message is being sent the payload contents of the attachment is passed here. This should be set to nil if the attachment being saved is not sent locally.
-    ///    -    data: When attachment drafts are saved pass attachment draft data here. This should be set to nil if the attachment being saved is not a draft.
-    ///    -    url: The attachment url when the attachment is sent from the server. This should be set to nil if the attachment being saved is not sent from the server.
-    ///    -    fileURL: The local file url to save the attachment.
-    func saveAttachmentToDisk(payloadContents: Payload.Attachment.AttachmentContents?, data: Data?, url: URL?, fileURL: URL) {
-        if !FileManager.default.fileExists(atPath: fileURL.path) {
-            var attachmentData: Data?
-
-            if let contents = payloadContents {
-                switch contents {
-                case .data(let data):
-                    attachmentData = data
-                case .file(let url):
-                    // TODO: Just move the file?
-                    do {
-                        let data = try Data(contentsOf: url)
-                        attachmentData = data
-                    } catch {
-                        ApptentiveLogger.default.error("Error converting url to data: \(error)")
-                    }
-
-                }
-            } else if let url = url,
-                // TODO: Use a data task?
-                let data = try? Data(contentsOf: url)
-            {
-                attachmentData = data
-            } else if let data = data {
-                attachmentData = data
-            }
-
-            do {
-                try attachmentData?.write(to: fileURL, options: [.atomic])
-            } catch {
-                ApptentiveLogger.default.error("Error saving attachment data to disk: \(error)")
-            }
-        }
-    }
-
-    /// Loads the attachment data from the local url and inserts the url and its corresponding thumbnail image or file data in the attachmentURls dictionary in the message manager.
-    /// - Parameter fileURL: The local url pointing to where the attachment is saved at.
-    func loadAttachmentURLAndData(fileURL: URL) {
-        do {
-            let data = try Data(contentsOf: fileURL)
-            // TODO: don't special-case png?
-            if fileURL.pathExtension == "png" {
-                let options =
-                    [
-                        kCGImageSourceCreateThumbnailWithTransform: true,
-                        kCGImageSourceCreateThumbnailFromImageAlways: true,
-                        kCGImageSourceThumbnailMaxPixelSize: 300,
-                    ] as CFDictionary
-                guard let source = CGImageSourceCreateWithData(data as CFData, nil), let imageReference = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else { return }
-                let thumbnail = UIImage(cgImage: imageReference)
-
-                attachmentURLs[fileURL] = thumbnail
-            } else {
-                attachmentURLs[fileURL] = data
-            }
-        } catch {
-            ApptentiveLogger.default.error("Not able to load attachment data from local url: \(error)")
-        }
-    }
-
     static func createSaver(containerURL: URL, filename: String, fileManager: FileManager) -> PropertyListSaver<MessageList> {
         return PropertyListSaver<MessageList>(containerURL: containerURL, filename: filename, fileManager: fileManager)
     }
 
-    static func merge(_ existing: [MessageList.Message], with newer: [MessageList.Message]) -> [MessageList.Message] {
+    static func merge(_ existing: [MessageList.Message], with newer: [MessageList.Message], attachmentManager: AttachmentManager?) -> [MessageList.Message] {
         var messagesByNonce = Dictionary(grouping: existing, by: { $0.nonce }).compactMapValues { $0.first }
 
         for message in newer {
             if let older = messagesByNonce[message.nonce] {
-                messagesByNonce[message.nonce] = Self.merge(older, with: message)
+                messagesByNonce[message.nonce] = self.merge(older, with: message, attachmentManager: attachmentManager)
             } else {
                 messagesByNonce[message.nonce] = message
             }
@@ -261,19 +258,38 @@ class MessageManager {
         return Array(messagesByNonce.values).sorted(by: { $0.sentDate < $1.sentDate })
     }
 
-    static func merge(_ existing: MessageList.Message, with newer: MessageList.Message) -> MessageList.Message {
+    static func merge(_ existing: MessageList.Message, with newer: MessageList.Message, attachmentManager: AttachmentManager?) -> MessageList.Message {
         var result = newer
 
         if existing.status == .read {
             result.status = .read
         }
 
+        for (index, existingAttachment) in existing.attachments.enumerated() {
+            guard result.attachments.count > index else {
+                ApptentiveLogger.default.error("Mismatch of server-side and client-side attachment counts.")
+                continue
+            }
+
+            if attachmentManager?.cacheFileExists(for: existingAttachment) == true {
+                result.attachments[index].storage = existingAttachment.storage
+            }
+            result.attachments[index].thumbnailData = existingAttachment.thumbnailData
+        }
+
         return result
     }
 
     static func convert(downloadedMessage: MessagesResponse.Message) -> MessageList.Message {
-        let attachments = downloadedMessage.attachments.map { attachment in
-            MessageList.Message.Attachment(contentType: attachment.contentType, filename: attachment.filename, url: attachment.url, size: attachment.size)
+        let attachments = downloadedMessage.attachments.map { (attachment) -> MessageList.Message.Attachment in
+            var filename = attachment.filename
+
+            // Append an extension to filename if we can figure it out from the content type and there isn't one already.
+            if let pathExtension = AttachmentManager.pathExtension(for: attachment.contentType), filename.components(separatedBy: ".").count < 2 {
+                filename += ".\(pathExtension)"
+            }
+
+            return MessageList.Message.Attachment(contentType: attachment.contentType, filename: filename, storage: .remote(attachment.url, size: attachment.size))
         }
 
         let sender = downloadedMessage.sender.flatMap { sender in
@@ -283,27 +299,28 @@ class MessageManager {
         return MessageList.Message(nonce: downloadedMessage.nonce, body: downloadedMessage.body, attachments: attachments, sender: sender, sentDate: downloadedMessage.sentDate, status: Self.status(of: downloadedMessage))
     }
 
-    static func convert(outgoingMessage: OutgoingMessage, nonce: String, sentDate: Date) -> MessageList.Message {
-        let attachments = outgoingMessage.attachments.map { attachment in
-            MessageList.Message.Attachment(contentType: attachment.contentType, filename: attachment.filename ?? "Attachment", url: nil, size: nil)
-        }
-
-        return MessageList.Message(nonce: nonce, body: outgoingMessage.body, attachments: attachments, sender: nil, sentDate: sentDate, status: .queued)
+    static func status(of downloadedMessage: MessagesResponse.Message) -> MessageList.Message.Status {
+        return downloadedMessage.sentFromDevice ? .sent : .unread
     }
 
-    static func status(of downloadedMessage: MessagesResponse.Message) -> MessageList.Message.Status {
-        switch (downloadedMessage.isHidden ?? false, downloadedMessage.isAutomated ?? false, downloadedMessage.sentByLocalUser) {
-        case (true, _, _):
-            return .hidden
-        case (false, true, true):
-            return .automated
-        case (false, false, true):
-            return .sent
-        case (false, false, false):
-            return .unread
-        case (false, true, false):
-            return .unknown
+    static func newDraftMessage() -> MessageList.Message {
+        return .init(nonce: "draft", status: .draft)
+    }
+
+    private func filename(for name: String?, mediaType: String) -> String {
+        var result =
+            name
+            ?? {
+                let name = "Attachment \(self.draftAttachmentNumber)"
+                self.draftAttachmentNumber += 1
+                return name
+            }()
+
+        if let pathExtension = AttachmentManager.pathExtension(for: mediaType) {
+            result += ".\(pathExtension)"
         }
+
+        return result
     }
 
     private var messageListNeedsSaving: Bool
@@ -311,4 +328,36 @@ class MessageManager {
     private var pollingInterval: TimeInterval {
         self.delegate != nil ? self.foregroundPollingInterval : self.backgroundPollingInterval
     }
+
+    private func updateStatus(to status: MessageList.Message.Status, for notification: Notification) {
+        guard let payload = notification.userInfo?[PayloadSender.payloadKey] as? Payload else {
+            return assertionFailure("Should be able to find payload in payload sender notification's userInfo.")
+        }
+
+        if let index = self.messageList.messages.firstIndex(where: { $0.nonce == payload.jsonObject.nonce }) {
+            self.messageList.messages[index].status = status
+
+            if status == .sent {
+                // Move the attachments from "saved" to "cached" so that the system can jettison them if needed.
+                let sentMessage = self.messageList.messages[index]
+                do {
+                    guard let attachmentManager = self.attachmentManager else {
+                        throw MessageError.missingAttachmentManager
+                    }
+
+                    for (attachmentIndex, attachment) in sentMessage.attachments.enumerated() {
+                        self.messageList.messages[index].attachments[attachmentIndex].storage = try attachmentManager.cacheQueuedAttachment(attachment)
+                    }
+
+                } catch let error {
+                    ApptentiveLogger.payload.error("Unable to move queued attachments for payload \(payload.jsonObject.nonce): \(error).")
+                }
+            }
+        }  // else this wasn't a message payload.
+    }
+}
+
+enum MessageError: Error {
+    case missingAttachmentManager
+    case emptyBodyAndAttachments
 }

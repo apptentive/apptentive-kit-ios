@@ -6,11 +6,52 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 @testable import ApptentiveKit
 
 class SpyInteractionDelegate: InteractionDelegate {
+    func addDraftAttachment(data: Data, name: String?, mediaType: String, completion: (Result<URL, Error>) -> Void) {
+
+    }
+
+    func addDraftAttachment(url: URL, completion: (Result<URL, Error>) -> Void) {
+
+    }
+
+    func removeDraftAttachment(at index: Int, completion: (Result<Void, Error>) -> Void) {
+
+    }
+
+    func urlForAttachment(at index: Int, in message: MessageList.Message) -> URL? {
+        return nil
+    }
+
+    func loadAttachment(at index: Int, in message: MessageList.Message, completion: @escaping (Result<URL, Error>) -> Void) {
+
+    }
+
+    var messageManagerDelegate: MessageManagerDelegate?
+
+    func getMessages(completion: @escaping ([MessageList.Message]) -> Void) {
+
+    }
+
+    func setDraftMessageBody(_ body: String?) {
+
+    }
+
+    func getDraftMessage(completion: @escaping (MessageList.Message) -> Void) {
+
+    }
+
+    func sendDraftMessage(completion: @escaping (Result<Void, Error>) -> Void) {
+
+    }
+
+    func sendMessage(_ message: MessageList.Message, completion: ((Result<Void, Error>) -> Void)?) {
+
+    }
 
     var messageCenterInForeground: Bool = false
 
@@ -21,7 +62,7 @@ class SpyInteractionDelegate: InteractionDelegate {
     var openedURL: URL? = nil
     var responses: [String: [Answer]] = [:]
     var termsOfService: TermsOfService?
-    var message: OutgoingMessage?
+    var message: MessageList.Message?
     var environment = MockEnvironment()
     var messageManager = MessageManager(notificationCenter: NotificationCenter.default)
 
@@ -54,7 +95,7 @@ class SpyInteractionDelegate: InteractionDelegate {
         completion(self.messageManager)
     }
 
-    func sendMessage(_ message: OutgoingMessage) {
+    func sendMessage(_ message: MessageList.Message) {
         self.message = message
     }
 

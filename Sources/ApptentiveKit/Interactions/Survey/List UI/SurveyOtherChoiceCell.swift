@@ -59,6 +59,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
         if self.isSelected {
             self.imageView?.tintColor = .apptentiveImageSelected
+            self.accessibilityTraits.insert(UIAccessibilityTraits.selected)
             self.setExpandedConstraints()
 
             UIView.animate(withDuration: SurveyViewController.animationDuration) {
@@ -66,6 +67,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
             }
         } else {
             self.imageView?.tintColor = .apptentiveImageNotSelected
+            self.accessibilityTraits.remove(UIAccessibilityTraits.selected)
             self.setCollapsedConstraints()
 
             UIView.animate(withDuration: SurveyViewController.animationDuration) {
@@ -110,9 +112,9 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
         NSLayoutConstraint.activate([
             self.otherTextLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 55.5),
-            self.otherTextLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -20),
+            self.contentView.trailingAnchor.constraint(equalTo: self.otherTextLabel.trailingAnchor, constant: 20),
             self.contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: self.textField.trailingAnchor, multiplier: 2.0),
-            self.textField.leadingAnchor.constraint(equalTo: self.otherTextLabel.leadingAnchor, constant: -7),
+            self.otherTextLabel.leadingAnchor.constraint(equalTo: self.textField.leadingAnchor, constant: 7),
 
             self.otherTextLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 12),
             self.textField.topAnchor.constraint(greaterThanOrEqualTo: self.contentView.topAnchor, constant: 4.5),

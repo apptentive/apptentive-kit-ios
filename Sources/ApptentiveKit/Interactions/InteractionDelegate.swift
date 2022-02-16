@@ -6,27 +6,32 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
-typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & TermsOfServiceProviding & MessageSending & MessageProviding & DraftAttachmentPersisting
+typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & TermsOfServiceProviding & MessageSending & MessageProviding & AttachmentManaging
 
-/// Describes an object that can save, delete and load the draft attachments to disk.
-protocol DraftAttachmentPersisting: AnyObject {
-    func saveAttachmentToDisk(fileName: String, index: Int, mediaType: String, data: Data)
-    func deleteAttachmentFromDisk(fileName: String, index: Int, mediaType: String)
-    func loadAttachmentDataFromDisk() throws -> [Data]
+/// Describes an object that can manage attachments to a draft message and load attachments from an arbitrary message.
+protocol AttachmentManaging: AnyObject {
+    func addDraftAttachment(data: Data, name: String?, mediaType: String, completion: (Result<URL, Error>) -> Void)
+    func addDraftAttachment(url: URL, completion: (Result<URL, Error>) -> Void)
+    func removeDraftAttachment(at index: Int, completion: (Result<Void, Error>) -> Void)
+    func urlForAttachment(at index: Int, in message: MessageList.Message) -> URL?
+    func loadAttachment(at index: Int, in message: MessageList.Message, completion: @escaping (Result<URL, Error>) -> Void)
 }
 
 /// Describes an object that can receive the MessageManager from the backend.
 protocol MessageProviding: AnyObject {
-    var messageManager: MessageManager { get }
+    var messageManagerDelegate: MessageManagerDelegate? { get set }
+    func getMessages(completion: @escaping ([MessageList.Message]) -> Void)
+    func setDraftMessageBody(_ body: String?)
+    func getDraftMessage(completion: @escaping (MessageList.Message) -> Void)
 }
 
 /// Describes an object that can send messages from the Message Center interaction.
 protocol MessageSending: AnyObject {
-    /// Sends the message object to the Apptentive API.
-    /// - Parameter message: The message to be sent.
-    func sendMessage(_ message: OutgoingMessage)
+    /// Sends the draft message.
+    /// - Parameter completion: The completion handler to be called with the result of the operation.
+    func sendDraftMessage(completion: @escaping (Result<Void, Error>) -> Void)
 }
 
 /// Describes an object that can send responses from Survey interactions.

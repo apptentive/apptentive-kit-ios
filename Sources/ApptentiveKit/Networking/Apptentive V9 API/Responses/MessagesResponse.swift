@@ -16,7 +16,7 @@ struct MessagesResponse: Codable {
     struct Message: Codable {
         let id: String
         let nonce: String
-        let sentByLocalUser: Bool
+        let sentFromDevice: Bool
         let body: String?
         let attachments: [Attachment]
         let sender: Sender?
@@ -49,7 +49,7 @@ struct MessagesResponse: Codable {
 
         enum CodingKeys: String, CodingKey {
             case id, nonce
-            case sentByLocalUser = "inbound"
+            case sentFromDevice = "inbound"
             case body, attachments, sender
             case isHidden = "hidden"
             case isAutomated = "automated"

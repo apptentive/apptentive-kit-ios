@@ -43,7 +43,7 @@ class QuestionCardView: UIView {
             self.safeAreaLayoutGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: self.introductionLabel.trailingAnchor, multiplier: 1.0),
             self.stackView.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: self.introductionLabel.bottomAnchor, multiplier: 1.0),
             self.stackView.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor, constant: 8),
-            self.stackView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -8),
+            self.safeAreaLayoutGuide.trailingAnchor.constraint(equalTo: self.stackView.trailingAnchor, constant: 8),
         ])
 
         self.stackView.axis = .vertical

@@ -11,7 +11,6 @@
 		010864FF253E22BF00101CFB /* EventPayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010864FE253E22BF00101CFB /* EventPayloadTests.swift */; };
 		01086517253E42FC00101CFB /* PayloadSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01086516253E42FC00101CFB /* PayloadSender.swift */; };
 		010ADF442458F8C3005D63FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 010ADF432458F8C3005D63FE /* Main.storyboard */; };
-		0118DD6A26FB796B00037E0E /* OutgoingMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD6926FB796B00037E0E /* OutgoingMessage.swift */; };
 		0118DD6C26FB797500037E0E /* MessageContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD6B26FB797500037E0E /* MessageContent.swift */; };
 		0118DD6E26FB79AC00037E0E /* MessagePayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD6D26FB79AC00037E0E /* MessagePayloadTests.swift */; };
 		011C64BC264C48D300219243 /* EngagementMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011C64BB264C48D300219243 /* EngagementMetric.swift */; };
@@ -97,6 +96,12 @@
 		017231112536769F0095AEAA /* CriteriaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017231002536768B0095AEAA /* CriteriaTests.swift */; };
 		017231122536769F0095AEAA /* FieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017231012536768B0095AEAA /* FieldTests.swift */; };
 		0173EA4325B2035F009740F5 /* ApptentiveLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */; };
+		017481EB27ADB22000FE020B /* AttachmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017481EA27ADB22000FE020B /* AttachmentManager.swift */; };
+		017481ED27ADC9B000FE020B /* AttachmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017481EC27ADC9B000FE020B /* AttachmentView.swift */; };
+		017481EF27ADC9E200FE020B /* MessageCenterViewModel+FileTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017481EE27ADC9E200FE020B /* MessageCenterViewModel+FileTypes.swift */; };
+		017481F127B1D27900FE020B /* DraftAttachmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017481F027B1D27900FE020B /* DraftAttachmentView.swift */; };
+		017481FF27B5B45900FE020B /* AttachmentManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017481FE27B5B45900FE020B /* AttachmentManagerTests.swift */; };
+		0174820127B5B46700FE020B /* Test Attachments in Resources */ = {isa = PBXBuildFile; fileRef = 0174820027B5B46700FE020B /* Test Attachments */; };
 		0176159B25D1F9F900BB85C6 /* HTTPRequestRetrier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0176159A25D1F9F900BB85C6 /* HTTPRequestRetrier.swift */; };
 		017615AA25D2234F00BB85C6 /* HTTPRetryPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017615A925D2234F00BB85C6 /* HTTPRetryPolicy.swift */; };
 		017BAAF6268299C90035DA1E /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BAAF5268299C90035DA1E /* Random.swift */; };
@@ -182,7 +187,6 @@
 		EF9F405F271182E2005D7209 /* MessageCenterConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */; };
 		EF9F40AB27178F5E005D7209 /* MessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AA27178F5E005D7209 /* MessageViewController.swift */; };
 		EF9F40B0271894C7005D7209 /* MessageReceivedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */; };
-		EFC7887F273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7887E273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -235,7 +239,6 @@
 		010864FE253E22BF00101CFB /* EventPayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPayloadTests.swift; sourceTree = "<group>"; };
 		01086516253E42FC00101CFB /* PayloadSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayloadSender.swift; sourceTree = "<group>"; };
 		010ADF432458F8C3005D63FE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
-		0118DD6926FB796B00037E0E /* OutgoingMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutgoingMessage.swift; sourceTree = "<group>"; };
 		0118DD6B26FB797500037E0E /* MessageContent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageContent.swift; sourceTree = "<group>"; };
 		0118DD6D26FB79AC00037E0E /* MessagePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagePayloadTests.swift; sourceTree = "<group>"; };
 		011C64BB264C48D300219243 /* EngagementMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementMetric.swift; sourceTree = "<group>"; };
@@ -324,6 +327,12 @@
 		017231012536768B0095AEAA /* FieldTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FieldTests.swift; sourceTree = "<group>"; };
 		017231022536768B0095AEAA /* TargetingStateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TargetingStateTests.swift; sourceTree = "<group>"; };
 		0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveLogger.swift; sourceTree = "<group>"; };
+		017481EA27ADB22000FE020B /* AttachmentManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachmentManager.swift; sourceTree = "<group>"; };
+		017481EC27ADC9B000FE020B /* AttachmentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachmentView.swift; sourceTree = "<group>"; };
+		017481EE27ADC9E200FE020B /* MessageCenterViewModel+FileTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MessageCenterViewModel+FileTypes.swift"; sourceTree = "<group>"; };
+		017481F027B1D27900FE020B /* DraftAttachmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftAttachmentView.swift; sourceTree = "<group>"; };
+		017481FE27B5B45900FE020B /* AttachmentManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentManagerTests.swift; sourceTree = "<group>"; };
+		0174820027B5B46700FE020B /* Test Attachments */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Test Attachments"; sourceTree = "<group>"; };
 		0176159A25D1F9F900BB85C6 /* HTTPRequestRetrier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestRetrier.swift; sourceTree = "<group>"; };
 		017615A925D2234F00BB85C6 /* HTTPRetryPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRetryPolicy.swift; sourceTree = "<group>"; };
 		017BAAF5268299C90035DA1E /* Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
@@ -418,7 +427,6 @@
 		EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterConfiguration.swift; sourceTree = "<group>"; };
 		EF9F40AA27178F5E005D7209 /* MessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewController.swift; sourceTree = "<group>"; };
 		EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReceivedCell.swift; sourceTree = "<group>"; };
-		EFC7887E273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDocumentPickerViewController+FileTypes.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -466,13 +474,13 @@
 		011E2999246DE23E000BDEE6 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				0118DD6926FB796B00037E0E /* OutgoingMessage.swift */,
 				017230F9253673AA0095AEAA /* EngagementMetrics.swift */,
 				011C64BB264C48D300219243 /* EngagementMetric.swift */,
 				017230F8253673AA0095AEAA /* Version.swift */,
 				017FC95325310E9400C7A47F /* EngagementManifest.swift */,
 				EF1306C226F0D08700837F2A /* MessageList.swift */,
 				EF1306D526F3D2EC00837F2A /* MessageManager.swift */,
+				017481EA27ADB22000FE020B /* AttachmentManager.swift */,
 				017FC92B25310E2400C7A47F /* Event.swift */,
 				013D8E9D24F09B00005EC4D1 /* AppRelease.swift */,
 				013D8E9124F039F9005EC4D1 /* Conversation.swift */,
@@ -820,12 +828,14 @@
 		01B1FD30270E54D4008EA104 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				0174820027B5B46700FE020B /* Test Attachments */,
 				015D6BC4250AC0AC00372759 /* AppReleaseTests.swift */,
 				015D6BC5250AC0AC00372759 /* DeviceTests.swift */,
 				015D6BC6250AC0AC00372759 /* PersonTests.swift */,
 				015D6BC8250AC0AC00372759 /* ConversationTests.swift */,
 				01B1FD31270E56B1008EA104 /* ConfigurationTests.swift */,
 				012E1A462790FEFD005F2CCA /* MessageManagerTests.swift */,
+				017481FE27B5B45900FE020B /* AttachmentManagerTests.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -958,6 +968,7 @@
 			children = (
 				EF9F405A2711624D005D7209 /* MessageCenterViewModel.swift */,
 				01EAECF1277132D90012B8C9 /* MessageCenterViewModel+Message.swift */,
+				017481EE27ADC9E200FE020B /* MessageCenterViewModel+FileTypes.swift */,
 				EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */,
 				EF9F40AE27189453005D7209 /* Default UI */,
 			);
@@ -973,7 +984,8 @@
 				014304002722305C00A07F79 /* MessageComposeView.swift */,
 				EF0E661527229687007A6457 /* GreetingHeaderView.swift */,
 				EF18B1BE2723104600F53D3A /* MessageListFooterView.swift */,
-				EFC7887E273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift */,
+				017481EC27ADC9B000FE020B /* AttachmentView.swift */,
+				017481F027B1D27900FE020B /* DraftAttachmentView.swift */,
 			);
 			path = "Default UI";
 			sourceTree = "<group>";
@@ -1177,6 +1189,7 @@
 				01974A9925770F0800C7D693 /* Test Criteria in Resources */,
 				01974A9A25770F0800C7D693 /* Test Manifests in Resources */,
 				012A1B62263A21C400EBC073 /* Legacy Data in Resources */,
+				0174820127B5B46700FE020B /* Test Attachments in Resources */,
 				019E78FE2575AC9B006BD412 /* Test Interactions in Resources */,
 				01922CA72745CF3A0056B119 /* Current Data in Resources */,
 				01922CA82745CF3A0056B119 /* Beta3 Data in Resources */,
@@ -1213,7 +1226,6 @@
 				0165B7C4258042D3001DF54E /* AppleRatingDialogController.swift in Sources */,
 				013D8EA724F09B01005EC4D1 /* Person.swift in Sources */,
 				015F2AEC24CA2A94004B53E2 /* SurveySubmitView.swift in Sources */,
-				EFC7887F273DADB800D6784A /* UIDocumentPickerViewController+FileTypes.swift in Sources */,
 				013D8EB924F5C99B005EC4D1 /* Backend.swift in Sources */,
 				0182080F2783B6C30010469D /* EngagementManifest+Placeholder.swift in Sources */,
 				01870CF0264358D800DC8796 /* QuestionCardView.swift in Sources */,
@@ -1222,6 +1234,7 @@
 				012A3C7E274470C9006D0FAC /* Beta3Loader.swift in Sources */,
 				01645BC1278621C0003A0614 /* MessagesResponse.swift in Sources */,
 				01870CEF264358D800DC8796 /* SurveyIndicator.swift in Sources */,
+				017481ED27ADC9B000FE020B /* AttachmentView.swift in Sources */,
 				01ED6263257B02050023208C /* NavigateToLinkConfiguration.swift in Sources */,
 				017230FA253673AA0095AEAA /* Version.swift in Sources */,
 				017FC93A25310E4700C7A47F /* Targeter.swift in Sources */,
@@ -1243,11 +1256,13 @@
 				012A1B6B263A282B00EBC073 /* LegacyCount.swift in Sources */,
 				0173EA4325B2035F009740F5 /* ApptentiveLogger.swift in Sources */,
 				01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */,
+				017481F127B1D27900FE020B /* DraftAttachmentView.swift in Sources */,
 				01ED6271257B0AA90023208C /* NavigateToLinkController.swift in Sources */,
 				015F2ADF24C9F85D004B53E2 /* SurveySingleLineCell.swift in Sources */,
 				017230ED253673960095AEAA /* Criteria+Decodable.swift in Sources */,
 				013D8E8B24F038D3005EC4D1 /* ApptentiveV9API.swift in Sources */,
 				01A1BC8A263B78D7003DC51B /* LegacyConversationMetadataItem.swift in Sources */,
+				017481EF27ADC9E200FE020B /* MessageCenterViewModel+FileTypes.swift in Sources */,
 				017230EF253673960095AEAA /* Conversation+TargetingState.swift in Sources */,
 				017615AA25D2234F00BB85C6 /* HTTPRetryPolicy.swift in Sources */,
 				01E79821251C2E9D00D24A05 /* ConversationRequest.swift in Sources */,
@@ -1277,7 +1292,6 @@
 				015F2A9F24C7A460004B53E2 /* InteractionPresenter.swift in Sources */,
 				01B1FD2F270E52B3008EA104 /* Configuration.swift in Sources */,
 				0165B80C258181CF001DF54E /* Apptentive+Theme.swift in Sources */,
-				0118DD6A26FB796B00037E0E /* OutgoingMessage.swift in Sources */,
 				011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */,
 				013D8EA424F09B01005EC4D1 /* AppRelease.swift in Sources */,
 				014D5B23256ED6B80030DC90 /* EnjoymentDialogViewModel.swift in Sources */,
@@ -1309,6 +1323,7 @@
 				017BAAF6268299C90035DA1E /* Random.swift in Sources */,
 				EF9F40B0271894C7005D7209 /* MessageReceivedCell.swift in Sources */,
 				017FC95425310E9400C7A47F /* EngagementManifest.swift in Sources */,
+				017481EB27ADB22000FE020B /* AttachmentManager.swift in Sources */,
 				EF425863263A74BA0094E1DC /* TermsOfService.swift in Sources */,
 				EF9F405F271182E2005D7209 /* MessageCenterConfiguration.swift in Sources */,
 				013D8E8C24F038D3005EC4D1 /* HTTPClient.swift in Sources */,
@@ -1363,6 +1378,7 @@
 				01B1FD32270E56B1008EA104 /* ConfigurationTests.swift in Sources */,
 				017FC9922531101500C7A47F /* TargeterTests.swift in Sources */,
 				019E79122575AD7D006BD412 /* SpyInteractionDelegate.swift in Sources */,
+				017481FF27B5B45900FE020B /* AttachmentManagerTests.swift in Sources */,
 				015D6BCB250AC0AC00372759 /* PersonTests.swift in Sources */,
 				010864FF253E22BF00101CFB /* EventPayloadTests.swift in Sources */,
 				017231122536769F0095AEAA /* FieldTests.swift in Sources */,

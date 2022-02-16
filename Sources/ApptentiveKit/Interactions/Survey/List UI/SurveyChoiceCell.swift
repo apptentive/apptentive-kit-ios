@@ -28,10 +28,12 @@ class SurveyChoiceCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         self.imageView?.isHighlighted = selected
-        if !self.isSelected {
-            self.imageView?.tintColor = .apptentiveImageNotSelected
-        } else {
+        if self.isSelected {
             self.imageView?.tintColor = .apptentiveImageSelected
+            self.accessibilityTraits.insert(UIAccessibilityTraits.selected)
+        } else {
+            self.imageView?.tintColor = .apptentiveImageNotSelected
+            self.accessibilityTraits.remove(UIAccessibilityTraits.selected)
         }
     }
 

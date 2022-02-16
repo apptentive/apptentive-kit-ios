@@ -57,7 +57,6 @@ class GreetingHeaderView: UIView {
         self.innerStackView.alignment = .center
         self.innerStackView.distribution = .equalSpacing
         self.innerStackView.spacing = 8
-        self.innerStackView.spacing = 0
 
         self.innerStackView.addArrangedSubview(self.greetingTitleLabel)
         self.innerStackView.addArrangedSubview(self.greetingBodyLabel)
@@ -67,7 +66,6 @@ class GreetingHeaderView: UIView {
         self.outerStackView.alignment = .center
         self.outerStackView.distribution = .equalSpacing
         self.outerStackView.spacing = 8
-        self.outerStackView.spacing = 0
 
         self.outerStackView.addArrangedSubview(self.brandingImageView)
         self.outerStackView.addArrangedSubview(self.innerStackView)
@@ -83,7 +81,7 @@ class GreetingHeaderView: UIView {
             self.brandingImageView.heightAnchor.constraint(equalToConstant: 50),
             self.outerStackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
             self.outerStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
-            self.outerStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
+            self.trailingAnchor.constraint(equalTo: self.outerStackView.trailingAnchor, constant: 20),
             self.outerStackView.heightAnchor.constraint(equalTo: self.heightAnchor),
         ])
     }

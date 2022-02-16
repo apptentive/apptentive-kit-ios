@@ -97,10 +97,10 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
             self.view.safeAreaLayoutGuide.bottomAnchor.constraint(equalToSystemSpacingBelow: self.indicatorView.bottomAnchor, multiplier: 2),
             self.currentQuestionView.topAnchor.constraint(equalTo: self.scrollView.topAnchor),
             self.currentQuestionView.heightAnchor.constraint(equalTo: self.scrollView.heightAnchor),
-            self.currentQuestionView.widthAnchor.constraint(equalTo: self.scrollView.widthAnchor, constant: -16),
+            self.scrollView.widthAnchor.constraint(equalTo: self.currentQuestionView.widthAnchor, constant: 16),
             self.previousQuestionView.topAnchor.constraint(equalTo: self.scrollView.topAnchor),
             self.previousQuestionView.heightAnchor.constraint(equalTo: self.scrollView.heightAnchor),
-            self.previousQuestionView.widthAnchor.constraint(equalTo: self.scrollView.widthAnchor, constant: -16),
+            self.scrollView.widthAnchor.constraint(equalTo: self.previousQuestionView.widthAnchor, constant: 16),
         ])
 
         self.currentLeadingConstraint = self.currentQuestionView.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor, constant: 8)

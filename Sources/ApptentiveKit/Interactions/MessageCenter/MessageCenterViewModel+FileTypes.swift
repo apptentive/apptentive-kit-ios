@@ -11,10 +11,9 @@ import MobileCoreServices
 import PhotosUI
 import UIKit
 
-extension UIDocumentPickerViewController {
-
+extension MessageCenterViewModel {
     @available(iOS 14.0, *)
-    static var allUTTypes: [UTType] {
+    var allUTTypes: [UTType] {
         return [
             UTType.item, UTType.content, UTType.compositeContent, UTType.message, UTType.contact, UTType.archive, UTType.diskImage, UTType.data, UTType.directory, UTType.resolvable, UTType.executable, UTType.mountPoint, UTType.aliasFile,
             UTType.urlBookmarkData, UTType.url, UTType.fileURL, UTType.text, UTType.plainText, UTType.utf8PlainText, UTType.utf16ExternalPlainText, UTType.utf16PlainText, UTType.delimitedText, UTType.commaSeparatedText, UTType.tabSeparatedText,
@@ -28,8 +27,7 @@ extension UIDocumentPickerViewController {
         ]
     }
 
-    static var allFileTypes: [String] {
-
+    var allFileTypes: [String] {
         return [
             kUTTypeItem, kUTTypeContent, kUTTypeCompositeContent, kUTTypeMessage, kUTTypeContact, kUTTypeArchive, kUTTypeDiskImage, kUTTypeData, kUTTypeDirectory, kUTTypeResolvable, kUTTypeSymLink, kUTTypeExecutable, kUTTypeMountPoint, kUTTypeAliasFile,
             kUTTypeAliasRecord, kUTTypeURLBookmarkData, kUTTypeURL, kUTTypeFileURL, kUTTypeText, kUTTypePlainText, kUTTypeUTF8PlainText, kUTTypeUTF16ExternalPlainText, kUTTypeUTF16PlainText, kUTTypeDelimitedText, kUTTypeCommaSeparatedText,

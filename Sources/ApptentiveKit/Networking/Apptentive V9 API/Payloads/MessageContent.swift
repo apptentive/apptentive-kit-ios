@@ -14,8 +14,8 @@ struct MessageContent: Equatable, Codable, PayloadEncodable {
     let isHidden: Bool
     let body: String?
 
-    internal init(with message: OutgoingMessage) {
-        self.customData = message.customData
+    internal init(with message: MessageList.Message, customData: CustomData? = nil) {
+        self.customData = customData
         self.isAutomated = message.isAutomated
         self.isHidden = message.isHidden
         self.body = message.body
