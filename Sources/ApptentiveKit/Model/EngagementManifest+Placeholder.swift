@@ -12,7 +12,6 @@ extension EngagementManifest {
     static let placeholder: Self = {
         let fallbackInteractionID = "message_center_fallback"
 
-        // TODO: translate these strings (issue #PBI-2771)
         let fallbackTitle = NSLocalizedString("MC Unavailable Title", tableName: nil, bundle: Bundle(for: Apptentive.self), value: "Message Center is not Available", comment: "Title for note saying MC is unavailable")
         let fallbackMessage = NSLocalizedString("MC Unavailable Message", tableName: nil, bundle: Bundle(for: Apptentive.self), value: "Make sure your device can access the internet and try again.", comment: "Message for note saying MC is unavailable")
         let fallbackButtonTitle = NSLocalizedString("MC Unavailable Dismiss Button", tableName: nil, bundle: Bundle(for: Apptentive.self), value: "OK", comment: "Dismiss button title for note saying MC is unavailable")

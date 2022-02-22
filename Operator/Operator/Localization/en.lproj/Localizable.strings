@@ -27,3 +27,15 @@
 
 /* Text indicating survey is required */
 "SurveyRequiredText" = "Required";
+
+/* The title for the alert showing that MC is not available. */
+"MC Unavailable Title" = "Le centre de messagerie n'est pas disponible";
+
+/* The message for the alert showing that MC is not available. */
+"MC Unavailable Message" = "Assurez-vous que votre appareil peut accéder à Internet et réessayez.";
+
+/* The button text for the alert showing that MC is not available. */
+"MC Unavailable Dismiss Button" = "D'accord";
+
+/* The fall-back filename for the attachment. */
+"MC Attachment Filename" = "Attachement '%@'";

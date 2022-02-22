@@ -187,6 +187,7 @@
 		EF9F405F271182E2005D7209 /* MessageCenterConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */; };
 		EF9F40AB27178F5E005D7209 /* MessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AA27178F5E005D7209 /* MessageViewController.swift */; };
 		EF9F40B0271894C7005D7209 /* MessageReceivedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */; };
+		EFAA226827C5520200B4FC3B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EFAA226A27C5520200B4FC3B /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -427,6 +428,8 @@
 		EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterConfiguration.swift; sourceTree = "<group>"; };
 		EF9F40AA27178F5E005D7209 /* MessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewController.swift; sourceTree = "<group>"; };
 		EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReceivedCell.swift; sourceTree = "<group>"; };
+		EFAA226927C5520200B4FC3B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		EFAA226B27C5521600B4FC3B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -677,6 +680,7 @@
 			children = (
 				016E6D8525F83E6900151E29 /* Media.xcassets */,
 				01BA40B0260BEC4900C555E8 /* Version.plist */,
+				EFAA226A27C5520200B4FC3B /* Localizable.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1170,6 +1174,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				016E6D8625F83E6900151E29 /* Media.xcassets in Resources */,
+				EFAA226827C5520200B4FC3B /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1446,6 +1451,15 @@
 				1F323D5C240EEE0500A678BC /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		EFAA226A27C5520200B4FC3B /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EFAA226927C5520200B4FC3B /* en */,
+				EFAA226B27C5521600B4FC3B /* fr */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

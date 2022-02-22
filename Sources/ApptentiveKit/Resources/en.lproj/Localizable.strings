@@ -1,0 +1,11 @@
+/* The title for the alert showing that MC is not available. */
+"MC Unavailable Title" = "Message Center is not Available";
+
+/* The message for the alert showing that MC is not available. */
+"MC Unavailable Message" = "Make sure your device can access the internet and try again.";
+
+/* The button text for the alert showing that MC is not available. */
+"MC Unavailable Dismiss Button" = "OK";
+
+/* The fall-back filename for the attachment. */
+"MC Attachment Filename" = "Attachment '%@'";
