@@ -182,6 +182,7 @@ class Backend {
         self.invalidateEngagementManifestForDebug(environment: environment)
         self.payloadSender.resume()
         self.resumePersistenceTimer()
+        self.messageManager.forceMessageDownload = true
     }
 
     func didEnterBackground(environment: GlobalEnvironment) {
@@ -488,6 +489,7 @@ class Backend {
     private func getMessagesIfNeeded() {
         if self.messageManager.messagesNeedDownloading {
             self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessagesResponse, Error>) in
+
                 switch result {
                 case .success(let messagesResponse):
                     ApptentiveLogger.default.debug("Message List received.")

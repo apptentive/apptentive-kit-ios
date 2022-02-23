@@ -287,9 +287,9 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         // the tasks below have to be run explicitly.
         if self.environment.isInForeground {
             self.engage(event: .launch())
-
             self.backendQueue.async {
                 self.backend.invalidateEngagementManifestForDebug(environment: self.environment)
+                self.backend.messageManager.forceMessageDownload = true
             }
         }
 

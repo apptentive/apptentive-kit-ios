@@ -29,7 +29,6 @@ class InteractionsViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Interaction", for: indexPath)
-
         cell.textLabel?.text = self.interactions[indexPath.row].0
         cell.detailTextLabel?.text = self.interactions[indexPath.row].1.typeName
 

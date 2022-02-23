@@ -60,8 +60,10 @@ class MessageManager {
     var messagesNeedDownloading: Bool {
         let timeSinceLastFetch = Date().timeIntervalSince(self.messageList.lastFetchDate ?? .distantPast)
 
-        return timeSinceLastFetch > self.pollingInterval || self.messageList.additionalDownloadableMessagesExist
+        return timeSinceLastFetch > self.pollingInterval || self.forceMessageDownload
     }
+
+    var forceMessageDownload: Bool = false
 
     var saver: Saver<MessageList>?
 
@@ -92,6 +94,7 @@ class MessageManager {
         self.messageList.additionalDownloadableMessagesExist = messagesResponse.hasMore
         self.messageList.lastDownloadedMessageID = messagesResponse.endsWith
         self.messageList.lastFetchDate = Date()
+        self.forceMessageDownload = self.messageList.additionalDownloadableMessagesExist
     }
 
     func saveMessagesIfNeeded() throws {

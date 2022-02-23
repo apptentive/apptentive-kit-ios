@@ -93,7 +93,7 @@ class PersonAndDeviceTests: XCTestCase {
 
         wait(for: [expect], timeout: 5)
     }
-
+   
     func testPersonCustomData() {
         self.apptentive.personCustomData["string"] = "foo"
         self.apptentive.personCustomData["number"] = 42
