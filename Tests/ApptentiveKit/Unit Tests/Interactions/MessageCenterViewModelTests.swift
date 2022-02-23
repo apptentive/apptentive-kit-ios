@@ -13,8 +13,9 @@ import XCTest
 
 class MessageCenterViewModelTests: XCTestCase {
     var environment = MockEnvironment()
-    var viewModel: MessageCenterViewModel?
-    var spySender: SpyInteractionDelegate?
+    var viewModel: MessageCenterViewModel!
+    var spyInteractionDelegate: SpyInteractionDelegate?
+    var spyDelegate: SpyViewModelDelegate?
 
     override func setUpWithError() throws {
         try MockEnvironment.cleanContainerURL()
@@ -23,135 +24,160 @@ class MessageCenterViewModelTests: XCTestCase {
         guard case let Interaction.InteractionConfiguration.messageCenter(configuration) = interaction.configuration else {
             return XCTFail("Unable to create view model")
         }
-        self.spySender = SpyInteractionDelegate()
-        self.viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, delegate: self.spySender!)
+        self.spyInteractionDelegate = SpyInteractionDelegate()
+        self.viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate!)
+
+        self.spyDelegate = SpyViewModelDelegate()
+        self.viewModel.delegate = self.spyDelegate
     }
 
-    func testMesssageCenterMetaData() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model.")
+    func testMesssageCenterStrings() {
+        XCTAssertEqual(self.viewModel.headingTitle, "Message Center")
+        XCTAssertEqual(self.viewModel.branding, "Powered By Apptentive")
+        XCTAssertEqual(self.viewModel.composerTitle, "New Message")
+        XCTAssertEqual(self.viewModel.composerSendButtonTitle, "Send")
+        XCTAssertEqual(self.viewModel.composerAttachButtonTitle, "Add Attachment")
+        XCTAssertEqual(self.viewModel.composerPlaceholderText, "Please leave detailed feedback")
+        XCTAssertEqual(self.viewModel.composerCloseConfirmBody, "Are you sure you want to discard this message?")
+        XCTAssertEqual(self.viewModel.composerCloseDiscardButtonTitle, "Discard")
+        XCTAssertEqual(self.viewModel.composerCloseCancelButtonTitle, "Cancel")
+        XCTAssertEqual(self.viewModel.greetingTitle, "Hello!")
+        XCTAssertEqual(self.viewModel.greetingBody, "We'd love to get feedback from you on our app. The more details you can provide, the better.")
+        XCTAssertEqual(self.viewModel.greetingImageURL, URL(string: "https://dfuvhehs12k8c.cloudfront.net/assets/app-icon/music.png"))
+        XCTAssertEqual(self.viewModel.statusBody, "We will respond to your message soon.")
+        XCTAssertEqual(self.viewModel.automatedMessageBody, "We're sorry to hear that you don't love FooApp! Is there anything we could do to make it better?")
+    }
+
+    func testLaunch() {
+        self.viewModel.launch()
+
+        XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#MessageCenter#launch")
+    }
+
+    func testCancel() {
+        self.viewModel.cancel()
+
+        XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#MessageCenter#cancel")
+    }
+
+    // TODO: Test List View Methods
+
+    // TODO: Test Draft Editing Methods
+
+    // TODO: Test Sending
+
+    func testDiffSections() {
+        // Using example from https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/TableView_iPhone/ManageInsertDeleteRow/ManageInsertDeleteRow.html#//apple_ref/doc/uid/TP40007451-CH10-SW20
+        let oldStates = ["Arizona", "California", "Delaware", "New Jersey", "Washington"]
+        var states = oldStates
+
+        states.remove(at: 4)
+        states.remove(at: 2)
+
+        states.insert("Alaska", at: 0)
+        states.insert("Georgia", at: 3)
+        states.insert("Virginia", at: 5)
+
+        var expectedDeleteIndexes = IndexSet()
+        var expectedInsertIndexes = IndexSet()
+
+        expectedDeleteIndexes.insert(2)
+        expectedDeleteIndexes.insert(4)
+
+        expectedInsertIndexes.insert(0)
+        expectedInsertIndexes.insert(3)
+        expectedInsertIndexes.insert(5)
+
+        let (deleteIndexes, insertIndexes) = MessageCenterViewModel.diffSortedCollection(from: oldStates, to: states)
+
+        XCTAssertEqual(deleteIndexes, expectedDeleteIndexes)
+        XCTAssertEqual(insertIndexes, expectedInsertIndexes)
+    }
+
+    func testDiffRows() {
+        let message1 = MessageCenterViewModel.Message(nonce: "1", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "One", sentDate: Date(timeIntervalSinceNow: 12 * 60 * 60), sentDateString: "100")
+        let message2 = MessageCenterViewModel.Message(nonce: "2", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Two", sentDate: Date(timeIntervalSinceNow: 24 * 60 * 60), sentDateString: "200")
+        let message3 = MessageCenterViewModel.Message(nonce: "3", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Three", sentDate: Date(timeIntervalSinceNow: 36 * 60 * 60), sentDateString: "300")
+        let message4 = MessageCenterViewModel.Message(nonce: "4", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Four", sentDate: Date(timeIntervalSinceNow: 48 * 60 * 60), sentDateString: "400")
+        let message5 = MessageCenterViewModel.Message(nonce: "5", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Five", sentDate: Date(timeIntervalSinceNow: 60 * 60 * 60), sentDateString: "500")
+        let message6 = MessageCenterViewModel.Message(nonce: "6", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Six", sentDate: Date(timeIntervalSinceNow: 72 * 60 * 60), sentDateString: "600")
+        let message7 = MessageCenterViewModel.Message(nonce: "7", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Seven", sentDate: Date(timeIntervalSinceNow: 96 * 60 * 60), sentDateString: "700")
+
+        let changedMessage2 = MessageCenterViewModel.Message(
+            nonce: "2", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Two modified", sentDate: Date(timeIntervalSinceNow: 24 * 60 * 60), sentDateString: "200")
+
+        let oldGroupedMessages = [
+            [message1, message2, message3],
+            [message4, message6],
+        ]
+
+        let newGroupedMessages = [
+            [message1],
+            [changedMessage2],
+            [message4, message5, message6, message7],
+        ]
+
+        self.viewModel.update(from: oldGroupedMessages, to: newGroupedMessages)
+
+        XCTAssertEqual(self.spyDelegate?.deletedRows, [IndexPath(row: 2, section: 0)])  // Deletes are relative to old groupings
+        XCTAssertEqual(self.spyDelegate?.updatedRows, [IndexPath(row: 0, section: 1)])  // Updates are relative to new groupings
+        XCTAssertEqual(self.spyDelegate?.insertedRows, [IndexPath(row: 1, section: 2), IndexPath(row: 3, section: 2)])  // Inserts are relative to new groupings
+        XCTAssertEqual(self.spyDelegate?.movedRows.count, 3)
+    }
+
+    class SpyViewModelDelegate: MessageCenterViewModelDelegate {
+        var beginEndBalance = 0
+        var insertedSections = IndexSet()
+        var deletedSections = IndexSet()
+        var deletedRows = Set<IndexPath>()
+        var updatedRows = Set<IndexPath>()
+        var insertedRows = Set<IndexPath>()
+        var movedRows = [(IndexPath, IndexPath)]()
+
+        func messageCenterViewModelDidBeginUpdates(_: MessageCenterViewModel) {
+            beginEndBalance += 1
         }
 
-        XCTAssertEqual(viewModel.headingTitle, "Message Center")
-        XCTAssertEqual(viewModel.branding, "Powered By Apptentive")
-        XCTAssertEqual(viewModel.composerTitle, "New Message")
-        XCTAssertEqual(viewModel.greetingTitle, "Hello!")
-        XCTAssertEqual(viewModel.statusBody, "We will respond to your message soon.")
-        XCTAssertEqual(viewModel.automatedMessageBody, "We're sorry to hear that you don't love FooApp! Is there anything we could do to make it better?")
-    }
-
-    func testDecodingMessageList() throws {
-        guard let directoryURL = Bundle(for: type(of: self)).url(forResource: "Test Interactions", withExtension: nil) else {
-            return XCTFail("Unable to find test data")
+        func messageCenterViewModel(_: MessageCenterViewModel, didInsertSectionsWith sectionIndexes: IndexSet) {
+            self.insertedSections = sectionIndexes
         }
 
-        let localFileManager = FileManager()
-
-        let resourceKeys = Set<URLResourceKey>([.nameKey])
-        let directoryEnumerator = localFileManager.enumerator(at: directoryURL, includingPropertiesForKeys: Array(resourceKeys))!
-
-        for case let fileURL as URL in directoryEnumerator {
-            if fileURL.absoluteString.contains("MessageList.json") {
-                let data = try Data(contentsOf: fileURL)
-
-                let _ = try JSONDecoder().decode(MessageList.self, from: data)
-            }
+        func messageCenterViewModel(_: MessageCenterViewModel, didDeleteSectionsWith sectionIndexes: IndexSet) {
+            self.deletedSections = sectionIndexes
         }
-    }
 
-    func testMessageListPersistence() throws {
-        let containerURL = try self.environment.applicationSupportURL().appendingPathComponent("com.apptentive.feedback")
-        let messageList = MessageList(
-            messages: [
-                MessageList.Message(
-                    id: "abc123", body: "test", attachments: [MessageList.Message.Attachment(contentType: "test", filename: "test", url: URL(string: "https://example.com")!, size: nil)],
-                    sender: MessageList.Message.Sender(id: "def456", name: "Testy McTestface", profilePhotoURL: URL(string: "https://example.com")), sentDate: Date(), sentByLocalUser: true, isAutomated: true, isHidden: true, nonce: UUID().uuidString)
-            ], endsWith: nil, hasMore: true)
-        let messageManager = MessageManager()
-        messageManager.messageList = messageList
-
-        messageManager.messageListSaver = MessageManager.createSaver(containerURL: containerURL, filename: CurrentLoader.messagesFilename, fileManager: MockEnvironment().fileManager)
-        try messageManager.saveMessagesToDisk()
-        messageManager.messageList = nil
-
-        let loader = CurrentLoader(containerURL: containerURL, environment: MockEnvironment())
-        let loadedMessages = try loader.loadMessages()
-
-        XCTAssertEqual(messageList.messages.count, loadedMessages?.messages.count)
-    }
-
-    func testGetMessage() {
-        let messageList = MessageList(
-            messages: [
-                MessageList.Message(
-                    id: "abc123", body: "test", attachments: [MessageList.Message.Attachment(contentType: "test", filename: "test", url: URL(string: "https://example.com")!, size: nil)],
-                    sender: MessageList.Message.Sender(id: "def456", name: "Testy McTestface", profilePhotoURL: URL(string: "https://example.com")), sentDate: Date(), sentByLocalUser: true, isAutomated: true, isHidden: true, nonce: UUID().uuidString)
-            ], endsWith: nil, hasMore: true)
-
-        self.spySender?.messageManager.messageList = messageList
-
-        self.spySender?.getMessages(completion: { messageManager in
-            XCTAssertEqual(messageManager.messageList?.messages[0].body, "test")
-        })
-    }
-
-    func testSendMessage() throws {
-        self.viewModel?.messageBody = "Test"
-
-        try self.viewModel?.sendMessage()
-
-        XCTAssertEqual(self.spySender?.message, OutgoingMessage(body: "Test"))
-    }
-
-    @available(iOS 13.0, *)
-    func testAddImageAttachment() throws {
-        let image = UIImage.init(systemName: "doc")!
-        let queue = DispatchQueue(label: "AddImage")
-        self.viewModel?.messageBody = "Test"
-        try queue.sync {
-            try self.viewModel?.addImageAttachment(image)
+        func messageCenterViewModel(_: MessageCenterViewModel, didDeleteRowsAt indexPaths: [IndexPath]) {
+            self.deletedRows = Set(indexPaths)
         }
-    }
 
-    func testSavingAndLoadingAttachmentDraftToDisk() throws {
-        let data = Data()
-        let attachment = Payload.Attachment(contentType: "image", filename: "Attachment 1", contents: .data(data))
-        self.spySender?.saveAttachmentToDisk(fileName: attachment.filename!, index: 0, mediaType: attachment.contentType, data: data)
-        let loadedDataList = try self.spySender?.loadAttachmentDataFromDisk()
-        let loadedData = loadedDataList?[0]
-        XCTAssertNotNil(loadedData)
-    }
-
-    func testDeletingAttachmentDraftToDisk() throws {
-        let data = Data()
-        let attachment = Payload.Attachment(contentType: "image", filename: "Attachment 1", contents: .data(data))
-        self.spySender?.saveAttachmentToDisk(fileName: attachment.filename!, index: 0, mediaType: attachment.contentType, data: data)
-        self.spySender?.deleteAttachmentFromDisk(fileName: attachment.filename!, index: 0, mediaType: attachment.contentType)
-        if let loadedDataList = try self.spySender?.loadAttachmentDataFromDisk() {
-            XCTAssertTrue(loadedDataList.isEmpty)
+        func messageCenterViewModel(_: MessageCenterViewModel, didUpdateRowsAt indexPaths: [IndexPath]) {
+            self.updatedRows = Set(indexPaths)
         }
-    }
 
-    func testReturningAttachmentsForIndexPath() {
-        let indexPath = IndexPath(row: 0, section: 0)
-        let url = URL(string: "https://attachments.apptentive.com/5f35712b4abf9904b600001e/61d3de21d1f13c70ca0467c9/61d3de666c86a016c603ee4d/61d3de666c86a016c603ee4e")!
-        let attachment = MessageCenterViewModel.Message.Attachment(mediaType: "image", filename: "Attachment 1", url: url)
-        let message = MessageCenterViewModel.Message(id: nil, nonce: "nonce", sentByLocalUser: true, isAutomated: false, isHidden: false, attachments: [attachment], sender: nil, body: nil, sentDate: Date(), wasRead: true)
-        self.viewModel?.groupedMessages.append([message])
-        let loadedAttachment = self.viewModel?.attachments(at: indexPath).first
-        XCTAssertEqual(loadedAttachment?.filename, "Attachment 1")
-    }
-
-    func testAttachmentURLsForIndexPath() {
-        let indexPath = IndexPath(row: 0, section: 0)
-        let url = URL(string: "https://attachments.apptentive.com/5f35712b4abf9904b600001e/61d3de21d1f13c70ca0467c9/61d3de666c86a016c603ee4d/61d3de666c86a016c603ee4e")!
-        let attachment = MessageCenterViewModel.Message.Attachment(mediaType: "image", filename: "Attachment 1", url: url)
-        let message = MessageCenterViewModel.Message(id: nil, nonce: "61d3de666c86a016c603ee4e", sentByLocalUser: true, isAutomated: false, isHidden: true, attachments: [attachment], sender: nil, body: nil, sentDate: Date(), wasRead: false)
-        self.viewModel?.groupedMessages.append([message])
-        self.viewModel?.messageManager?.attachmentURLs[url] = UIImageView(image: UIImage())
-        if let attachmentURL = self.viewModel?.attachmentURLs(at: indexPath)?[0] {
-            XCTAssertTrue(attachmentURL.absoluteString.contains("61d3de666c86a016c603ee4e"))
+        func messageCenterViewModel(_: MessageCenterViewModel, didInsertRowsAt indexPaths: [IndexPath]) {
+            self.insertedRows = Set(indexPaths)
         }
-    }
 
+        func messageCenterViewModel(_: MessageCenterViewModel, didMoveRowsAt indexPathMoves: [(IndexPath, IndexPath)]) {
+            self.movedRows = indexPathMoves
+        }
+
+        func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
+            beginEndBalance -= 1
+        }
+
+        func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel) {}
+
+        func messageCenterViewModelDraftMessageDidUpdate(_: MessageCenterViewModel) {}
+
+        func messageCenterViewModel(_: MessageCenterViewModel, didFailToRemoveAttachmentAt index: Int, with error: Error) {}
+
+        func messageCenterViewModel(_: MessageCenterViewModel, didFailToAddAttachmentWith error: Error) {}
+
+        func messageCenterViewModel(_: MessageCenterViewModel, didFailToSendMessageWith error: Error) {}
+
+        func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFinishAt index: Int, inMessageAt indexPath: IndexPath) {}
+
+        func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error) {}
+    }
 }

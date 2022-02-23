@@ -11,7 +11,7 @@ import UIKit
 
 extension MessageCenterViewModel {
     /// Represents a message in the Message Center UI.
-    public class Message {
+    public class Message: Equatable {
         /// The nonce of the message.
         public let nonce: String
 
@@ -60,6 +60,12 @@ extension MessageCenterViewModel {
             }
         }
 
+        // swift-format-ignore
+        public static func == (lhs: MessageCenterViewModel.Message, rhs: MessageCenterViewModel.Message) -> Bool {
+            return lhs.nonce == rhs.nonce && lhs.direction == rhs.direction && lhs.isAutomated == rhs.isAutomated && lhs.attachments == rhs.attachments && lhs.sender == rhs.sender && lhs.body == rhs.body && lhs.sentDate == rhs.sentDate
+                && lhs.statusText == rhs.statusText
+        }
+
         init(nonce: String, direction: Direction, isAutomated: Bool, attachments: [Attachment], sender: Sender?, body: String?, sentDate: Date, sentDateString: String) {
             self.nonce = nonce
             self.direction = direction
@@ -72,7 +78,7 @@ extension MessageCenterViewModel {
         }
 
         /// Defines the status of the message whether it is an inbound message or outbound.
-        public enum Direction {
+        public enum Direction: Equatable {
             /// The message is coming from the server.
             case sentFromDashboard(ReadStatus)
             /// The message is being sent from the device.
@@ -107,7 +113,7 @@ extension MessageCenterViewModel {
         }
 
         /// The information associated with the sender of the message.
-        public struct Sender {
+        public struct Sender: Equatable {
             /// The sender's name.
             var name: String?
 

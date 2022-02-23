@@ -136,6 +136,7 @@
 		01B074BA26094885004874AC /* ObjectiveCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B074B926094885004874AC /* ObjectiveCTests.m */; };
 		01B1FD2F270E52B3008EA104 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B1FD2E270E52B3008EA104 /* Configuration.swift */; };
 		01B1FD32270E56B1008EA104 /* ConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B1FD31270E56B1008EA104 /* ConfigurationTests.swift */; };
+		01B4D89B27BEA98F008837CB /* MessageCenterViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306CE26F18C1B00837F2A /* MessageCenterViewModelTests.swift */; };
 		01B91F9525CB830C00B8AFEE /* PersonContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91F9425CB830C00B8AFEE /* PersonContent.swift */; };
 		01B91F9B25CB834500B8AFEE /* DeviceContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91F9A25CB834500B8AFEE /* DeviceContent.swift */; };
 		01B91FA125CB835700B8AFEE /* AppReleaseContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91FA025CB835700B8AFEE /* AppReleaseContent.swift */; };
@@ -1387,6 +1388,7 @@
 				015D6BCB250AC0AC00372759 /* PersonTests.swift in Sources */,
 				010864FF253E22BF00101CFB /* EventPayloadTests.swift in Sources */,
 				017231122536769F0095AEAA /* FieldTests.swift in Sources */,
+				01B4D89B27BEA98F008837CB /* MessageCenterViewModelTests.swift in Sources */,
 				012A1B60263A219500EBC073 /* LoaderTests.swift in Sources */,
 				01ED6280257B0F200023208C /* NavigateToLinkControllerTests.swift in Sources */,
 				012E1A452788CB25005F2CCA /* MessagesRequestTests.swift in Sources */,

@@ -20,7 +20,6 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     let messageReceivedCellID = "MessageCellReceived"
     let messageSentCellID = "MessageSentCell"
 
-    private var shouldScrollToBottom = true
     private var previewedMessage: MessageCenterViewModel.Message?
     private var previewSourceView: UIView?
 
@@ -90,17 +89,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
         self.viewModel.delegate = self
 
-        self.messageCenterViewModelMessageListDidUpdate(self.viewModel)
         self.messageCenterViewModelDraftMessageDidUpdate(self.viewModel)
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        if self.shouldScrollToBottom {
-            self.scrollToBottom(false)
-            self.shouldScrollToBottom = false
-        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -261,13 +250,46 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
     // MARK: - View Model Delegate
 
-    func messageCenterViewModelMessageListDidUpdate(_ viewModel: MessageCenterViewModel) {
-        guard viewModel.numberOfMessageGroups > 0 else {
-            return
-        }
+    func messageCenterViewModelDidBeginUpdates(_: MessageCenterViewModel) {
+        self.tableView.beginUpdates()
+    }
 
-        self.tableView.reloadData()
+    func messageCenterViewModel(_: MessageCenterViewModel, didInsertSectionsWith sectionIndexes: IndexSet) {
+        self.tableView.insertSections(sectionIndexes, with: .automatic)
+    }
+
+    func messageCenterViewModel(_: MessageCenterViewModel, didDeleteSectionsWith sectionIndexes: IndexSet) {
+        self.tableView.deleteSections(sectionIndexes, with: .automatic)
+    }
+
+    func messageCenterViewModel(_: MessageCenterViewModel, didDeleteRowsAt indexPaths: [IndexPath]) {
+        self.tableView.deleteRows(at: indexPaths, with: .automatic)
+    }
+
+    func messageCenterViewModel(_: MessageCenterViewModel, didUpdateRowsAt indexPaths: [IndexPath]) {
+        self.tableView.reloadRows(at: indexPaths, with: .automatic)
+    }
+
+    func messageCenterViewModel(_: MessageCenterViewModel, didInsertRowsAt indexPaths: [IndexPath]) {
+        self.tableView.insertRows(at: indexPaths, with: .automatic)
+    }
+
+    func messageCenterViewModel(_: MessageCenterViewModel, didMoveRowsAt indexPathMoves: [(IndexPath, IndexPath)]) {
+        for move in indexPathMoves {
+            self.tableView.moveRow(at: move.0, to: move.1)
+        }
+    }
+
+    func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
+        self.tableView.endUpdates()
+
         self.scrollToBottom(true)
+    }
+
+    func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel) {
+        self.tableView.reloadData()
+
+        self.scrollToBottom(false)
     }
 
     func messageCenterViewModelDraftMessageDidUpdate(_: MessageCenterViewModel) {
@@ -378,6 +400,8 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     private func scrollToBottom(_ animated: Bool) {
+        self.tableView.layoutIfNeeded()
+
         if self.tableView.bounds.height > self.tableView.contentSize.height + self.tableView.adjustedContentInset.bottom {
             self.tableView.setContentOffset(.zero, animated: animated)
         } else {

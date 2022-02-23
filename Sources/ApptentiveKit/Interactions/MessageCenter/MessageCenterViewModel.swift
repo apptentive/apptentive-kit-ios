@@ -13,7 +13,16 @@ import UIKit
 
 /// Represents an object that can be notified of a change to the message list.
 public protocol MessageCenterViewModelDelegate: AnyObject {
-    func messageCenterViewModelMessageListDidUpdate(_: MessageCenterViewModel)
+    func messageCenterViewModelDidBeginUpdates(_: MessageCenterViewModel)
+    func messageCenterViewModel(_: MessageCenterViewModel, didInsertSectionsWith sectionIndexes: IndexSet)
+    func messageCenterViewModel(_: MessageCenterViewModel, didDeleteSectionsWith sectionIndexes: IndexSet)
+    func messageCenterViewModel(_: MessageCenterViewModel, didDeleteRowsAt indexPaths: [IndexPath])
+    func messageCenterViewModel(_: MessageCenterViewModel, didUpdateRowsAt indexPaths: [IndexPath])
+    func messageCenterViewModel(_: MessageCenterViewModel, didInsertRowsAt indexPaths: [IndexPath])
+    func messageCenterViewModel(_: MessageCenterViewModel, didMoveRowsAt indexPathMoves: [(IndexPath, IndexPath)])
+    func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel)
+
+    func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel)
 
     func messageCenterViewModelDraftMessageDidUpdate(_: MessageCenterViewModel)
 
@@ -312,9 +321,18 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
         let groupings = Self.assembleGroupedMessages(messages: convertedMessages)
 
-        DispatchQueue.main.async {
-            self.groupedMessages = groupings
-            self.delegate?.messageCenterViewModelMessageListDidUpdate(self)
+        if groupings != self.groupedMessages {
+            DispatchQueue.main.async {
+                if self.groupedMessages.count > 0 {
+                    self.delegate?.messageCenterViewModelDidBeginUpdates(self)
+                    self.update(from: self.groupedMessages, to: groupings)
+                    self.groupedMessages = groupings
+                    self.delegate?.messageCenterViewModelDidEndUpdates(self)
+                } else {
+                    self.groupedMessages = groupings
+                    self.delegate?.messageCenterViewModelMessageListDidLoad(self)
+                }
+            }
         }
     }
 
@@ -326,7 +344,122 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         }
     }
 
-    // MARK: - Static (pure) functions
+    // MARK: - Internal
+
+    // Notifies the delegate of inserted, updated, deleted, and moved indexPaths, and inserted and removed sections.
+    func update(from old: [[Message]], to new: [[Message]]) {
+        let oldSections = old.compactMap { $0.first.flatMap(Self.sectionDate) }
+        let newSections = new.compactMap { $0.first.flatMap(Self.sectionDate) }
+
+        let (deletedIndexes, insertedIndexes) = Self.diffSortedCollection(from: oldSections, to: newSections)
+        self.delegate?.messageCenterViewModel(self, didInsertSectionsWith: insertedIndexes)
+        self.delegate?.messageCenterViewModel(self, didDeleteSectionsWith: deletedIndexes)
+
+        // Build index of indexPath by nonce (old and new)
+        let oldIndexPaths = Self.buildIndexPathIndex(from: old)
+        let newIndexPaths = Self.buildIndexPathIndex(from: new)
+
+        // Build index of message by nonce (old and new)
+        let oldMessages = Self.buildMessageIndex(from: old)
+        let newMessages = Self.buildMessageIndex(from: new)
+
+        let allNonces = Set(oldIndexPaths.keys).union(Set(newIndexPaths.keys))
+
+        var updatedIndexPaths = [IndexPath]()
+        var movedIndexPaths = [(IndexPath, IndexPath)]()
+        var deletedIndexPaths = [IndexPath]()
+        var insertedIndexPaths = [IndexPath]()
+
+        for nonce in allNonces {
+            let oldIndexPath = oldIndexPaths[nonce]
+            let newIndexPath = newIndexPaths[nonce]
+
+            switch (oldIndexPath, newIndexPath) {
+            case (.some(let oldIndexPath), .some(let newIndexPath)):
+                if oldIndexPath != newIndexPath {
+                    movedIndexPaths.append((oldIndexPath, newIndexPath))
+                }
+
+                if oldMessages[nonce] != newMessages[nonce] {
+                    updatedIndexPaths.append(newIndexPath)
+                }
+
+            case (.some(let oldIndexPath), .none):
+                deletedIndexPaths.append(oldIndexPath)
+
+            case (.none, .some(let newIndexPath)):
+                insertedIndexPaths.append(newIndexPath)
+
+            case (.none, .none):
+                assertionFailure("Should not end up with nil old and new index paths.")
+            }
+        }
+
+        self.delegate?.messageCenterViewModel(self, didDeleteRowsAt: deletedIndexPaths)
+        self.delegate?.messageCenterViewModel(self, didInsertRowsAt: insertedIndexPaths)
+        self.delegate?.messageCenterViewModel(self, didUpdateRowsAt: updatedIndexPaths)
+        self.delegate?.messageCenterViewModel(self, didMoveRowsAt: movedIndexPaths)
+    }
+
+    static func datesForMessageGroups(in groupedMessages: [[Message]]) -> [Date] {
+        return groupedMessages.compactMap { messages in
+            messages.first?.sentDate
+        }
+    }
+
+    // Diffs two sorted arrays of `Comparable`s, returning index sets for deleted and inserted items.
+    static func diffSortedCollection<T: Comparable>(from old: [T], to new: [T]) -> (deletedIndexes: IndexSet, insertedIndexes: IndexSet) {
+        var oldIndex = 0
+        var newIndex = 0
+        var deletedIndexes = IndexSet()
+        var insertedIndexes = IndexSet()
+
+        while oldIndex < old.count || newIndex < new.count {
+            let oldValue = oldIndex < old.count ? old[oldIndex] : nil
+            let newValue = newIndex < new.count ? new[newIndex] : nil
+            switch (oldValue, newValue) {
+            case (.some(let oldValue), .some(let newValue)) where oldValue == newValue:
+                oldIndex += 1
+                newIndex += 1
+
+            case (.some(let oldValue), .some(let newValue)) where oldValue > newValue:
+                insertedIndexes.insert(newIndex)
+                newIndex += 1
+            case (.none, .some):
+                insertedIndexes.insert(newIndex)
+                newIndex += 1
+
+            case (.some(let oldValue), .some(let newValue)) where oldValue < newValue:
+                deletedIndexes.insert(oldIndex)
+                oldIndex += 1
+            case (.some, .none):
+                deletedIndexes.insert(oldIndex)
+                oldIndex += 1
+
+            default:
+                oldIndex += 1
+                newIndex += 1
+            }
+        }
+
+        return (deletedIndexes, insertedIndexes)
+    }
+
+    static func buildIndexPathIndex(from groupedMessages: [[Message]]) -> [String: IndexPath] {
+        var result = [String: IndexPath]()
+
+        for (sectionIndex, group) in groupedMessages.enumerated() {
+            for (rowIndex, message) in group.enumerated() {
+                result[message.nonce] = IndexPath(row: rowIndex, section: sectionIndex)
+            }
+        }
+
+        return result
+    }
+
+    static func buildMessageIndex(from groupedMessages: [[Message]]) -> [String: Message] {
+        return Dictionary(grouping: groupedMessages.flatMap { $0 }, by: { $0.nonce }).compactMapValues { $0.first }
+    }
 
     static func convert(_ managedMessage: MessageList.Message, sentDateFormatter: DateFormatter, interactionDelegate: MessageCenterInteractionDelegate) -> MessageCenterViewModel.Message {
         let attachments = managedMessage.attachments.enumerated().compactMap { (index, attachment) in
@@ -365,7 +498,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         var result = [[Message]]()
 
         let messageDict = Dictionary(grouping: messages) { (message) -> Date in
-            Calendar.current.startOfDay(for: message.sentDate)
+            Self.sectionDate(for: message)
         }
 
         let sortedKeys = messageDict.keys.sorted()
@@ -375,6 +508,10 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         }
 
         return result
+    }
+
+    static func sectionDate(for message: Message) -> Date {
+        return Calendar.current.startOfDay(for: message.sentDate)
     }
 
     // MARK: - Private
