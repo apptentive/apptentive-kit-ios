@@ -56,7 +56,7 @@ class ApptentiveFeatureTests: XCTestCase {
             return XCTFail("Base URL is invalid")
         }
 
-        Apptentive(baseURL: baseURL).register(credentials: credentials) { result in
+        Apptentive(baseURL: baseURL).register(with: credentials) { result in
             switch result {
             case .success(true):
                 asserts(true)

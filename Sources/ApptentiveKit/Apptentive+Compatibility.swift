@@ -26,7 +26,7 @@ extension Apptentive {
             self.shared.environment.distributionVersion = Version(string: distributionVersion)
         }
 
-        self.shared.register(credentials: AppCredentials(key: configuration.apptentiveKey, signature: configuration.apptentiveSignature))
+        self.shared.register(with: AppCredentials(key: configuration.apptentiveKey, signature: configuration.apptentiveSignature))
     }
 
     @available(*, deprecated, message: "Use the `shared` static property instead.")

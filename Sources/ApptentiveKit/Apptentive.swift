@@ -113,8 +113,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     /// - Parameters:
     ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
-
-    public func register(credentials: AppCredentials, completion: ((Result<Bool, Error>) -> Void)? = nil) {
+    public func register(with credentials: AppCredentials, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         if case .apptentive = self.theme {
             ApptentiveLogger.interaction.info("Using Apptentive theme for interaction UI.")
             self.applyApptentiveTheme()
