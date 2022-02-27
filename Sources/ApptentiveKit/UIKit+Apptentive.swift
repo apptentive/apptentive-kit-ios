@@ -32,6 +32,11 @@ extension UITableView.Style {
     }()
 }
 
+extension UIModalPresentationStyle {
+    /// The modal presentation style to use for Surveys and Message Center.
+    public static var apptentive: Self = .pageSheet
+}
+
 extension UIBarButtonItem {
     /// The bar button item to use for closing Apptentive UI.
     ///
@@ -198,7 +203,7 @@ extension UIColor {
 
     /// The color to use for message labels for the outbound message body.
     public static var apptentiveMessageLabelOutbound: UIColor = {
-        return .darkGray
+        return .white
     }()
 
     /// The color to use for labels in a non-error state.

@@ -53,6 +53,8 @@ extension Apptentive {
         ApptentiveNavigationController.barTintColor = barTintColor
         ApptentiveNavigationController.preferredStatusBarStyle = .lightContent
 
+        UIModalPresentationStyle.apptentive = .fullScreen
+
         let navigationBarAppearance = UINavigationBar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
         navigationBarAppearance.backgroundColor = barTintColor
         navigationBarAppearance.barTintColor = barTintColor

@@ -146,8 +146,7 @@ open class InteractionPresenter {
             navigationController.view.backgroundColor = backgroundColor
         }
 
-        // Display full screen
-        viewControllerToPresent.modalPresentationStyle = .fullScreen
+        viewControllerToPresent.modalPresentationStyle = .apptentive
 
         presentingViewController.present(viewControllerToPresent, animated: true, completion: completion)
     }

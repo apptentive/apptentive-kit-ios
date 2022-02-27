@@ -87,6 +87,8 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.tableView.tableFooterView = self.footerView
         self.footerView.statusTextLabel.text = self.viewModel.statusBody
 
+        self.tableView.separatorColor = .clear
+
         self.viewModel.delegate = self
 
         self.messageCenterViewModelDraftMessageDidUpdate(self.viewModel)
