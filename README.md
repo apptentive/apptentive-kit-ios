@@ -1,15 +1,59 @@
-# Apple-SDK
+# ApptentiveKit
 
-Apptentive SDK for Apple platforms. Currently intended to support UIKit-based apps running on iOS. 
+ApptentiveKit lets you integrate your iPhone and iPad apps with Apptentive's customer communications platform. 
 
-# Running on a Device
+Use Apptentive features to improve your app's App Store ratings, collect and respond to customer feedback, show surveys at specific points within your app, and more.
 
-1. Make sure you have fastlane installed
-2. Get the Shared-Engineering 2 ASC API Key from 1Password
-3. Run ```
-ASC_API_KEY="<paste the key here, newlines and all>" bundle exec fastlane certs``` in the Terminal
-4. You should be able to build and run on a device in Xcode
+## Adding the ApptentiveKit Dependency
 
-## Running Integration Tests Locally
+We recommend using Swift Package Manager to include ApptentiveKit in your project. 
 
-The integration tests included in the SDK need Apptentive credentials to run. These are looked up using the `UserDefaults` system. The recommended way of setting these up is to rename the `Defaults-Template.plist` file to `Defaults.plist` and enter them there. They can also be set via command line arguments to the test bundle.
+In Xcode, choose File > Add Packages… and add the URL for this repository.
+
+## Using ApptentiveKit in Your App
+
+To use Apptentive features in your Swift files, you will have to import the ApptentiveKit module:
+
+```Swift
+import ApptentiveKit
+```
+
+Early in your app's lifecycle, call the `register(configuration:completion:)` method on the shared `Apptentive` instance:
+
+```Swift
+Apptentive.shared.register(credentials: .init(key: "<#Your Apptentive App Key#>", signature: "<#Your Apptentive App Signature#>"))
+```
+
+At various points in your app, use the `engage(event:from:completion:)` method to record events with ApptentiveKit. When an event is engaged, the SDK can be configured to display an interaction, such as a Note, Survey, or Love Dialog, and you can define segments based on which events were engaged on your customer's device. 
+
+```Swift
+@IBAction func completePurchase(sender: UIButton) {
+    // ...
+    
+    Apptentive.shared.engage("purchase_complete", from: self) // where `self` is a UIViewController instance.
+}
+```
+
+If you plan to use Message Center, you should have a button in your app where your customers can open Message Center:
+
+```Swift
+@IBAction func openMessageCenter(sender: UIButton) {
+    // ...
+    
+    Apptentive.shared.presentMessageCenter(from: self) // where `self` is a UIViewController instance.
+}
+```
+
+## Further Reading
+
+Please visit our [Customer Learning Center](https://learn.apptentive.com) for more extensive integration and migration guides, as well as guides for product owners and developers for other platforms. 
+
+## Contributing
+
+Our client code is completely [open source](LICENSE.txt), and we welcome contributions to the Apptentive SDK! If you have an improvement or bug fix, please first read our [contribution agreement](CONTRIBUTING.md).
+
+## Reporting Issues
+
+If you experience an issue with the Apptentive SDK, please [open a GitHub issue](https://github.com/apptentive/apptentive-ios/issues?direction=desc&sort=created&state=open).
+
+If the request is urgent, please contact <mailto:support@apptentive.com>.
