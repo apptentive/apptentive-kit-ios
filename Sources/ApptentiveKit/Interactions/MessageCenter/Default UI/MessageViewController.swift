@@ -156,12 +156,17 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         default:
             assertionFailure("Cell type doesn't match inbound value")
         }
-
         return cell
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return self.viewModel.dateStringForMessagesInGroup(at: section)
+    }
+
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.section == tableView.numberOfSections - 1 && indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
+            self.viewModel.updateUnreadMessages()
+        }
     }
 
     // MARK: - Text View Delegate

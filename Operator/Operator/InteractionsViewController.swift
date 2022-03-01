@@ -31,7 +31,6 @@ class InteractionsViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Interaction", for: indexPath)
         cell.textLabel?.text = self.interactions[indexPath.row].0
         cell.detailTextLabel?.text = self.interactions[indexPath.row].1.typeName
-
         return cell
     }
 

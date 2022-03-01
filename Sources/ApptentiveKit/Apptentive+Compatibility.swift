@@ -192,11 +192,6 @@ extension Apptentive {
         completion?()
     }
 
-    @available(*, deprecated, message: "This feature is not implemented and this property will always return 0.")
-    @objc public var unreadMessageCount: UInt {
-        return 0
-    }
-
     @available(*, deprecated, message: "This feature is not implemented and this property will return an empty view.")
     @objc public func unreadMessageCountAccessoryView(apptentiveHeart: Bool) -> UIView {
         return UIView(frame: .zero)

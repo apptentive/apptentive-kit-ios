@@ -99,6 +99,9 @@ class SpyInteractionDelegate: InteractionDelegate {
         self.message = message
     }
 
+    func markMessageAsRead(_ nonce: String) {
+    }
+
     func loadAttachmentDataFromDisk() throws -> [Data] {
         let fileURL = try self.environment.applicationSupportURL().appendingPathComponent(MockEnvironment.containerName)
         let fileList = try self.environment.fileManager.contentsOfDirectory(atPath: fileURL.path)

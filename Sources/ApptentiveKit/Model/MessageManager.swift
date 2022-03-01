@@ -15,6 +15,10 @@ protocol MessageManagerDelegate: AnyObject {
     func messageManagerDraftMessageDidChange(_ draftMessage: MessageList.Message)
 }
 
+protocol MessageManagerApptentiveDelegate: AnyObject {
+    var internalUnreadMessageCount: Int? { get set }
+}
+
 class MessageManager {
     var foregroundPollingInterval: TimeInterval
     var backgroundPollingInterval: TimeInterval
@@ -22,9 +26,17 @@ class MessageManager {
     let notificationCenter: NotificationCenter
     var attachmentManager: AttachmentManager?
     var draftAttachmentNumber: Int
+    var unreadMessageCount: Int {
+        didSet {
+            DispatchQueue.main.async {
+                self.messageManagerApptentiveDelegate?.internalUnreadMessageCount = self.unreadMessageCount
+            }
+        }
+    }
 
     static var thumbnailSize = CGSize(width: 44, height: 44)
 
+    var messageManagerApptentiveDelegate: MessageManagerApptentiveDelegate?
     weak var delegate: MessageManagerDelegate? {
         didSet {
             if let _ = self.delegate {
@@ -75,6 +87,7 @@ class MessageManager {
         self.notificationCenter = notificationCenter
         self.draftAttachmentNumber = 1
 
+        self.unreadMessageCount = 0
         notificationCenter.addObserver(self, selector: #selector(payloadSending), name: Notification.Name.payloadSending, object: nil)
         notificationCenter.addObserver(self, selector: #selector(payloadSent), name: Notification.Name.payloadSent, object: nil)
         notificationCenter.addObserver(self, selector: #selector(payloadFailed), name: Notification.Name.payloadFailed, object: nil)
@@ -89,19 +102,21 @@ class MessageManager {
         }
     }
 
+    func updateReadMessage(with messageNonce: String) throws {
+        guard let index = self.messageList.messages.firstIndex(where: { $0.nonce == messageNonce }) else { return }
+
+        self.messageList.messages[index].status = .read
+        self.setUnreadMessageCount()
+        try self.saveMessagesIfNeeded()
+    }
+
     func update(with messagesResponse: MessagesResponse) {
         self.messageList.messages = Self.merge(self.messageList.messages, with: messagesResponse.messages.map { Self.convert(downloadedMessage: $0) }, attachmentManager: self.attachmentManager)
+        self.setUnreadMessageCount()
         self.messageList.additionalDownloadableMessagesExist = messagesResponse.hasMore
         self.messageList.lastDownloadedMessageID = messagesResponse.endsWith
         self.messageList.lastFetchDate = Date()
         self.forceMessageDownload = self.messageList.additionalDownloadableMessagesExist
-    }
-
-    func saveMessagesIfNeeded() throws {
-        if self.messageListNeedsSaving {
-            try self.saver?.save(self.messageList)
-            self.messageListNeedsSaving = false
-        }
     }
 
     var draftMessage: MessageList.Message {
@@ -231,6 +246,13 @@ class MessageManager {
         self.messageList.messages.append(newMessage)
     }
 
+    func saveMessagesIfNeeded() throws {
+        if self.messageListNeedsSaving {
+            try self.saver?.save(self.messageList)
+            self.messageListNeedsSaving = false
+        }
+    }
+
     @objc func payloadSending(_ notification: Notification) {
         self.updateStatus(to: .sending, for: notification)
     }
@@ -325,6 +347,10 @@ class MessageManager {
         }
 
         return result
+    }
+
+    private func setUnreadMessageCount() {
+        self.unreadMessageCount = self.messageList.messages.filter { $0.status == .unread }.count
     }
 
     private var messageListNeedsSaving: Bool

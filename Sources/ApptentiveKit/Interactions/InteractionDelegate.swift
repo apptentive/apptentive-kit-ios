@@ -8,7 +8,7 @@
 
 import UIKit
 
-typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & TermsOfServiceProviding & MessageSending & MessageProviding & AttachmentManaging
+typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & TermsOfServiceProviding & MessageSending & MessageProviding & AttachmentManaging & UnreadMessageUpdating
 
 /// Describes an object that can manage attachments to a draft message and load attachments from an arbitrary message.
 protocol AttachmentManaging: AnyObject {
@@ -17,6 +17,11 @@ protocol AttachmentManaging: AnyObject {
     func removeDraftAttachment(at index: Int, completion: (Result<Void, Error>) -> Void)
     func urlForAttachment(at index: Int, in message: MessageList.Message) -> URL?
     func loadAttachment(at index: Int, in message: MessageList.Message, completion: @escaping (Result<URL, Error>) -> Void)
+}
+
+/// Describes an object that can send the unread message ID to the backend to update the unread message count.
+protocol UnreadMessageUpdating: AnyObject {
+    func markMessageAsRead(_ nonce: String)
 }
 
 /// Describes an object that can receive the MessageManager from the backend.

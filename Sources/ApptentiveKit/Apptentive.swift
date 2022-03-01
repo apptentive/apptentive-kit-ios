@@ -9,7 +9,8 @@
 import UIKit
 
 /// The main interface to the Apptentive SDK.
-public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
+public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, MessageManagerApptentiveDelegate {
+
     /// The shared instance of the Apptentive SDK.
     ///
     /// This object is created lazily upon access.
@@ -98,6 +99,12 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
 
             self.updateConversationDevice()
         }
+    }
+
+    /// The number of unread messages in message center.
+    @objc dynamic public var unreadMessageCount: Int {
+        guard let internalCount = self.internalUnreadMessageCount else { return 0 }
+        return internalCount
     }
 
     /// Indicates a theme that will be applied to Apptentive UI.
@@ -201,6 +208,18 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         self.presentMessageCenter(from: viewController, completion: completion)
     }
 
+    /// Sends the message nonce to make the message status to read.
+    public func markMessageAsRead(_ nonce: String) {
+        self.backendQueue.async {
+            do {
+                try self.backend.messageManager.updateReadMessage(with: nonce)
+            } catch {
+                ApptentiveLogger.default.error("Error updating read message in backend.")
+            }
+
+        }
+    }
+
     /// Sends the specified text as a hidden message to the app's dashboard.
     /// - Parameter text: The text to send in the body of the message.
     @objc(sendAttachmentText:)
@@ -276,6 +295,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
         self.environment.delegate = self
         self.backend.frontend = self
         self.interactionPresenter.delegate = self
+        self.backend.messageManager.messageManagerApptentiveDelegate = self
 
         if self.environment.isProtectedDataAvailable {
             self.protectedDataDidBecomeAvailable(self.environment)
@@ -296,6 +316,10 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate {
     }
 
     static var alreadyInitialized = false
+
+    // MARK:  MessageManagerApptentiveDelegate
+
+    internal var internalUnreadMessageCount: Int?
 
     // MARK: InteractionDelegate
 

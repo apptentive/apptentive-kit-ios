@@ -37,7 +37,7 @@ public protocol MessageCenterViewModelDelegate: AnyObject {
     func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error)
 }
 
-typealias MessageCenterInteractionDelegate = EventEngaging & MessageSending & MessageProviding & AttachmentManaging
+typealias MessageCenterInteractionDelegate = EventEngaging & MessageSending & MessageProviding & AttachmentManaging & UnreadMessageUpdating
 
 /// A class that describes the data in message center and allows messages to be gathered and transmitted.
 public class MessageCenterViewModel: MessageManagerDelegate {
@@ -164,6 +164,15 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// The number of message groups.
     public var numberOfMessageGroups: Int {
         return self.groupedMessages.count
+    }
+
+    /// Updates the 'read' status for all messages.
+    public func updateUnreadMessages() {
+        for messageList in groupedMessages {
+            for message in messageList {
+                self.interactionDelegate.markMessageAsRead(message.nonce)
+            }
+        }
     }
 
     /// Returns the number of messages in the specified group.
