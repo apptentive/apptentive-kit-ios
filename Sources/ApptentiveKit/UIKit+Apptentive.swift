@@ -48,6 +48,14 @@ extension UIBarButtonItem {
             return UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
         }
     }()
+
+    /// The bar button item to use for editing the profile in message center.
+    public static var apptentiveProfileEdit: UIBarButtonItem = {
+        let image: UIImage? = .apptentiveImage(named: "person.crop.circle")
+        let barButtonItem = UIBarButtonItem(image: image, style: .done, target: nil, action: nil)
+        return barButtonItem
+
+    }()
 }
 
 extension UIButton {
@@ -65,12 +73,6 @@ extension UIButton {
 }
 
 extension UIImage {
-
-    /// The image to use for the file thumbnail for message center.
-    public static var apptentiveMessageFileThumbnail: UIImage? = {
-        return apptentiveImage(named: "doc")
-    }()
-
     /// The image to use for the add attachment button for message center.
     public static var apptentiveMessageAttachmentButton: UIImage? = {
         return apptentiveImage(named: "paperclip.circle.fill")
@@ -98,7 +100,7 @@ extension UIImage {
 
     /// The image to use for the attachment delete button.
     public static var apptentiveAttachmentRemoveButton: UIImage? = {
-        return .apptentiveImage(named: "xmark.circle.fill")
+        return .apptentiveImage(named: "minus.circle.fill")
     }()
 
     /// The image to use for the top navigation bar for surveys.

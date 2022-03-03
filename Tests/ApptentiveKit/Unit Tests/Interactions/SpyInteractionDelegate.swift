@@ -55,6 +55,10 @@ class SpyInteractionDelegate: InteractionDelegate {
 
     var messageCenterInForeground: Bool = false
 
+    var personEmailAddress: String?
+
+    var personName: String?
+
     var engagedEvent: Event?
     var sentSurveyResponse: SurveyResponse?
     var shouldRequestReviewSucceed = true

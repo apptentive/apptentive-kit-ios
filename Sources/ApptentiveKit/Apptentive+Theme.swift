@@ -48,7 +48,7 @@ extension Apptentive {
             segmentedControlAppearance.setBackgroundImage(image(with: buttonTintColor), for: .selected, barMetrics: .default)
         }
 
-        let barTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .title2)]
+        let barTitleTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .title2)]
 
         ApptentiveNavigationController.barTintColor = barTintColor
         ApptentiveNavigationController.preferredStatusBarStyle = .lightContent
@@ -58,7 +58,7 @@ extension Apptentive {
         let navigationBarAppearance = UINavigationBar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
         navigationBarAppearance.backgroundColor = barTintColor
         navigationBarAppearance.barTintColor = barTintColor
-        navigationBarAppearance.titleTextAttributes = barTextAttributes
+        navigationBarAppearance.titleTextAttributes = barTitleTextAttributes
         navigationBarAppearance.isTranslucent = false
 
         let toolBarAppearance = UIToolbar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
@@ -68,8 +68,10 @@ extension Apptentive {
 
         UIToolbar.apptentiveMode = .alwaysShown
 
+        let buttonTitleTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .body)]
+
         let barButtonItemAppearance = UIBarButtonItem.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
-        barButtonItemAppearance.setTitleTextAttributes(barTextAttributes, for: .normal)
+        barButtonItemAppearance.setTitleTextAttributes(buttonTitleTextAttributes, for: .normal)
         barButtonItemAppearance.tintColor = barForegroundColor
 
         let backgroundColor: UIColor = {

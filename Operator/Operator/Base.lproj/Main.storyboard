@@ -100,19 +100,24 @@
                                 </tableViewCellContentView>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="Add Event" id="9T7-Pf-rLr" userLabel="Add Event" customClass="AddEventCell" customModule="Operator" customModuleProvider="target">
-                                <rect key="frame" x="20" y="93" width="374" height="43.5"/>
+                                <rect key="frame" x="20" y="93" width="374" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="9T7-Pf-rLr" id="LrT-mF-guY">
-                                    <rect key="frame" x="0.0" y="0.0" width="374" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="374" height="44"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="new_event_name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="YQZ-9j-aig">
-                                            <rect key="frame" x="20" y="4" width="334" height="34"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="new_event_name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="YQZ-9j-aig">
+                                            <rect key="frame" x="20" y="4" width="334" height="34.5"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                             <textInputTraits key="textInputTraits"/>
                                         </textField>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstItem="YQZ-9j-aig" firstAttribute="top" secondItem="LrT-mF-guY" secondAttribute="top" constant="4" id="BUz-nh-AcA"/>
+                                        <constraint firstItem="YQZ-9j-aig" firstAttribute="leading" secondItem="LrT-mF-guY" secondAttribute="leading" constant="20" symbolic="YES" id="I83-G5-2B4"/>
+                                        <constraint firstAttribute="bottom" secondItem="YQZ-9j-aig" secondAttribute="bottom" constant="5.5" id="Leq-KO-yVY"/>
+                                        <constraint firstAttribute="trailing" secondItem="YQZ-9j-aig" secondAttribute="trailing" constant="20" symbolic="YES" id="QKK-Ty-oT4"/>
+                                    </constraints>
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="textField" destination="YQZ-9j-aig" id="kwW-ty-Ppg"/>
@@ -508,7 +513,7 @@
                         <subviews>
                             <textField opaque="NO" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" adjustsFontForContentSizeCategory="YES" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="lwj-Q7-UdL">
                                 <rect key="frame" x="20" y="76" width="374" height="34"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                                 <connections>
                                     <outlet property="delegate" destination="lrE-4D-IAo" id="Sax-vc-Tnz"/>

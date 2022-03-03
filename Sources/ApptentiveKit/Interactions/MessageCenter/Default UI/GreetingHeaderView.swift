@@ -56,7 +56,7 @@ class GreetingHeaderView: UIView {
         self.innerStackView.axis = .vertical
         self.innerStackView.alignment = .center
         self.innerStackView.distribution = .equalSpacing
-        self.innerStackView.spacing = 8
+        self.innerStackView.spacing = 16
 
         self.innerStackView.addArrangedSubview(self.greetingTitleLabel)
         self.innerStackView.addArrangedSubview(self.greetingBodyLabel)
@@ -65,7 +65,7 @@ class GreetingHeaderView: UIView {
         self.outerStackView.axis = self.traitCollection.verticalSizeClass == .compact ? .horizontal : .vertical
         self.outerStackView.alignment = .center
         self.outerStackView.distribution = .equalSpacing
-        self.outerStackView.spacing = 8
+        self.outerStackView.spacing = 16
 
         self.outerStackView.addArrangedSubview(self.brandingImageView)
         self.outerStackView.addArrangedSubview(self.innerStackView)
@@ -76,17 +76,28 @@ class GreetingHeaderView: UIView {
     }
 
     private func setConstraints() {
+        let brandingHeightConstraint = self.brandingImageView.heightAnchor.constraint(equalToConstant: 100)
+        brandingHeightConstraint.priority = .defaultHigh
+
         NSLayoutConstraint.activate([
-            self.brandingImageView.widthAnchor.constraint(equalToConstant: 50),
-            self.brandingImageView.heightAnchor.constraint(equalToConstant: 50),
-            self.outerStackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
-            self.outerStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
-            self.trailingAnchor.constraint(equalTo: self.outerStackView.trailingAnchor, constant: 20),
-            self.outerStackView.heightAnchor.constraint(equalTo: self.heightAnchor),
+            brandingHeightConstraint,
+            self.brandingImageView.widthAnchor.constraint(equalToConstant: 100),
+            self.outerStackView.topAnchor.constraint(equalToSystemSpacingBelow: self.topAnchor, multiplier: 2),
+            self.outerStackView.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
+            self.readableContentGuide.trailingAnchor.constraint(equalTo: self.outerStackView.trailingAnchor),
+            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.outerStackView.bottomAnchor, multiplier: 2),
         ])
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        self.translatesAutoresizingMaskIntoConstraints = false
+
         self.outerStackView.axis = self.traitCollection.verticalSizeClass == .compact ? .horizontal : .vertical
+
+        self.translatesAutoresizingMaskIntoConstraints = true
+
+        self.sizeToFit()
     }
 }

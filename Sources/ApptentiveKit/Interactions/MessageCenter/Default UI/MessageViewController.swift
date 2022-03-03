@@ -10,28 +10,28 @@ import PhotosUI
 import QuickLook
 import UIKit
 
-class MessageViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate, PHPickerViewControllerDelegate, UIImagePickerControllerDelegate & UINavigationControllerDelegate, UIDocumentPickerDelegate,
+class MessageViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate,
+    PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate,
     QLPreviewControllerDelegate, QLPreviewControllerDataSource
 {
     let viewModel: MessageCenterViewModel
     let headerView: GreetingHeaderView
-    let footerView: MessageListFooterView
+    let messageListFooterView: MessageListFooterView
     let composeContainerView: MessageCenterComposeContainerView
+    let profileFooterView: ProfileFooterView
     let messageReceivedCellID = "MessageCellReceived"
     let messageSentCellID = "MessageSentCell"
-
-    private var previewedMessage: MessageCenterViewModel.Message?
-    private var previewSourceView: UIView?
 
     init(viewModel: MessageCenterViewModel) {
         self.composeContainerView = MessageCenterComposeContainerView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 44)))
         self.headerView = GreetingHeaderView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 320)))
-        self.footerView = MessageListFooterView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 88)))
-
+        self.messageListFooterView = MessageListFooterView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 88)))
+        self.profileFooterView = ProfileFooterView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 115)))
         self.viewModel = viewModel
         super.init(style: .grouped)
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        self.viewModel.delegate = self
     }
 
     deinit {
@@ -52,15 +52,18 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.navigationItem.rightBarButtonItem?.action = #selector(closeMessageCenter)
         self.navigationItem.title = self.viewModel.headingTitle
 
+        self.navigationItem.leftBarButtonItem = .apptentiveProfileEdit
+        self.navigationItem.leftBarButtonItem?.target = self
+        self.navigationItem.leftBarButtonItem?.action = #selector(openProfileEditView)
+
         self.tableView.rowHeight = UITableView.automaticDimension
-        self.tableView.estimatedRowHeight = 100
+        self.tableView.estimatedRowHeight = 120
         self.tableView.keyboardDismissMode = .interactive
         self.tableView.register(MessageReceivedCell.self, forCellReuseIdentifier: self.messageReceivedCellID)
         self.tableView.register(MessageSentCell.self, forCellReuseIdentifier: self.messageSentCellID)
 
         self.composeContainerView.composeView.textView.delegate = self
         self.composeContainerView.composeView.placeholderLabel.text = self.viewModel.composerPlaceholderText
-
         self.composeContainerView.composeView.sendButton.addTarget(self, action: #selector(sendMessage), for: .touchUpInside)
         self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
         self.composeContainerView.composeView.sendButton.accessibilityLabel = self.viewModel.composerSendButtonTitle
@@ -84,26 +87,43 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.headerView.greetingBodyLabel.text = self.viewModel.greetingBody
         self.headerView.brandingImageView.url = self.viewModel.greetingImageURL
 
-        self.tableView.tableFooterView = self.footerView
-        self.footerView.statusTextLabel.text = self.viewModel.statusBody
+        self.messageListFooterView.statusTextLabel.text = self.viewModel.statusBody
 
+        self.profileFooterView.nameTextField.text = self.viewModel.name
+        self.profileFooterView.nameTextField.placeholder = self.viewModel.profileNamePlaceholder
+        self.profileFooterView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
+
+        self.profileFooterView.emailTextField.text = self.viewModel.emailAddress
+        self.profileFooterView.emailTextField.placeholder = self.viewModel.profileEmailPlaceholder
+        self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
+        self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
+
+        self.updateProfileValidation(strict: self.viewModel.emailAddress?.isEmpty != true)
         self.tableView.separatorColor = .clear
 
         self.viewModel.delegate = self
 
         self.messageCenterViewModelDraftMessageDidUpdate(self.viewModel)
+
+        if self.viewModel.hasLoadedMessages {
+            self.messageCenterViewModelMessageListDidLoad(self.viewModel)
+        }
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        self.sizeHeaderFooterViews()
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        coordinator.animate { context in
+            self.sizeHeaderFooterViews()
+        } completion: { _ in
+        }
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
 
-        self.sizeHeaderFooterViews()
+        if !self.initialScrollToBottomCompleted {
+            self.sizeHeaderFooterViews()
+            self.scrollToBottom(false)
+        }
     }
 
     // MARK: Input accessory view
@@ -172,9 +192,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     // MARK: - Text View Delegate
 
     func textViewDidChange(_ textView: UITextView) {
-        let textSize = textView.sizeThatFits(CGSize(width: textView.bounds.inset(by: textView.textContainerInset).width, height: CGFloat.greatestFiniteMagnitude))
-
-        self.composeContainerView.composeView.textViewHeightConstraint?.constant = textSize.height
+        self.sizeComposeTextView()
 
         self.viewModel.draftMessageBody = textView.text
         self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
@@ -294,15 +312,19 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel) {
+        self.updateFooter()
+
         self.tableView.reloadData()
 
-        self.scrollToBottom(false)
+        if self.isViewLoaded {
+            self.scrollToBottom(false)
+        }
     }
 
     func messageCenterViewModelDraftMessageDidUpdate(_: MessageCenterViewModel) {
         self.composeContainerView.composeView.textView.text = self.viewModel.draftMessageBody
         self.composeContainerView.composeView.textViewDidChange()
-        self.textViewDidChange(self.composeContainerView.composeView.textView)
+        self.sizeComposeTextView()
 
         self.updateDraftAttachments()
 
@@ -348,6 +370,16 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
     // MARK: - Targets
 
+    @objc func openProfileEditView() {
+        let profileViewController = EditProfileViewController(viewModel: self.viewModel)
+
+        let navigationController = ApptentiveNavigationController(rootViewController: profileViewController)
+        if #available(iOS 13.0, *) {
+            navigationController.isModalInPresentation = true
+        }
+        self.present(navigationController, animated: true, completion: nil)
+    }
+
     @objc func closeMessageCenter() {
         self.viewModel.cancel()
         self.dismiss()
@@ -361,6 +393,8 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.viewModel.sendMessage()
 
         self.composeContainerView.composeView.textView.resignFirstResponder()
+        self.tableView.tableFooterView = self.messageListFooterView
+        self.navigationItem.leftBarButtonItem?.isEnabled = true
     }
 
     @objc func removeDraftAttachment(_ sender: UIButton) {
@@ -398,15 +432,53 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.present(previewController, animated: true)
     }
 
+    @objc func textFieldChanged(_ sender: UITextField) {
+        switch sender.tag {
+        case 0:
+            self.viewModel.name = sender.text
+
+        case 1:
+            self.viewModel.emailAddress = sender.text
+
+        default:
+            assertionFailure("Expected 0 or 1 for text field tag.")
+        }
+
+        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+
+        self.updateProfileValidation(strict: false)
+    }
+
+    @objc private func textFieldDidEndEditing(_ sender: UITextField) {
+        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+        self.updateProfileValidation(strict: true)
+    }
+
     // MARK: - Private
 
+    private var initialScrollToBottomCompleted = false
+
     private static let draftMessageTag: Int = 0xFFFF
+
+    private var previewedMessage: MessageCenterViewModel.Message?
+    private var previewSourceView: UIView?
 
     private func dismiss() {
         self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 
+    private func updateProfileValidation(strict: Bool) {
+        if self.viewModel.profileIsValid || !strict {
+            self.profileFooterView.emailTextField.layer.borderColor = UIColor.apptentiveMessageTextViewBorder.cgColor
+        } else {
+            self.profileFooterView.emailTextField.layer.borderColor = UIColor.apptentiveError.cgColor
+        }
+
+        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+    }
+
     private func scrollToBottom(_ animated: Bool) {
+        self.initialScrollToBottomCompleted = true
         self.tableView.layoutIfNeeded()
 
         if self.tableView.bounds.height > self.tableView.contentSize.height + self.tableView.adjustedContentInset.bottom {
@@ -417,12 +489,36 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         }
     }
 
+    private func updateFooter() {
+        if self.viewModel.shouldRequestProfile {
+            self.navigationItem.leftBarButtonItem?.isEnabled = false
+            self.profileFooterView.nameTextField.becomeFirstResponder()
+            self.tableView.tableFooterView = self.profileFooterView
+        } else {
+            self.navigationItem.leftBarButtonItem?.isEnabled = true
+            self.tableView.tableFooterView = self.messageListFooterView
+        }
+
+        self.sizeHeaderFooterViews()
+    }
+
+    private func sizeComposeTextView() {
+        let textView = self.composeContainerView.composeView.textView
+        let textSize = textView.sizeThatFits(CGSize(width: textView.bounds.inset(by: textView.textContainerInset).width, height: CGFloat.greatestFiniteMagnitude))
+
+        self.composeContainerView.composeView.textViewHeightConstraint?.constant = textSize.height
+    }
+
     private func sizeHeaderFooterViews() {
         let headerViewSize = self.headerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 100), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
         self.headerView.bounds = CGRect(origin: .zero, size: headerViewSize)
+        self.tableView.tableHeaderView = self.tableView.tableHeaderView
 
-        let footerViewSize = self.footerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 100), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
-        self.footerView.bounds = CGRect(origin: .zero, size: footerViewSize)
+        if let footerView = self.tableView.tableFooterView {
+            let footerSize = footerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 200), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
+            footerView.bounds = CGRect(origin: .zero, size: footerSize)
+            self.tableView.tableFooterView = footerView
+        }
     }
 
     private func updateStackView(_ stackView: UIStackView, with message: MessageCenterViewModel.Message, at indexPath: IndexPath) {

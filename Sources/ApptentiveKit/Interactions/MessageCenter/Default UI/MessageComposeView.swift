@@ -103,6 +103,7 @@ class MessageCenterComposeView: UIView {
         self.textView.adjustsFontForContentSizeCategory = true
         self.textView.font = .apptentiveTextInput
         self.textView.returnKeyType = .default
+        self.textView.accessibilityIdentifier = "messageTextView"
 
         self.separatorView.translatesAutoresizingMaskIntoConstraints = false
         self.separatorView.backgroundColor = .apptentiveTextInputBorder

@@ -75,12 +75,26 @@ struct MessageCenterConfiguration: Codable {
 
     struct Profile: Codable {
         let request, require: Bool
-        let initial, edit: Edit
+        let initial: Initial
+        let edit: Edit
+    }
+
+    struct Initial: Codable {
+        let title, nameHint, emailHint, skipButton, saveButton: String
+        let emailExplanation: String?
+
+        enum CodingKeys: String, CodingKey {
+            case title
+            case nameHint = "name_hint"
+            case emailHint = "email_hint"
+            case skipButton = "skip_button"
+            case saveButton = "save_button"
+            case emailExplanation = "email_explanation"
+        }
     }
 
     struct Edit: Codable {
-        let title, nameHint, emailHint, skipButton: String
-        let saveButton: String
+        let title, nameHint, emailHint, skipButton, saveButton: String
 
         enum CodingKeys: String, CodingKey {
             case title

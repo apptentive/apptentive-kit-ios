@@ -93,7 +93,7 @@ class PersonAndDeviceTests: XCTestCase {
 
         wait(for: [expect], timeout: 5)
     }
-   
+
     func testPersonCustomData() {
         self.apptentive.personCustomData["string"] = "foo"
         self.apptentive.personCustomData["number"] = 42
@@ -154,7 +154,7 @@ class PersonAndDeviceTests: XCTestCase {
         self.apptentive.deviceCustomData["string"] = "bar"
         self.apptentive.deviceCustomData["number"] = 43
         self.apptentive.deviceCustomData["boolean"] = false
- 
+
         // Make sure the save operations on the backend queue have a chance to complete
         // By scheduling subsequent operations on the same (serial) queue.
 

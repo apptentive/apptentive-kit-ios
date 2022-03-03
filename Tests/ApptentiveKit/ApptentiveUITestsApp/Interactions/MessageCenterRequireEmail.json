@@ -33,8 +33,8 @@
       "network_error_body": "It looks like you aren't connected to the Internet right now. We've saved your message and will try again when we detect a connection.",
     },
     "profile": {
-      "request": false,
-      "require": false,
+      "request": true,
+      "require": true,
       "initial": {
         "title": "Whom are we speaking with?",
         "name_hint": "Name",

@@ -37,7 +37,7 @@ public protocol MessageCenterViewModelDelegate: AnyObject {
     func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error)
 }
 
-typealias MessageCenterInteractionDelegate = EventEngaging & MessageSending & MessageProviding & AttachmentManaging & UnreadMessageUpdating
+typealias MessageCenterInteractionDelegate = EventEngaging & MessageSending & MessageProviding & AttachmentManaging & ProfileEditing & UnreadMessageUpdating
 
 /// A class that describes the data in message center and allows messages to be gathered and transmitted.
 public class MessageCenterViewModel: MessageManagerDelegate {
@@ -94,11 +94,74 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// The messages grouped by date, according to the current calendar, sorted with oldest messages last.
     public var groupedMessages: [[Message]]
 
+    /// Whether the initial loading of messages has completed.
+    public var hasLoadedMessages: Bool
+
     /// The size at which to generate thumbnails for attachments.
     public var thumbnailSize = CGSize(width: 44, height: 44) {
         didSet {
             MessageManager.thumbnailSize = self.thumbnailSize
         }
+    }
+
+    /// The place holder of the name field of the profile view.
+    public var profileNamePlaceholder: String
+    /// The place holder of the email field of the profile view.
+    public var profileEmailPlaceholder: String
+    /// The cancel button text of the profile view.
+    public var profileCancelButtonText: String
+    /// The save button text of the profile view.
+    public var profileSaveButtonText: String
+
+    /// The title of the edit profile view.
+    public var editProfileViewTitle: String
+    /// The place holder of the name field of the edit profile view.
+    public var editProfileNamePlaceholder: String
+    /// The place holder of the email field of the edit profile view.
+    public var editProfileEmailPlaceholder: String
+    /// The cancel button text of the edit profile view.
+    public var editProfileCancelButtonText: String
+    /// The save button text of the edit profile view.
+    public var editProfileSaveButtonText: String
+
+    /// The profile editing rule provided by the dashboard.
+    public let profileMode: ProfileMode
+
+    /// The email address set by the user in the profile views.
+    public var emailAddress: String? {
+        get {
+            return self.interactionDelegate.personEmailAddress
+        }
+        set {
+            self.interactionDelegate.personEmailAddress = newValue
+
+            self.validateProfile()
+        }
+    }
+
+    /// The name set by the user in the profile views.
+    public var name: String? {
+        get {
+            return self.interactionDelegate.personName
+        }
+        set {
+            self.interactionDelegate.personName = newValue
+
+            self.validateProfile()
+        }
+    }
+
+    /// Whether the required elements of the profile (name/email) pass validation.
+    public var profileIsValid: Bool
+
+    /// Whether the profile field should be shown alongside the composer.
+    public var shouldRequestProfile: Bool
+
+    /// Describes the type of profile editing.
+    public enum ProfileMode {
+        case optionalEmail
+        case requiredEmail
+        case hidden
     }
 
     init(configuration: MessageCenterConfiguration, interaction: Interaction, interactionDelegate: MessageCenterInteractionDelegate) {
@@ -128,6 +191,20 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.groupDateFormatter.dateStyle = .long
         self.groupDateFormatter.timeStyle = .none
 
+        self.profileMode = MessageCenterViewModel.mode(for: configuration.profile)
+        self.editProfileViewTitle = configuration.profile.edit.title
+        self.editProfileNamePlaceholder = configuration.profile.edit.nameHint
+        self.editProfileEmailPlaceholder = configuration.profile.edit.emailHint
+        self.editProfileCancelButtonText = configuration.profile.edit.skipButton
+        self.editProfileSaveButtonText = configuration.profile.edit.saveButton
+        self.profileNamePlaceholder = configuration.profile.initial.nameHint
+        self.profileEmailPlaceholder = configuration.profile.initial.emailHint
+        self.profileCancelButtonText = configuration.profile.initial.skipButton
+        self.profileSaveButtonText = configuration.profile.initial.saveButton
+
+        self.hasLoadedMessages = false
+        self.profileIsValid = false
+        self.shouldRequestProfile = false
         self.managedMessages = []
         self.groupedMessages = []
         self.draftMessage = Message(nonce: "", direction: .sentFromDevice(.failed), isAutomated: false, attachments: [], sender: nil, body: nil, sentDate: Date(), sentDateString: "")
@@ -141,6 +218,8 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.interactionDelegate.getDraftMessage { draftManagedMessage in
             self.messageManagerDraftMessageDidChange(draftManagedMessage)
         }
+
+        self.validateProfile()
 
         MessageManager.thumbnailSize = self.thumbnailSize
     }
@@ -302,10 +381,10 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
     /// Whether the send button should be enabled.
     public var canSendMessage: Bool {
-        return self.draftAttachments.count > 0 || self.draftMessageBody?.isEmpty == false
+        return (self.draftAttachments.count > 0 || self.draftMessageBody?.isEmpty == false) && self.profileIsValid
     }
 
-    /// Queues the message for sending to the Apptentive API.
+    /// Sends the message to the interaction delegate.
     public func sendMessage() {
         self.interactionDelegate.sendDraftMessage { result in
             if case .failure(let error) = result {
@@ -330,15 +409,17 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
         let groupings = Self.assembleGroupedMessages(messages: convertedMessages)
 
-        if groupings != self.groupedMessages {
+        if groupings != self.groupedMessages || !self.hasLoadedMessages {
             DispatchQueue.main.async {
-                if self.groupedMessages.count > 0 {
+                if self.hasLoadedMessages {
                     self.delegate?.messageCenterViewModelDidBeginUpdates(self)
                     self.update(from: self.groupedMessages, to: groupings)
                     self.groupedMessages = groupings
                     self.delegate?.messageCenterViewModelDidEndUpdates(self)
                 } else {
+                    self.hasLoadedMessages = true
                     self.groupedMessages = groupings
+                    self.validateProfile()
                     self.delegate?.messageCenterViewModelMessageListDidLoad(self)
                 }
             }
@@ -410,6 +491,29 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.delegate?.messageCenterViewModel(self, didMoveRowsAt: movedIndexPaths)
     }
 
+    func validateProfile() {
+        self.profileIsValid = Self.isProfileValid(for: self.profileMode, name: self.name, emailAddress: self.emailAddress)
+
+        let hasNoMessages = self.hasLoadedMessages && self.groupedMessages.count == 0
+        let missingNameOrEmail = self.name?.isEmpty != false || self.emailAddress?.isEmpty != false
+        self.shouldRequestProfile = !self.profileIsValid || (hasNoMessages && missingNameOrEmail && self.profileMode != .hidden)
+    }
+
+    static func isProfileValid(for profileMode: ProfileMode, name: String?, emailAddress: String?) -> Bool {
+        let emailValid = Self.emailPredicate.evaluate(with: emailAddress)
+
+        switch profileMode {
+        case .optionalEmail:
+            return emailValid || emailAddress?.isEmpty != false
+
+        case .requiredEmail:
+            return emailValid
+
+        case .hidden:
+            return true
+        }
+    }
+
     static func datesForMessageGroups(in groupedMessages: [[Message]]) -> [Date] {
         return groupedMessages.compactMap { messages in
             messages.first?.sentDate
@@ -468,6 +572,16 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
     static func buildMessageIndex(from groupedMessages: [[Message]]) -> [String: Message] {
         return Dictionary(grouping: groupedMessages.flatMap { $0 }, by: { $0.nonce }).compactMapValues { $0.first }
+    }
+
+    static func mode(for profile: MessageCenterConfiguration.Profile) -> ProfileMode {
+        if profile.require {
+            return .requiredEmail
+        } else if profile.request {
+            return .optionalEmail
+        } else {
+            return .hidden
+        }
     }
 
     static func convert(_ managedMessage: MessageList.Message, sentDateFormatter: DateFormatter, interactionDelegate: MessageCenterInteractionDelegate) -> MessageCenterViewModel.Message {
@@ -538,6 +652,8 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             }
         }
     }
+
+    private static let emailPredicate = NSPredicate(format: "SELF MATCHES %@", "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")
 }
 
 public enum MessageCenterViewModelError: Error {

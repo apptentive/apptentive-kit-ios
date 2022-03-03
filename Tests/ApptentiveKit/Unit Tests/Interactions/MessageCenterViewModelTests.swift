@@ -125,6 +125,17 @@ class MessageCenterViewModelTests: XCTestCase {
         XCTAssertEqual(self.spyDelegate?.movedRows.count, 3)
     }
 
+    func testSettingEmail() {
+        self.viewModel?.emailAddress = "test email"
+        XCTAssertEqual(self.spyInteractionDelegate?.personEmailAddress, "test email")
+    }
+
+    func testSettingName() {
+        self.viewModel?.name = "name"
+        XCTAssertEqual(self.spyInteractionDelegate?.personName, "name")
+
+    }
+
     class SpyViewModelDelegate: MessageCenterViewModelDelegate {
         var beginEndBalance = 0
         var insertedSections = IndexSet()
