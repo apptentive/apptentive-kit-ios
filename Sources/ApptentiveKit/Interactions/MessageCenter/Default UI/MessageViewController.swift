@@ -429,7 +429,17 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         }
         self.previewSourceView = view
 
-        self.present(previewController, animated: true)
+        // Have to enclose this in a navigation controller as the swipe-down-to-dismiss
+        // doesn't correctly restore this view controller (seems to be related to inputAccessoryView)
+        let navigationController = UINavigationController(rootViewController: previewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        previewController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(closeAttachmentPreview(_:)))
+
+        self.present(navigationController, animated: true)
+    }
+
+    @objc func closeAttachmentPreview(_ sender: UIBarButtonItem) {
+        self.dismiss(animated: true)
     }
 
     @objc func textFieldChanged(_ sender: UITextField) {
