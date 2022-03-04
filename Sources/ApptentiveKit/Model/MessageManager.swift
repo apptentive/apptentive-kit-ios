@@ -105,9 +105,11 @@ class MessageManager {
     func updateReadMessage(with messageNonce: String) throws {
         guard let index = self.messageList.messages.firstIndex(where: { $0.nonce == messageNonce }) else { return }
 
-        self.messageList.messages[index].status = .read
-        self.setUnreadMessageCount()
-        try self.saveMessagesIfNeeded()
+        if self.messageList.messages[index].status == .unread {
+            self.messageList.messages[index].status = .read
+            self.setUnreadMessageCount()
+            try self.saveMessagesIfNeeded()
+        }
     }
 
     func update(with messagesResponse: MessagesResponse) {
