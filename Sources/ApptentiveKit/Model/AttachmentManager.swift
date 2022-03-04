@@ -49,8 +49,10 @@ class AttachmentManager: AttachmentURLProviding {
         let path = Self.newAttachmentPath(filename: filename)
         let attachmentURL = URL(fileURLWithPath: path, relativeTo: self.savedContainerURL)
 
-        try self.fileManager.copyItem(at: url, to: attachmentURL)
-
+        if url.startAccessingSecurityScopedResource() {
+            try self.fileManager.copyItem(at: url, to: attachmentURL)
+        }
+        url.stopAccessingSecurityScopedResource()
         return attachmentURL
     }
 
