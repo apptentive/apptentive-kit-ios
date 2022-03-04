@@ -68,7 +68,7 @@ class ProfileFooterView: UIView {
 
     private func setConstraints() {
         NSLayoutConstraint.activate([
-            self.nameTextField.topAnchor.constraint(equalToSystemSpacingBelow: self.topAnchor, multiplier: 1),
+            self.nameTextField.topAnchor.constraint(equalToSystemSpacingBelow: self.readableContentGuide.topAnchor, multiplier: 1),
             self.nameTextField.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.readableContentGuide.trailingAnchor.constraint(equalTo: self.nameTextField.trailingAnchor),
             self.nameTextField.heightAnchor.constraint(equalToConstant: 40),
