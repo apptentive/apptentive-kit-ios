@@ -36,6 +36,8 @@ extension MessageViewController {
             self.imageView.translatesAutoresizingMaskIntoConstraints = false
             self.imageView.contentMode = .scaleAspectFill
             self.imageView.clipsToBounds = true
+            self.imageView.isAccessibilityElement = true
+            self.imageView.accessibilityTraits.insert(.button)
 
             self.closeButton.translatesAutoresizingMaskIntoConstraints = false
             self.closeButton.setImage(.apptentiveAttachmentRemoveButton, for: .normal)
@@ -43,8 +45,6 @@ extension MessageViewController {
             self.closeButton.imageView?.backgroundColor = .white
             self.closeButton.imageView?.layer.cornerRadius = 11
             self.closeButton.accessibilityIdentifier = "delete"
-
-            self.gestureRecognizer.accessibilityLabel = "View Attachment"
 
             self.setConstraints()
         }

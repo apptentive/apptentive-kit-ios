@@ -95,16 +95,23 @@ class MessageCenterViewModelTests: XCTestCase {
     }
 
     func testDiffRows() {
-        let message1 = MessageCenterViewModel.Message(nonce: "1", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "One", sentDate: Date(timeIntervalSinceNow: 12 * 60 * 60), sentDateString: "100")
-        let message2 = MessageCenterViewModel.Message(nonce: "2", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Two", sentDate: Date(timeIntervalSinceNow: 24 * 60 * 60), sentDateString: "200")
-        let message3 = MessageCenterViewModel.Message(nonce: "3", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Three", sentDate: Date(timeIntervalSinceNow: 36 * 60 * 60), sentDateString: "300")
-        let message4 = MessageCenterViewModel.Message(nonce: "4", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Four", sentDate: Date(timeIntervalSinceNow: 48 * 60 * 60), sentDateString: "400")
-        let message5 = MessageCenterViewModel.Message(nonce: "5", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Five", sentDate: Date(timeIntervalSinceNow: 60 * 60 * 60), sentDateString: "500")
-        let message6 = MessageCenterViewModel.Message(nonce: "6", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Six", sentDate: Date(timeIntervalSinceNow: 72 * 60 * 60), sentDateString: "600")
-        let message7 = MessageCenterViewModel.Message(nonce: "7", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Seven", sentDate: Date(timeIntervalSinceNow: 96 * 60 * 60), sentDateString: "700")
+        let message1 = MessageCenterViewModel.Message(
+            nonce: "1", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "One", sentDate: Date(timeIntervalSinceNow: 12 * 60 * 60), statusText: "100", accessibilityLabel: "", accessibilityHint: "")
+        let message2 = MessageCenterViewModel.Message(
+            nonce: "2", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Two", sentDate: Date(timeIntervalSinceNow: 24 * 60 * 60), statusText: "200", accessibilityLabel: "", accessibilityHint: "")
+        let message3 = MessageCenterViewModel.Message(
+            nonce: "3", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Three", sentDate: Date(timeIntervalSinceNow: 36 * 60 * 60), statusText: "300", accessibilityLabel: "", accessibilityHint: "")
+        let message4 = MessageCenterViewModel.Message(
+            nonce: "4", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Four", sentDate: Date(timeIntervalSinceNow: 48 * 60 * 60), statusText: "400", accessibilityLabel: "", accessibilityHint: "")
+        let message5 = MessageCenterViewModel.Message(
+            nonce: "5", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Five", sentDate: Date(timeIntervalSinceNow: 60 * 60 * 60), statusText: "500", accessibilityLabel: "", accessibilityHint: "")
+        let message6 = MessageCenterViewModel.Message(
+            nonce: "6", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Six", sentDate: Date(timeIntervalSinceNow: 72 * 60 * 60), statusText: "600", accessibilityLabel: "", accessibilityHint: "")
+        let message7 = MessageCenterViewModel.Message(
+            nonce: "7", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Seven", sentDate: Date(timeIntervalSinceNow: 96 * 60 * 60), statusText: "700", accessibilityLabel: "", accessibilityHint: "")
 
         let changedMessage2 = MessageCenterViewModel.Message(
-            nonce: "2", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Two modified", sentDate: Date(timeIntervalSinceNow: 24 * 60 * 60), sentDateString: "200")
+            nonce: "2", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Two modified", sentDate: Date(timeIntervalSinceNow: 24 * 60 * 60), statusText: "200", accessibilityLabel: "", accessibilityHint: "")
 
         let oldGroupedMessages = [
             [message1, message2, message3],

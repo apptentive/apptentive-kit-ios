@@ -164,6 +164,12 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         case hidden
     }
 
+    /// The accessibility hint for buttons that show an attachment.
+    public let showAttachmentButtonAccessibilityHint: String
+
+    /// The accessibility hint for buttons that download an attachment.
+    public let downloadAttachmentButtonAccessibilityHint: String
+
     init(configuration: MessageCenterConfiguration, interaction: Interaction, interactionDelegate: MessageCenterInteractionDelegate) {
         self.interaction = interaction
         self.interactionDelegate = interactionDelegate
@@ -176,6 +182,10 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.composerCloseConfirmBody = configuration.composer.closeConfirmBody
         self.composerCloseDiscardButtonTitle = configuration.composer.closeDiscardButton
         self.composerCloseCancelButtonTitle = configuration.composer.closeCancelButton
+        self.sendingText = configuration.composer.sendStart
+        self.sentText = configuration.composer.sendOk
+        self.failedText = configuration.composer.sendFail
+
         self.greetingTitle = configuration.greeting.title
         self.greetingBody = configuration.greeting.body
         self.greetingImageURL = configuration.greeting.imageURL
@@ -207,7 +217,10 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.shouldRequestProfile = false
         self.managedMessages = []
         self.groupedMessages = []
-        self.draftMessage = Message(nonce: "", direction: .sentFromDevice(.failed), isAutomated: false, attachments: [], sender: nil, body: nil, sentDate: Date(), sentDateString: "")
+        self.draftMessage = Message(nonce: "", direction: .sentFromDevice(.failed), isAutomated: false, attachments: [], sender: nil, body: nil, sentDate: Date(), statusText: "", accessibilityLabel: "", accessibilityHint: "")
+
+        self.showAttachmentButtonAccessibilityHint = "Double-tap to open."
+        self.downloadAttachmentButtonAccessibilityHint = "Double-tap to download."
 
         self.interactionDelegate.messageManagerDelegate = self
 
@@ -403,7 +416,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             if message.isHidden {
                 return nil
             } else {
-                return Self.convert(message, sentDateFormatter: self.sentDateFormatter, interactionDelegate: self.interactionDelegate)
+                return self.convert(message)
             }
         }
 
@@ -427,7 +440,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     }
 
     func messageManagerDraftMessageDidChange(_ managedDraftMessage: MessageList.Message) {
-        let result = Self.convert(managedDraftMessage, sentDateFormatter: self.sentDateFormatter, interactionDelegate: self.interactionDelegate)
+        let result = self.convert(managedDraftMessage)
         DispatchQueue.main.async {
             self.draftMessage = result
             self.delegate?.messageCenterViewModelDraftMessageDidUpdate(self)
@@ -435,6 +448,10 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     }
 
     // MARK: - Internal
+
+    let sendingText: String
+    let sentText: String
+    let failedText: String
 
     // Notifies the delegate of inserted, updated, deleted, and moved indexPaths, and inserted and removed sections.
     func update(from old: [[Message]], to new: [[Message]]) {
@@ -584,7 +601,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         }
     }
 
-    static func convert(_ managedMessage: MessageList.Message, sentDateFormatter: DateFormatter, interactionDelegate: MessageCenterInteractionDelegate) -> MessageCenterViewModel.Message {
+    func convert(_ managedMessage: MessageList.Message) -> MessageCenterViewModel.Message {
         let attachments = managedMessage.attachments.enumerated().compactMap { (index, attachment) in
             Message.Attachment(
                 fileExtension: AttachmentManager.pathExtension(for: attachment.contentType) ?? "file", thumbnailData: attachment.thumbnailData, localURL: interactionDelegate.urlForAttachment(at: index, in: managedMessage),
@@ -593,28 +610,39 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
         let sender = managedMessage.sender.flatMap { Message.Sender(name: $0.name, profilePhotoURL: $0.profilePhoto) }
         let direction: Message.Direction
+        let statusText: String
+        let sentDateString = sentDateFormatter.string(from: managedMessage.sentDate)
 
         switch managedMessage.status {
         case .draft:
             direction = .sentFromDevice(.draft)
+            statusText = "Draft"
         case .queued:
             direction = .sentFromDevice(.queued)
+            statusText = self.sendingText
         case .sending:
             direction = .sentFromDevice(.sending)
+            statusText = self.sendingText
         case .sent:
             direction = .sentFromDevice(.sent)
+            statusText = "\(self.sentText) \(sentDateString)"
         case .failed:
             direction = .sentFromDevice(.failed)
+            statusText = self.failedText
 
         case .unread:
             direction = .sentFromDashboard(.unread)
+            statusText = sentDateString
         case .read:
             direction = .sentFromDashboard(.read)
+            statusText = sentDateString
         }
+
+        let accessibilityLabel = managedMessage.body ?? NSLocalizedString("No Text", bundle: Bundle(for: Apptentive.self), value: "No Text", comment: "Accessibility label for messages with no text")
 
         return Message(
             nonce: managedMessage.nonce, direction: direction, isAutomated: managedMessage.isAutomated, attachments: attachments, sender: sender, body: managedMessage.body, sentDate: managedMessage.sentDate,
-            sentDateString: sentDateFormatter.string(from: managedMessage.sentDate))
+            statusText: statusText, accessibilityLabel: accessibilityLabel, accessibilityHint: statusText)
     }
 
     static func assembleGroupedMessages(messages: [Message]) -> [[Message]] {

@@ -33,32 +33,14 @@ extension MessageCenterViewModel {
         /// When when the message was created.
         public let sentDate: Date
 
-        /// A human-readable string of the date that the message was sent.
-        public let sentDateString: String
+        /// The accessibility label of the message for VoiceOver.
+        public let accessibilityLabel: String?
+
+        /// The accessibility hint of the message for VoiceOver.
+        public let accessibilityHint: String?
 
         /// A textual representation of the message status.
-        public var statusText: String? {
-            guard case .sentFromDevice(let status) = self.direction else {
-                return nil
-            }
-
-            switch status {
-            case .draft:
-                return nil
-
-            case .queued:
-                return "Waiting…"
-
-            case .sending:
-                return "Sending…"
-
-            case .sent:
-                return "Sent \(self.sentDateString)"
-
-            case .failed:
-                return "Fail to Send"
-            }
-        }
+        public let statusText: String
 
         // swift-format-ignore
         public static func == (lhs: MessageCenterViewModel.Message, rhs: MessageCenterViewModel.Message) -> Bool {
@@ -66,7 +48,7 @@ extension MessageCenterViewModel {
                 && lhs.statusText == rhs.statusText
         }
 
-        init(nonce: String, direction: Direction, isAutomated: Bool, attachments: [Attachment], sender: Sender?, body: String?, sentDate: Date, sentDateString: String) {
+        init(nonce: String, direction: Direction, isAutomated: Bool, attachments: [Attachment], sender: Sender?, body: String?, sentDate: Date, statusText: String, accessibilityLabel: String, accessibilityHint: String) {
             self.nonce = nonce
             self.direction = direction
             self.isAutomated = isAutomated
@@ -74,7 +56,9 @@ extension MessageCenterViewModel {
             self.sender = sender
             self.body = body
             self.sentDate = sentDate
-            self.sentDateString = sentDateString
+            self.statusText = statusText
+            self.accessibilityLabel = accessibilityLabel
+            self.accessibilityHint = accessibilityHint
         }
 
         /// Defines the status of the message whether it is an inbound message or outbound.

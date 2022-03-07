@@ -48,6 +48,9 @@ extension MessageViewController {
 
             self.progressView.translatesAutoresizingMaskIntoConstraints = false
 
+            self.isAccessibilityElement = true
+            self.accessibilityTraits.insert(.button)
+
             self.setConstraints()
         }
 

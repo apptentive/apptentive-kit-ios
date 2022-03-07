@@ -63,6 +63,8 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.tableView.register(MessageSentCell.self, forCellReuseIdentifier: self.messageSentCellID)
 
         self.composeContainerView.composeView.textView.delegate = self
+        self.composeContainerView.composeView.textView.accessibilityLabel = self.viewModel.composerTitle
+        self.composeContainerView.composeView.textView.accessibilityHint = self.viewModel.composerPlaceholderText
         self.composeContainerView.composeView.placeholderLabel.text = self.viewModel.composerPlaceholderText
         self.composeContainerView.composeView.sendButton.addTarget(self, action: #selector(sendMessage), for: .touchUpInside)
         self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
@@ -83,6 +85,8 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         }
 
         self.tableView.tableHeaderView = self.headerView
+        self.tableView.accessibilityLabel = self.viewModel.headingTitle
+
         self.headerView.greetingTitleLabel.text = self.viewModel.greetingTitle
         self.headerView.greetingBodyLabel.text = self.viewModel.greetingBody
         self.headerView.brandingImageView.url = self.viewModel.greetingImageURL
@@ -163,15 +167,17 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         switch (message.direction, cell) {
         case (.sentFromDashboard, let receivedCell as MessageReceivedCell):
             receivedCell.messageText.text = message.body
-            receivedCell.dateLabel.text = message.sentDateString
+            receivedCell.dateLabel.text = message.statusText
             receivedCell.senderLabel.text = message.sender?.name
             receivedCell.profileImageView.url = message.sender?.profilePhotoURL
             self.updateStackView(receivedCell.attachmentStackView, with: message, at: indexPath)
+            receivedCell.accessibilityElements = [receivedCell.senderLabel, receivedCell.messageText, receivedCell.attachmentStackView, receivedCell.dateLabel]
 
         case (.sentFromDevice, let sentCell as MessageSentCell):
             sentCell.messageText.text = message.body
             sentCell.statusLabel.text = message.statusText
             self.updateStackView(sentCell.attachmentStackView, with: message, at: indexPath)
+            sentCell.accessibilityElements = [sentCell.messageText, sentCell.attachmentStackView, sentCell.statusLabel]
 
         default:
             assertionFailure("Cell type doesn't match inbound value")
@@ -318,6 +324,19 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
         if self.isViewLoaded {
             self.scrollToBottom(false)
+        }
+    }
+
+    func postAccessibilityNotificationForLastMessage() {
+        if self.viewModel.numberOfMessageGroups > 0 && self.viewModel.numberOfMessagesInGroup(at: self.viewModel.numberOfMessageGroups - 1) > 0 {
+            let lastIndexPath = IndexPath(row: self.viewModel.numberOfMessagesInGroup(at: self.viewModel.numberOfMessageGroups - 1) - 1, section: self.viewModel.numberOfMessageGroups - 1)
+            let lastTableViewCell = self.tableView.cellForRow(at: lastIndexPath)
+
+            if let receivedCell = lastTableViewCell as? MessageReceivedCell {
+                UIAccessibility.post(notification: .layoutChanged, argument: receivedCell.messageText)
+            } else if let sentCell = lastTableViewCell as? MessageSentCell {
+                UIAccessibility.post(notification: .layoutChanged, argument: sentCell.messageText)
+            }
         }
     }
 
@@ -497,6 +516,8 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
             let verticalContentOffset = self.tableView.contentSize.height + self.tableView.adjustedContentInset.bottom - self.tableView.bounds.height
             self.tableView.setContentOffset(CGPoint(x: 0, y: verticalContentOffset), animated: animated)
         }
+
+        self.postAccessibilityNotificationForLastMessage()
     }
 
     private func updateFooter() {
@@ -563,16 +584,21 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
                 attachmentIndicator.titleLabel.text = attachment.fileExtension
             }
 
+            attachmentIndicator.accessibilityLabel = attachment.accessibilityLabel
+
             if let _ = attachment.localURL {
                 attachmentIndicator.progressView.isHidden = true
                 attachmentIndicator.gestureRecognizer.addTarget(self, action: #selector(showAttachment(_:)))
+                attachmentIndicator.accessibilityHint = self.viewModel.showAttachmentButtonAccessibilityHint
             } else if attachment.downloadProgress == 0 {
                 attachmentIndicator.progressView.isHidden = true
                 attachmentIndicator.gestureRecognizer.addTarget(self, action: #selector(downloadAttachment(_:)))
+                attachmentIndicator.accessibilityHint = self.viewModel.downloadAttachmentButtonAccessibilityHint
             } else {
                 attachmentIndicator.progressView.isHidden = false
                 attachmentIndicator.progressView.progress = attachment.downloadProgress
                 attachmentIndicator.gestureRecognizer.removeTarget(self, action: nil)
+                attachmentIndicator.accessibilityHint = nil
             }
 
             attachmentIndicator.imageView.adjustsImageSizeForAccessibilityContentSizeCategory = true
@@ -654,9 +680,9 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
                 let attachment = self.viewModel.draftAttachments[index]
 
-                attachmentView.accessibilityLabel = attachment.accessibilityLabel
+                attachmentView.imageView.accessibilityLabel = attachment.accessibilityLabel
+                attachmentView.imageView.accessibilityHint = self.viewModel.showAttachmentButtonAccessibilityHint
                 attachmentView.closeButton.accessibilityLabel = attachment.removeButtonAccessibilityLabel
-                attachmentView.gestureRecognizer.accessibilityLabel = attachment.viewButtonAccessibilityLabel
 
                 if let thumbnail = attachment.thumbnail {
                     attachmentView.imageView.image = thumbnail
