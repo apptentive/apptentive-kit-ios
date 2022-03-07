@@ -115,8 +115,8 @@ class MessageReceivedCell: UITableViewCell {
         )
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func layoutIfNeeded() {
+        super.layoutIfNeeded()
 
         self.profileImageView.layer.cornerRadius = self.profileImageView.bounds.height / 2
     }
