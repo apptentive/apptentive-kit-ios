@@ -523,13 +523,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
     }
 
-    @objc func termsOfServiceTapped() {
-        let termsOfService = self.viewModel.termsOfService
-        if let url = termsOfService?.linkURL {
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            }
-        }
+    @objc func openTermsAndConditions() {
+        self.viewModel.openTermsAndConditions()
     }
 
     @objc func submitSurvey() {
@@ -640,11 +635,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     private func configureTermsOfService() {
-        if let terms = self.viewModel.termsOfService {
+        if let termsLabel = self.viewModel.termsAndConditionsLabel {
             self.navigationController?.setToolbarHidden(false, animated: true)
 
             let flexible = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-            let barButtonItem = UIBarButtonItem(title: terms.bodyText, style: .plain, target: self, action: #selector(termsOfServiceTapped))
+            let barButtonItem = UIBarButtonItem(title: termsLabel, style: .plain, target: self, action: #selector(openTermsAndConditions))
 
             barButtonItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.apptentiveTermsOfServiceLabel, NSAttributedString.Key.foregroundColor: UIColor.apptentiveTermsOfServiceLabel, NSAttributedString.Key.underlineStyle: 1], for: .normal)
             barButtonItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.apptentiveTermsOfServiceLabel, NSAttributedString.Key.foregroundColor: UIColor.apptentiveTermsOfServiceLabel, NSAttributedString.Key.underlineStyle: 1], for: .selected)

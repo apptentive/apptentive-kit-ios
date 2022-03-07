@@ -8,7 +8,7 @@
 
 import UIKit
 
-typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & TermsOfServiceProviding & MessageSending & MessageProviding & AttachmentManaging & ProfileEditing
+typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & MessageSending & MessageProviding & AttachmentManaging & ProfileEditing
     & UnreadMessageUpdating
 
 /// Describes an object that can manage attachments to a draft message and load attachments from an arbitrary message.
@@ -88,9 +88,4 @@ protocol ResponseRecording: AnyObject {
     ///   - answers: The answers included in the interaction response.
     ///   - questionID: The identifier for the question.
     func recordResponse(_ answers: [Answer], for questionID: String)
-}
-
-/// Describes an object representing the terms of service at the bottom of surveys.
-protocol TermsOfServiceProviding: AnyObject {
-    var termsOfService: TermsOfService? { get set }
 }

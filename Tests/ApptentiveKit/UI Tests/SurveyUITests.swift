@@ -163,7 +163,7 @@ class SurveyUITests: XCTestCase {
         let tablesQuery = XCUIApplication().tables
         tablesQuery.staticTexts["Survey"].tap()
         let toolbar = XCUIApplication().toolbars
-        let termsOfServiceBarButtonItem = toolbar.buttons["Terms of Service"]
+        let termsOfServiceBarButtonItem = toolbar.buttons["Terms and Conditions"]
         XCTAssertTrue(termsOfServiceBarButtonItem.exists, "The ToS button is not showing.")
         termsOfServiceBarButtonItem.tap()
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")

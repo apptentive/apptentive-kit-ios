@@ -65,7 +65,6 @@ class SpyInteractionDelegate: InteractionDelegate {
     var shouldURLOpeningSucceed = true
     var openedURL: URL? = nil
     var responses: [String: [Answer]] = [:]
-    var termsOfService: TermsOfService?
     var message: MessageList.Message?
     var environment = MockEnvironment()
     var messageManager = MessageManager(notificationCenter: NotificationCenter.default)

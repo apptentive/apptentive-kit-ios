@@ -215,6 +215,10 @@
     "show_success_message": true,
     "view_period": 86400,
     "required": false,
-    "success_message": "Thank you!"
+    "success_message": "Thank you!",
+    "terms_and_conditions": {
+      "label": "Terms and Conditions",
+      "link": "https://apptentive.com/privacy"
+    }
   }
 }

@@ -30,6 +30,7 @@ struct SurveyConfiguration: Decodable {
     let closeConfirmationBackButtonText: String?
     let questions: [Question]
     let presentationStyle: PresentationStyle?
+    let termsAndConditions: TermsAndConditions?
 
     enum PresentationStyle: String, Decodable {
         case list
@@ -50,7 +51,13 @@ struct SurveyConfiguration: Decodable {
         case closeConfirmationCloseButtonText = "close_confirm_close_text"
         case closeConfirmationBackButtonText = "close_confirm_back_text"
         case presentationStyle = "presentation_style"
+        case termsAndConditions = "terms_and_conditions"
         case questions
+    }
+
+    struct TermsAndConditions: Decodable {
+        let label: String
+        let link: URL
     }
 
     struct Question: Decodable, Identifiable {

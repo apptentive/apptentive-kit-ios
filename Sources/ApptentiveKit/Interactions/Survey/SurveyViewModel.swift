@@ -15,7 +15,7 @@ public protocol SurveyViewModelDelegate: AnyObject {
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel)
 }
 
-typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & ResponseRecording & TermsOfServiceProviding
+typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & ResponseRecording & URLOpening
 
 /// A class that describes the data in a survey interaction and allows reponses to be gathered and transmitted.
 public class SurveyViewModel {
@@ -61,8 +61,8 @@ public class SurveyViewModel {
     /// An object, typically a view controller, that implements the `SurveyViewModelDelegate` protocol to receive updates when the survey data changes.
     public weak var delegate: SurveyViewModelDelegate?
 
-    /// The object representing the terms of service at the bottom of surveys.
-    var termsOfService: TermsOfService?
+    /// The label for an optional link to the terms and conditions for the survey.
+    public var termsAndConditionsLabel: String?
 
     required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: SurveyInteractionDelegate) {
         self.interaction = interaction
@@ -77,7 +77,8 @@ public class SurveyViewModel {
         self.thankYouMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
-        self.termsOfService = self.interactionDelegate.termsOfService
+        self.termsAndConditionsLabel = configuration.termsAndConditions?.label
+        self.termsAndConditionsURL = configuration.termsAndConditions?.link
         self.closeConfirmationAlertTitle =
             configuration.closeConfirmationTitle ?? "Close survey?"
         self.closeConfirmationAlertMessage =
@@ -86,8 +87,6 @@ public class SurveyViewModel {
             configuration.closeConfirmationBackButtonText ?? "Back to Survey"
         self.closeConfirmationCloseButtonLabel =
             configuration.closeConfirmationCloseButtonText ?? "Close"
-
-        self.termsOfService = interactionDelegate.termsOfService
 
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self
@@ -195,5 +194,16 @@ public class SurveyViewModel {
     /// Registers that the survey was continued when the user was presented with the close confimation view.
     public func continuePartial() {
         self.interactionDelegate.engage(event: .continuePartial(from: interaction))
+    }
+
+    internal var termsAndConditionsURL: URL?
+
+    /// Opens the link to the terms and conditions.
+    public func openTermsAndConditions() {
+        guard let termsLink = self.termsAndConditionsURL else {
+            return assertionFailure("Attempting to open terms and conditions, but URL is missing.")
+        }
+
+        self.interactionDelegate.open(termsLink) { _ in }
     }
 }

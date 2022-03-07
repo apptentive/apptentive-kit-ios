@@ -44,6 +44,11 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertEqual(viewModel.isRequired, false)
         XCTAssertEqual(viewModel.questions.count, 16)
 
+        XCTAssertEqual(viewModel.termsAndConditionsLabel, "Terms and Conditions")
+
+        self.viewModel?.openTermsAndConditions()
+
+        XCTAssertEqual(self.spySender?.openedURL, URL(string: "https://apptentive.com/privacy"))
     }
 
     func testSurveyQuestionBasics() {
