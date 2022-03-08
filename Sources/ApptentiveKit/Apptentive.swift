@@ -114,7 +114,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// - Parameters:
     ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
-    public func register(with credentials: AppCredentials, completion: ((Result<Bool, Error>) -> Void)? = nil) {
+    public func register(with credentials: AppCredentials, completion: ((Result<Void, Error>) -> Void)? = nil) {
         if case .apptentive = self.theme {
             ApptentiveLogger.interaction.info("Using Apptentive theme for interaction UI.")
             self.applyApptentiveTheme()
@@ -132,7 +132,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             self.backend.connect(appCredentials: credentials) { result in
                 switch result {
                 case .success:
-                    completion?(.success(true))
+                    completion?(.success(()))
                     ApptentiveLogger.default.info("Apptentive SDK registered successfully.")
 
                 case .failure(let error):
@@ -200,18 +200,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
 
         self.presentMessageCenter(from: viewController, completion: completion)
-    }
-
-    /// Sends the message nonce to make the message status to read.
-    public func markMessageAsRead(_ nonce: String) {
-        self.backendQueue.async {
-            do {
-                try self.backend.messageManager.updateReadMessage(with: nonce)
-            } catch {
-                ApptentiveLogger.default.error("Error updating read message in backend.")
-            }
-
-        }
     }
 
     /// Sends the specified text as a hidden message to the app's dashboard.
@@ -314,133 +302,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     // MARK:  MessageManagerApptentiveDelegate
 
     internal var internalUnreadMessageCount: Int?
-
-    // MARK: InteractionDelegate
-
-    func send(surveyResponse: SurveyResponse) {
-        ApptentiveLogger.interaction.info("Enqueueing survey response.")
-
-        self.backendQueue.async {
-            self.backend.send(surveyResponse: surveyResponse)
-        }
-    }
-
-    func engage(event: Event) {
-        self.engage(event: event, from: nil)
-    }
-
-    func requestReview(completion: @escaping (Bool) -> Void) {
-        ApptentiveLogger.interaction.info("Requesting review from SKStoreReviewController.")
-
-        self.environment.requestReview(completion: completion)
-    }
-
-    /// Asks the system to open the specified URL.
-    /// - Parameters:
-    ///   - url: The URL to open.
-    ///   - completion: Called with a value indicating whether the URL was successfully opened.
-    func open(_ url: URL, completion: @escaping (Bool) -> Void) {
-        ApptentiveLogger.interaction.info("Attempting to open URL \(url).")
-
-        self.environment.open(url, completion: completion)
-    }
-
-    func invoke(_ invocations: [EngagementManifest.Invocation], completion: @escaping (String?) -> Void) {
-        self.backendQueue.async {
-            self.backend.invoke(invocations, completion: completion)
-        }
-    }
-
-    func recordResponse(_ answers: [Answer], for questionID: String) {
-        self.backendQueue.async {
-            self.backend.recordResponse(answers, for: questionID)
-        }
-    }
-
-    func sendDraftMessage(completion: @escaping (Result<Void, Error>) -> Void) {
-        self.backendQueue.async {
-            completion(
-                Result(catching: {
-                    let (message, customData) = try self.backend.messageManager.prepareDraftMessageForSending()
-                    try self.backend.sendMessage(message, with: customData)
-                }))
-        }
-    }
-
-    /// Receives the message manager from the backend.
-    /// - Parameter completion: A completion handler to be called when the message center view model is initialized.
-    func getMessages(completion: @escaping ([MessageList.Message]) -> Void) {
-        self.backendQueue.async {
-            let messageList = self.backend.messageManager.messageList.messages
-            DispatchQueue.main.async {
-                completion(messageList)
-            }
-        }
-    }
-
-    var messageManagerDelegate: MessageManagerDelegate? {
-        get {
-            self.backend.messageManager.delegate
-        }
-        set {
-            self.backend.messageManager.delegate = newValue
-        }
-    }
-
-    func setDraftMessageBody(_ body: String?) {
-        self.backendQueue.async {
-            self.backend.messageManager.draftMessage.body = body
-        }
-    }
-
-    func getDraftMessage(completion: @escaping (MessageList.Message) -> Void) {
-        self.backendQueue.async {
-            completion(self.backend.messageManager.draftMessage)
-        }
-    }
-
-    func addDraftAttachment(data: Data, name: String?, mediaType: String, completion: (Result<URL, Error>) -> Void) {
-        // This has to block until the file is created to work with the file/photo picker API
-        self.backendQueue.sync {
-            completion(
-                Result(catching: {
-                    try self.backend.messageManager.addDraftAttachment(data: data, name: name, mediaType: mediaType)
-                }))
-        }
-    }
-
-    func addDraftAttachment(url: URL, completion: (Result<URL, Error>) -> Void) {
-        // This has to block until the file is created to work with the file/photo picker API
-        self.backendQueue.sync {
-            completion(
-                Result(catching: {
-                    try self.backend.messageManager.addDraftAttachment(url: url)
-                }))
-        }
-    }
-
-    func removeDraftAttachment(at index: Int, completion: (Result<Void, Error>) -> Void) {
-        self.backendQueue.sync {
-            completion(
-                Result(catching: {
-                    try self.backend.messageManager.removeDraftAttachment(at: index)
-                }))
-        }
-    }
-
-    func urlForAttachment(at index: Int, in message: MessageList.Message) -> URL? {
-        guard let attachmentManager = self.backend.messageManager.attachmentManager else {
-            return nil
-        }
-
-        return attachmentManager.url(for: message.attachments[index])
-    }
-
-    func loadAttachment(at index: Int, in message: MessageList.Message, completion: @escaping (Result<URL, Error>) -> Void) {
-        self.backendQueue.async {
-            self.backend.messageManager.loadAttachment(at: index, in: message, completion: completion)
-        }
-    }
 
     // MARK: EnvironmentDelegate
 

@@ -58,10 +58,8 @@ class ApptentiveFeatureTests: XCTestCase {
 
         Apptentive(baseURL: baseURL).register(with: credentials) { result in
             switch result {
-            case .success(true):
+            case .success:
                 asserts(true)
-            case .success(false):
-                asserts(false)
             case .failure(_):
                 asserts(false)
             }

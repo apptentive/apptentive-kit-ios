@@ -216,7 +216,7 @@ extension Apptentive {
     }
 
     @available(*, deprecated, message: "Push notification support is not yet available.")
-    @objc public func didReceveUserNotificationResponse(_ response: UNNotificationResponse, from viewController: UIViewController?, withCompletionHandler completionHandler: @escaping () -> Void) -> Bool {
+    @objc public func didReceiveUserNotificationResponse(_ response: UNNotificationResponse, from viewController: UIViewController?, withCompletionHandler completionHandler: @escaping () -> Void) -> Bool {
         return false
     }
 
