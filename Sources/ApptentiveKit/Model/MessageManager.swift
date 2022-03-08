@@ -16,7 +16,7 @@ protocol MessageManagerDelegate: AnyObject {
 }
 
 protocol MessageManagerApptentiveDelegate: AnyObject {
-    var internalUnreadMessageCount: Int? { get set }
+    var unreadMessageCount: Int { get set }
 }
 
 class MessageManager {
@@ -29,7 +29,7 @@ class MessageManager {
     var unreadMessageCount: Int {
         didSet {
             DispatchQueue.main.async {
-                self.messageManagerApptentiveDelegate?.internalUnreadMessageCount = self.unreadMessageCount
+                self.messageManagerApptentiveDelegate?.unreadMessageCount = self.unreadMessageCount
             }
         }
     }

@@ -47,7 +47,7 @@ class PersonAndDeviceTests: XCTestCase {
         self.environment = MockEnvironment()
         self.environment?.isProtectedDataAvailable = false
 
-        self.apptentive = Apptentive(baseURL: URL(string: "https://localhost"), containerDirectory: "com.apptentive.feedback", backendQueue: self.dispatchQueue, environment: self.environment)
+        self.apptentive = Apptentive(baseURL: URL(string: "https://localhost"), containerDirectory: "com.apptentive.feedback.\(UUID().uuidString)", backendQueue: self.dispatchQueue, environment: self.environment)
 
         // Clean up data directory before running tests
         let containerURL = try self.environment.applicationSupportURL().appendingPathComponent(self.apptentive.containerDirectory)
@@ -138,6 +138,7 @@ class PersonAndDeviceTests: XCTestCase {
 
     func testUpdateFromBackend() {
         let expect = expectation(description: "Delete and reload Apptentive object")
+        let containerDirectory = self.apptentive.containerDirectory
 
         // Turn on disk access in the backend.
         self.environment.isProtectedDataAvailable = true
@@ -165,7 +166,7 @@ class PersonAndDeviceTests: XCTestCase {
                 Apptentive.alreadyInitialized = false
 
                 // Here we replace the Apptentive property with a new instance with no person/device properties set.
-                self.apptentive = Apptentive(baseURL: URL(string: "https://localhost"), containerDirectory: "com.apptentive.feedback", backendQueue: self.dispatchQueue, environment: self.environment)
+                self.apptentive = Apptentive(baseURL: URL(string: "https://localhost"), containerDirectory: containerDirectory, backendQueue: self.dispatchQueue, environment: self.environment)
 
                 // Before loading, everything should be nil
                 XCTAssertNil(self.apptentive.personName)

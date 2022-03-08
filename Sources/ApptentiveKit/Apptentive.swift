@@ -99,10 +99,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     }
 
     /// The number of unread messages in message center.
-    @objc dynamic public var unreadMessageCount: Int {
-        guard let internalCount = self.internalUnreadMessageCount else { return 0 }
-        return internalCount
-    }
+    @objc dynamic public var unreadMessageCount = 0
 
     /// Indicates a theme that will be applied to Apptentive UI.
     public enum UITheme {

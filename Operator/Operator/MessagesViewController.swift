@@ -10,6 +10,10 @@ import UIKit
 import MobileCoreServices
 
 class MessagesViewController: UITableViewController, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, UINavigationControllerDelegate {
+    var observation: NSKeyValueObservation?
+
+    @IBOutlet weak var unreadMessageCountLabel: UILabel!
+
     @IBAction func cancelAttachmentText(sender: UIStoryboardSegue) {
         // do nothing, just dismiss.
     }
@@ -21,7 +25,20 @@ class MessagesViewController: UITableViewController, UIImagePickerControllerDele
 
         self.apptentive.sendAttachment(textViewController.textField.text ?? "")
     }
-    
+
+    override func viewWillAppear(_ animated: Bool) {
+        self.updateUnreadCount(to: self.apptentive.unreadMessageCount)
+
+        self.observation = self.apptentive.observe(\.unreadMessageCount, options: [.new]) { [weak self] _, _ in
+            guard let self = self else { return }
+            self.updateUnreadCount(to: self.apptentive.unreadMessageCount)
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        self.observation?.invalidate()
+    }
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath {
         case [0,0]:
@@ -88,6 +105,10 @@ class MessagesViewController: UITableViewController, UIImagePickerControllerDele
 
     fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
         return input.rawValue
+    }
+
+    private func updateUnreadCount(to value: Int) {
+        self.unreadMessageCountLabel.text = String(value)
     }
 
     let allFileTypes = [kUTTypeItem, kUTTypeContent, kUTTypeCompositeContent, kUTTypeMessage, kUTTypeContact, kUTTypeArchive, kUTTypeDiskImage, kUTTypeData, kUTTypeDirectory, kUTTypeResolvable, kUTTypeSymLink, kUTTypeExecutable, kUTTypeMountPoint, kUTTypeAliasFile, kUTTypeAliasRecord, kUTTypeURLBookmarkData, kUTTypeURL, kUTTypeFileURL, kUTTypeText, kUTTypePlainText, kUTTypeUTF8PlainText, kUTTypeUTF16ExternalPlainText, kUTTypeUTF16PlainText, kUTTypeDelimitedText, kUTTypeCommaSeparatedText, kUTTypeTabSeparatedText, kUTTypeUTF8TabSeparatedText, kUTTypeRTF, kUTTypeHTML, kUTTypeXML, kUTTypeSourceCode, kUTTypeAssemblyLanguageSource, kUTTypeCSource, kUTTypeObjectiveCSource, kUTTypeSwiftSource, kUTTypeCPlusPlusSource, kUTTypeObjectiveCPlusPlusSource, kUTTypeCHeader, kUTTypeCPlusPlusHeader, kUTTypeJavaSource, kUTTypeScript, kUTTypeAppleScript, kUTTypeOSAScript, kUTTypeOSAScriptBundle, kUTTypeJavaScript, kUTTypeShellScript, kUTTypePerlScript, kUTTypePythonScript, kUTTypeRubyScript, kUTTypePHPScript, kUTTypeJSON, kUTTypePropertyList, kUTTypeXMLPropertyList, kUTTypeBinaryPropertyList, kUTTypePDF, kUTTypeRTFD, kUTTypeFlatRTFD, kUTTypeTXNTextAndMultimediaData, kUTTypeWebArchive, kUTTypeImage, kUTTypeJPEG, kUTTypeJPEG2000, kUTTypeTIFF, kUTTypePICT, kUTTypeGIF, kUTTypePNG, kUTTypeQuickTimeImage, kUTTypeAppleICNS, kUTTypeBMP, kUTTypeICO, kUTTypeRawImage, kUTTypeScalableVectorGraphics, kUTTypeLivePhoto, kUTTypeAudiovisualContent, kUTTypeMovie, kUTTypeVideo, kUTTypeAudio, kUTTypeQuickTimeMovie, kUTTypeMPEG, kUTTypeMPEG2Video, kUTTypeMPEG2TransportStream, kUTTypeMP3, kUTTypeMPEG4, kUTTypeMPEG4Audio, kUTTypeAppleProtectedMPEG4Audio, kUTTypeAppleProtectedMPEG4Video, kUTTypeAVIMovie, kUTTypeAudioInterchangeFileFormat, kUTTypeWaveformAudio, kUTTypeMIDIAudio, kUTTypePlaylist, kUTTypeM3UPlaylist, kUTTypeFolder, kUTTypeVolume, kUTTypePackage, kUTTypeBundle, kUTTypePluginBundle, kUTTypeSpotlightImporter, kUTTypeQuickLookGenerator, kUTTypeXPCService, kUTTypeFramework, kUTTypeApplication, kUTTypeApplicationBundle, kUTTypeApplicationFile, kUTTypeUnixExecutable, kUTTypeWindowsExecutable, kUTTypeJavaClass, kUTTypeJavaArchive, kUTTypeSystemPreferencesPane, kUTTypeGNUZipArchive, kUTTypeBzip2Archive, kUTTypeZipArchive, kUTTypeSpreadsheet, kUTTypePresentation, kUTTypeDatabase, kUTTypeVCard, kUTTypeToDoItem, kUTTypeCalendarEvent, kUTTypeEmailMessage, kUTTypeInternetLocation, kUTTypeInkText, kUTTypeFont, kUTTypeBookmark, kUTType3DContent, kUTTypePKCS12, kUTTypeX509Certificate, kUTTypeElectronicPublication, kUTTypeLog].map { String($0) }
