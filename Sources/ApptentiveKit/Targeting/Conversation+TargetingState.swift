@@ -57,6 +57,9 @@ extension AppRelease: TargetingState {
         case ("application", "cf_bundle_version"):
             return self.build
 
+        case ("application", "debug"):
+            return self.isDebugBuild
+
         case ("sdk", "version"):
             return self.sdkVersion
 

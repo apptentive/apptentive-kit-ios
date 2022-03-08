@@ -35,6 +35,14 @@ class TargetingStateTests: XCTestCase {
         XCTAssertEqual(try self.conversation.value(for: "application/cf_bundle_version") as? Version, Version(string: "4.5.6"))
     }
 
+    func testDebugBuild() throws {
+        XCTAssertEqual(try self.conversation.value(for: "application/debug") as? Bool, true)
+
+        self.conversation.appRelease.isDebugBuild = false
+
+        XCTAssertEqual(try self.conversation.value(for: "application/debug") as? Bool, false)
+    }
+
     func testSDKVersion() throws {
         self.conversation.appRelease.sdkVersion = "7.8.9"
 
