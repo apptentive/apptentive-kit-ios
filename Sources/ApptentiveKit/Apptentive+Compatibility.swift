@@ -248,42 +248,42 @@ extension Apptentive {
         }
     }
 
-    @available(*, deprecated, message: "Subscript the `personCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the `personCustomData` property instead.")
     @objc public func removeCustomPersonData(withKey key: String) {
         self.personCustomData[key] = nil
     }
 
-    @available(*, deprecated, message: "Subscript the `deviceCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the `deviceCustomData` property instead.")
     @objc public func removeCustomDeviceData(withKey key: String) {
         self.deviceCustomData[key] = nil
     }
 
-    @available(*, deprecated, message: "Subscript the `deviceCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the `deviceCustomData` property instead.")
     @objc(addCustomDeviceDataString:withKey:) public func addCustomDeviceData(_ string: String, withKey key: String) {
         self.deviceCustomData[key] = string
     }
 
-    @available(*, deprecated, message: "Subscript the `deviceCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the `deviceCustomData` property instead.")
     @objc(addCustomDeviceDataNumber:withKey:) public func addCustomDeviceData(_ number: NSNumber, withKey key: String) {
         self.deviceCustomData[key] = number.doubleValue
     }
 
-    @available(*, deprecated, message: "Subscript the `deviceCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the `deviceCustomData` property instead.")
     @objc(addCustomDeviceDataBool:withKey:) public func addCustomDeviceData(_ boolValue: Bool, withKey key: String) {
         self.deviceCustomData[key] = boolValue
     }
 
-    @available(*, deprecated, message: "Subscript the `personCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the `personCustomData` property instead.")
     @objc(addCustomPersonDataString:withKey:) public func addCustomPersonData(_ string: String, withKey key: String) {
         self.personCustomData[key] = string
     }
 
-    @available(*, deprecated, message: "Subscript the `personCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the `personCustomData` property instead.")
     @objc(addCustomPersonDataNumber:withKey:) public func addCustomPersonData(_ number: NSNumber, withKey key: String) {
         self.personCustomData[key] = number.doubleValue
     }
 
-    @available(*, deprecated, message: "Subscript the `personCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the `personCustomData` property instead.")
     @objc(addCustomPersonDataBool:withKey:) public func addCustomPersonData(_ boolValue: Bool, withKey key: String) {
         self.personCustomData[key] = boolValue
     }
