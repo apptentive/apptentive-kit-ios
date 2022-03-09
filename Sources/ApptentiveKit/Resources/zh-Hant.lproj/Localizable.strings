@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "取消";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "資料夾";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "圖片";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "選擇附件類型。";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "輕按兩次下載。";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "附上一張照片或螢幕截圖";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "添加附件";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "關閉訊息中心。";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "關閉";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "顯示名稱與電子郵件編輯工具。";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "個人資料";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "傳送訊息。";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "發送";
+
+/* Accessibility label for messages with no text */
+"No Text" = "沒有文字";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "輕按兩次打開。";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "確定";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "請確保您的設備可以連接到互聯網，然後再次嘗試。";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "無資訊中心提供";
+

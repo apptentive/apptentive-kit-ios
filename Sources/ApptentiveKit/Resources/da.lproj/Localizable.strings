@@ -1,54 +1,54 @@
 /* The button label for dismissing the attachment options alert. */
-"Attachment Options Cancel Button" = "Cancel";
+"Attachment Options Cancel Button" = "Annuller";
 
 /* The button label for the images attachment option. */
-"Attachment Options Files Button" = "Files";
+"Attachment Options Files Button" = "Filer";
 
 /* The button label for the files attachment option. */
-"Attachment Options Images Button" = "Images";
+"Attachment Options Images Button" = "Billeder";
 
 /* The title for the attachment options alert. */
-"Attachment Options Title" = "Select an attachment type.";
+"Attachment Options Title" = "Vælg en slags vedhæng.";
 
 /* The accessibility hint for downloading attachments. */
 "Download Attachment Accessibility Hint" = "Double-tap to download.";
 
 /* The accessibility hint for the attach button. */
-"MC Attach Button Accessibility Hint" = "Attaches a photo or file.";
+"MC Attach Button Accessibility Hint" = "Vedhæfter et foto eller skærmbillede";
 
 /* The accessibility label for the attach button. */
-"MC Attach Button Accessibility Label" = "Attach";
+"MC Attach Button Accessibility Label" = "Vedhæft";
 
 /* The accessibility hint for the close button. */
-"MC Close Button Accessibility Hint" = "Closes Message Center.";
+"MC Close Button Accessibility Hint" = "Lukker Meddelelser.";
 
 /* The accessibility label for the close button. */
-"MC Close Button Accessibility Label" = "Close";
+"MC Close Button Accessibility Label" = "Luk";
 
 /* The accessibility hint for the profile button. */
-"MC Profile Button Accessibility Hint" = "Displays the name and email editor.";
+"MC Profile Button Accessibility Hint" = "Rediger navn og e-mail.";
 
 /* The accessibility label for the profile button. */
-"MC Profile Button Accessibility Label" = "Profile";
+"MC Profile Button Accessibility Label" = "Profil";
 
 /* The accessibility hint for the send button. */
-"MC Send Button Accessibility Hint" = "Sends the message.";
+"MC Send Button Accessibility Hint" = "Sender beskeden.";
 
 /* The accessibility label for the send button. */
-"MC Send Button Accessibility Label" = "Send";
+"MC Send Button Accessibility Label" = "Sende";
 
 /* Accessibility label for messages with no text */
-"No Text" = "No Text";
+"No Text" = "Ingen tekst";
 
 /* The accessibility hint for viewing attachments. */
-"Show Attachment Accessibility Hint" = "Double-tap to open.";
+"Show Attachment Accessibility Hint" = "Dobbelttryk for at åbne.";
 
 /* Dismiss button title for note saying MC is unavailable */
-"MC Unavailable Dismiss Button" = "OK";
+"MC Unavailable Dismiss Button" = "Ok";
 
 /* Message for note saying MC is unavailable */
-"MC Unavailable Message" = "Make sure your device can access the internet and try again.";
+"MC Unavailable Message" = "Sørg for, at din enhed har adgang til internettet, og prøv igen.";
 
 /* Title for note saying MC is unavailable */
-"MC Unavailable Title" = "Message Center is not Available";
+"MC Unavailable Title" = "Meddelelsescenteret er ikke tilgængeligt";
 

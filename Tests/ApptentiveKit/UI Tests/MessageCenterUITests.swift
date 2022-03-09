@@ -120,8 +120,8 @@ class MessageCenterUITests: XCTestCase {
         let tablesQuery = XCUIApplication().tables
 
         tablesQuery.staticTexts["MessageCenterRequireEmail"].tap()
-        let nameTextField = XCUIApplication().textFields["name"]
-        let emailTextField = XCUIApplication().textFields["email"]
+        let nameTextField = XCUIApplication().textFields["Name"]
+        let emailTextField = XCUIApplication().textFields["Email"]
 
         nameTextField.tap()
         nameTextField.typeText("name")
@@ -135,17 +135,17 @@ class MessageCenterUITests: XCTestCase {
         let sendButton = XCUIApplication().buttons["sendButton"]
         sendButton.tap()
 
-        let editProfileButton = XCUIApplication().navigationBars["Message Center"].buttons["account"]
+        let editProfileButton = XCUIApplication().navigationBars["Message Center"].buttons["Profile"]
         editProfileButton.tap()
 
-        XCTAssertTrue(XCUIApplication().staticTexts["Profile"].exists)
+        XCTAssertTrue(XCUIApplication().navigationBars["Profile"].exists)
 
         XCUIApplication().navigationBars["Profile"].buttons["Done"].tap()
-        XCUIApplication().navigationBars["Message Center"].buttons["close"].tap()
+        XCUIApplication().navigationBars["Message Center"].buttons["Close"].tap()
 
         tablesQuery.staticTexts["MessageCenterRequestEmail"].tap()
-        XCTAssertFalse(XCUIApplication().textFields["name"].exists)
-        XCTAssertFalse(XCUIApplication().textFields["email"].exists)
+        XCTAssertFalse(XCUIApplication().textFields["Name"].exists)
+        XCTAssertFalse(XCUIApplication().textFields["Email"].exists)
     }
 
     func testProfileRequested() {
@@ -153,8 +153,8 @@ class MessageCenterUITests: XCTestCase {
         let tablesQuery = XCUIApplication().tables
 
         tablesQuery.staticTexts["MessageCenterRequestEmail"].tap()
-        let nameTextField = XCUIApplication().textFields["name"]
-        let emailTextField = XCUIApplication().textFields["email"]
+        let nameTextField = XCUIApplication().textFields["Name"]
+        let emailTextField = XCUIApplication().textFields["Email"]
 
         nameTextField.tap()
         nameTextField.typeText("name")
@@ -168,17 +168,17 @@ class MessageCenterUITests: XCTestCase {
         let sendButton = XCUIApplication().buttons["sendButton"]
         sendButton.tap()
 
-        let editProfileButton = XCUIApplication().navigationBars["Message Center"].buttons["account"]
+        let editProfileButton = XCUIApplication().navigationBars["Message Center"].buttons["Profile"]
         editProfileButton.tap()
 
-        XCTAssertTrue(XCUIApplication().staticTexts["Profile"].exists)
+        XCTAssertTrue(XCUIApplication().navigationBars["Profile"].exists)
 
         XCUIApplication().navigationBars["Profile"].buttons["Done"].tap()
-        XCUIApplication().navigationBars["Message Center"].buttons["close"].tap()
+        XCUIApplication().navigationBars["Message Center"].buttons["Close"].tap()
 
         tablesQuery.staticTexts["MessageCenterRequestEmail"].tap()
-        XCTAssertFalse(XCUIApplication().textFields["name"].exists)
-        XCTAssertFalse(XCUIApplication().textFields["email"].exists)
+        XCTAssertFalse(XCUIApplication().textFields["Name"].exists)
+        XCTAssertFalse(XCUIApplication().textFields["Email"].exists)
     }
 
     func testEditProfileHidden() {
@@ -186,8 +186,8 @@ class MessageCenterUITests: XCTestCase {
         let tablesQuery = XCUIApplication().tables
 
         tablesQuery.staticTexts["MessageCenter"].tap()
-        XCTAssertFalse(XCUIApplication().textFields["name"].exists)
-        XCTAssertFalse(XCUIApplication().textFields["email"].exists)
+        XCTAssertFalse(XCUIApplication().textFields["Name"].exists)
+        XCTAssertFalse(XCUIApplication().textFields["Email"].exists)
 
         let messageTextView = XCUIApplication().textViews["composeTextView"]
         messageTextView.tap()

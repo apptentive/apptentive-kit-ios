@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "Abbrechen";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "Dateien";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "Bilder";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "Anhangstyp auswählen";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "Zum Herunterladen doppelt tippen.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "Hängt ein Foto oder eine Datei an.";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "Anhängen";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "Schließt die Mitteilungszentrale.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "Schließen";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "Zeigt Name und E-Mail-Adresse im Editor an.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "Profil";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "Sendet die Nachricht.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "Senden";
+
+/* Accessibility label for messages with no text */
+"No Text" = "Kein Text";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "Zum Öffnen doppelt tippen.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "Okay";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "Stellen Sie sicher, dass Ihr Gerät auf das Internet zugreifen kann und versuchen Sie es erneut.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "Die Mitteilungszentrale ist nicht verfügbar";
+

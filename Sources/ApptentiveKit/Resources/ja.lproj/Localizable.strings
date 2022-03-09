@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "キャンセル";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "ファイル";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "画像";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "添付ファイルの種類を選択します。";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "ダブルタップしてダウンロードします。";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "写真もしくはスクリーンショットを添付";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "添付";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "メッセージセンターを閉じる。";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "閉じる";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "氏名及びメール編集を表示する。";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "プロフィール";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "メッセージを送信。";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "送信";
+
+/* Accessibility label for messages with no text */
+"No Text" = "テキストなし";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "ダブルタップして開きます。";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "了解";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "デバイスがインターネットにアクセスできることを確認して、再試行してください。";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "メッセージセンターはご利用できません";
+

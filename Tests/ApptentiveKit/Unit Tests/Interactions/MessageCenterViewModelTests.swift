@@ -36,7 +36,7 @@ class MessageCenterViewModelTests: XCTestCase {
         XCTAssertEqual(self.viewModel.branding, "Powered By Apptentive")
         XCTAssertEqual(self.viewModel.composerTitle, "New Message")
         XCTAssertEqual(self.viewModel.composerSendButtonTitle, "Send")
-        XCTAssertEqual(self.viewModel.composerAttachButtonTitle, "Add Attachment")
+        XCTAssertEqual(self.viewModel.composerAttachButtonTitle, "Attach")
         XCTAssertEqual(self.viewModel.composerPlaceholderText, "Please leave detailed feedback")
         XCTAssertEqual(self.viewModel.composerCloseConfirmBody, "Are you sure you want to discard this message?")
         XCTAssertEqual(self.viewModel.composerCloseDiscardButtonTitle, "Discard")

@@ -47,14 +47,19 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationItem.title = self.viewModel.headingTitle
+
         self.navigationItem.rightBarButtonItem = .apptentiveClose
         self.navigationItem.rightBarButtonItem?.target = self
         self.navigationItem.rightBarButtonItem?.action = #selector(closeMessageCenter)
-        self.navigationItem.title = self.viewModel.headingTitle
+        self.navigationItem.rightBarButtonItem?.accessibilityLabel = self.viewModel.closeButtonAccessibilityLabel
+        self.navigationItem.rightBarButtonItem?.accessibilityHint = self.viewModel.closeButtonAccessibilityHint
 
         self.navigationItem.leftBarButtonItem = .apptentiveProfileEdit
         self.navigationItem.leftBarButtonItem?.target = self
         self.navigationItem.leftBarButtonItem?.action = #selector(openProfileEditView)
+        self.navigationItem.leftBarButtonItem?.accessibilityLabel = self.viewModel.profileButtonAccessibilityLabel
+        self.navigationItem.leftBarButtonItem?.accessibilityHint = self.viewModel.profileButtonAccessibilityHint
 
         self.tableView.rowHeight = UITableView.automaticDimension
         self.tableView.estimatedRowHeight = 120
@@ -65,14 +70,17 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.composeContainerView.composeView.textView.delegate = self
         self.composeContainerView.composeView.textView.accessibilityLabel = self.viewModel.composerTitle
         self.composeContainerView.composeView.textView.accessibilityHint = self.viewModel.composerPlaceholderText
+
         self.composeContainerView.composeView.placeholderLabel.text = self.viewModel.composerPlaceholderText
         self.composeContainerView.composeView.sendButton.addTarget(self, action: #selector(sendMessage), for: .touchUpInside)
         self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
-        self.composeContainerView.composeView.sendButton.accessibilityLabel = self.viewModel.composerSendButtonTitle
+        self.composeContainerView.composeView.sendButton.accessibilityLabel = self.viewModel.sendButtonAccessibilityLabel
+        self.composeContainerView.composeView.sendButton.accessibilityHint = self.viewModel.sendButtonAccessibilityHint
 
         self.composeContainerView.composeView.attachmentButton.addTarget(self, action: #selector(addAttachment(_:)), for: .touchUpInside)
         self.composeContainerView.composeView.attachmentButton.isEnabled = self.viewModel.canAddAttachment
-        self.composeContainerView.composeView.attachmentButton.accessibilityLabel = self.viewModel.composerAttachButtonTitle
+        self.composeContainerView.composeView.attachmentButton.accessibilityLabel = self.viewModel.attachButtonAccessibilityLabel
+        self.composeContainerView.composeView.attachmentButton.accessibilityHint = self.viewModel.attachButtonAccessibilityHint
 
         self.composeContainerView.composeView.attachmentStackView.tag = Self.draftMessageTag
         for index in 0..<MessageCenterViewModel.maxAttachmentCount {
@@ -606,10 +614,10 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     private func showAttachmentOptions(sourceView: UIView) {
-        let alertController = UIAlertController(title: "Select an attachment type.", message: nil, preferredStyle: .actionSheet)
+        let alertController = UIAlertController(title: self.viewModel.attachmentOptionsTitle, message: nil, preferredStyle: .actionSheet)
         alertController.addAction(
             UIAlertAction(
-                title: "Images", style: .default,
+                title: self.viewModel.attachmentOptionsImagesButton, style: .default,
                 handler: { _ in
                     if #available(iOS 14, *) {
                         var config = PHPickerConfiguration()
@@ -630,7 +638,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
         alertController.addAction(
             UIAlertAction(
-                title: "Files", style: .default,
+                title: self.viewModel.attachmentOptionsFilesButton, style: .default,
                 handler: { _ in
                     if #available(iOS 14.0, *) {
                         let filePicker = UIDocumentPickerViewController(forOpeningContentTypes: self.viewModel.allUTTypes)
@@ -643,7 +651,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
                     }
                 }))
 
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alertController.addAction(UIAlertAction(title: self.viewModel.attachmentOptionsCancelButton, style: .cancel, handler: nil))
         alertController.view.accessibilityIdentifier = "AddAttachment"
 
         alertController.popoverPresentationController?.sourceView = sourceView

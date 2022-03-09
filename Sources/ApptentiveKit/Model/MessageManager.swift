@@ -338,10 +338,9 @@ class MessageManager {
         var result =
             name
             ?? {
-                let name = "Attachment \(self.draftAttachmentNumber)"
-                let attachmentName = NSLocalizedString("MC Attachment Filename", tableName: nil, bundle: Bundle(for: Apptentive.self), value: name, comment: "The filename for the attachment.")
+                let name = "Attachment \(self.draftAttachmentNumber)"  // This is only visible in the (non-localized) dashboard.
                 self.draftAttachmentNumber += 1
-                return attachmentName
+                return name
             }()
 
         if let pathExtension = AttachmentManager.pathExtension(for: mediaType) {

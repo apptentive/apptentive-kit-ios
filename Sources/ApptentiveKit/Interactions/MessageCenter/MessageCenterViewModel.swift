@@ -105,27 +105,70 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     }
 
     /// The place holder of the name field of the profile view.
-    public var profileNamePlaceholder: String
+    public let profileNamePlaceholder: String
+
     /// The place holder of the email field of the profile view.
-    public var profileEmailPlaceholder: String
+    public let profileEmailPlaceholder: String
+
     /// The cancel button text of the profile view.
-    public var profileCancelButtonText: String
+    public let profileCancelButtonText: String
+
     /// The save button text of the profile view.
-    public var profileSaveButtonText: String
+    public let profileSaveButtonText: String
 
     /// The title of the edit profile view.
-    public var editProfileViewTitle: String
+    public let editProfileViewTitle: String
+
     /// The place holder of the name field of the edit profile view.
-    public var editProfileNamePlaceholder: String
+    public let editProfileNamePlaceholder: String
+
     /// The place holder of the email field of the edit profile view.
-    public var editProfileEmailPlaceholder: String
+    public let editProfileEmailPlaceholder: String
+
     /// The cancel button text of the edit profile view.
-    public var editProfileCancelButtonText: String
+    public let editProfileCancelButtonText: String
+
     /// The save button text of the edit profile view.
-    public var editProfileSaveButtonText: String
+    public let editProfileSaveButtonText: String
 
     /// The profile editing rule provided by the dashboard.
     public let profileMode: ProfileMode
+
+    /// The accessibility label for the close button.
+    public let closeButtonAccessibilityLabel: String
+
+    /// The accessibility hint for the close button.
+    public let closeButtonAccessibilityHint: String
+
+    /// The accessibility label for the profile button.
+    public let profileButtonAccessibilityLabel: String
+
+    /// The accessibility hint for the profile button.
+    public let profileButtonAccessibilityHint: String
+
+    /// The accessibility label for the send button.
+    public let sendButtonAccessibilityLabel: String
+
+    /// The accessibility hint for the send button.
+    public let sendButtonAccessibilityHint: String
+
+    /// The accessibility label for the attach button.
+    public let attachButtonAccessibilityLabel: String
+
+    /// The accessibility hint for the attach button.
+    public let attachButtonAccessibilityHint: String
+
+    /// The title for the attachment options alert.
+    public let attachmentOptionsTitle: String
+
+    /// The button label for the images attachment option.
+    public let attachmentOptionsImagesButton: String
+
+    /// The button label for the files attachment option.
+    public let attachmentOptionsFilesButton: String
+
+    /// The button label for dismissing the attachment options alert.
+    public let attachmentOptionsCancelButton: String
 
     /// The email address set by the user in the profile views.
     public var emailAddress: String? {
@@ -177,7 +220,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.branding = configuration.branding
         self.composerTitle = configuration.composer.title
         self.composerSendButtonTitle = configuration.composer.sendButton
-        self.composerAttachButtonTitle = configuration.composer.attachmentButton ?? "Add Attachment"
+        self.composerAttachButtonTitle = NSLocalizedString("MC Attach Button Accessibility Label", bundle: Bundle(for: Apptentive.self), value: "Attach", comment: "The accessibility label for the attach button.")
         self.composerPlaceholderText = configuration.composer.hintText
         self.composerCloseConfirmBody = configuration.composer.closeConfirmBody
         self.composerCloseDiscardButtonTitle = configuration.composer.closeDiscardButton
@@ -219,8 +262,20 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.groupedMessages = []
         self.draftMessage = Message(nonce: "", direction: .sentFromDevice(.failed), isAutomated: false, attachments: [], sender: nil, body: nil, sentDate: Date(), statusText: "", accessibilityLabel: "", accessibilityHint: "")
 
-        self.showAttachmentButtonAccessibilityHint = "Double-tap to open."
-        self.downloadAttachmentButtonAccessibilityHint = "Double-tap to download."
+        self.sendButtonAccessibilityLabel = NSLocalizedString("MC Send Button Accessibility Label", bundle: Bundle(for: Apptentive.self), value: "Send", comment: "The accessibility label for the send button.")
+        self.sendButtonAccessibilityHint = NSLocalizedString("MC Send Button Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Sends the message.", comment: "The accessibility hint for the send button.")
+        self.attachButtonAccessibilityLabel = NSLocalizedString("MC Attach Button Accessibility Label", bundle: Bundle(for: Apptentive.self), value: "Attach", comment: "The accessibility label for the attach button.")
+        self.attachButtonAccessibilityHint = NSLocalizedString("MC Attach Button Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Attaches a photo or file.", comment: "The accessibility hint for the attach button.")
+        self.closeButtonAccessibilityLabel = NSLocalizedString("MC Close Button Accessibility Label", bundle: Bundle(for: Apptentive.self), value: "Close", comment: "The accessibility label for the close button.")
+        self.closeButtonAccessibilityHint = NSLocalizedString("MC Close Button Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Closes Message Center.", comment: "The accessibility hint for the close button.")
+        self.profileButtonAccessibilityLabel = NSLocalizedString("MC Profile Button Accessibility Label", bundle: Bundle(for: Apptentive.self), value: "Profile", comment: "The accessibility label for the profile button.")
+        self.profileButtonAccessibilityHint = NSLocalizedString("MC Profile Button Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Displays the name and email editor.", comment: "The accessibility hint for the profile button.")
+        self.showAttachmentButtonAccessibilityHint = NSLocalizedString("Show Attachment Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Double-tap to open.", comment: "The accessibility hint for viewing attachments.")
+        self.downloadAttachmentButtonAccessibilityHint = NSLocalizedString("Download Attachment Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Double-tap to download.", comment: "The accessibility hint for downloading attachments.")
+        self.attachmentOptionsTitle = NSLocalizedString("Attachment Options Title", bundle: Bundle(for: Apptentive.self), value: "Select an attachment type.", comment: "The title for the attachment options alert.")
+        self.attachmentOptionsFilesButton = NSLocalizedString("Attachment Options Files Button", bundle: Bundle(for: Apptentive.self), value: "Files", comment: "The button label for the images attachment option.")
+        self.attachmentOptionsImagesButton = NSLocalizedString("Attachment Options Images Button", bundle: Bundle(for: Apptentive.self), value: "Images", comment: "The button label for the files attachment option.")
+        self.attachmentOptionsCancelButton = NSLocalizedString("Attachment Options Cancel Button", bundle: Bundle(for: Apptentive.self), value: "Cancel", comment: "The button label for dismissing the attachment options alert.")
 
         self.interactionDelegate.messageManagerDelegate = self
 

@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "Отмена";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "Файлы";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "Изображения";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "Выберите тип вложения.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "Нажмите дважды, чтобы загрузить.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "Прикладывает фото или скриншот";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "Приложить";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "Закрывает центр сообщений.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "Закрыть";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "Отображает имя и электронную почту.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "Профиль";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "Отправляет сообщение.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "Отправлять";
+
+/* Accessibility label for messages with no text */
+"No Text" = "Нет текста";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "Нажмите дважды, чтобы открыть.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "OK";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "Убедитесь, что ваше устройство имеет доступ к Интернету, и повторите попытку.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "Центр сообщений недоступен";
+

@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "취소";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "파일";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "이미지";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "첨부 유형을 선택하세요.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "두 번 탭하여 다운로드하세요.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "사진이나 스크린샷 첨부";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "첨부";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "메시지 센터를 닫습니다.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "닫기";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "이름 및 이메일 편집기를 표시합니다.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "프로필";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "메시지를 보냅니다.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "보내다";
+
+/* Accessibility label for messages with no text */
+"No Text" = "문자 없음";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "두 번 탭하여 오픈하세요.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "확인";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "기기에 인터넷이 연결되었는지 확인하고 다시 시도하세요.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "메시지 센터를 이용하실 수 없습니다";
+

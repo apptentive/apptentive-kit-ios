@@ -1,54 +1,54 @@
 /* The button label for dismissing the attachment options alert. */
-"Attachment Options Cancel Button" = "Annuler";
+"Attachment Options Cancel Button" = "Anuluj";
 
 /* The button label for the images attachment option. */
-"Attachment Options Files Button" = "Fichiers";
+"Attachment Options Files Button" = "Pliki";
 
 /* The button label for the files attachment option. */
-"Attachment Options Images Button" = "Images";
+"Attachment Options Images Button" = "Obrazy";
 
 /* The title for the attachment options alert. */
-"Attachment Options Title" = "Sélectionnez un type de pièce jointe.";
+"Attachment Options Title" = "Wybierz typ załącznika.";
 
 /* The accessibility hint for downloading attachments. */
-"Download Attachment Accessibility Hint" = "Toucher deux fois rapidement pour télécharger.";
+"Download Attachment Accessibility Hint" = "Dotknij dwukrotnie aby pobrać.";
 
 /* The accessibility hint for the attach button. */
-"MC Attach Button Accessibility Hint" = "Joint une photo ou une capture d’écran";
+"MC Attach Button Accessibility Hint" = "Funkcja załączenia zdjęcia lub zrzutu z ekranu";
 
 /* The accessibility label for the attach button. */
-"MC Attach Button Accessibility Label" = "Joindre";
+"MC Attach Button Accessibility Label" = "Załącz załącznik";
 
 /* The accessibility hint for the close button. */
-"MC Close Button Accessibility Hint" = "Ferme le Centre de messages.";
+"MC Close Button Accessibility Hint" = "Zamyka Centrum wiadomości.";
 
 /* The accessibility label for the close button. */
-"MC Close Button Accessibility Label" = "Fermer";
+"MC Close Button Accessibility Label" = "Zamknij";
 
 /* The accessibility hint for the profile button. */
-"MC Profile Button Accessibility Hint" = "Affiche l’écran de modification du nom et de l'e-mail.";
+"MC Profile Button Accessibility Hint" = "Wyświetla edytor nazwy i adresu e-mailowego.";
 
 /* The accessibility label for the profile button. */
 "MC Profile Button Accessibility Label" = "Profil";
 
 /* The accessibility hint for the send button. */
-"MC Send Button Accessibility Hint" = "Envoie le message.";
+"MC Send Button Accessibility Hint" = "Wysyła tę wiadomość.";
 
 /* The accessibility label for the send button. */
-"MC Send Button Accessibility Label" = "Envoyer";
+"MC Send Button Accessibility Label" = "Wysłać";
 
 /* Accessibility label for messages with no text */
-"No Text" = "Pas de texte";
+"No Text" = "Brak tekstu";
 
 /* The accessibility hint for viewing attachments. */
-"Show Attachment Accessibility Hint" = "Toucher deux fois rapidement pour ouvrir";
+"Show Attachment Accessibility Hint" = "Dotknij dwukrotnie aby otworzyć.";
 
 /* Dismiss button title for note saying MC is unavailable */
 "MC Unavailable Dismiss Button" = "OK";
 
 /* Message for note saying MC is unavailable */
-"MC Unavailable Message" = "Assurez-vous que votre appareil peut accéder à Internet et réessayez.";
+"MC Unavailable Message" = "Upewnij się, że Twoje urządzenie ma dostęp do internetu i spróbuj ponownie.";
 
 /* Title for note saying MC is unavailable */
-"MC Unavailable Title" = "Le centre de messages n'est pas disponible";
+"MC Unavailable Title" = "Centrum Wiadomości nie jest dostępne";
 
