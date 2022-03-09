@@ -22,12 +22,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         self.connect { result in
             switch result {
-            case .success(true):
+            case .success:
                 print("Apptentive registration successful")
 
-            case .success(false):
-                print("Apptentive registration not successful.")
-                
             case .failure(let error):
                 print("Apptentive registration failed: \(error)")
             }
@@ -44,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserDefaults.standard.register(defaults: defaultDefaults)
     }
 
-    fileprivate func connect(_ completion: @escaping ((Result<Bool, Error>)) -> Void) {
+    fileprivate func connect(_ completion: @escaping ((Result<Void, Error>)) -> Void) {
         guard let key = UserDefaults.standard.string(forKey: "Key"), let signature = UserDefaults.standard.string(forKey: "Signature"), let urlString = UserDefaults.standard.string(forKey: "ServerURL"), let url = URL(string: urlString) else {
             completion(.failure(AppError.credentialsError))
             return
