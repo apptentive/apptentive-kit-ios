@@ -96,6 +96,8 @@ class GreetingHeaderView: UIView {
 
         self.outerStackView.axis = self.traitCollection.verticalSizeClass == .compact ? .horizontal : .vertical
 
+        self.outerStackView.layoutIfNeeded()
+
         self.translatesAutoresizingMaskIntoConstraints = true
 
         self.sizeToFit()
