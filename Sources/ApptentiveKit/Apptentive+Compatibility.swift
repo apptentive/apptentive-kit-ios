@@ -170,13 +170,13 @@ extension Apptentive {
 
     @objc(presentMessageCenterFromViewController:withCustomData:)
     public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?) {
-        self.presentMessageCenter(from: viewController, with: Self.convertCustomData(customData))
+        self.presentMessageCenter(from: viewController, with: Self.convertLegacyCustomData(customData))
     }
 
     @available(swift, deprecated: 5.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
     @objc(presentMessageCenterFromViewController:withCustomData:completion:)
     public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?, completion: ((Bool) -> Void)? = nil) {
-        self.presentMessageCenter(from: viewController, with: Self.convertCustomData(customData)) { result in
+        self.presentMessageCenter(from: viewController, with: Self.convertLegacyCustomData(customData)) { result in
             switch result {
             case .success(let didShow):
                 completion?(didShow)
@@ -347,28 +347,37 @@ extension Apptentive {
         }
     }
 
-    private static func convertCustomData(_ legacyCustomData: [AnyHashable: Any]?) -> CustomData {
-        guard let legacyCustomData = legacyCustomData else {
-            return CustomData()
+    static func convertLegacyCustomData(_ legacyCustomData: [AnyHashable: Any]?) -> CustomData {
+        var result = CustomData()
+
+        if let legacyCustomData = legacyCustomData {
+            for (key, value) in legacyCustomData {
+                guard let key = key as? String else {
+                    assertionFailure("Custom data keys must be strings.")
+                    continue
+                }
+
+                switch value {
+                case let bool as Bool:
+                    result[key] = bool
+
+                case let int as Int:
+                    result[key] = int
+
+                case let float as Float:
+                    result[key] = float
+
+                case let string as String:
+                    result[key] = string
+
+                default:
+                    ApptentiveLogger.default.warning("Unable to migrate custom data value “\(String(describing: value))” for key “\(key)”")
+                    break
+                }
+            }
         }
 
-        var migratedCustomData = CustomData()
-
-        for (key, value) in legacyCustomData {
-            guard let key = key as? String else {
-                assertionFailure("Custom data keys must be strings.")
-                continue
-            }
-
-            guard let value = value as? CustomDataCompatible else {
-                assertionFailure("Custom data values must be strings, numbers, or booleans.")
-                continue
-            }
-
-            migratedCustomData[key] = value
-        }
-
-        return migratedCustomData
+        return result
     }
 }
 

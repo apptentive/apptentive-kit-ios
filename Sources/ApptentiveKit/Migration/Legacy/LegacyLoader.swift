@@ -57,6 +57,18 @@ struct LegacyLoader: Loader {
             throw ApptentiveError.internalInconsistency
         }
 
+        // Copy over person data if possible.
+        conversation.person.name = legacyConversation?.person?.name
+        conversation.person.emailAddress = legacyConversation?.person?.emailAddress
+        conversation.person.mParticleID = legacyConversation?.person?.mParticleID
+        conversation.person.customData = Apptentive.convertLegacyCustomData(legacyConversation?.person?.customData)
+
+        // Copy over device (custom data) if possible.
+        conversation.device.customData = Apptentive.convertLegacyCustomData(legacyConversation?.device?.customData)
+
+        // Copy over random values if possible.
+        conversation.random.values = legacyConversation?.random?.randomValues ?? [:]
+
         return conversation
     }
 

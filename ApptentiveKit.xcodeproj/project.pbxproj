@@ -12,6 +12,9 @@
 		01086517253E42FC00101CFB /* PayloadSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01086516253E42FC00101CFB /* PayloadSender.swift */; };
 		010ADF442458F8C3005D63FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 010ADF432458F8C3005D63FE /* Main.storyboard */; };
 		010C1FEA27D28D7600BF37CD /* Apptentive+InteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010C1FE927D28D7600BF37CD /* Apptentive+InteractionDelegate.swift */; };
+		0113867527DA63B10024653F /* LegacyPerson.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0113867427DA63B10024653F /* LegacyPerson.swift */; };
+		0113867927DA71E70024653F /* LegacyDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0113867827DA71E70024653F /* LegacyDevice.swift */; };
+		0113867D27DA79620024653F /* LegacyRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0113867C27DA79620024653F /* LegacyRandom.swift */; };
 		0118DD6C26FB797500037E0E /* MessageContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD6B26FB797500037E0E /* MessageContent.swift */; };
 		0118DD6E26FB79AC00037E0E /* MessagePayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD6D26FB79AC00037E0E /* MessagePayloadTests.swift */; };
 		011C64BC264C48D300219243 /* EngagementMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011C64BB264C48D300219243 /* EngagementMetric.swift */; };
@@ -244,6 +247,9 @@
 		01086516253E42FC00101CFB /* PayloadSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayloadSender.swift; sourceTree = "<group>"; };
 		010ADF432458F8C3005D63FE /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		010C1FE927D28D7600BF37CD /* Apptentive+InteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Apptentive+InteractionDelegate.swift"; sourceTree = "<group>"; };
+		0113867427DA63B10024653F /* LegacyPerson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyPerson.swift; sourceTree = "<group>"; };
+		0113867827DA71E70024653F /* LegacyDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyDevice.swift; sourceTree = "<group>"; };
+		0113867C27DA79620024653F /* LegacyRandom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyRandom.swift; sourceTree = "<group>"; };
 		0118DD6B26FB797500037E0E /* MessageContent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageContent.swift; sourceTree = "<group>"; };
 		0118DD6D26FB79AC00037E0E /* MessagePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagePayloadTests.swift; sourceTree = "<group>"; };
 		011C64BB264C48D300219243 /* EngagementMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementMetric.swift; sourceTree = "<group>"; };
@@ -542,6 +548,9 @@
 				012A1B6A263A282B00EBC073 /* LegacyCount.swift */,
 				01A1BC86263B7676003DC51B /* LegacyConversationMetadata.swift */,
 				01A1BC89263B78D7003DC51B /* LegacyConversationMetadataItem.swift */,
+				0113867427DA63B10024653F /* LegacyPerson.swift */,
+				0113867827DA71E70024653F /* LegacyDevice.swift */,
+				0113867C27DA79620024653F /* LegacyRandom.swift */,
 			);
 			path = Legacy;
 			sourceTree = "<group>";
@@ -1285,6 +1294,7 @@
 				012A1B6B263A282B00EBC073 /* LegacyCount.swift in Sources */,
 				0173EA4325B2035F009740F5 /* ApptentiveLogger.swift in Sources */,
 				01A0918823FCB5D600AF187E /* Apptentive.swift in Sources */,
+				0113867527DA63B10024653F /* LegacyPerson.swift in Sources */,
 				017481F127B1D27900FE020B /* DraftAttachmentView.swift in Sources */,
 				01ED6271257B0AA90023208C /* NavigateToLinkController.swift in Sources */,
 				015F2ADF24C9F85D004B53E2 /* SurveySingleLineCell.swift in Sources */,
@@ -1333,6 +1343,8 @@
 				01974A6F2577043400C7D693 /* TextModalViewModel.swift in Sources */,
 				EFE8D6F027AC9E7600388AA9 /* ProfileFooterView.swift in Sources */,
 				012A1B68263A27D100EBC073 /* LegacyEngagement.swift in Sources */,
+				0113867D27DA79620024653F /* LegacyRandom.swift in Sources */,
+				0113867927DA71E70024653F /* LegacyDevice.swift in Sources */,
 				01C0218A25DC891A00547059 /* Criteria+Logging.swift in Sources */,
 				EFAA223227B1895300B4FC3B /* EditProfileViewController.swift in Sources */,
 				015F2ADD24C9EE3A004B53E2 /* SurveyResponse.swift in Sources */,
