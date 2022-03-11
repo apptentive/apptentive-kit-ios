@@ -299,10 +299,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     static var alreadyInitialized = false
 
-    // MARK:  MessageManagerApptentiveDelegate
-
-    internal var internalUnreadMessageCount: Int?
-
     // MARK: EnvironmentDelegate
 
     func protectedDataDidBecomeAvailable(_ environment: GlobalEnvironment) {
