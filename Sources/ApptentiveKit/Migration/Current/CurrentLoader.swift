@@ -12,7 +12,6 @@ struct CurrentLoader: Loader {
     static let conversationFilename = "Conversation.A"
     static let payloadsFilename = "PayloadQueue.A"
     static let messagesFilename = "MessageList.A"
-    static let attachmentsFilename = "Attachments"
     static let fileExtension = "plist"
 
     static func loadLatestVersion(containerURL: URL, environment: GlobalEnvironment, completion: @escaping (Loader) throws -> Void) {
