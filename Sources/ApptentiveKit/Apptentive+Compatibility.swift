@@ -470,10 +470,9 @@ public class ApptentiveConfiguration: NSObject {
 
     /// Returns an instance of the `ApptentiveConfiguration` class initialized with the specified parameters.
     /// - Parameters:
-    ///   - apptentiveKey: The Apptentive App Key, obtained from your Apptentive dashboard.
-    ///   - apptentiveSignature: The Apptentive App Signature, obtained from your Apptentive dashboard.
+    ///   - key: The Apptentive App Key, obtained from your Apptentive dashboard.
+    ///   - signature: The Apptentive App Signature, obtained from your Apptentive dashboard.
     /// - Returns: A configuration object initalized with the key and signature.
-    // TODO: Figure out if this can be a convenience initializer instead.
     @objc public static func configuration(apptentiveKey key: String, apptentiveSignature signature: String) -> ApptentiveConfiguration {
         Self.init(apptentiveKey: key, apptentiveSignature: signature)!
     }
