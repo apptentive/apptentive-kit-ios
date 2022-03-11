@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import MobileCoreServices
-import QuickLookThumbnailing
 import UIKit
 
 /// Represents an object that can be notified of a change to the message list.

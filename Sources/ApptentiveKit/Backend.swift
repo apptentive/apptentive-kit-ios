@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import MobileCoreServices
-import UIKit
 
 /// The backend includes internal top-level methods used by the SDK.
 ///
