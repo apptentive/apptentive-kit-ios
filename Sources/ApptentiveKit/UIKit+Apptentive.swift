@@ -359,8 +359,7 @@ extension UIColor {
         }
     }()
 
-    /// The color to use for the footer label text for surveys.
-    // TODO: Pick a less ambiguous name (this is for Thank You text)
+    /// The color to use for the survey footer label (Thank You text).
     public static var apptentiveSubmitLabel: UIColor = {
         if #available(iOS 13.0, *) {
             return .label
@@ -467,8 +466,7 @@ extension UIFont {
         return .preferredFont(forTextStyle: .subheadline)
     }()
 
-    /// The font used for the survey confirmation label and the survey submit button.
-    // TODO: Clarify that this is the Thank You text (not the submit button text)
+    /// The font used for the survey footer label (Thank You text).
     public static var apptentiveSubmitLabel: UIFont = {
         return .preferredFont(forTextStyle: .headline)
     }()
