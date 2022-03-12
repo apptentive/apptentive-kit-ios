@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "Ακύρωση";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "Αρχεία";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "Εικόνες";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "Επιλέξτε ένα είδος συνημμένου.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "Διπλό πάτημα για λήψη.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "Επισυνάπτει μία φωτογραφία ή ένα στιγμιότυπο οθόνης";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "Επισυνάψτε";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "Κλείνει το Κέντρο Μηνυμάτων.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "Κλείσιμο";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "Προβάλλει το όνομα και το πρόγραμμα επεξεργασίας e-mail.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "Προφίλ";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "Στέλνει το μήνυμα.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "Στείλετε";
+
+/* Accessibility label for messages with no text */
+"No Text" = "Δεν υπάρχει κείμενο.";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "Διπλό πάτημα για άνοιγμα.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "OK";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "Βεβαιωθείτε ότι η συσκευή σας έχει πρόσβαση στο διαδίκτυο και ξαναδοκιμάστε.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "Το Κέντρο Μηνυμάτων δεν είναι Διαθέσιμο";
+

@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "Cancel";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "Files";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "Images";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "Select an attachment type.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "Double-tap to download.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "Attaches a photo or file.";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "Attach";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "Closes Message Center.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "Close";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "Displays the name and email editor.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "Profile";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "Sends the message.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "Send";
+
+/* Accessibility label for messages with no text */
+"No Text" = "No Text";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "Double-tap to open.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "OK";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "Make sure your device can access the internet and try again.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "Message Center is not Available";
+

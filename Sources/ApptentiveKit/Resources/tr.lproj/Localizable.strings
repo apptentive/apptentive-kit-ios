@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "İptal et";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "Dosyalar";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "Görüntüler";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "Bir ek türü seç.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "İndirmek için iki kez dokun.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "Bir fotoğraf ya da ekran resmi ekler";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "Ekle";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "Mesaj Merkezini kapatır.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "Kapat";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "Adı ve e-posta düzenleyicisini görüntüler.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "Profil";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "Mesajı gönderir.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "Göndermek";
+
+/* Accessibility label for messages with no text */
+"No Text" = "Metin Yok";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "Açmak için iki kez dokun.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "Tamam";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "Cihazının internete erişebildiğinden emin ol ve tekrar dene.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "Mesaj Merkezi Kullanılamıyor";
+

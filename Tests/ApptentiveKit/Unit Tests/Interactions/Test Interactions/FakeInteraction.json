@@ -1,0 +1,8 @@
+{
+  "priority": 1,
+  "id": "blah",
+  "type": "FakeInteraction",
+  "configuration": {
+    "title": "blah",
+  }
+}

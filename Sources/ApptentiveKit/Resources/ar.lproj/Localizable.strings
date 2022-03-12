@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "إلغاء";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "الملفات";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "الصور";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "حدد نوع المرفق.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "اضغط مرتين للتنزيل.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "قم بإرفاق صورة أو لقطة شاشة";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "الإرفاق";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "إغلاق مركز الرسائل.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "إغلاق";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "عرض محرر  الاسم والبريد الإلكتروني.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "الملف التعريفي";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "إرسال رسالة.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "إرسال";
+
+/* Accessibility label for messages with no text */
+"No Text" = "لا يوجد نص";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "اضغط مرتين للفتح.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "موافق";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "يُرجى التأكد من أن جهازك يمكنه الوصول إلى الإنترنت وحاول مجددًا.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "مركز الرسائل غير متوفر";
+

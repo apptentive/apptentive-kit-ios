@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "Cancelar";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "Archivos";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "Imágenes";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "Selecciona un tipo de adjunto.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "Pulsa dos veces para descargar.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "Adjunta una foto o captura de pantalla";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "Adjuntar";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "Cierra el Centro de mensajes.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "Cerrar";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "Muestra el editor del nombre y el correo electrónico.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "Perfil";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "Envía el mensaje.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "Enviar";
+
+/* Accessibility label for messages with no text */
+"No Text" = "Sin texto";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "Pulsa dos veces para abrir.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "OK";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "Asegúrate de que tu dispositivo puede acceder a Internet y prueba de nuevo.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "El Centro de Mensajes no está disponible";
+

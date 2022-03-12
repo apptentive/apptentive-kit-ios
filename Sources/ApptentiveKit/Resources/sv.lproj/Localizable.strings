@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "Avbryt";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "Filer";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "Bilder";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "Välj en bilagetyp.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "Dubbeltryck för att ladda ned.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "Bifogar ett foto eller skärmbild.";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "Bifoga";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "Stänger meddelande-center.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "Stäng";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "Redigera namn och e-post.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "Profil";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "Skickar meddelandet.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "Skicka";
+
+/* Accessibility label for messages with no text */
+"No Text" = "Ingen text";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "Dubbeltryck för att öppna.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "Okej";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "Se till så att din enhet har tillgång till internet och försök igen.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "Meddelandecentret är inte tillgängligt";
+

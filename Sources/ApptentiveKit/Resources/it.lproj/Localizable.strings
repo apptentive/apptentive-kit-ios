@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "Annulla";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "File";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "Immagini";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "Seleziona il tipo di allegato.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "Double-tap to download.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "Allega una foto o uno screenshot";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "Allega";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "Chiude il Centro messaggi.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "Chiudi";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "Mostra i campi in cui inserire nome e indirizzo email.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "Profilo";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "Invia il messaggio.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "Spedire";
+
+/* Accessibility label for messages with no text */
+"No Text" = "Testo assente";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "Doppio tap per aprire.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "OK";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "Verifica che il tuo dispositivo possa accedere a internet e riprova.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "Centro Messaggi non disponibile";
+
