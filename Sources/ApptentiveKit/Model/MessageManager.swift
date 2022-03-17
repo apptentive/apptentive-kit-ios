@@ -151,6 +151,12 @@ class MessageManager {
         self.automatedMessage = body.flatMap { MessageList.Message(nonce: "automated", body: $0, isAutomated: true) }
     }
 
+    func setAutomatedMessageBody(_ body: String?) {
+        self.automatedMessage = body.flatMap { MessageList.Message(nonce: "automated", body: $0, isAutomated: true) }
+
+        self.delegate?.messageManagerMessagesDidChange(self.messages)
+    }
+
     var draftMessage: MessageList.Message {
         get {
             self.messageList.draftMessage
