@@ -161,5 +161,5 @@ extension Apptentive {
         }
     }
 
-    // Note: TermsOfServiceProviding and ProfileUpdating are public (stored) properties and thus not present here.
+    // Note: ProfileUpdating is public (stored) properties and thus not present here.
 }

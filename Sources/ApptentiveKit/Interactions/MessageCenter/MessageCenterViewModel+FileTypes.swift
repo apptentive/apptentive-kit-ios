@@ -1,6 +1,6 @@
 //
-//  UIDocumentPickerViewController+FileTypes.swift
-//  UIDocumentPickerViewController+FileTypes
+//  MessageCenterViewModel+FileTypes.swift
+//  MessageCenterViewModel+FileTypes
 //
 //  Created by Luqmaan Khan on 11/11/21.
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.

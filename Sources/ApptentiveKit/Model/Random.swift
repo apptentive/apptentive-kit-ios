@@ -22,15 +22,15 @@ class Random: Equatable, Codable {
         self.values = [String: Float]()
     }
 
-    /// Merges the custom data with newer custom data.
-    /// - Parameter newer: The newer custom data to merge in.
+    /// Merges the random values with newer random values.
+    /// - Parameter newer: The newer random values to merge in.
     func merge(with newer: Random) {
         if self === newer {
             return
         }
 
-        self.values.merge(newer.values) { old, new in
-            old + new
+        self.values.merge(newer.values) { old, _ in
+            old
         }
     }
 
