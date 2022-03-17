@@ -118,16 +118,4 @@ enum EventUserInfo: Equatable {
     case navigateToLink(NavigateToLinkResult)
     case textModalAction(TextModalAction)
     case dismissCause(CancelInteractionCause)
-    case messageInfo(ReadMessageInfo)
-}
-
-extension Event {
-    func userInfoForNotification() -> [String: String] {
-        var userInfo = [String: String]()
-        userInfo["eventType"] = self.name
-        userInfo["interactionType"] = self.interaction?.typeName
-        userInfo["interactionID"] = self.interaction?.id
-        userInfo["eventSource"] = self.vendor
-        return userInfo
-    }
 }

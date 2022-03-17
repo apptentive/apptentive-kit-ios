@@ -305,7 +305,7 @@ extension Apptentive {
         self.personCustomData[key] = boolValue
     }
 
-    @available(*, deprecated, message: "Set style overrides defined in UIKit+Apptentive.swift extensions.")
+    @available(*, deprecated, message: "Set style overrides in the UIKit+Apptentive extensions.")
     @objc public var styleSheet: Any? {
         get {
             nil

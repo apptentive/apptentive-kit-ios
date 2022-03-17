@@ -48,9 +48,6 @@ struct EventContent: Equatable, Decodable, PayloadEncodable {
         case .dismissCause(let cause):
             try container.encode(cause, forKey: .userInfo)
 
-        case .messageInfo(let messageInfo):
-            try container.encode(messageInfo, forKey: .userInfo)
-
         case .none:
             break
         }
