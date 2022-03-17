@@ -176,6 +176,14 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
     }
 
+    /// Dimisses any currently-visible interactions.
+    ///
+    /// Note that it is not possible to programmatically dismiss the Apple Rating Dialog (`SKStoreReviewController`).
+    /// - Parameter animated: Whether to animate the dismissal.
+    public func dismissAllInteractions(animated: Bool) {
+        self.interactionPresenter.dismissPresentedViewController(animated: animated)
+    }
+
     // MARK: Message Center
 
     /// Presents Apptentive's Message Center using the specified view controller for presentation.

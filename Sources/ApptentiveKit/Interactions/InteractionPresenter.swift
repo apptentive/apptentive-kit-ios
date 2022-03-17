@@ -12,6 +12,9 @@ import UIKit
 open class InteractionPresenter {
     /// A view controller that can be used to present view-controller-based interactions.
     weak var presentingViewController: UIViewController?
+    weak var presentedViewController: UIViewController?
+
+    var presentedInteraction: Interaction?
 
     var delegate: InteractionDelegate?
 
@@ -61,6 +64,8 @@ open class InteractionPresenter {
             try self.presentViewController(UIAlertController(viewModel: viewModel))
             throw InteractionPresenterError.notImplemented(interaction.typeName)
         }
+
+        self.presentedInteraction = interaction
     }
 
     /// Presents an EnjoymentDialog ("Love Dialog") interaction.
@@ -149,6 +154,8 @@ open class InteractionPresenter {
         viewControllerToPresent.modalPresentationStyle = .apptentive
 
         presentingViewController.present(viewControllerToPresent, animated: true, completion: completion)
+
+        self.presentedViewController = viewControllerToPresent
     }
 
     /// Checks the `presentingViewController` property and recovers from common failure modes.
@@ -168,6 +175,15 @@ open class InteractionPresenter {
             // Otherwise, as far as we know, the presenting view controller is good.
             return presentingViewController
         }
+    }
+
+    open func dismissPresentedViewController(animated: Bool) {
+        self.presentedViewController?.dismiss(animated: animated)
+
+        var dismissEvent = Event.cancel(from: self.presentedInteraction)
+        dismissEvent.userInfo = .dismissCause(.init(cause: "notification"))
+
+        self.delegate?.engage(event: dismissEvent)
     }
 
     /// Walks up the view controller hierarchy to find any ancestors that are being dismissed, and returns that ancestor's parent, or nil if no parents are being dismissed.
@@ -203,4 +219,8 @@ open class InteractionPresenter {
 public enum InteractionPresenterError: Error {
     case notImplemented(String)
     case noPresentingViewController
+}
+
+struct CancelInteractionCause: Codable, Equatable {
+    let cause: String
 }

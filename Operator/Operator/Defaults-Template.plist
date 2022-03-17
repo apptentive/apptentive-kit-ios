@@ -10,5 +10,7 @@
 	<string>https://api.apptentive.com</string>
 	<key>Signature</key>
 	<string>&lt;#Your Apptentive App Signature#&gt;</string>
+	<key>ShakeGestureAction</key>
+	<string>dismissAllInteractions</string>
 </dict>
 </plist>

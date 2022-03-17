@@ -112,4 +112,5 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
 enum EventUserInfo: Equatable {
     case navigateToLink(NavigateToLinkResult)
     case textModalAction(TextModalAction)
+    case dismissCause(CancelInteractionCause)
 }

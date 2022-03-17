@@ -58,6 +58,20 @@ extension UIViewController {
     }
 }
 
+extension UIWindow {
+    // Detect shake gesture
+    open override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        let apptentive = (UIApplication.shared.delegate as! AppDelegate).apptentive!
+
+        switch (UserDefaults.standard.string(forKey: "ShakeGestureAction")) {
+        case "dismissAllInteractions":
+            apptentive.dismissAllInteractions(animated: true)
+        default:
+            NSLog("No shake gesture action enabled.");
+        }
+    }
+}
+
 public enum AppError: Error {
     case credentialsError
 }

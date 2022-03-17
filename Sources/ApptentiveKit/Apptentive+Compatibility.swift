@@ -288,11 +288,6 @@ extension Apptentive {
         self.personCustomData[key] = boolValue
     }
 
-    @available(*, deprecated, message: "This method is no longer implemented and will trigger an assertion failure.")
-    @objc public func dismissAllInteractions(animated: Bool) {
-        assertionFailure("This method is no longer implemented.")
-    }
-
     @available(*, deprecated, message: "Set style overrides in the UIKit+Apptentive extensions.")
     @objc public var styleSheet: Any? {
         get {

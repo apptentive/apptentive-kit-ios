@@ -39,6 +39,9 @@ struct EventContent: Equatable, Decodable, PayloadEncodable {
         case .textModalAction(let action):
             try container.encode(action, forKey: .userInfo)
 
+        case .dismissCause(let cause):
+            try container.encode(cause, forKey: .userInfo)
+
         case .none:
             break
         }
