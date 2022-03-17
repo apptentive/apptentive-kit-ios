@@ -320,7 +320,7 @@ class MessageManager {
 
         for (index, existingAttachment) in existing.attachments.enumerated() {
             guard result.attachments.count > index else {
-                ApptentiveLogger.default.error("Mismatch of server-side and client-side attachment counts.")
+                ApptentiveLogger.messages.error("Mismatch of server-side and client-side attachment counts.")
                 continue
             }
 
@@ -407,7 +407,7 @@ class MessageManager {
                     }
 
                 } catch let error {
-                    ApptentiveLogger.payload.error("Unable to move queued attachments for payload \(payload.jsonObject.nonce): \(error).")
+                    ApptentiveLogger.attachments.error("Unable to move queued attachments for payload \(payload.jsonObject.nonce): \(error).")
                 }
             }
         }  // else this wasn't a message payload.

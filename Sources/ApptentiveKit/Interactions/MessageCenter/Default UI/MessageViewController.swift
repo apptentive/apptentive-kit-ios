@@ -227,7 +227,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.viewModel.addImageAttachment(image, name: nil)
         } else {
-            ApptentiveLogger.default.error("UIImagePickerController failed to provide picked image.")
+            ApptentiveLogger.messages.error("UIImagePickerController failed to provide picked image.")
         }
     }
 
@@ -243,11 +243,11 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         for result in results {
             result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
                 if let error = error {
-                    ApptentiveLogger.default.debug("Error selecting images from PHPicker: \(error).")
+                    ApptentiveLogger.messages.debug("Error selecting images from PHPicker: \(error).")
                 }
 
                 guard let image = object as? UIImage else {
-                    ApptentiveLogger.default.error("PHPickerViewController failed to provide picked image.")
+                    ApptentiveLogger.messages.error("PHPickerViewController failed to provide picked image.")
                     return
                 }
 
@@ -368,15 +368,15 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didFailToRemoveAttachmentAt index: Int, with error: Error) {
-        ApptentiveLogger.default.error("Unable to remove attachment at index \(index): \(error).")
+        ApptentiveLogger.messages.error("Unable to remove attachment at index \(index): \(error).")
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didFailToAddAttachmentWith error: Error) {
-        ApptentiveLogger.default.error("Unable to add attachment: \(error).")
+        ApptentiveLogger.messages.error("Unable to add attachment: \(error).")
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didFailToSendMessageWith error: Error) {
-        ApptentiveLogger.default.error("Unable to send message: \(error).")
+        ApptentiveLogger.messages.error("Unable to send message: \(error).")
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFinishAt index: Int, inMessageAt indexPath: IndexPath) {
@@ -384,7 +384,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error) {
-        ApptentiveLogger.default.error("Unable to download attachment #\(index) in row \(indexPath.row) of section \(indexPath.section).")
+        ApptentiveLogger.messages.error("Unable to download attachment #\(index) in row \(indexPath.row) of section \(indexPath.section).")
     }
 
     // MARK: - Notifications
@@ -393,7 +393,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         guard let keyboardRect = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
             let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
         else {
-            ApptentiveLogger.interaction.warning("Expected keyboard frame in notification")
+            ApptentiveLogger.messages.warning("Expected keyboard frame in notification")
             return
         }
 
