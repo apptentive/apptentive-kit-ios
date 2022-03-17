@@ -45,7 +45,8 @@ class MessageCenterViewModelTests: XCTestCase {
         XCTAssertEqual(self.viewModel.greetingBody, "We'd love to get feedback from you on our app. The more details you can provide, the better.")
         XCTAssertEqual(self.viewModel.greetingImageURL, URL(string: "https://dfuvhehs12k8c.cloudfront.net/assets/app-icon/music.png"))
         XCTAssertEqual(self.viewModel.statusBody, "We will respond to your message soon.")
-        XCTAssertEqual(self.viewModel.automatedMessageBody, "We're sorry to hear that you don't love FooApp! Is there anything we could do to make it better?")
+
+        XCTAssertEqual(self.spyInteractionDelegate?.automatedMessageBody, "We're sorry to hear that you don't love FooApp! Is there anything we could do to make it better?")
     }
 
     func testLaunch() {

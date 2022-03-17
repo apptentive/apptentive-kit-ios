@@ -21,6 +21,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     let profileFooterView: ProfileFooterView
     let messageReceivedCellID = "MessageCellReceived"
     let messageSentCellID = "MessageSentCell"
+    let automatedMessageCellID = "AutomatedMessageCell"
 
     init(viewModel: MessageCenterViewModel) {
         self.composeContainerView = MessageCenterComposeContainerView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 44)))
@@ -66,6 +67,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.tableView.keyboardDismissMode = .interactive
         self.tableView.register(MessageReceivedCell.self, forCellReuseIdentifier: self.messageReceivedCellID)
         self.tableView.register(MessageSentCell.self, forCellReuseIdentifier: self.messageSentCellID)
+        self.tableView.register(AutomatedMessageCell.self, forCellReuseIdentifier: self.automatedMessageCellID)
 
         self.composeContainerView.composeView.textView.delegate = self
         self.composeContainerView.composeView.textView.accessibilityLabel = self.viewModel.composerTitle
@@ -168,6 +170,9 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
         case .sentFromDashboard:
             cell = tableView.dequeueReusableCell(withIdentifier: self.messageReceivedCellID, for: indexPath)
+
+        case .automated:
+            cell = tableView.dequeueReusableCell(withIdentifier: self.automatedMessageCellID, for: indexPath)
         }
 
         cell.selectionStyle = .none
@@ -186,6 +191,9 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
             sentCell.statusLabel.text = message.statusText
             self.updateStackView(sentCell.attachmentStackView, with: message, at: indexPath)
             sentCell.accessibilityElements = [sentCell.messageText, sentCell.attachmentStackView, sentCell.statusLabel]
+
+        case (.automated, let automatedCell as AutomatedMessageCell):
+            automatedCell.messageText.text = message.body
 
         default:
             assertionFailure("Cell type doesn't match inbound value")

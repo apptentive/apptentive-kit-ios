@@ -86,9 +86,6 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     ///the message describing customer's hours, expected time until response.
     public let statusBody: String
 
-    /// The introductory message added to conversation after consumer's message is sent.
-    public let automatedMessageBody: String?
-
     /// The messages grouped by date, according to the current calendar, sorted with oldest messages last.
     public var groupedMessages: [[Message]]
 
@@ -231,7 +228,6 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.greetingBody = configuration.greeting.body
         self.greetingImageURL = configuration.greeting.imageURL
         self.statusBody = configuration.status.body
-        self.automatedMessageBody = configuration.automatedMessage?.body
 
         self.sentDateFormatter = DateFormatter()
         self.sentDateFormatter.dateStyle = .short
@@ -276,6 +272,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.attachmentOptionsCancelButton = NSLocalizedString("Attachment Options Cancel Button", bundle: Bundle(for: Apptentive.self), value: "Cancel", comment: "The button label for dismissing the attachment options alert.")
 
         self.interactionDelegate.messageManagerDelegate = self
+        self.interactionDelegate.setAutomatedMessageBody(configuration.automatedMessage?.body)
 
         self.interactionDelegate.getMessages { messages in
             self.messageManagerMessagesDidChange(messages)
@@ -666,27 +663,31 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         let statusText: String
         let sentDateString = sentDateFormatter.string(from: managedMessage.sentDate)
 
-        switch managedMessage.status {
-        case .draft:
+        switch (managedMessage.status, managedMessage.isAutomated) {
+        case (_, true):
+            direction = .automated
+            statusText = "Automated"
+
+        case (.draft, _):
             direction = .sentFromDevice(.draft)
             statusText = "Draft"
-        case .queued:
+        case (.queued, _):
             direction = .sentFromDevice(.queued)
             statusText = self.sendingText
-        case .sending:
+        case (.sending, _):
             direction = .sentFromDevice(.sending)
             statusText = self.sendingText
-        case .sent:
+        case (.sent, _):
             direction = .sentFromDevice(.sent)
             statusText = "\(self.sentText) \(sentDateString)"
-        case .failed:
+        case (.failed, _):
             direction = .sentFromDevice(.failed)
             statusText = self.failedText
 
-        case .unread:
+        case (.unread, _):
             direction = .sentFromDashboard(.unread)
             statusText = sentDateString
-        case .read:
+        case (.read, _):
             direction = .sentFromDashboard(.read)
             statusText = sentDateString
         }

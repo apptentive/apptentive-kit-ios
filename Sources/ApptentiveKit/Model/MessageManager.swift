@@ -34,6 +34,18 @@ class MessageManager {
         }
     }
 
+    var automatedMessage: MessageList.Message?
+
+    var messages: [MessageList.Message] {
+        var messages = self.messageList.messages
+
+        if let automatedMessage = self.automatedMessage {
+            messages.append(automatedMessage)
+        }
+
+        return messages
+    }
+
     static var thumbnailSize = CGSize(width: 44, height: 44)
 
     var messageManagerApptentiveDelegate: MessageManagerApptentiveDelegate?
@@ -43,8 +55,9 @@ class MessageManager {
                 // When presenting, trigger a refresh of the message list at the next opportunity.
                 self.messageList.lastFetchDate = .distantPast
             } else {
-                // When closing, clear out any unsent custom data.
+                // When closing, clear out any unsent custom data and/or automated message.
                 self.customData = nil
+                self.automatedMessage = nil
             }
         }
     }
@@ -53,11 +66,11 @@ class MessageManager {
         self.messageList.lastDownloadedMessageID
     }
 
-    private(set) var messageList: MessageList {
+    private var messageList: MessageList {
         didSet {
             if self.messageList != oldValue {
                 if self.messageList.messages != oldValue.messages {
-                    self.delegate?.messageManagerMessagesDidChange(self.messageList.messages)
+                    self.delegate?.messageManagerMessagesDidChange(self.messages)
                 }
 
                 if self.messageList.draftMessage != oldValue.draftMessage {
@@ -119,6 +132,12 @@ class MessageManager {
         self.messageList.lastDownloadedMessageID = messagesResponse.endsWith
         self.messageList.lastFetchDate = Date()
         self.forceMessageDownload = self.messageList.additionalDownloadableMessagesExist
+    }
+
+    func setAutomatedMessageBody(_ body: String?) {
+        self.automatedMessage = body.flatMap { MessageList.Message(nonce: "automated", body: $0, isAutomated: true) }
+
+        self.delegate?.messageManagerMessagesDidChange(self.messages)
     }
 
     var draftMessage: MessageList.Message {
@@ -232,6 +251,13 @@ class MessageManager {
         self.draftAttachmentNumber = 1
 
         return (message, customData)
+    }
+
+    func prepareAutomatedMessageForSending() throws -> MessageList.Message? {
+        let message = self.automatedMessage
+        self.automatedMessage = nil
+
+        return message
     }
 
     /// Called when a message is added to the payload queue so that it can be tracked in the message list.

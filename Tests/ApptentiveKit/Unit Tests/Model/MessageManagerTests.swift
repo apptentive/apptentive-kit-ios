@@ -34,10 +34,25 @@ class MessageManagerTests: XCTestCase {
         XCTAssertNil(self.messageManager.customData)
     }
 
+    func testPrepareAutomatedMessageForSending() throws {
+        XCTAssertNil(self.messageManager.automatedMessage)
+
+        self.messageManager.setAutomatedMessageBody("Automated message body.")
+
+        XCTAssertEqual(self.messageManager.automatedMessage?.body, "Automated message body.")
+        XCTAssertEqual(self.messageManager.automatedMessage?.isAutomated, true)
+
+        let automatedMessage = try self.messageManager.prepareAutomatedMessageForSending()
+        XCTAssertNil(self.messageManager.automatedMessage, "Automated message is cleared after sending first message.")
+
+        XCTAssertEqual(automatedMessage?.body, "Automated message body.")
+        XCTAssertEqual(automatedMessage?.isAutomated, true)
+    }
+
     func testAddQueuedMessage() {
         self.messageManager.addQueuedMessage(MessageList.Message(nonce: "def456", sentDate: Date.distantPast, status: .draft), with: "abc123")
 
-        let message = self.messageManager.messageList.messages.last
+        let message = self.messageManager.messages.last
 
         // Nonce, sentDate, and status should be updated.
         XCTAssertEqual(message?.nonce, "abc123")
