@@ -14,7 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         ApptentiveLogger.logLevel = .debug
 
-        Apptentive.shared.register(credentials: Apptentive.AppCredentials(key: "<#Your Apptentive App Key#>", signature: "<#Your Apptentive App Signature#>"))
+        Apptentive.shared.register(with: .init(key: "<#Your Apptentive App Key#>", signature: "<#Your Apptentive App Signature#>"))
 
         return true
     }

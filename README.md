@@ -18,10 +18,10 @@ To use Apptentive features in your Swift files, you will have to import the Appt
 import ApptentiveKit
 ```
 
-Early in your app's lifecycle, call the `register(configuration:completion:)` method on the shared `Apptentive` instance:
+Early in your app's lifecycle, call the `register(with:completion:)` method on the shared `Apptentive` instance:
 
 ```Swift
-Apptentive.shared.register(credentials: .init(key: "<#Your Apptentive App Key#>", signature: "<#Your Apptentive App Signature#>"))
+Apptentive.shared.register(with: .init(key: "<#Your Apptentive App Key#>", signature: "<#Your Apptentive App Signature#>"))
 ```
 
 At various points in your app, use the `engage(event:from:completion:)` method to record events with ApptentiveKit. When an event is engaged, the SDK can be configured to display an interaction, such as a Note, Survey, or Love Dialog, and you can define segments based on which events were engaged on your customer's device. 
