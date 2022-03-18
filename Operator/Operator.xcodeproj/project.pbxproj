@@ -209,7 +209,7 @@
 			isa = PBXGroup;
 			children = (
 				011B6708275B196600148290 /* Operator.entitlements */,
-				01CBA930282B2E7500614A24 /* Manifests */,
+				015F2AC924C8EBB1004B53E2 /* Interactions */,
 				01EB6C072477409C0067F4B9 /* README.md */,
 				018B099924577B15007450EA /* AppDelegate.swift */,
 				015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */,
@@ -649,7 +649,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Operator/Operator.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "Apple Development: Created via API (G9GXHMBKNM)";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 100;
 				DEVELOPMENT_TEAM = 86WML2UN43;

@@ -231,14 +231,14 @@ extension Apptentive {
         apptentiveCriticalError("The public App Store feature is no longer supported.")
     }
 
-    @available(*, deprecated, message: "Use the 'setRemoteNotificationToken()' method instead.")
+    @available(*, deprecated, message: "Use the `setRemoteNotificationToken()` method instead.")
     @objc public func setPushProvider(_ pushProvider: ApptentivePushProvider, deviceToken: Data) {
         switch pushProvider {
         case .apptentive:
-            self.setRemoteNotificationDeviceToken(deviceToken)
+            self.setRemoteNotifcationDeviceToken(deviceToken)
 
         default:
-            apptentiveCriticalError("Alternative push providers are no longer supported.")
+            assertionFailure("Alternative push providers are no longer supported.")
         }
     }
 

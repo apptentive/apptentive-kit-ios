@@ -858,7 +858,7 @@
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */,
 				011B67062759BCD300148290 /* Apptentive+Push.swift */,
-				013877C72603002100F3462A /* Apptentive+Debugging.swift */,
+				013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */,
 				EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */,
 				0165B80B258181CF001DF54E /* Apptentive+Theme.swift */,
 				013D8EB824F5C99B005EC4D1 /* Backend.swift */,

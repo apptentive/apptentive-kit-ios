@@ -574,20 +574,18 @@ class Backend {
     }
 
     /// Retrieves a message list from the Apptentive API.
-    internal func getMessagesIfNeeded() {
+    internal func getMessagesIfNeeded(completionHandler: ((Bool) -> Void)? = nil) {
         if self.messageManager.messagesNeedDownloading {
-            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation, afterMessageWithID: self.messageManager.lastDownloadedMessageID, pageSize: self.isDebugBuild ? "5" : nil), identifier: "get messages") {
-                (result: Result<MessagesResponse, Error>) in
+            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessagesResponse, Error>) in
                 switch result {
                 case .success(let messagesResponse):
                     ApptentiveLogger.default.debug("Message List received.")
-
-                    let didReceiveNewMessages = self.messageManager.update(with: messagesResponse)
-                    self.messageFetchCompletionHandler?(didReceiveNewMessages ? .newData : .noData)
+                    self.messageManager.update(with: messagesResponse)
+                    completionHandler?(true)
 
                 case .failure(let error):
                     ApptentiveLogger.network.error("Failed to download message list: \(error)")
-                    self.messageFetchCompletionHandler?(.failed)
+                    completionHandler?(false)
                 }
 
                 self.messageFetchCompletionHandler = nil

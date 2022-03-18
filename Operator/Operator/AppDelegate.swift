@@ -43,7 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        self.apptentive?.setRemoteNotificationDeviceToken(deviceToken)
+        self.apptentive?.setRemoteNotifcationDeviceToken(deviceToken)
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {

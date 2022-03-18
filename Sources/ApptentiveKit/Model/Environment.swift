@@ -46,7 +46,6 @@ protocol AppEnvironment {
     var isDebugBuild: Bool { get }
     var isTesting: Bool { get }
     var appDisplayName: String { get }
-    var isOverridingStyles: Bool { get set }
 }
 
 /// The portions of the Environment that provide information about the device.
@@ -214,16 +213,11 @@ class Environment: GlobalEnvironment {
 
         self.appDisplayName = possibleDisplayNames.compactMap { $0 }.first ?? "App"
 
-        #if targetEnvironment(macCatalyst)
-        #else
-            #if canImport(CoreTelephony)
-                self.telephonyNetworkInfo = CTTelephonyNetworkInfo()
-                if #available(iOS 12.0, *) {
-                    if let carriers = telephonyNetworkInfo.serviceSubscriberCellularProviders, carriers.count > 0 {
-                        self.carrier = carriers.values.compactMap({ $0.carrierName }).joined(separator: "|")
-                    }
-                } else {
-                    self.carrier = telephonyNetworkInfo.subscriberCellularProvider?.carrierName
+        #if canImport(CoreTelephony)
+            self.telephonyNetworkInfo = CTTelephonyNetworkInfo()
+            if #available(iOS 12.0, *) {
+                if let carriers = telephonyNetworkInfo.serviceSubscriberCellularProviders, carriers.count > 0 {
+                    self.carrier = carriers.values.compactMap({ $0.carrierName }).joined(separator: "|")
                 }
             #endif
         #endif

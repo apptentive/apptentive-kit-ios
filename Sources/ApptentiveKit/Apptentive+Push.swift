@@ -10,18 +10,12 @@ import UIKit
 
 extension Apptentive: UNUserNotificationCenterDelegate {
     /// Sets the remote notification device token to the specified value.
-    /// - Parameter tokenData: The remote notification device token passed into `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`.
-    @objc public func setRemoteNotificationDeviceToken(_ tokenData: Data) {
+    /// - Parameter tokenData: The remote notification device token passed into application(_:didRegisterForRemoteNotificationsWithDeviceToken:).
+    public func setRemoteNotifcationDeviceToken(_ tokenData: Data) {
         self.backendQueue.async {
             let tokenString = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
             self.backend.conversation.device.integrationConfiguration["apptentive_push"] = ["token": tokenString]
         }
-    }
-
-    // swift-format-ignore
-    @available(*, deprecated, message: "Use the (correctly-spelled) 'setRemoteNotificationDeviceToken(_:)' method instead.")
-    @objc public func setRemoteNotifcationDeviceToken(_ tokenData: Data) {
-        self.setRemoteNotificationDeviceToken(tokenData)
     }
 
     /// Should be called in response to the application delegate receiving a remote notification.
@@ -37,18 +31,28 @@ extension Apptentive: UNUserNotificationCenterDelegate {
             return false
         }
 
-        ApptentiveLogger.default.info("Apptentive push notification received with userInfo: \(userInfo).")
-        if let aps = userInfo["aps"] as? [String: Any], let contentAvailable = aps["content-available"] as? Bool, contentAvailable {
-            self.fetchMessages(completion: completionHandler)
+        ApptentiveLogger.default.info("Apptentive push notification received.")
+        self.backendQueue.async {
+            if let aps = userInfo["aps"] as? [String: Any], let contentAvailable = aps["content-available"] as? Bool, contentAvailable {
+                self.fetchMessages { success in
+                    DispatchQueue.main.async {
+                        completionHandler(success ? .newData : .failed)
+                    }
+                }
 
-            // Post a user notification if no alert was displayed,
-            // either because this was a background push,
-            // or because the app is in the foreground.
-            if aps["alert"] == nil || self.environment.isInForeground {
-                self.postUserNotification(with: userInfo)
+                // Post a user notification if no alert was displayed,
+                // either because this was a background push,
+                // or because the app is in the foreground.
+                if aps["alert"] == nil || self.environment.isInForeground {
+                    DispatchQueue.main.async {
+                        self.postUserNotification(with: userInfo)
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    completionHandler(.noData)
+                }
             }
-        } else {
-            completionHandler(.noData)
         }
 
         return true
@@ -128,14 +132,16 @@ extension Apptentive: UNUserNotificationCenterDelegate {
             return
         }
 
-        if apptentive["action"] as? String == "pmc" {
+        if apptentive["pmc"] as? Bool == true {
             self.presentMessageCenter(from: nil, completion: nil)
         }
     }
 
-    private func fetchMessages(completion: @escaping (UIBackgroundFetchResult) -> Void) {
+    private func fetchMessages(_ completionHandler: @escaping (Bool) -> Void) {
         self.backendQueue.async {
-            self.backend.messageFetchCompletionHandler = completion
+            self.backend.getMessagesIfNeeded { success in
+                completionHandler(success)
+            }
         }
     }
 
