@@ -202,32 +202,20 @@ extension Apptentive {
         assertionFailure("The public App Store feature is no longer supported.")
     }
 
-    @available(*, deprecated, message: "Push notification support is not yet available.")
-    @objc public func setPushProvider(_ pushProvider: ApptentivePushProvider, deviceToken: Data) {}
+    @available(*, deprecated, message: "Use the `setRemoteNotificationToken()` method instead.")
+    @objc public func setPushProvider(_ pushProvider: ApptentivePushProvider, deviceToken: Data) {
+        switch pushProvider {
+        case .apptentive:
+            self.setRemoteNotifcationDeviceToken(deviceToken)
 
-    @available(*, deprecated, message: "Push notification support is not yet available.")
-    @objc public func didReceiveRemoteNotification(_ userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) -> Bool {
-        return false
+        default:
+            assertionFailure("Alternative push providers are no longer supported.")
+        }
     }
 
-    @available(*, deprecated, message: "Push notification support is not yet available.")
-    @objc public func didReceiveLocalNotification(_ notification: UILocalNotification, from viewController: UIViewController) -> Bool {
-        return false
-    }
-
-    @available(*, deprecated, message: "Push notification support is not yet available.")
-    @objc public func didReceiveUserNotificationResponse(_ response: UNNotificationResponse, from viewController: UIViewController?, withCompletionHandler completionHandler: @escaping () -> Void) -> Bool {
-        return false
-    }
-
-    @available(*, deprecated, message: "Push notification support is not yet available.")
-    @objc public func didReceveUserNotificationResponse(_ response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) -> Bool {
-        return false
-    }
-
-    @available(*, deprecated, message: "Push notification support is not yet available.")
-    @objc public func willPresent(_ notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) -> Bool {
-        return false
+    @available(*, deprecated, message: "This method is deprecated in favor of didReceveUserNotificationResponse(_:from:withCompletionHandler:).")
+    @objc public func didReceveUserNotificationResponse(_ response: UNNotificationResponse, from _: UIViewController?, withCompletionHandler completionHandler: @escaping () -> Void) -> Bool {
+        return self.didReceveUserNotificationResponse(response, withCompletionHandler: completionHandler)
     }
 
     @available(*, deprecated, message: "Advertising identifier collection is not implemented.")

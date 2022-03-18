@@ -45,6 +45,7 @@ protocol AppEnvironment {
     var distributionVersion: Version? { get set }
     var isDebugBuild: Bool { get }
     var isTesting: Bool { get }
+    var appDisplayName: String { get }
 }
 
 /// The portions of the Environment that provide information about the device.
@@ -145,6 +146,9 @@ class Environment: GlobalEnvironment {
     /// Whether the SDK was built in a debug configuration.
     let isDebugBuild: Bool
 
+    /// The display name of the app.
+    let appDisplayName: String
+
     /// The mobile telephone carrier that the device is connected to, if any.
     var carrier: String?
 
@@ -189,7 +193,17 @@ class Environment: GlobalEnvironment {
         self.fileManager = FileManager.default
 
         self.infoDictionary = Bundle.main.infoDictionary
+        let localizedInfoDictionary = Bundle.main.localizedInfoDictionary
         self.appStoreReceiptURL = Bundle.main.appStoreReceiptURL
+
+        let possibleDisplayNames: [String?] = [
+            localizedInfoDictionary?["CFBundleDisplayName"] as? String,
+            localizedInfoDictionary?["CFBundleName"] as? String,
+            self.infoDictionary?["CFBundleDisplayName"] as? String,
+            self.infoDictionary?["CFBundleName"] as? String,
+        ]
+
+        self.appDisplayName = possibleDisplayNames.compactMap { $0 }.first ?? "App"
 
         #if canImport(CoreTelephony)
             self.telephonyNetworkInfo = CTTelephonyNetworkInfo()

@@ -30,7 +30,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
+        self.registerForPush()
+
         return true
+    }
+
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        if !self.apptentive!.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler) {
+            print("Push was not handled by Apptentive. Calling completion handler")
+            completionHandler(.noData)
+        }
+    }
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        self.apptentive?.setRemoteNotifcationDeviceToken(deviceToken)
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("Failed to register for remote notifications: \(error).")
     }
 
     fileprivate func registerDefaults() {
@@ -39,6 +56,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         UserDefaults.standard.register(defaults: defaultDefaults)
+    }
+
+    fileprivate func registerForPush() {
+        UIApplication.shared.registerForRemoteNotifications()
+
+        UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .alert]) { success, error in
+            if !success, let error = error {
+                print("Error requesting notification permissions: \(error).")
+            } else {
+                print("Success requesting notification permissions.")
+            }
+        }
+
+        UNUserNotificationCenter.current().delegate = self.apptentive
     }
 
     fileprivate func connect(_ completion: @escaping ((Result<Void, Error>)) -> Void) {

@@ -161,6 +161,7 @@ open class InteractionPresenter {
     /// Checks the `presentingViewController` property and recovers from common failure modes.
     public var validatedPresentingViewController: UIViewController? {
         // Fall back to the crawling the window's VC hierachy if certain failures exist.
+        // TODO: make sure this works with scene-based apps.
         if self.presentingViewController == nil || self.presentingViewController?.isViewLoaded == false || self.presentingViewController?.view.window == nil {
             self.presentingViewController = UIApplication.shared.keyWindow?.topViewController
         }

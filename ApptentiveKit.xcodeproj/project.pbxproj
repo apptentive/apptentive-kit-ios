@@ -17,6 +17,7 @@
 		0113867D27DA79620024653F /* LegacyRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0113867C27DA79620024653F /* LegacyRandom.swift */; };
 		0118DD6C26FB797500037E0E /* MessageContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD6B26FB797500037E0E /* MessageContent.swift */; };
 		0118DD6E26FB79AC00037E0E /* MessagePayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD6D26FB79AC00037E0E /* MessagePayloadTests.swift */; };
+		011B67072759BCD300148290 /* Apptentive+Push.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011B67062759BCD300148290 /* Apptentive+Push.swift */; };
 		011C64BC264C48D300219243 /* EngagementMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011C64BB264C48D300219243 /* EngagementMetric.swift */; };
 		011C64D3264D881400219243 /* Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011C64D2264D881400219243 /* Answer.swift */; };
 		011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011FF85F252D1AF700073EBC /* InteractionDelegate.swift */; };
@@ -253,6 +254,7 @@
 		0113867C27DA79620024653F /* LegacyRandom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyRandom.swift; sourceTree = "<group>"; };
 		0118DD6B26FB797500037E0E /* MessageContent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageContent.swift; sourceTree = "<group>"; };
 		0118DD6D26FB79AC00037E0E /* MessagePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagePayloadTests.swift; sourceTree = "<group>"; };
+		011B67062759BCD300148290 /* Apptentive+Push.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Apptentive+Push.swift"; sourceTree = "<group>"; };
 		011C64BB264C48D300219243 /* EngagementMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementMetric.swift; sourceTree = "<group>"; };
 		011C64D2264D881400219243 /* Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Answer.swift; sourceTree = "<group>"; };
 		011FF85F252D1AF700073EBC /* InteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionDelegate.swift; sourceTree = "<group>"; };
@@ -840,6 +842,7 @@
 				EF417550271F5F860013248B /* ApptentiveImageView.swift */,
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */,
+				011B67062759BCD300148290 /* Apptentive+Push.swift */,
 				013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */,
 				EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */,
 				0165B80B258181CF001DF54E /* Apptentive+Theme.swift */,
@@ -1292,6 +1295,7 @@
 				015A0D4125509C0A00EF077D /* SurveyChoiceCell.swift in Sources */,
 				01D19C8D266162FB00BD8CF9 /* ChoiceButton.swift in Sources */,
 				015D6BC22509A34D00372759 /* Saver.swift in Sources */,
+				011B67072759BCD300148290 /* Apptentive+Push.swift in Sources */,
 				015F2AE124C9FEBF004B53E2 /* SurveyMultiLineCell.swift in Sources */,
 				015A0D3625509BB600EF077D /* SurveyViewModel+ChoiceQuestion.swift in Sources */,
 				012A1B6B263A282B00EBC073 /* LegacyCount.swift in Sources */,
