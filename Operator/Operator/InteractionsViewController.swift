@@ -44,8 +44,10 @@ class InteractionsViewController: UITableViewController {
         return cell
     }
 
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return InteractionType(rawValue: interactionGroupNames[section])?.displayName ?? "Unknown"
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        try? self.apptentive.presentInteraction(self.interactions[indexPath.row].1, from: self)
+        
+        self.tableView.deselectRow(at: indexPath, animated: true)
     }
 
     // MARK: UITableViewDelegate

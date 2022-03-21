@@ -98,14 +98,14 @@ extension Apptentive {
         }
     }
 
-    @available(swift, deprecated: 1.0, message: "Create an 'Event' object and subscript its 'customData' property.")
+    @available(swift, deprecated: 1.0, message: "Create an Event object and subscript its customData property.")
     @objc(engage:withCustomData:fromViewController:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?) {
         var event = Event(name: event)
         event.customData = Self.convertLegacyCustomData(customData)
         self.engage(event: event, from: viewController, completion: nil)
     }
 
-    @available(swift, deprecated: 1.0, message: "Create an 'Event' object and subscript its 'customData' property.")
+    @available(swift, deprecated: 1.0, message: "Create an Event object and subscript its customData property.")
     @objc(engage:withCustomData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
         var event = Event(name: event)
         event.customData = Self.convertLegacyCustomData(customData)

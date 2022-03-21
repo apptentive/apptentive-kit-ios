@@ -9,40 +9,55 @@
 import ApptentiveKit
 import UIKit
 
-class EventsViewController: UITableViewController, CustomDataDataSourceDelegate {
-    override func viewDidLoad() {
-        super.viewDidLoad()
+class EventsViewController: UITableViewController, UITextFieldDelegate {
 
-        self.customEvents = UserDefaults.standard.array(forKey: Self.eventsKey) as? [String] ?? []
-        self.underlyingCustomData = UserDefaults.standard.dictionary(forKey: Self.customDataKey) ?? [:]
-
-        for (key, value) in self.underlyingCustomData {
-            switch value {
-            case let stringValue as String:
-                self.customData[key] = stringValue
-
-            case let intValue as Int:
-                self.customData[key] = intValue
-
-            case let doubleValue as Double:
-                self.customData[key] = doubleValue
-
-            case let boolValue as Bool:
-                self.customData[key] = boolValue
-
-            default:
-                break
+    
+    private static let eventsKey = "Events"
+    private static let eventsDictKey = "EventsDict"
+    
+    private var events: [String]! {
+        didSet {
+            
+            UserDefaults.standard.setValue(self.events, forKey: Self.eventsKey)
+        }
+    }
+    
+    private var eventsDict = [String: OperatorEventCustomData]() {
+    didSet {
+        do {
+           let data = try JSONEncoder().encode(eventsDict)
+            UserDefaults.standard.set(data, forKey: Self.eventsDictKey)
+            } catch {
+            print("Encoding error: \(error)")
             }
         }
-
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    
+        self.events = UserDefaults.standard.array(forKey: Self.eventsKey) as? [String] ?? []
+       
+        do {
+            if let data = UserDefaults.standard.data(forKey: Self.eventsDictKey){
+            let eventDict = try JSONDecoder().decode([String:OperatorEventCustomData].self, from: data)
+            self.eventsDict = eventDict
+        }
+        } catch {
+            print("Error decoding event custom data dictionary: \(error)")
+        }
+        
         self.navigationItem.rightBarButtonItem = self.editButtonItem
         NotificationCenter.default.addObserver(self, selector: #selector(eventEngaged), name: Notification.Name.apptentiveEventEngaged, object:nil)
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
-
         self.tableView.reloadSections(IndexSet(integer: 0), with: .bottom)
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -89,14 +104,35 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
                 return cell
             }
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "Event", for: indexPath)
-
-            cell.textLabel?.text = self.manifestEvents[indexPath.row]
-
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: "Event", for: indexPath) as? EventCell else {return UITableViewCell()}
+            cell.eventName.text = self.events[indexPath.row]
+            cell.eventName.font = .preferredFont(forTextStyle: .headline)
+            let eventCustomData = self.eventsDict[self.events[indexPath.row]]
+            var customDataString = ""
+            
+            if eventCustomData?.stringKey != nil || eventCustomData?.numberKey != nil || eventCustomData?.boolKey != nil {
+                customDataString = "\nCustom Data:"
+            }
+            
+            if let stringKey = eventCustomData?.stringKey,
+               let stringValue = eventCustomData?.stringValue {
+                customDataString.append("\nKey: \(stringKey), Value: \(stringValue)")
+          }
+            if let numberkey = eventCustomData?.numberKey,
+               let value = eventCustomData?.numberValue {
+                let valueInt = Int(value)
+                customDataString.append("\nKey: \(numberkey), Value: \(valueInt)")
+        }
+        
+            if let boolKey = eventCustomData?.boolKey,
+               let boolValue = eventCustomData?.boolValue{
+                customDataString.append("\nKey: \(boolKey), Value: \(boolValue)")
+        }
+            cell.customData.text = customDataString
             return cell
         }
     }
-
+    
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return indexPath.section == 0
     }
@@ -109,8 +145,37 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
             let cell = tableView.cellForRow(at: indexPath) as! AddEventCell
 
             if let newEvent = cell.textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), newEvent.count > 0 {
-                self.customEvents.append(newEvent)
+            
+            var operatorCustomData = OperatorEventCustomData()
+                
+                
+            if let key = cell.stringKeyTextField.text,
+               let value = cell.stringValueTextField.text,
+                !key.isEmpty,
+                !value.isEmpty {
+                operatorCustomData.stringKey = key
+                operatorCustomData.stringValue = value
+            }
+            if let key = cell.numberKeyTextField.text,
+                let value = cell.numberValueTextField.text,
+                    !key.isEmpty,
+                      !value.isEmpty,
+                let valueInt = Int(value) {
+                operatorCustomData.numberKey = key
+                operatorCustomData.numberValue = valueInt
+            }
+            
+                if let key = cell.boolKeyTextField.text,
+                          !key.isEmpty {
+                let value = cell.boolValueSwitch.isOn
+                    operatorCustomData.boolKey = key
+                    operatorCustomData.boolValue = value
+            }
+                
+                self.eventsDict[newEvent] = operatorCustomData
+                self.events.append(newEvent)
                 tableView.insertRows(at: [indexPath], with: .bottom)
+                self.tableView.tableFooterView = nil
             }
         }
     }
@@ -139,14 +204,31 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if !self.isEditing {
-            var event = indexPath.section == 0 ? Event(name: self.customEvents[indexPath.row]) : Event(name: self.manifestEvents[indexPath.row])
+            let eventString = self.events[indexPath.row]
+            if let eventCustomData = self.eventsDict[eventString] {
 
-            if self.customData.keys.count > 0 {
-                event.customData = self.customData
+                var event = Event(name: eventString)
+                
+                
+                if let key = eventCustomData.stringKey,
+                   let value = eventCustomData.stringValue {
+                    event.customData?[key] = value
             }
-
-            self.apptentive.engage(event: event, from: self)
+                if let key = eventCustomData.numberKey,
+                   let value = eventCustomData.numberValue {
+                    let valueInt = Int(value)
+                    event.customData?[key] = valueInt
+            }
+            
+                if let key = eventCustomData.boolKey,
+                   let value = eventCustomData.boolValue{
+                    event.customData?[key] = value
+            }
+                
+                
+            self.apptentive.engage(event:event , from: self)
         }
+    }
 
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -157,3 +239,13 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
     }
   }
 }
+
+struct OperatorEventCustomData: Codable {
+    var stringKey: String?
+    var stringValue: String?
+    var numberKey: String?
+    var numberValue: Int?
+    var boolKey:String?
+    var boolValue: Bool?
+}
+
