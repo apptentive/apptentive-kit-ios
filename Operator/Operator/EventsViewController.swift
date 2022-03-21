@@ -36,16 +36,7 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
         }
 
         self.navigationItem.rightBarButtonItem = self.editButtonItem
-
         NotificationCenter.default.addObserver(self, selector: #selector(eventEngaged), name: Notification.Name.apptentiveEventEngaged, object:nil)
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        self.loadEvents()
-
-        self.updatePrompt()
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -159,67 +150,10 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
 
         tableView.deselectRow(at: indexPath, animated: true)
     }
-
-    // MARK: - Actions
-
-    @IBAction func reload(_ sender: UIBarButtonItem) {
-        self.loadEvents()
-    }
-
-    // MARK: - Notifications
     
     @objc func eventEngaged(notification: Notification) {
         if let eventName = notification.userInfo?["eventType"] {
-            print("Event engaged: \(eventName)")
-        }
+        print("Event engaged: \(eventName)")
     }
-
-    // MARK: - Internal
-
-    internal var customData = CustomData() {
-        didSet {
-            for key in self.customData.keys {
-                self.underlyingCustomData[key] = self.customData[key]
-            }
-
-            for removedKey in Set(self.customData.keys).subtracting(self.customData.keys) {
-                self.underlyingCustomData.removeValue(forKey: removedKey)
-            }
-        }
-    }
-
-    // MARK: - Private
-
-    private static let eventsKey = "Events"
-    private static let customDataKey = "EventCustomData"
-
-    private func updatePrompt() {
-        if let manifestOverride = self.apptentive.engagementManifestURL?.lastPathComponent {
-            self.navigationItem.prompt = "Using “\(manifestOverride)” Manifest"
-        } else {
-            self.navigationItem.prompt = nil
-        }
-    }
-
-    private var underlyingCustomData = [String: Any]() {
-        didSet {
-            UserDefaults.standard.set(self.underlyingCustomData, forKey: Self.customDataKey)
-        }
-    }
-
-    private var customEvents: [String]! {
-        didSet {
-            UserDefaults.standard.setValue(self.customEvents, forKey: Self.eventsKey)
-        }
-    }
-
-    private var manifestEvents = [String]()
-
-    private func loadEvents() {
-        self.apptentive.getEventList { events in
-            self.manifestEvents = events
-
-            self.tableView.reloadData()
-        }
-    }
+  }
 }

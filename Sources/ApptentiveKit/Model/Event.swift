@@ -119,3 +119,14 @@ enum EventUserInfo: Equatable {
     case textModalAction(TextModalAction)
     case dismissCause(CancelInteractionCause)
 }
+
+extension Event {
+    func userInfoForNotification() -> [String: String] {
+        var userInfo = [String: String]()
+        userInfo["eventType"] = self.name
+        userInfo["interactionType"] = self.interaction?.typeName
+        userInfo["interactionID"] = self.interaction?.id
+        userInfo["eventSource"] = self.vendor
+        return userInfo
+    }
+}
