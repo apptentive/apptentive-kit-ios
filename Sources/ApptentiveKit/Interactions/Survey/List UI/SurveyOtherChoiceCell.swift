@@ -98,12 +98,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
         self.textField.setContentHuggingPriority(.defaultHigh, for: .vertical)
         self.textField.borderStyle = .roundedRect
         self.textField.accessibilityIdentifier = "OtherCell"
-        self.textField.tintColor = .apptentivetextInputTint
-        self.textField.font = .apptentiveTextInput
-        self.textField.adjustsFontForContentSizeCategory = true
-        self.textField.backgroundColor = .apptentiveTextInputBackground
-        self.textField.textColor = .apptentiveTextInput
-        self.textField.returnKeyType = .done
+        self.textField.tintColor = .apptentiveSubmitButton
 
         // Set up additional border to display validation state
         self.textField.layer.borderWidth = 1.0 / self.traitCollection.displayScale
