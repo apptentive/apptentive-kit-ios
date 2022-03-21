@@ -171,6 +171,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             self.interactionPresenter.presentingViewController = presentingViewController
         }
 
+        NotificationCenter.default.post(name: Notification.Name.apptentiveEventEngaged, object: nil, userInfo: event.userInfoForNotification())
+
         self.backendQueue.async {
             self.backend.engage(event: event, completion: completion)
         }

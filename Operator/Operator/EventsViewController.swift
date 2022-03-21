@@ -24,6 +24,7 @@ class EventsViewController: UITableViewController {
         self.events = UserDefaults.standard.array(forKey: Self.eventsKey) as? [String] ?? []
 
         self.navigationItem.rightBarButtonItem = self.editButtonItem
+        NotificationCenter.default.addObserver(self, selector: #selector(eventEngaged), name: Notification.Name.apptentiveEventEngaged, object:nil)
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -95,4 +96,10 @@ class EventsViewController: UITableViewController {
 
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    @objc func eventEngaged(notification: Notification) {
+        if let eventName = notification.userInfo?["eventType"] {
+        print("Event engaged: \(eventName)")
+    }
+  }
 }

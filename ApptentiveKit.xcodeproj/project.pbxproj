@@ -195,6 +195,7 @@
 		EF9F40B0271894C7005D7209 /* MessageReceivedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */; };
 		EFAA223227B1895300B4FC3B /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAA223127B1895300B4FC3B /* EditProfileViewController.swift */; };
 		EFAA226827C5520200B4FC3B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EFAA226A27C5520200B4FC3B /* Localizable.strings */; };
+		EFCE2AF027E3F553001ADB11 /* Apptentive+NotificationName.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCE2AEF27E3F553001ADB11 /* Apptentive+NotificationName.swift */; };
 		EFE8D6F027AC9E7600388AA9 /* ProfileFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE8D6EF27AC9E7500388AA9 /* ProfileFooterView.swift */; };
 /* End PBXBuildFile section */
 
@@ -461,6 +462,7 @@
 		EFAA223127B1895300B4FC3B /* EditProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
 		EFAA226927C5520200B4FC3B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		EFAA226B27C5521600B4FC3B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		EFCE2AEF27E3F553001ADB11 /* Apptentive+NotificationName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Apptentive+NotificationName.swift"; sourceTree = "<group>"; };
 		EFE8D6EF27AC9E7500388AA9 /* ProfileFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFooterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -839,6 +841,7 @@
 				013D8E8624F03888005EC4D1 /* Networking */,
 				017FC93125310E4700C7A47F /* Targeting */,
 				01A0918723FCB5D600AF187E /* Apptentive.swift */,
+				EFCE2AEF27E3F553001ADB11 /* Apptentive+NotificationName.swift */,
 				EF417550271F5F860013248B /* ApptentiveImageView.swift */,
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */,
@@ -1344,6 +1347,7 @@
 				014D5B33256F16CC0030DC90 /* UIAlertController+AlertViewModel.swift in Sources */,
 				EF69E0BC258962DA00FA0636 /* SurveyRangeCell.swift in Sources */,
 				013D8EA624F09B01005EC4D1 /* Device.swift in Sources */,
+				EFCE2AF027E3F553001ADB11 /* Apptentive+NotificationName.swift in Sources */,
 				EF9F40AB27178F5E005D7209 /* MessageViewController.swift in Sources */,
 				0176159B25D1F9F900BB85C6 /* HTTPRequestRetrier.swift in Sources */,
 				010C1FEA27D28D7600BF37CD /* Apptentive+InteractionDelegate.swift in Sources */,
