@@ -101,6 +101,39 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// The number of unread messages in message center.
     @objc dynamic public var unreadMessageCount = 0
 
+    /// The name of the distribution method for this SDK instance (not for app use).
+    ///
+    /// This property is used to track the relative popularity of various methods of
+    /// integrating this SDK, for example "React Native" or "CocoaPods".
+    ///
+    /// This property is not intended to be set by apps using the SDK, but
+    /// should be set by projects that re-package the SDK for distribution
+    /// as part of e.g. a cross-platform app framework.
+    public var distributionName: String? {
+        get {
+            return self.environment.distributionName
+        }
+        set {
+            self.environment.distributionName = newValue
+        }
+    }
+
+    /// The version of the distribution for this SDK instance (not for app use).
+    ///
+    /// This property is used to track the version of any projects
+    /// that re-package the SDK as part of e.g. a cross-platform app-
+    /// development framework.
+    ///
+    /// This property is not intended to be set by apps using the SDK.
+    public var distributionVersion: String? {
+        get {
+            return self.environment.distributionVersion?.versionString
+        }
+        set {
+            self.environment.distributionVersion = newValue.flatMap { Version(string: $0) }
+        }
+    }
+
     /// Indicates a theme that will be applied to Apptentive UI.
     public enum UITheme {
         /// Apptentive cross-platform look and feel.

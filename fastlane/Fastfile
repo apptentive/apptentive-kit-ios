@@ -80,7 +80,8 @@ platform :ios do
 
     xcargs = {
       :BUILD_LIBRARY_FOR_DISTRIBUTION => "YES",
-      :SKIP_INSTALL => "NO"
+      :SKIP_INSTALL => "NO",
+      :APPTENTIVE_DISTRIBUTION => "Framework"
     }
     
     gym(

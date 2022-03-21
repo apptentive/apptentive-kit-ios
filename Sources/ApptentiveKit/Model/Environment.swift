@@ -262,8 +262,12 @@ class Environment: GlobalEnvironment {
         #else
             if let _ = Bundle.module.url(forResource: "Version", withExtension: "plist") {
                 self.distributionName = "SPM"
+            } else if let carthage = Bundle.module.infoDictionary?["Carthage"] as? String, carthage == "YES" {
+                self.distributionName = "Carthage"
+            } else if let distributionName = Bundle.module.infoDictionary?["ApptentiveDistributionName"] as? String, !distributionName.isEmpty {
+                self.distributionName = distributionName
             } else {
-                self.distributionName = "source"
+                self.distributionName = "Source"
             }
         #endif
 
