@@ -84,16 +84,18 @@ extension Apptentive {
         }
     }
 
-    @available(*, deprecated, message: "Event custom data are no longer supported. Event will be engaged without custom data.")
+    @available(swift, deprecated: 1.0, message: "Create an Event object and subscript its customData property.")
     @objc(engage:withCustomData:fromViewController:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?) {
-        ApptentiveLogger.engagement.error("Event custom data are no longer supported. Event will be engaged without custom data.")
-        self.engage(event: Event(name: event), from: viewController, completion: nil)
+        var event = Event(name: event)
+        event.customData = Self.convertLegacyCustomData(customData)
+        self.engage(event: event, from: viewController, completion: nil)
     }
 
-    @available(*, deprecated, message: "Event custom data are no longer supported. Event will be engaged without custom data.")
+    @available(swift, deprecated: 1.0, message: "Create an Event object and subscript its customData property.")
     @objc(engage:withCustomData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
-        ApptentiveLogger.engagement.error("Event custom data are no longer supported. Event will be engaged without custom data.")
-        self.engage(event: Event(name: event), from: viewController) { (result) in
+        var event = Event(name: event)
+        event.customData = Self.convertLegacyCustomData(customData)
+        self.engage(event: event, from: viewController) { (result) in
             switch result {
             case .success:
                 completion?(true)

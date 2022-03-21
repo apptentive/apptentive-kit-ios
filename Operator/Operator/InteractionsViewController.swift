@@ -36,7 +36,7 @@ class InteractionsViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         try? self.apptentive.presentInteraction(self.interactions[indexPath.row].1, from: self)
-
+        
         self.tableView.deselectRow(at: indexPath, animated: true)
     }
 
