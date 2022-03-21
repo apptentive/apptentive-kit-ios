@@ -267,17 +267,14 @@ class Environment: GlobalEnvironment {
         #if COCOAPODS
             self.distributionName = "CocoaPods"
         #else
-            if let _ = Bundle.module.url(forResource: "SwiftPM", withExtension: "txt") {
-                self.distributionName = "SwiftPM"
-            } else if let url = Bundle.module.url(forResource: "Distribution", withExtension: "plist"),
-                let data = try? Data(contentsOf: url),
-                let infoDictionary = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
-                let distributionName = infoDictionary["ApptentiveDistributionName"] as? String
-            {
+            if let _ = Bundle.module.url(forResource: "Version", withExtension: "plist") {
+                self.distributionName = "SPM"
+            } else if let carthage = Bundle.module.infoDictionary?["Carthage"] as? String, carthage == "YES" {
+                self.distributionName = "Carthage"
+            } else if let distributionName = Bundle.module.infoDictionary?["ApptentiveDistributionName"] as? String, !distributionName.isEmpty {
                 self.distributionName = distributionName
             } else {
-                ApptentiveLogger.default.warning("ApptentiveKit framework is damaged! Missing ApptentiveDistributionName in Distribution.plist.")
-                self.distributionName = "Unknown"
+                self.distributionName = "Source"
             }
         #endif
 
