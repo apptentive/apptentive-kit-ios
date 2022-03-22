@@ -118,6 +118,7 @@ enum EventUserInfo: Equatable {
     case navigateToLink(NavigateToLinkResult)
     case textModalAction(TextModalAction)
     case dismissCause(CancelInteractionCause)
+    case messageInfo(ReadMessageInfo)
 }
 
 extension Event {

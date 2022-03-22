@@ -227,18 +227,9 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     }
 
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        self.viewModel.markMessageAsRead(at: indexPath)
-    }
-
-    // MARK: - Text Field Delegate
-
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        self.composeContainerView.composeView.textView.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
-        textField.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
-    }
-
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        textField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+        if indexPath.section == tableView.numberOfSections - 1 && indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
+            self.viewModel.markMessageAsRead(at: indexPath)
+        }
     }
 
     // MARK: - Text View Delegate

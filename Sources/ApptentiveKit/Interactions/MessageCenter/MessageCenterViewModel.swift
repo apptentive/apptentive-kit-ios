@@ -802,7 +802,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             statusText = self.failedText
 
         case (.unread, _):
-            direction = .sentFromDashboard(.unread)
+            direction = .sentFromDashboard(.unread(messageID: managedMessage.id))
             statusText = sentDateString
         case (.read, _):
             direction = .sentFromDashboard(.read)
