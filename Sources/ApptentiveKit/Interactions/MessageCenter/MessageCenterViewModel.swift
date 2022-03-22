@@ -308,12 +308,13 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         return self.groupedMessages.count
     }
 
-    /// Updates the 'read' status for all messages.
-    public func updateUnreadMessages() {
-        for messageList in groupedMessages {
-            for message in messageList {
-                self.interactionDelegate.markMessageAsRead(message.nonce)
-            }
+    /// Updates the 'read' status for the specified message.
+    public func markMessageAsRead(at indexPath: IndexPath) {
+        let message = self.message(at: indexPath)
+
+        if case .sentFromDashboard(let readStatus) = message.direction, case .unread(let id) = readStatus {
+            self.interactionDelegate.markMessageAsRead(message.nonce)
+            self.interactionDelegate.engage(event: .messageRead(with: id, from: self.interaction))
         }
     }
 
@@ -685,7 +686,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             statusText = self.failedText
 
         case (.unread, _):
-            direction = .sentFromDashboard(.unread)
+            direction = .sentFromDashboard(.unread(messageID: managedMessage.id))
             statusText = sentDateString
         case (.read, _):
             direction = .sentFromDashboard(.read)
@@ -736,6 +737,25 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     }
 
     private static let emailPredicate = NSPredicate(format: "SELF MATCHES %@", "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")
+}
+
+extension Event {
+    /// Convenience method for a `read` event for Message Center.
+    static func messageRead(with id: String?, from interaction: Interaction) -> Self {
+        var result = Self(internalName: "read", interaction: interaction)
+
+        result.userInfo = id.flatMap { .messageInfo(ReadMessageInfo(id: $0)) }
+
+        return result
+    }
+}
+
+struct ReadMessageInfo: Codable, Equatable {
+    let id: String
+
+    enum CodingKeys: String, CodingKey {
+        case id = "message_id"
+    }
 }
 
 public enum MessageCenterViewModelError: Error {

@@ -34,7 +34,9 @@ class SpyInteractionDelegate: InteractionDelegate {
     var messageManagerDelegate: MessageManagerDelegate?
 
     func getMessages(completion: @escaping ([MessageList.Message]) -> Void) {
-
+        completion([
+            MessageList.Message(id: "abc", nonce: "def", body: "Test Body", attachments: [], sender: nil, sentDate: Date(), isAutomated: false, isHidden: false, status: .unread)
+        ])
     }
 
     func setDraftMessageBody(_ body: String?) {

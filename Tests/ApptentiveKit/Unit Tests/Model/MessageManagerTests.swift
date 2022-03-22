@@ -121,6 +121,7 @@ class MessageManagerTests: XCTestCase {
 
         let convertedMessage = MessageManager.convert(downloadedMessage: downloadedMessage)
 
+        XCTAssertEqual(convertedMessage.id, "abc")
         XCTAssertEqual(convertedMessage.nonce, "def")
         XCTAssertEqual(convertedMessage.status, .unread)
         XCTAssertEqual(convertedMessage.body, "Body")

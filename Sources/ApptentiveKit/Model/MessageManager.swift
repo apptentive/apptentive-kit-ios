@@ -349,7 +349,7 @@ class MessageManager {
             MessageList.Message.Sender(name: sender.name, profilePhoto: sender.profilePhoto)
         }
 
-        return MessageList.Message(nonce: downloadedMessage.nonce, body: downloadedMessage.body, attachments: attachments, sender: sender, sentDate: downloadedMessage.sentDate, status: Self.status(of: downloadedMessage))
+        return MessageList.Message(id: downloadedMessage.id, nonce: downloadedMessage.nonce, body: downloadedMessage.body, attachments: attachments, sender: sender, sentDate: downloadedMessage.sentDate, status: Self.status(of: downloadedMessage))
     }
 
     static func status(of downloadedMessage: MessagesResponse.Message) -> MessageList.Message.Status {

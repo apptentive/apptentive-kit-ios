@@ -207,7 +207,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.section == tableView.numberOfSections - 1 && indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
-            self.viewModel.updateUnreadMessages()
+            self.viewModel.markMessageAsRead(at: indexPath)
         }
     }
 
