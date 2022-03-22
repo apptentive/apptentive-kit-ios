@@ -126,9 +126,17 @@ extension Apptentive {
         }
     }
 
-    @available(*, deprecated, message: "This feature is not implemented and will always result in false.")
+    @available(swift, deprecated: 1.0, message: "Use the 'canShowInteraction(event:completion:)' method instead.")
     @objc public func queryCanShowInteraction(forEvent event: String, completion: @escaping (Bool) -> Void) {
-        completion(false)
+        let event = Event(name: event)
+        self.canShowInteraction(event: event) { result in
+            switch result {
+            case .success(let canShowInteraction):
+                completion(canShowInteraction)
+            case .failure(_):
+                completion(false)
+            }
+        }
     }
 
     @available(*, deprecated, message: "Extended event data are no longer supported.")

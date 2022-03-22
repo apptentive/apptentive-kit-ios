@@ -280,6 +280,16 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         self.sendMessage(.init(nonce: "hidden", attachments: [attachment], isHidden: true))
     }
 
+    /// Checks if the event can trigger an interaction.
+    /// - Parameters:
+    ///  - event: The event used to check if it can trigger an interaction.
+    ///  - completion: A completion handler that is called with a boolean indicating whether or not an interaction can be shown using the event.
+    public func canShowInteraction(event: Event, completion: ((Result<Bool, Error>) -> Void)? = nil) {
+        self.backendQueue.async {
+            self.backend.canShowInteraction(event: event, completion: completion)
+        }
+    }
+
     /// Creates a new Apptentive SDK object using the specified URL to communicate with the Apptentive API.
     ///
     /// This should only be used for testing the SDK against a server other than the production Apptentive API server.
