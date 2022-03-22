@@ -326,17 +326,14 @@ class Backend {
     ///  - completion: A completion handler that is called with a boolean indicating whether or not an interaction can be shown using the event.
     func canShowInteraction(event: Event, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         do {
-            let result = try self.targeter.interactionData(for: event, state: self.conversation)
-
-            DispatchQueue.main.async {
-                completion?(.success(result != nil))
+            if let _ = try self.targeter.interactionData(for: event, state: self.conversation) {
+                completion?(.success(true))
             }
         } catch let error {
-            DispatchQueue.main.async {
-                completion?(.failure(error))
-            }
+            completion?(.failure(error))
             ApptentiveLogger.default.error("Error evaluating criteria for event \(event.name). Error: \(error).")
         }
+        completion?(.success(false))
     }
 
     // MARK: - Private
