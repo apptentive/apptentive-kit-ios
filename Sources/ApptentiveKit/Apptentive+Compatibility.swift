@@ -14,7 +14,7 @@
 import UIKit
 
 extension Apptentive {
-    @available(*, deprecated, message: "Use the 'register(with:completion:)' method on the 'shared' instance instead.")
+    @available(swift, deprecated: 1.0, message: "Use the 'register(with:completion:' method on the 'shared' instance instead.")
     @objc(registerWithConfiguration:) public class func register(with configuration: ApptentiveConfiguration) {
         self.shared.register(with: configuration)
     }
@@ -98,14 +98,14 @@ extension Apptentive {
         }
     }
 
-    @available(swift, deprecated: 1.0, message: "Create an Event object and subscript its customData property.")
+    @available(swift, deprecated: 1.0, message: "Create an 'Event' object and subscript its 'customData' property.")
     @objc(engage:withCustomData:fromViewController:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?) {
         var event = Event(name: event)
         event.customData = Self.convertLegacyCustomData(customData)
         self.engage(event: event, from: viewController, completion: nil)
     }
 
-    @available(swift, deprecated: 1.0, message: "Create an Event object and subscript its customData property.")
+    @available(swift, deprecated: 1.0, message: "Create an 'Event' object and subscript its 'customData' property.")
     @objc(engage:withCustomData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
         var event = Event(name: event)
         event.customData = Self.convertLegacyCustomData(customData)
@@ -178,11 +178,6 @@ extension Apptentive {
         completion(false)
     }
 
-    @objc(presentMessageCenterFromViewController:)
-    public func presentMessageCenterCompat(from viewController: UIViewController?) {
-        self.presentMessageCenter(from: viewController)
-    }
-
     @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
     @objc(presentMessageCenterFromViewController:completion:)
     public func presentMessageCenterCompat(from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
@@ -231,7 +226,7 @@ extension Apptentive {
         apptentiveCriticalError("The public App Store feature is no longer supported.")
     }
 
-    @available(*, deprecated, message: "Use the `setRemoteNotificationToken()` method instead.")
+    @available(*, deprecated, message: "Use the 'setRemoteNotificationToken()' method instead.")
     @objc public func setPushProvider(_ pushProvider: ApptentivePushProvider, deviceToken: Data) {
         switch pushProvider {
         case .apptentive:
@@ -305,7 +300,7 @@ extension Apptentive {
         self.personCustomData[key] = boolValue
     }
 
-    @available(*, deprecated, message: "Set style overrides in the UIKit+Apptentive extensions.")
+    @available(*, deprecated, message: "Set style overrides defined in UIKit+Apptentive.swift extensions.")
     @objc public var styleSheet: Any? {
         get {
             nil
@@ -393,59 +388,6 @@ extension Apptentive {
     }
 }
 
-extension UIButton {
-    @available(swift, deprecated: 1.0, message: "Set the 'apptentiveStyle' property to 'ApptentiveButtonStyle.pill'.")
-    /// Magic value for specifying a pill-style button (corner radius is half the height).
-    @objc public static let apptentivePillRadius: CGFloat = 15411
-
-    @available(swift, deprecated: 1.0, message: "Use the 'apptentiveStyle' property.")
-    /// The corner radius to use for the submit button in surveys.
-    @objc public static var apptentiveCornerRadius: CGFloat {
-        get {
-            switch self.apptentiveStyle {
-            case .pill:
-                return self.apptentivePillRadius
-
-            case .radius(let radius):
-                return radius
-            }
-        }
-        set {
-            if newValue == apptentivePillRadius {
-                self.apptentiveStyle = .pill
-            } else {
-                self.apptentiveStyle = .radius(newValue)
-            }
-        }
-    }
-}
-
-extension UITableView {
-    @available(swift, deprecated: 1.0, message: "Use the 'apptentive' property on 'UITableView.Style'.")
-    /// The table view style to use for Survey interactions.
-    @objc public static var apptentiveStyle: Int {
-        get {
-            return UITableView.Style.apptentive.rawValue
-        }
-        set {
-            UITableView.Style.apptentive = UITableView.Style(rawValue: newValue) ?? .grouped
-        }
-    }
-}
-
-extension UIViewController {
-    @available(swift, deprecated: 1.0, message: "Use the 'apptentive' property on 'UIModalPresentationStyle'.")
-    /// The modal presentation style for presenting Message Center and Survey interactions.
-    @objc public var apptentiveModalPresentationStyle: UIModalPresentationStyle {
-        get {
-            return UIModalPresentationStyle.apptentive
-        }
-        set {
-            UIModalPresentationStyle.apptentive = newValue
-        }
-    }
-}
-
 @available(*, deprecated, message: "Multiple users on the same device is not currently supported.")
 public typealias ApptentiveAuthenticationFailureCallback = (ApptentiveAuthenticationFailureReason, String) -> Void
 
@@ -500,7 +442,7 @@ public class ApptentiveConfiguration: NSObject {
     @objc public let apptentiveSignature: String
 
     /// The granularity of log messages to show.
-    @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of its static log properties.")
+    @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of it's static log properties.")
     @objc public var logLevel: ApptentiveLogLevel = .warn
 
     /// If set, redacts potentially-sensitive information such as user data and credentials from logging.
