@@ -14,7 +14,7 @@
 import UIKit
 
 extension Apptentive {
-    @available(*, deprecated, message: "Use the `register` method on the `shared` instance instead.")
+    @available(swift, deprecated: 1.0, message: "Use the 'register(with:completion:' method on the 'shared' instance instead.")
     @objc(registerWithConfiguration:) public class func register(with configuration: ApptentiveConfiguration) {
         ApptentiveLogger.logLevel = configuration.logLevel.logLevel
 
@@ -29,12 +29,12 @@ extension Apptentive {
         self.shared.register(with: AppCredentials(key: configuration.apptentiveKey, signature: configuration.apptentiveSignature))
     }
 
-    @available(*, deprecated, message: "Use the `shared` static property instead.")
+    @available(*, deprecated, message: "Use the 'shared' static property instead.")
     @objc public class func sharedConnection() -> Apptentive {
         return Apptentive.shared
     }
 
-    @available(*, deprecated, message: "This property is ignored. An `SKStoreReviewController` will be used for all ratings.")
+    @available(*, deprecated, message: "This property is ignored. SKStoreReviewController will be used for all ratings.")
     @objc public var appID: String? {
         get {
             nil
@@ -84,14 +84,14 @@ extension Apptentive {
         }
     }
 
-    @available(swift, deprecated: 1.0, message: "Create an Event object and subscript its customData property.")
+    @available(swift, deprecated: 1.0, message: "Create an 'Event' object and subscript its 'customData' property.")
     @objc(engage:withCustomData:fromViewController:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?) {
         var event = Event(name: event)
         event.customData = Self.convertLegacyCustomData(customData)
         self.engage(event: event, from: viewController, completion: nil)
     }
 
-    @available(swift, deprecated: 1.0, message: "Create an Event object and subscript its customData property.")
+    @available(swift, deprecated: 1.0, message: "Create an 'Event' object and subscript its 'customData' property.")
     @objc(engage:withCustomData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
         var event = Event(name: event)
         event.customData = Self.convertLegacyCustomData(customData)
@@ -106,15 +106,15 @@ extension Apptentive {
         }
     }
 
-    @available(*, deprecated, message: "Event custom and extended data are no longer supported. Event will be engaged without custom or extended data.")
+    @available(*, deprecated, message: "Event extended data are no longer supported. Event will be engaged without extended data.")
     @objc(engage:withCustomData:withExtendedData:fromViewController:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, withExtendedData extendedData: [[AnyHashable: Any]]?, from viewController: UIViewController?) {
-        ApptentiveLogger.engagement.error("Event custom and extended data are no longer supported. Event will be engaged without custom or extended data.")
+        ApptentiveLogger.engagement.error("Event extended data are no longer supported. Event will be engaged without extended data.")
         self.engage(event: Event(name: event), from: viewController, completion: nil)
     }
 
-    @available(*, deprecated, message: "Event custom and extended data are no longer supported. Event will be engaged without custom or extended data.")
+    @available(*, deprecated, message: "Event extended data are no longer supported. Event will be engaged without extended data.")
     @objc(engage:withCustomData:withExtendedData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, withExtendedData extendedData: [[AnyHashable: Any]]?, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
-        ApptentiveLogger.engagement.error("Event custom and extended data are no longer supported. Event will be engaged without custom or extended data.")
+        ApptentiveLogger.engagement.error("Event extended data are no longer supported. Event will be engaged without extended data.")
         self.engage(event: Event(name: event), from: viewController) { (result) in
             switch result {
             case .success:
@@ -164,7 +164,7 @@ extension Apptentive {
         completion(false)
     }
 
-    @available(swift, deprecated: 5.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
+    @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
     @objc(presentMessageCenterFromViewController:completion:)
     public func presentMessageCenterCompat(from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
         self.presentMessageCenter(from: viewController) { result in
@@ -183,7 +183,7 @@ extension Apptentive {
         self.presentMessageCenter(from: viewController, with: Self.convertLegacyCustomData(customData))
     }
 
-    @available(swift, deprecated: 5.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
+    @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
     @objc(presentMessageCenterFromViewController:withCustomData:completion:)
     public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?, completion: ((Bool) -> Void)? = nil) {
         self.presentMessageCenter(from: viewController, with: Self.convertLegacyCustomData(customData)) { result in
@@ -212,7 +212,7 @@ extension Apptentive {
         assertionFailure("The public App Store feature is no longer supported.")
     }
 
-    @available(*, deprecated, message: "Use the `setRemoteNotificationToken()` method instead.")
+    @available(*, deprecated, message: "Use the 'setRemoteNotificationToken()' method instead.")
     @objc public func setPushProvider(_ pushProvider: ApptentivePushProvider, deviceToken: Data) {
         switch pushProvider {
         case .apptentive:
@@ -246,47 +246,47 @@ extension Apptentive {
         }
     }
 
-    @available(swift, deprecated: 1.0, message: "Subscript the `personCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the 'personCustomData' property instead.")
     @objc public func removeCustomPersonData(withKey key: String) {
         self.personCustomData[key] = nil
     }
 
-    @available(swift, deprecated: 1.0, message: "Subscript the `deviceCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the 'deviceCustomData' property instead.")
     @objc public func removeCustomDeviceData(withKey key: String) {
         self.deviceCustomData[key] = nil
     }
 
-    @available(swift, deprecated: 1.0, message: "Subscript the `deviceCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the 'deviceCustomData' property instead.")
     @objc(addCustomDeviceDataString:withKey:) public func addCustomDeviceData(_ string: String, withKey key: String) {
         self.deviceCustomData[key] = string
     }
 
-    @available(swift, deprecated: 1.0, message: "Subscript the `deviceCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the 'deviceCustomData' property instead.")
     @objc(addCustomDeviceDataNumber:withKey:) public func addCustomDeviceData(_ number: NSNumber, withKey key: String) {
         self.deviceCustomData[key] = number.doubleValue
     }
 
-    @available(swift, deprecated: 1.0, message: "Subscript the `deviceCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the 'deviceCustomData' property instead.")
     @objc(addCustomDeviceDataBool:withKey:) public func addCustomDeviceData(_ boolValue: Bool, withKey key: String) {
         self.deviceCustomData[key] = boolValue
     }
 
-    @available(swift, deprecated: 1.0, message: "Subscript the `personCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the 'personCustomData' property instead.")
     @objc(addCustomPersonDataString:withKey:) public func addCustomPersonData(_ string: String, withKey key: String) {
         self.personCustomData[key] = string
     }
 
-    @available(swift, deprecated: 1.0, message: "Subscript the `personCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the 'personCustomData' property instead.")
     @objc(addCustomPersonDataNumber:withKey:) public func addCustomPersonData(_ number: NSNumber, withKey key: String) {
         self.personCustomData[key] = number.doubleValue
     }
 
-    @available(swift, deprecated: 1.0, message: "Subscript the `personCustomData` property instead.")
+    @available(swift, deprecated: 1.0, message: "Subscript the 'personCustomData' property instead.")
     @objc(addCustomPersonDataBool:withKey:) public func addCustomPersonData(_ boolValue: Bool, withKey key: String) {
         self.personCustomData[key] = boolValue
     }
 
-    @available(*, deprecated, message: "Set style overrides in the UIKit+Apptentive extensions.")
+    @available(*, deprecated, message: "Set style overrides defined in UIKit+Apptentive.swift extensions.")
     @objc public var styleSheet: Any? {
         get {
             nil
@@ -294,22 +294,22 @@ extension Apptentive {
         set {}
     }
 
-    @available(*, deprecated, message: "This method is no longer implemented and will trigger an assertion failure.")
+    @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
     @objc public func checkSDKConfiguration() {
         assertionFailure("This method is no longer implemented.")
     }
 
-    @available(*, deprecated, message: "This method is no longer implemented and will trigger an assertion failure.")
+    @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
     @objc public func logIn(withToken token: String, completion: @escaping (Bool, Error) -> Void) {
         assertionFailure("This method is no longer implemented.")
     }
 
-    @available(*, deprecated, message: "This method is no longer implemented and will trigger an assertion failure.")
+    @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
     @objc public func logOut() {
         assertionFailure("This method is no longer implemented.")
     }
 
-    @available(*, deprecated, message: "Multiple users on the same device is no longer supported.")
+    @available(*, deprecated, message: "Multiple users on the same device is not currently supported.")
     @objc public var authenticationFailureCallback: ApptentiveAuthenticationFailureCallback? {
         get {
             nil
@@ -325,12 +325,12 @@ extension Apptentive {
         set {}
     }
 
-    @available(*, deprecated, message: "This method is no longer implemented and will trigger an assertion failure.")
+    @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
     @objc public func updateToken(_ token: String, completion: ((Bool) -> Void)? = nil) {
         assertionFailure("This method is no longer implemented.")
     }
 
-    @available(*, deprecated, message: "Set the `logLevel` property on `ApptentiveLogger` or one of it's static log properties.")
+    @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of it's static log properties.")
     @objc public var logLevel: ApptentiveLogLevel {
         get {
             return .undefined
@@ -374,13 +374,13 @@ extension Apptentive {
     }
 }
 
-@available(*, deprecated, message: "Multiple users on the same device is no longer supported.")
+@available(*, deprecated, message: "Multiple users on the same device is not currently supported.")
 public typealias ApptentiveAuthenticationFailureCallback = (ApptentiveAuthenticationFailureReason, String) -> Void
 
 @available(*, deprecated, message: "This feature is no longer supported.")
 public typealias ApptentiveInteractionCallback = (String, [AnyHashable: Any]?) -> Bool
 
-@available(*, deprecated, message: "Multiple users on the same device is no longer supported.")
+@available(*, deprecated, message: "Multiple users on the same device is not currently supported.")
 @objc public enum ApptentiveAuthenticationFailureReason: Int {
     /// An unknown authentication failure.
     case unknown = 0
@@ -427,7 +427,7 @@ public class ApptentiveConfiguration: NSObject {
     @objc public let apptentiveSignature: String
 
     /// The granularity of log messages to show.
-    @available(*, deprecated, message: "Set the `logLevel` property on `ApptentiveLogger` or one of it's static log properties.")
+    @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of it's static log properties.")
     @objc public var logLevel: ApptentiveLogLevel = .warn
 
     /// If set, redacts potentially-sensitive information such as user data and credentials from logging.
@@ -435,7 +435,7 @@ public class ApptentiveConfiguration: NSObject {
     @objc public var shouldSanitizeLogMessages: Bool = true
 
     /// The server URL to use for API calls. Should only be used for testing.
-    @available(*, deprecated, message: "This property is ignored. Use the designated initializer for `Apptentive` to set this.")
+    @available(*, deprecated, message: "This property is ignored. Use the designated initializer for 'Apptentive' to set this.")
     @objc public var baseURL: URL? = nil
 
     /// The name of the distribution that includes the Apptentive SDK. For example "Cordova".
@@ -445,7 +445,7 @@ public class ApptentiveConfiguration: NSObject {
     @objc public var distributionVersion: String? = nil
 
     /// The iTunes store app ID of the app (used for Apptentive rating prompt).
-    @available(*, deprecated, message: "This property is ignored. An `SKStoreReviewController` will be used for all ratings.")
+    @available(*, deprecated, message: "This property is ignored. An 'SKStoreReviewController' will be used for all ratings.")
     @objc public var appID: String? = nil
 
     /// If set, shows a button in Surveys and Message Center that presents information about Apptentive including a link to our privacy policy.
@@ -471,7 +471,7 @@ public class ApptentiveConfiguration: NSObject {
     }
 }
 
-@available(*, deprecated, message: "Push notifications are not yet supported.")
+@available(*, deprecated, message: "Selecting a push notification provider is no longer supported.")
 @objc public enum ApptentivePushProvider: Int {
     /// Specifies the Apptentive push provider.
     case apptentive = 0
@@ -486,7 +486,7 @@ public class ApptentiveConfiguration: NSObject {
     case parse = 3
 }
 
-@available(*, deprecated, message: "Use the `LogLevel` enumeration to set the `logLevel` property on `ApptentiveLogger` or one of it's static log properties.")
+@available(*, deprecated, message: "Use the 'LogLevel' enumeration to set the 'logLevel' property on 'ApptentiveLogger' or one of it's static log properties.")
 @objc public enum ApptentiveLogLevel: UInt {
     /// Undefined.
     case undefined = 0

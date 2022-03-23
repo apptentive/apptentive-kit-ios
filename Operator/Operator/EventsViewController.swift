@@ -176,17 +176,17 @@ class EventsViewController: UITableViewController, UITextFieldDelegate {
                 
                 if let key = eventCustomData.stringKey,
                    let value = eventCustomData.stringValue {
-                    event.customData?[key] = value
+                    event.customData[key] = value
             }
                 if let key = eventCustomData.numberKey,
                    let value = eventCustomData.numberValue {
                     let valueInt = Int(value)
-                    event.customData?[key] = valueInt
+                    event.customData[key] = valueInt
             }
             
                 if let key = eventCustomData.boolKey,
                    let value = eventCustomData.boolValue{
-                    event.customData?[key] = value
+                    event.customData[key] = value
             }
                 
                 
