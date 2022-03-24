@@ -1,5 +1,5 @@
 //
-//  MessageViewController.swift
+//  MessageCenterViewController.swift
 //  ApptentiveKit
 //
 //  Created by Luqmaan Khan on 10/13/21.
@@ -10,7 +10,7 @@ import PhotosUI
 import QuickLook
 import UIKit
 
-class MessageViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate,
+class MessageCenterViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate,
     PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate,
     QLPreviewControllerDelegate, QLPreviewControllerDataSource
 {
@@ -106,13 +106,14 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.profileFooterView.nameTextField.text = self.viewModel.name
         self.profileFooterView.nameTextField.placeholder = self.viewModel.profileNamePlaceholder
         self.profileFooterView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
+        self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
 
         self.profileFooterView.emailTextField.text = self.viewModel.emailAddress
         self.profileFooterView.emailTextField.placeholder = self.viewModel.profileEmailPlaceholder
         self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
-        self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
+        self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
 
-        self.updateProfileValidation(strict: self.viewModel.emailAddress?.isEmpty != true)
+        self.updateProfileValidation(strict: self.viewModel.emailAddress?.isEmpty == false)
         self.tableView.separatorColor = .clear
 
         self.viewModel.delegate = self
@@ -478,25 +479,18 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     @objc func textFieldChanged(_ sender: UITextField) {
-        switch sender.tag {
-        case 0:
-            self.viewModel.name = sender.text
-
-        case 1:
-            self.viewModel.emailAddress = sender.text
-
-        default:
-            assertionFailure("Expected 0 or 1 for text field tag.")
-        }
-
-        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+        self.viewModel.name = self.profileFooterView.nameTextField.text
+        self.viewModel.emailAddress = self.profileFooterView.emailTextField.text
 
         self.updateProfileValidation(strict: false)
     }
 
-    @objc private func textFieldDidEndEditing(_ sender: UITextField) {
-        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
-        self.updateProfileValidation(strict: true)
+    @objc private func textFieldEditingDidEnd(_ sender: UITextField) {
+        self.updateProfileValidation(strict: sender == self.profileFooterView.emailTextField)
+
+        if self.viewModel.profileIsValid {
+            self.viewModel.commitProfileEdits()
+        }
     }
 
     // MARK: - Private

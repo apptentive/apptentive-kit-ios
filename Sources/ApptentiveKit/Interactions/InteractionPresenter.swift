@@ -90,7 +90,7 @@ open class InteractionPresenter {
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
     open func presentMessageCenter(with viewModel: MessageCenterViewModel) throws {
 
-        let messageViewController = MessageViewController(viewModel: viewModel)
+        let messageViewController = MessageCenterViewController(viewModel: viewModel)
 
         let navController = ApptentiveNavigationController(rootViewController: messageViewController)
 

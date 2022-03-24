@@ -191,7 +191,7 @@
 		EF9B2C73265D79110044D2E2 /* UIWindow+TopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */; };
 		EF9F405B2711624D005D7209 /* MessageCenterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F405A2711624D005D7209 /* MessageCenterViewModel.swift */; };
 		EF9F405F271182E2005D7209 /* MessageCenterConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */; };
-		EF9F40AB27178F5E005D7209 /* MessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AA27178F5E005D7209 /* MessageViewController.swift */; };
+		EF9F40AB27178F5E005D7209 /* MessageCenterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AA27178F5E005D7209 /* MessageCenterViewController.swift */; };
 		EF9F40B0271894C7005D7209 /* MessageReceivedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */; };
 		EFAA223227B1895300B4FC3B /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAA223127B1895300B4FC3B /* EditProfileViewController.swift */; };
 		EFAA226827C5520200B4FC3B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EFAA226A27C5520200B4FC3B /* Localizable.strings */; };
@@ -457,7 +457,7 @@
 		EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIWindow+TopViewController.swift"; sourceTree = "<group>"; };
 		EF9F405A2711624D005D7209 /* MessageCenterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterViewModel.swift; sourceTree = "<group>"; };
 		EF9F405E271182E2005D7209 /* MessageCenterConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterConfiguration.swift; sourceTree = "<group>"; };
-		EF9F40AA27178F5E005D7209 /* MessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageViewController.swift; sourceTree = "<group>"; };
+		EF9F40AA27178F5E005D7209 /* MessageCenterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterViewController.swift; sourceTree = "<group>"; };
 		EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReceivedCell.swift; sourceTree = "<group>"; };
 		EFAA223127B1895300B4FC3B /* EditProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
 		EFAA226927C5520200B4FC3B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1021,7 +1021,7 @@
 		EF9F40AE27189453005D7209 /* Default UI */ = {
 			isa = PBXGroup;
 			children = (
-				EF9F40AA27178F5E005D7209 /* MessageViewController.swift */,
+				EF9F40AA27178F5E005D7209 /* MessageCenterViewController.swift */,
 				EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */,
 				EF0E660B2721D14E007A6457 /* MessageSentCell.swift */,
 				014304002722305C00A07F79 /* MessageComposeView.swift */,
@@ -1348,7 +1348,7 @@
 				EF69E0BC258962DA00FA0636 /* SurveyRangeCell.swift in Sources */,
 				013D8EA624F09B01005EC4D1 /* Device.swift in Sources */,
 				EFCE2AF027E3F553001ADB11 /* Apptentive+NotificationName.swift in Sources */,
-				EF9F40AB27178F5E005D7209 /* MessageViewController.swift in Sources */,
+				EF9F40AB27178F5E005D7209 /* MessageCenterViewController.swift in Sources */,
 				0176159B25D1F9F900BB85C6 /* HTTPRequestRetrier.swift in Sources */,
 				010C1FEA27D28D7600BF37CD /* Apptentive+InteractionDelegate.swift in Sources */,
 				01974A6F2577043400C7D693 /* TextModalViewModel.swift in Sources */,

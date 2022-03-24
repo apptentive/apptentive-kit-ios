@@ -173,13 +173,26 @@ class MessageCenterViewModelTests: XCTestCase {
 
     func testSettingEmail() {
         self.viewModel?.emailAddress = "test email"
+        XCTAssertNil(self.spyInteractionDelegate?.personEmailAddress)
+
+        self.viewModel?.commitProfileEdits()
         XCTAssertEqual(self.spyInteractionDelegate?.personEmailAddress, "test email")
+
+        self.viewModel?.emailAddress = "fake email"
+        self.viewModel.cancelProfileEdits()
+        XCTAssertEqual(self.viewModel?.emailAddress, "test email")
     }
 
     func testSettingName() {
         self.viewModel?.name = "name"
+        XCTAssertNil(self.spyInteractionDelegate?.personName)
+
+        self.viewModel?.commitProfileEdits()
         XCTAssertEqual(self.spyInteractionDelegate?.personName, "name")
 
+        self.viewModel?.name = "fake name"
+        self.viewModel.cancelProfileEdits()
+        XCTAssertEqual(self.viewModel?.name, "name")
     }
 
     class SpyViewModelDelegate: MessageCenterViewModelDelegate {

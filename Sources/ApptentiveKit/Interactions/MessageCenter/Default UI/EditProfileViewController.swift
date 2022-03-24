@@ -38,33 +38,46 @@ class EditProfileViewController: UIViewController {
         self.profileView.emailTextField.text = self.viewModel.emailAddress
         self.profileView.emailTextField.placeholder = self.viewModel.editProfileEmailPlaceholder
         self.profileView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
+        self.profileView.emailTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
 
-        self.profileView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
         self.profileView.nameTextField.text = self.viewModel.name
         self.profileView.nameTextField.placeholder = self.viewModel.editProfileNamePlaceholder
+        self.profileView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
 
         self.setConstraints()
     }
 
     @objc func cancel() {
+        self.viewModel.cancelProfileEdits()
+
         self.dismiss(animated: true, completion: nil)
     }
 
     @objc func done() {
-        self.viewModel.name = self.profileView.nameTextField.text
-        self.viewModel.emailAddress = self.profileView.emailTextField.text
+        self.viewModel.commitProfileEdits()
 
         self.dismiss(animated: true, completion: nil)
     }
 
     @objc func textFieldChanged(_ sender: UITextField) {
-        if MessageCenterViewModel.isProfileValid(for: self.viewModel.profileMode, name: self.profileView.nameTextField.text, emailAddress: self.profileView.emailTextField.text) {
-            self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextViewBorder.cgColor
-            self.navigationItem.rightBarButtonItem?.isEnabled = true
+        self.viewModel.name = self.profileView.nameTextField.text
+        self.viewModel.emailAddress = self.profileView.emailTextField.text
+
+        self.updateProfileValidation(strict: false)
+    }
+
+    @objc private func textFieldDidEndEditing(_ sender: UITextField) {
+        self.updateProfileValidation(strict: true)
+    }
+
+    private func updateProfileValidation(strict: Bool) {
+        if self.viewModel.profileIsValid || !strict {
+            self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveMessageTextViewBorder.cgColor
         } else {
             self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveError.cgColor
-            self.navigationItem.rightBarButtonItem?.isEnabled = false
         }
+
+        self.navigationItem.rightBarButtonItem?.isEnabled = self.viewModel.canSendMessage
     }
 
     private func setConstraints() {

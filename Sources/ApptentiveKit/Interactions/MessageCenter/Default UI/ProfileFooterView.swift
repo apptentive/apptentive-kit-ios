@@ -45,7 +45,6 @@ class ProfileFooterView: UIView {
         self.nameTextField.font = .apptentiveTextInput
         self.nameTextField.textColor = .apptentiveTextInput
         self.emailTextField.autocapitalizationType = .words
-        self.nameTextField.tag = 0
         self.nameTextField.accessibilityIdentifier = "name"
 
         self.emailTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -58,7 +57,6 @@ class ProfileFooterView: UIView {
         self.emailTextField.contentVerticalAlignment = .center
         self.emailTextField.font = .apptentiveTextInput
         self.emailTextField.textColor = .apptentiveTextInput
-        self.emailTextField.tag = 1
         self.emailTextField.keyboardType = .emailAddress
         self.emailTextField.autocapitalizationType = .none
         self.emailTextField.accessibilityIdentifier = "email"
@@ -80,5 +78,4 @@ class ProfileFooterView: UIView {
             self.emailTextField.heightAnchor.constraint(equalToConstant: 40),
         ])
     }
-
 }
