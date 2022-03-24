@@ -117,18 +117,29 @@ class EventsViewController: UITableViewController, UITextFieldDelegate {
             if let stringKey = eventCustomData?.stringKey,
                let stringValue = eventCustomData?.stringValue {
                 customDataString.append("\nKey: \(stringKey), Value: \(stringValue)")
-          }
+            }
+
             if let numberkey = eventCustomData?.numberKey,
                let value = eventCustomData?.numberValue {
                 let valueInt = Int(value)
                 customDataString.append("\nKey: \(numberkey), Value: \(valueInt)")
-        }
-        
+            }
+
             if let boolKey = eventCustomData?.boolKey,
                let boolValue = eventCustomData?.boolValue{
                 customDataString.append("\nKey: \(boolKey), Value: \(boolValue)")
-        }
+            }
+
             cell.customData.text = customDataString
+
+            self.apptentive.canShowInteraction(event: Event(name: self.events[indexPath.row])) { result in
+                if case .success(let canShow) = result, canShow {
+                    cell.accessoryType = .checkmark
+                } else {
+                    cell.accessoryType = .none
+                }
+            }
+
             return cell
         }
     }
