@@ -9,55 +9,74 @@
 import ApptentiveKit
 import UIKit
 
-class EventsViewController: UITableViewController, UITextFieldDelegate {
-
-    
+class EventsViewController: UITableViewController, CustomDataDataSourceDelegate {
     private static let eventsKey = "Events"
-    private static let eventsDictKey = "EventsDict"
-    
-    private var events: [String]! {
+    private static let customDataKey = "EventCustomData"
+
+    var customData = CustomData() {
         didSet {
-            
-            UserDefaults.standard.setValue(self.events, forKey: Self.eventsKey)
-        }
-    }
-    
-    private var eventsDict = [String: OperatorEventCustomData]() {
-    didSet {
-        do {
-           let data = try JSONEncoder().encode(eventsDict)
-            UserDefaults.standard.set(data, forKey: Self.eventsDictKey)
-            } catch {
-            print("Encoding error: \(error)")
+            for key in self.customData.keys {
+                self.underlyingCustomData[key] = self.customData[key]
+            }
+
+            for removedKey in Set(self.customData.keys).subtracting(self.customData.keys) {
+                self.underlyingCustomData.removeValue(forKey: removedKey)
             }
         }
     }
-    
+
+    var underlyingCustomData = [String: Any]() {
+        didSet {
+            UserDefaults.standard.set(self.underlyingCustomData, forKey: Self.customDataKey)
+        }
+    }
+
+    private var events: [String]! {
+        didSet {
+            UserDefaults.standard.setValue(self.events, forKey: Self.eventsKey)
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
-    
+
         self.events = UserDefaults.standard.array(forKey: Self.eventsKey) as? [String] ?? []
-       
-        do {
-            if let data = UserDefaults.standard.data(forKey: Self.eventsDictKey){
-            let eventDict = try JSONDecoder().decode([String:OperatorEventCustomData].self, from: data)
-            self.eventsDict = eventDict
+        self.underlyingCustomData = UserDefaults.standard.dictionary(forKey: Self.customDataKey) ?? [:]
+
+        for (key, value) in self.underlyingCustomData {
+            switch value {
+            case let stringValue as String:
+                self.customData[key] = stringValue
+
+            case let intValue as Int:
+                self.customData[key] = intValue
+
+            case let doubleValue as Double:
+                self.customData[key] = doubleValue
+
+            case let boolValue as Bool:
+                self.customData[key] = boolValue
+
+            default:
+                break
+            }
         }
-        } catch {
-            print("Error decoding event custom data dictionary: \(error)")
-        }
-        
+
         self.navigationItem.rightBarButtonItem = self.editButtonItem
+
         NotificationCenter.default.addObserver(self, selector: #selector(eventEngaged), name: Notification.Name.apptentiveEventEngaged, object:nil)
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
+
         self.tableView.reloadSections(IndexSet(integer: 0), with: .bottom)
     }
-    
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        self.navigationItem.prompt = self.customData.keys.count > 0 ? "Events will be engaged with Custom Data" : nil
     }
 
     // MARK: - Table view data source
@@ -78,46 +97,14 @@ class EventsViewController: UITableViewController, UITextFieldDelegate {
         if indexPath.row == self.events.count {
             return tableView.dequeueReusableCell(withIdentifier: "Add Event", for: indexPath)
         } else {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: "Event", for: indexPath) as? EventCell else {return UITableViewCell()}
-            cell.eventName.text = self.events[indexPath.row]
-            cell.eventName.font = .preferredFont(forTextStyle: .headline)
-            let eventCustomData = self.eventsDict[self.events[indexPath.row]]
-            var customDataString = ""
-            
-            if eventCustomData?.stringKey != nil || eventCustomData?.numberKey != nil || eventCustomData?.boolKey != nil {
-                customDataString = "\nCustom Data:"
-            }
-            
-            if let stringKey = eventCustomData?.stringKey,
-               let stringValue = eventCustomData?.stringValue {
-                customDataString.append("\nKey: \(stringKey), Value: \(stringValue)")
-            }
+            let cell = tableView.dequeueReusableCell(withIdentifier: "Event", for: indexPath)
 
-            if let numberkey = eventCustomData?.numberKey,
-               let value = eventCustomData?.numberValue {
-                let valueInt = Int(value)
-                customDataString.append("\nKey: \(numberkey), Value: \(valueInt)")
-            }
-
-            if let boolKey = eventCustomData?.boolKey,
-               let boolValue = eventCustomData?.boolValue{
-                customDataString.append("\nKey: \(boolKey), Value: \(boolValue)")
-            }
-
-            cell.customData.text = customDataString
-
-            self.apptentive.canShowInteraction(event: Event(name: self.events[indexPath.row])) { result in
-                if case .success(let canShow) = result, canShow {
-                    cell.accessoryType = .checkmark
-                } else {
-                    cell.accessoryType = .none
-                }
-            }
+            cell.textLabel?.text = self.events[indexPath.row]
 
             return cell
         }
     }
-    
+
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
@@ -130,37 +117,8 @@ class EventsViewController: UITableViewController, UITextFieldDelegate {
             let cell = tableView.cellForRow(at: indexPath) as! AddEventCell
 
             if let newEvent = cell.textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), newEvent.count > 0 {
-            
-            var operatorCustomData = OperatorEventCustomData()
-                
-                
-            if let key = cell.stringKeyTextField.text,
-               let value = cell.stringValueTextField.text,
-                !key.isEmpty,
-                !value.isEmpty {
-                operatorCustomData.stringKey = key
-                operatorCustomData.stringValue = value
-            }
-            if let key = cell.numberKeyTextField.text,
-                let value = cell.numberValueTextField.text,
-                    !key.isEmpty,
-                      !value.isEmpty,
-                let valueInt = Int(value) {
-                operatorCustomData.numberKey = key
-                operatorCustomData.numberValue = valueInt
-            }
-            
-                if let key = cell.boolKeyTextField.text,
-                          !key.isEmpty {
-                let value = cell.boolValueSwitch.isOn
-                    operatorCustomData.boolKey = key
-                    operatorCustomData.boolValue = value
-            }
-                
-                self.eventsDict[newEvent] = operatorCustomData
                 self.events.append(newEvent)
                 tableView.insertRows(at: [indexPath], with: .bottom)
-                self.tableView.tableFooterView = nil
             }
         }
     }
@@ -179,48 +137,35 @@ class EventsViewController: UITableViewController, UITextFieldDelegate {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if !self.isEditing {
-            let eventString = self.events[indexPath.row]
-            if let eventCustomData = self.eventsDict[eventString] {
+            var event = Event(name: self.events[indexPath.row])
 
-                var event = Event(name: eventString)
-                
-                
-                if let key = eventCustomData.stringKey,
-                   let value = eventCustomData.stringValue {
-                    event.customData[key] = value
+            if self.customData.keys.count > 0 {
+                event.customData = self.customData
             }
-                if let key = eventCustomData.numberKey,
-                   let value = eventCustomData.numberValue {
-                    let valueInt = Int(value)
-                    event.customData[key] = valueInt
-            }
-            
-                if let key = eventCustomData.boolKey,
-                   let value = eventCustomData.boolValue{
-                    event.customData[key] = value
-            }
-                
-                
-            self.apptentive.engage(event:event , from: self)
+
+            self.apptentive.engage(event: event, from: self)
         }
-    }
 
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
     @objc func eventEngaged(notification: Notification) {
         if let eventName = notification.userInfo?["eventType"] {
-        print("Event engaged: \(eventName)")
+            print("Event engaged: \(eventName)")
+        }
     }
-  }
-}
 
-struct OperatorEventCustomData: Codable {
-    var stringKey: String?
-    var stringValue: String?
-    var numberKey: String?
-    var numberValue: Int?
-    var boolKey:String?
-    var boolValue: Bool?
-}
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ShowEventCustomData" {
+            guard let customDataViewController = segue.destination as? CustomDataViewController else {
+                fatalError("Custom data segue should lead to custom data view controller")
+            }
 
+            let dataSource = CustomDataDataSource(self.apptentive)
+            dataSource.customData = self.customData
+            dataSource.delegate = self
+
+            customDataViewController.dataSource = dataSource
+        }
+    }
+}

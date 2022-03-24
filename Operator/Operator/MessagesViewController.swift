@@ -8,9 +8,12 @@
 
 import UIKit
 import MobileCoreServices
+import ApptentiveKit
 
-class MessagesViewController: UITableViewController, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, UINavigationControllerDelegate {
+class MessagesViewController: UITableViewController, UIImagePickerControllerDelegate, UIDocumentPickerDelegate, UINavigationControllerDelegate, CustomDataDataSourceDelegate {
     var observation: NSKeyValueObservation?
+
+    var customData = CustomData()
 
     @IBOutlet weak var unreadMessageCountLabel: UILabel!
 
@@ -33,6 +36,8 @@ class MessagesViewController: UITableViewController, UIImagePickerControllerDele
             guard let self = self else { return }
             self.updateUnreadCount(to: self.apptentive.unreadMessageCount)
         }
+
+        self.navigationItem.prompt = self.customData.keys.count > 0 ? "Message Center will be presented with Custom Data" : nil
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -42,7 +47,12 @@ class MessagesViewController: UITableViewController, UIImagePickerControllerDele
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath {
         case [0,0]:
-            self.apptentive.presentMessageCenter(from: self)
+            if self.customData.keys.count > 0 {
+                self.apptentive.presentMessageCenter(from: self, with: self.customData)
+                self.customData = CustomData()
+            } else {
+                self.apptentive.presentMessageCenter(from: self)
+            }
         case [1,1]:
             self.sendAttachmentImage()
         case [1,2]:
@@ -51,6 +61,21 @@ class MessagesViewController: UITableViewController, UIImagePickerControllerDele
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ShowMessageCenterCustomData" {
+            guard let customDataViewController = segue.destination as? CustomDataViewController else {
+                fatalError("Custom data segue should lead to custom data view controller")
+            }
+
+            let dataSource = CustomDataDataSource(self.apptentive)
+            dataSource.customData = self.customData
+            dataSource.delegate = self
+
+            customDataViewController.dataSource = dataSource
+        }
+    }
+
     
     func sendAttachmentImage() {
         let imagePicker = UIImagePickerController()

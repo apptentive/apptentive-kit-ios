@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0116CE9A27EA895D00186CC1 /* CustomDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0116CE9927EA895D00186CC1 /* CustomDataViewController.swift */; };
+		0116CEA127EA8A0600186CC1 /* CustomDataDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0116CEA027EA8A0600186CC1 /* CustomDataDataSource.swift */; };
 		0118DD7126FBEDED00037E0E /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD7026FBEDED00037E0E /* MessagesViewController.swift */; };
 		0118DD8326FBF1C200037E0E /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD8226FBF1C200037E0E /* TextViewController.swift */; };
 		015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */; };
@@ -26,7 +28,6 @@
 		01D762A3246358FD007A5AD5 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; };
 		01D762A4246358FD007A5AD5 /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EF5F380D25C3725D007F823E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EF5F380F25C3725D007F823E /* Localizable.strings */; };
-		EFCE2AC227E15648001ADB11 /* EventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCE2AC127E15648001ADB11 /* EventCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +83,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0116CE9927EA895D00186CC1 /* CustomDataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDataViewController.swift; sourceTree = "<group>"; };
+		0116CEA027EA8A0600186CC1 /* CustomDataDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDataDataSource.swift; sourceTree = "<group>"; };
 		0118DD7026FBEDED00037E0E /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
 		0118DD8226FBF1C200037E0E /* TextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewController.swift; sourceTree = "<group>"; };
 		011B6708275B196600148290 /* Operator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Operator.entitlements; sourceTree = "<group>"; };
@@ -158,7 +161,6 @@
 		01EB6C072477409C0067F4B9 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		EF5F380E25C3725D007F823E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		EF5F381025C3726B007F823E /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
-		EFCE2AC127E15648001ADB11 /* EventCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,10 +203,11 @@
 				01C060AC251E44C7006B4B30 /* EventsViewController.swift */,
 				0118DD7026FBEDED00037E0E /* MessagesViewController.swift */,
 				0118DD8226FBF1C200037E0E /* TextViewController.swift */,
+				0116CE9927EA895D00186CC1 /* CustomDataViewController.swift */,
+				0116CEA027EA8A0600186CC1 /* CustomDataDataSource.swift */,
 				01C021A225DDF54600547059 /* Data Tab */,
 				EF5F381C25C3B2D8007F823E /* Localization */,
 				01C060B3251E48EC006B4B30 /* AddEventCell.swift */,
-				EFCE2AC127E15648001ADB11 /* EventCell.swift */,
 				018B09A124577B15007450EA /* Main.storyboard */,
 				018B09A424577B17007450EA /* Assets.xcassets */,
 				018B09A624577B17007450EA /* LaunchScreen.storyboard */,
@@ -397,12 +400,13 @@
 				0176156925D1D48700BB85C6 /* DataTableViewController.swift in Sources */,
 				01A26B8025DDF610002EFA74 /* DeviceDataSource.swift in Sources */,
 				01C060B4251E48EC006B4B30 /* AddEventCell.swift in Sources */,
+				0116CE9A27EA895D00186CC1 /* CustomDataViewController.swift in Sources */,
 				01A26B7E25DDF5D4002EFA74 /* PersonDataSource.swift in Sources */,
-				EFCE2AC227E15648001ADB11 /* EventCell.swift in Sources */,
 				01A26B7725DDF5C9002EFA74 /* CustomCells.swift in Sources */,
 				015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */,
 				018B099A24577B15007450EA /* AppDelegate.swift in Sources */,
 				01C060AD251E44C7006B4B30 /* EventsViewController.swift in Sources */,
+				0116CEA127EA8A0600186CC1 /* CustomDataDataSource.swift in Sources */,
 				0118DD8326FBF1C200037E0E /* TextViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
