@@ -8,7 +8,7 @@
 
 import UIKit
 
-extension MessageViewController {
+extension MessageCenterViewController {
 
     class AutomatedMessageCell: UITableViewCell {
 

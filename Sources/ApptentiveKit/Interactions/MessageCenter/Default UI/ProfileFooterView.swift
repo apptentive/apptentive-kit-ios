@@ -46,9 +46,9 @@ class ProfileFooterView: UIView {
         self.nameTextField.leftView = spacerView
         self.nameTextField.leftViewMode = .always
         self.nameTextField.contentVerticalAlignment = .center
-        self.nameTextField.font = .apptentiveMessageCenterTextInput
-        self.nameTextField.textColor = .apptentiveMessageCenterTextInput
-        self.nameTextField.autocapitalizationType = .words
+        self.nameTextField.font = .apptentiveTextInput
+        self.nameTextField.textColor = .apptentiveTextInput
+        self.emailTextField.autocapitalizationType = .words
         self.nameTextField.accessibilityIdentifier = "name"
         self.nameTextField.backgroundColor = .apptentiveTextInputBackground
 
@@ -61,8 +61,8 @@ class ProfileFooterView: UIView {
         self.emailTextField.leftView = secondSpacerView
         self.emailTextField.leftViewMode = .always
         self.emailTextField.contentVerticalAlignment = .center
-        self.emailTextField.font = .apptentiveMessageCenterTextInput
-        self.emailTextField.textColor = .apptentiveMessageCenterTextInput
+        self.emailTextField.font = .apptentiveTextInput
+        self.emailTextField.textColor = .apptentiveTextInput
         self.emailTextField.keyboardType = .emailAddress
         self.emailTextField.autocapitalizationType = .none
         self.emailTextField.accessibilityIdentifier = "email"

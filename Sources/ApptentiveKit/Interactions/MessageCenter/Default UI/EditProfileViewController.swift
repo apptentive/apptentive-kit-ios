@@ -41,8 +41,7 @@ class EditProfileViewController: UIViewController {
         self.profileView.emailTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
 
         self.profileView.nameTextField.text = self.viewModel.name
-        self.profileView.nameTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.editProfileNamePlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
-        self.profileView.nameTextField.accessibilityLabel = self.viewModel.editProfileNamePlaceholder
+        self.profileView.nameTextField.placeholder = self.viewModel.editProfileNamePlaceholder
         self.profileView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
 
         self.setConstraints()
@@ -73,12 +72,12 @@ class EditProfileViewController: UIViewController {
 
     private func updateProfileValidation(strict: Bool) {
         if self.viewModel.profileIsValid || !strict {
-            self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+            self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveMessageTextViewBorder.cgColor
         } else {
             self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveError.cgColor
         }
 
-        self.navigationItem.rightBarButtonItem?.isEnabled = self.viewModel.profileIsValid
+        self.navigationItem.rightBarButtonItem?.isEnabled = self.viewModel.canSendMessage
     }
 
     private func setConstraints() {
