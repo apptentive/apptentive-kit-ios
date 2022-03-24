@@ -79,9 +79,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         self.apptentive = Apptentive(apiBaseURL: url)
 
-        self.apptentive?.register(with: .init(key: key, signature: signature), completion: { _ in
-        print("successful")
-        })
+        self.apptentive?.register(with: .init(key: key, signature: signature), completion: completion)
     }
 }
 
