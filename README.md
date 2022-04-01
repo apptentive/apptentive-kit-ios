@@ -10,6 +10,8 @@ We recommend using Swift Package Manager to include ApptentiveKit in your projec
 
 In Xcode, choose File > Add Packages… and add the URL for this repository.
 
+**NOTE: CocoaPods users targeting iOS 11 should refer to the [release notes](https://learn.apptentive.com/knowledge-base/apptentive-kit-ios-release-notes/#known-issues) for a workaround to an issue in version 6.0.0.** 
+
 ## Using ApptentiveKit in Your App
 
 To use Apptentive features in your Swift files, you will have to import the ApptentiveKit module:
