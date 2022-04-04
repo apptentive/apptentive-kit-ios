@@ -9,7 +9,7 @@ Pod::Spec.new do |spec|
   spec.platform         = :ios, "11.0"
   spec.source           = { :git => "https://github.com/apptentive/apptentive-kit-ios.git", :tag => "v#{spec.version}" }
   spec.source_files     = "Sources/ApptentiveKit/**/*.{h,swift}"
-  spec.resource_bundles = { "ApptentiveKit" => [ "Sources/ApptentiveKit/Resources/*.lproj", "Sources/ApptentiveKit/Resources/Media.xcassets", "Sources/ApptentiveKit/Resources/Distribution.plist" ] }
+  spec.resource_bundles = { "ApptentiveKit" => [ "Sources/ApptentiveKit/Resources/*.lproj", "Sources/ApptentiveKit/Resources/Media.xcassets" ] }
   spec.frameworks       = "StoreKit", "UIKit", "Foundation"
   spec.weak_frameworks  = "OSLog"
 end
