@@ -11,5 +11,6 @@ Pod::Spec.new do |spec|
   spec.source           = { :git => "https://github.com/apptentive/apptentive-kit-ios.git", :tag => spec.version }
   spec.source_files     = "Sources/ApptentiveKit/**/*.{h,swift}"
   spec.resource_bundles = { "ApptentiveKit" => [ "Sources/ApptentiveKit/Resources/*.lproj", "Sources/ApptentiveKit/Resources/Media.xcassets" ] }
-  spec.frameworks       = "StoreKit", "UIKit", "Foundation", "OSLog"
+  spec.frameworks       = "StoreKit", "UIKit", "Foundation"
+  spec.weak_frameworks  = "OSLog"
 end
