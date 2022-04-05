@@ -30,17 +30,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     /// The name of the person using the app, if available.
     @objc public var personName: String? {
-        get {
-            var personName: String?
-
-            self.backendQueue.sync {
-                personName = self.backend.conversation.person.name
-            }
-
-            return personName
-        }
-        set {
-            let personName = newValue
+        didSet {
+            let personName = self.personName
 
             ApptentiveLogger.default.debug("Setting person name to “\(personName)”.")
 
@@ -52,17 +43,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     /// The email address of the person using the app, if available.
     @objc public var personEmailAddress: String? {
-        get {
-            var personEmailAddress: String?
-
-            self.backendQueue.sync {
-                personEmailAddress = self.backend.conversation.person.emailAddress
-            }
-
-            return personEmailAddress
-        }
-        set {
-            let personEmailAddress = newValue
+        didSet {
+            let personEmailAddress = self.personEmailAddress
 
             ApptentiveLogger.default.debug("Setting person email address to “\(personEmailAddress)”.")
 
@@ -74,17 +56,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     /// The string used by the mParticle integration to identify the current user.
     @objc public var mParticleID: String? {
-        get {
-            var mParticleID: String?
-
-            self.backendQueue.sync {
-                mParticleID = self.backend.conversation.person.mParticleID
-            }
-
-            return mParticleID
-        }
-        set {
-            let mParticleID = newValue
+        didSet {
+            let mParticleID = self.mParticleID
 
             ApptentiveLogger.default.debug("Setting person mParticle ID to “\(mParticleID)”.")
 
@@ -98,17 +71,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///
     /// Supported types are `String`, `Bool`, and numbers.
     public var personCustomData: CustomData {
-        get {
-            var personCustomData = CustomData()
-
-            self.backendQueue.sync {
-                personCustomData = self.backend.conversation.person.customData
-            }
-
-            return personCustomData
-        }
-        set {
-            let personCustomData = newValue
+        didSet {
+            let personCustomData = self.personCustomData
 
             ApptentiveLogger.default.debug("Setting person custom data to \(String(describing: personCustomData)).")
 
@@ -122,17 +86,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///
     /// Supported types are `String`, `Bool`, and numbers.
     public var deviceCustomData: CustomData {
-        get {
-            var deviceCustomData = CustomData()
-
-            self.backendQueue.sync {
-                deviceCustomData = self.backend.conversation.device.customData
-            }
-
-            return deviceCustomData
-        }
-        set {
-            let deviceCustomData = newValue
+        didSet {
+            let deviceCustomData = self.deviceCustomData
 
             ApptentiveLogger.default.debug("Setting device custom data to \(String(describing: deviceCustomData)).")
 
@@ -375,6 +330,9 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
         self.interactionPresenter = InteractionPresenter()
 
+        self.personCustomData = CustomData()
+        self.deviceCustomData = CustomData()
+
         super.init()
 
         self.environment.delegate = self
@@ -408,7 +366,10 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     func protectedDataDidBecomeAvailable(_ environment: GlobalEnvironment) {
         self.backendQueue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: environment)
+                let containerURL = try environment.applicationSupportURL().appendingPathComponent(self.containerDirectory)
+                let cachesURL = try environment.cachesURL().appendingPathComponent(self.containerDirectory)
+
+                try self.backend.protectedDataDidBecomeAvailable(containerURL: containerURL, cachesURL: cachesURL, environment: environment)
             } catch let error {
                 ApptentiveLogger.default.error("Unable to start Backend: \(error).")
                 apptentiveCriticalError("Unable to start Backend: \(error)")

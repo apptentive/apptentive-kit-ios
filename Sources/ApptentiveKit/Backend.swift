@@ -168,10 +168,31 @@ class Backend {
     /// This method may be called multiple times if the device is locked with the app in the foreground and then unlocked.
     /// - Parameter environment: An object implementing the `GlobalEnvironment` protocol.
     /// - Throws: An error if the conversation file exists but can't be read, or if the saved conversation can't be merged with the in-memory conversation.
-    func protectedDataDidBecomeAvailable(environment: GlobalEnvironment) throws {
-        guard let appCredentials = self.conversation.appCredentials else {
-            ApptentiveLogger.default.debug("Deferring start until `register` is called.")
-            return
+    func protectedDataDidBecomeAvailable(containerURL: URL, cachesURL: URL, environment: GlobalEnvironment) throws {
+        try self.createContainerDirectoryIfNeeded(containerURL: containerURL, fileManager: environment.fileManager)
+        try self.createContainerDirectoryIfNeeded(containerURL: cachesURL, fileManager: environment.fileManager)
+
+        self.conversationSaver = PropertyListSaver<Conversation>(containerURL: containerURL, filename: CurrentLoader.conversationFilename, fileManager: environment.fileManager)
+        self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename, fileManager: environment.fileManager)
+        self.messageManager.saver = MessageManager.createSaver(containerURL: containerURL, filename: CurrentLoader.messagesFilename, fileManager: environment.fileManager)
+        self.messageManager.attachmentManager = AttachmentManager(fileManager: environment.fileManager, requestor: URLSession.shared, cacheContainerURL: cachesURL, savedContainerURL: containerURL)
+
+        if self.conversationNeedsLoading {
+            CurrentLoader.loadLatestVersion(containerURL: containerURL, environment: environment) { loader in
+                try self.loadConversation(from: loader)
+                try self.payloadSender.load(from: loader)
+                try self.messageManager.load(from: loader)
+            }
+
+            DispatchQueue.main.sync {
+                self.frontend?.personName = self.conversation.person.name
+                self.frontend?.personEmailAddress = self.conversation.person.emailAddress
+                self.frontend?.mParticleID = self.conversation.person.mParticleID
+                self.frontend?.personCustomData = self.conversation.person.customData
+                self.frontend?.deviceCustomData = self.conversation.device.customData
+            }
+        } else {
+            ApptentiveLogger.default.info("In-memory conversation already contains data from any saved conversation.")
         }
 
         try self.start(appCredentials: appCredentials, environment: environment)
