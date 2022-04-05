@@ -142,7 +142,6 @@ class PersonAndDeviceTests: XCTestCase {
 
         // Turn on disk access in the backend.
         self.environment.isProtectedDataAvailable = true
-        self.apptentive.protectedDataDidBecomeAvailable(self.apptentive.environment)
 
         self.apptentive.personName = "Testy McTestface"
         self.apptentive.personEmailAddress = "test@example.com"
@@ -155,6 +154,8 @@ class PersonAndDeviceTests: XCTestCase {
         self.apptentive.deviceCustomData["string"] = "bar"
         self.apptentive.deviceCustomData["number"] = 43
         self.apptentive.deviceCustomData["boolean"] = false
+
+        self.apptentive.protectedDataDidBecomeAvailable(self.apptentive.environment)
 
         // Make sure the save operations on the backend queue have a chance to complete
         // By scheduling subsequent operations on the same (serial) queue.

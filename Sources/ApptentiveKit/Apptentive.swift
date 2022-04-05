@@ -26,43 +26,40 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     /// The name of the person using the app, if available.
     @objc public var personName: String? {
-        get {
-            self.person.name
-        }
-        set {
-            self.person.name = newValue
+        didSet {
+            let personName = self.personName
 
-            ApptentiveLogger.default.debug("Setting person name to “\(newValue)”.")
+            ApptentiveLogger.default.debug("Setting person name to “\(personName)”.")
 
-            self.updateConversationPerson()
+            self.backendQueue.async {
+                self.backend.conversation.person.name = personName
+            }
         }
     }
 
     /// The email address of the person using the app, if available.
     @objc public var personEmailAddress: String? {
-        get {
-            self.person.emailAddress
-        }
-        set {
-            self.person.emailAddress = newValue
+        didSet {
+            let personEmailAddress = self.personEmailAddress
 
-            ApptentiveLogger.default.debug("Setting person email address to “\(newValue)”.")
+            ApptentiveLogger.default.debug("Setting person email address to “\(personEmailAddress)”.")
 
-            self.updateConversationPerson()
+            self.backendQueue.async {
+                self.backend.conversation.person.emailAddress = personEmailAddress
+            }
         }
     }
 
     /// The string used by the mParticle integration to identify the current user.
     @objc public var mParticleID: String? {
-        get {
-            self.person.mParticleID
-        }
-        set {
-            self.person.mParticleID = newValue
+        didSet {
+            let mParticleID = self.mParticleID
 
-            ApptentiveLogger.default.debug("Setting person mParticle ID to “\(newValue)”.")
+            ApptentiveLogger.default.debug("Setting person mParticle ID to “\(mParticleID)”.")
 
-            self.updateConversationPerson()
+            self.backendQueue.async {
+                self.backend.conversation.person.mParticleID = mParticleID
+            }
         }
     }
 
@@ -70,15 +67,14 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///
     /// Supported types are `String`, `Bool`, and numbers.
     public var personCustomData: CustomData {
-        get {
-            self.person.customData
-        }
-        set {
-            self.person.customData = newValue
+        didSet {
+            let personCustomData = self.personCustomData
 
-            ApptentiveLogger.default.debug("Setting person custom data to \(String(describing: newValue)).")
+            ApptentiveLogger.default.debug("Setting person custom data to \(String(describing: personCustomData)).")
 
-            self.updateConversationPerson()
+            self.backendQueue.async {
+                self.backend.conversation.person.customData = personCustomData
+            }
         }
     }
 
@@ -86,15 +82,14 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///
     /// Supported types are `String`, `Bool`, and numbers.
     public var deviceCustomData: CustomData {
-        get {
-            self.device.customData
-        }
-        set {
-            self.device.customData = newValue
+        didSet {
+            let deviceCustomData = self.deviceCustomData
 
-            ApptentiveLogger.default.debug("Setting device custom data to \(String(describing: newValue)).")
+            ApptentiveLogger.default.debug("Setting device custom data to \(String(describing: deviceCustomData)).")
 
-            self.updateConversationDevice()
+            self.backendQueue.async {
+                self.backend.conversation.device.customData = deviceCustomData
+            }
         }
     }
 
@@ -322,8 +317,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
         self.interactionPresenter = InteractionPresenter()
 
-        self.person = self.backend.conversation.person
-        self.device = self.backend.conversation.device
+        self.personCustomData = CustomData()
+        self.deviceCustomData = CustomData()
 
         super.init()
 
@@ -361,9 +356,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
                 let cachesURL = try environment.cachesURL().appendingPathComponent(self.containerDirectory)
 
                 try self.backend.protectedDataDidBecomeAvailable(containerURL: containerURL, cachesURL: cachesURL, environment: environment)
-
-                self.person.merge(with: self.backend.conversation.person)
-                self.device.merge(with: self.backend.conversation.device)
             } catch let error {
                 ApptentiveLogger.default.error("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error).")
                 assertionFailure("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error)")
@@ -400,26 +392,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     }
 
     // MARK: - Private
-
-    /// Shadow of the conversation's `person` property, but accessible on the main thread.
-    private var person: Person
-
-    /// Shadow of the conversation's `device` property, but accessible on the main thread.
-    private var device: Device
-
-    /// Sync changes from the local `person` property to the conversation.
-    private func updateConversationPerson() {
-        self.backendQueue.async {
-            self.backend.conversation.person = self.person
-        }
-    }
-
-    /// Sync changes from the local `device` property to the conversation.
-    private func updateConversationDevice() {
-        self.backendQueue.async {
-            self.backend.conversation.device = self.device
-        }
-    }
 
     private func sendMessage(_ message: MessageList.Message) {
         self.backendQueue.async {
