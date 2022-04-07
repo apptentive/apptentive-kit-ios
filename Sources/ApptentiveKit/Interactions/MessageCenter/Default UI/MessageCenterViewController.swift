@@ -358,8 +358,10 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.tableView.reloadData()
         self.updateFooter()
 
-        if !self.viewModel.shouldRequestProfile {
-            self.scrollToRelevantMessage(false)
+        self.tableView.reloadData()
+
+        if self.isViewLoaded && !self.viewModel.shouldRequestProfile {
+            self.scrollToBottom(false)
         }
     }
 
