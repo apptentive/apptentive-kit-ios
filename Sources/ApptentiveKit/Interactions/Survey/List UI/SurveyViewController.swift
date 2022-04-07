@@ -671,6 +671,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                     self.viewModel.continuePartial()
                 }))
 
+        alertController.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
+
         self.present(alertController, animated: true, completion: nil)
 
     }
