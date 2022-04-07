@@ -611,7 +611,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
         if self.viewModel.hasAnswer {
-            self.confirmCancel()
+            DispatchQueue.main.async {
+                self.confirmCancel()
+            }
             return false
         } else {
             return true
@@ -670,6 +672,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 }))
 
         self.present(alertController, animated: true, completion: nil)
+
     }
 
     private func cancel(partial: Bool = false) {

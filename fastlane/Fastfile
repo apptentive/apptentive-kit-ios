@@ -56,16 +56,16 @@ platform :ios do
 
   desc "Runs the swift-format linter on all swift files in repo"
   lane :lint_all do
-    sh('swift-format -m lint --configuration ../.swift-format -r ../Sources')
-    sh('swift-format -m lint --configuration ../.swift-format -r ../Tests')
+    sh('swift-format lint --configuration ../.swift-format -r ../Sources')
+    sh('swift-format lint --configuration ../.swift-format -r ../Tests')
   end
 
   desc "Runs the swift-format formatter in-place on all swift files"
   lane :format do
     doit = prompt(text: "This will destructively re-format all swift files in this repository. Are you sure? (Y/N)")
     if doit == 'Y'
-      sh('swift-format -m format -i --configuration ../.swift-format -r ../Sources')
-      sh('swift-format -m format -i --configuration ../.swift-format -r ../Tests')
+      sh('swift-format format -i --configuration ../.swift-format -r ../Sources')
+      sh('swift-format format -i --configuration ../.swift-format -r ../Tests')
     end
   end
 
