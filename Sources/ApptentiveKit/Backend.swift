@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 /// The backend includes internal top-level methods used by the SDK.
 ///
@@ -41,6 +42,16 @@ class Backend {
     var conversation: Conversation {
         didSet {
             self.processChanges(from: oldValue)
+        }
+    }
+
+    var messageFetchCompletionHandler: ((UIBackgroundFetchResult) -> Void)? {
+        didSet {
+            if self.messageFetchCompletionHandler != nil {
+                self.messageManager.forceMessageDownload = true
+
+                self.getMessagesIfNeeded()
+            }
         }
     }
 
@@ -398,9 +409,6 @@ class Backend {
             // Retrieve a new app configuration if the previous one is missing or expired.
             self.getConfigurationIfNeeded()
 
-            // Check the API for new messages if we haven't done so recently (according to messagePollingInterval).
-            self.getMessagesIfNeeded()
-
             if self.conversation.person != oldValue.person {
                 ApptentiveLogger.network.debug("Person data changed. Enqueueing update.")
 
@@ -511,19 +519,22 @@ class Backend {
     }
 
     /// Retrieves a message list from the Apptentive API.
-    internal func getMessagesIfNeeded(completionHandler: ((Bool) -> Void)? = nil) {
+    internal func getMessagesIfNeeded() {
         if self.messageManager.messagesNeedDownloading {
-            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessagesResponse, Error>) in
+            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation, afterMessageWithID: self.messageManager.lastDownloadedMessageID), identifier: "get messages") { (result: Result<MessagesResponse, Error>) in
                 switch result {
                 case .success(let messagesResponse):
                     ApptentiveLogger.default.debug("Message List received.")
+                    let oldUnreadCount = self.messageManager.unreadMessageCount
                     self.messageManager.update(with: messagesResponse)
-                    completionHandler?(true)
+                    self.messageFetchCompletionHandler?((self.messageManager.unreadMessageCount - oldUnreadCount) > 0 ? .newData : .noData)
 
                 case .failure(let error):
                     ApptentiveLogger.network.error("Failed to download message list: \(error)")
-                    completionHandler?(false)
+                    self.messageFetchCompletionHandler?(.failed)
                 }
+
+                self.messageFetchCompletionHandler = nil
             }
         }
     }

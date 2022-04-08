@@ -111,7 +111,12 @@ class MessageManager {
             self.messageList.messages = Self.merge(loadedMessageList.messages, with: self.messageList.messages, attachmentManager: self.attachmentManager)
             self.messageList.draftMessage = loadedMessageList.draftMessage
             self.draftAttachmentNumber = loadedMessageList.draftMessage.attachments.count + 1
-            self.messageList.lastFetchDate = max(loadedMessageList.lastFetchDate ?? .distantPast, self.messageList.lastFetchDate ?? .distantPast)
+
+            if self.messageList.lastFetchDate ?? .distantPast < loadedMessageList.lastFetchDate ?? .distantPast {
+                self.messageList.lastFetchDate = loadedMessageList.lastFetchDate
+                self.messageList.lastDownloadedMessageID = loadedMessageList.lastDownloadedMessageID
+                self.messageList.additionalDownloadableMessagesExist = loadedMessageList.additionalDownloadableMessagesExist
+            }
         }
     }
 
@@ -129,7 +134,7 @@ class MessageManager {
         self.messageList.messages = Self.merge(self.messageList.messages, with: messagesResponse.messages.map { Self.convert(downloadedMessage: $0) }, attachmentManager: self.attachmentManager)
         self.setUnreadMessageCount()
         self.messageList.additionalDownloadableMessagesExist = messagesResponse.hasMore
-        self.messageList.lastDownloadedMessageID = messagesResponse.endsWith
+        self.messageList.lastDownloadedMessageID = messagesResponse.endsWith ?? self.messageList.lastDownloadedMessageID
         self.messageList.lastFetchDate = Date()
         self.forceMessageDownload = self.messageList.additionalDownloadableMessagesExist
     }
