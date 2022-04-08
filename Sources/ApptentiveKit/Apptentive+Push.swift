@@ -31,28 +31,18 @@ extension Apptentive: UNUserNotificationCenterDelegate {
             return false
         }
 
-        ApptentiveLogger.default.info("Apptentive push notification received.")
-        self.backendQueue.async {
-            if let aps = userInfo["aps"] as? [String: Any], let contentAvailable = aps["content-available"] as? Bool, contentAvailable {
-                self.fetchMessages { success in
-                    DispatchQueue.main.async {
-                        completionHandler(success ? .newData : .failed)
-                    }
-                }
+        ApptentiveLogger.default.info("Apptentive push notification received with userInfo: \(userInfo).")
+        if let aps = userInfo["aps"] as? [String: Any], let contentAvailable = aps["content-available"] as? Bool, contentAvailable {
+            self.fetchMessages(completion: completionHandler)
 
-                // Post a user notification if no alert was displayed,
-                // either because this was a background push,
-                // or because the app is in the foreground.
-                if aps["alert"] == nil || self.environment.isInForeground {
-                    DispatchQueue.main.async {
-                        self.postUserNotification(with: userInfo)
-                    }
-                }
-            } else {
-                DispatchQueue.main.async {
-                    completionHandler(.noData)
-                }
+            // Post a user notification if no alert was displayed,
+            // either because this was a background push,
+            // or because the app is in the foreground.
+            if aps["alert"] == nil || self.environment.isInForeground {
+                self.postUserNotification(with: userInfo)
             }
+        } else {
+            completionHandler(.noData)
         }
 
         return true
@@ -132,16 +122,14 @@ extension Apptentive: UNUserNotificationCenterDelegate {
             return
         }
 
-        if apptentive["pmc"] as? Bool == true {
+        if apptentive["action"] as? String == "pmc" {
             self.presentMessageCenter(from: nil, completion: nil)
         }
     }
 
-    private func fetchMessages(_ completionHandler: @escaping (Bool) -> Void) {
+    private func fetchMessages(completion: @escaping (UIBackgroundFetchResult) -> Void) {
         self.backendQueue.async {
-            self.backend.getMessagesIfNeeded { success in
-                completionHandler(success)
-            }
+            self.backend.messageFetchCompletionHandler = completion
         }
     }
 

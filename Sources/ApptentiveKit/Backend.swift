@@ -44,6 +44,19 @@ class Backend {
         }
     }
 
+    var messageFetchCompletionHandler: ((UIBackgroundFetchResult) -> Void)? {
+        didSet {
+            if self.messageFetchCompletionHandler != nil {
+                self.messageManager.forceMessageDownload = true
+
+                self.getMessagesIfNeeded()
+            }
+        }
+    }
+
+    /// The saver used to load and save the conversation from/to persistent storage.
+    private var conversationSaver: PropertyListSaver<Conversation>?
+
     /// The object that determines whether an interaction should be presented when an event is engaged.
     let targeter: Targeter
 
@@ -522,7 +535,50 @@ class Backend {
                 self.invalidateEngagementManifest()
             }
 
-            self.lastSyncedConversation?.device = conversation.device
+            // Supply the payload sender with necessary credentials
+            if payloadSender.credentialsProvider == nil {
+                ApptentiveLogger.network.debug("Activating payload sender.")
+
+                self.payloadSender.credentialsProvider = self.conversation
+            }
+
+            // Retrieve a new engagement manifest if the previous one is missing or expired.
+            self.getInteractionsIfNeeded()
+
+            // Retrieve a new app configuration if the previous one is missing or expired.
+            self.getConfigurationIfNeeded()
+
+            if self.conversation.person != oldValue.person {
+                ApptentiveLogger.network.debug("Person data changed. Enqueueing update.")
+
+                self.payloadSender.send(Payload(wrapping: self.conversation.person))
+            }
+
+            if self.conversation.device != oldValue.device {
+                ApptentiveLogger.network.debug("Device data changed. Enqueueing update.")
+
+                self.payloadSender.send(Payload(wrapping: self.conversation.device))
+
+                if self.conversation.device.localeRaw != oldValue.device.localeRaw {
+                    ApptentiveLogger.engagement.debug("Locale changed. Invalidating engagement manifest.")
+
+                    self.invalidateEngagementManifest()
+                }
+            }
+
+            if self.conversation.appRelease != oldValue.appRelease {
+                ApptentiveLogger.network.debug("App release data changed. Enqueueing update.")
+
+                self.payloadSender.send(Payload(wrapping: self.conversation.appRelease))
+            }
+        } else if let _ = conversation.appCredentials {
+            // App credentials allow us to retrieve conversation credentials from the API.
+            self.createConversationOnServer()
+        }  // else we can't really do anything because we can't talk to the API.
+
+        if self.conversation != oldValue {
+            // Mark the conversation as needing to be saved.
+            self.conversationNeedsSaving = true
         }
     }
 
@@ -595,18 +651,19 @@ class Backend {
     }
 
     /// Retrieves a message list from the Apptentive API.
-    internal func getMessagesIfNeeded(completionHandler: ((Bool) -> Void)? = nil) {
+    internal func getMessagesIfNeeded() {
         if self.messageManager.messagesNeedDownloading {
-            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation), identifier: "get messages") { (result: Result<MessagesResponse, Error>) in
+            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation, afterMessageWithID: self.messageManager.lastDownloadedMessageID), identifier: "get messages") { (result: Result<MessagesResponse, Error>) in
                 switch result {
                 case .success(let messagesResponse):
                     ApptentiveLogger.default.debug("Message List received.")
+                    let oldUnreadCount = self.messageManager.unreadMessageCount
                     self.messageManager.update(with: messagesResponse)
-                    completionHandler?(true)
+                    self.messageFetchCompletionHandler?((self.messageManager.unreadMessageCount - oldUnreadCount) > 0 ? .newData : .noData)
 
                 case .failure(let error):
                     ApptentiveLogger.network.error("Failed to download message list: \(error)")
-                    completionHandler?(false)
+                    self.messageFetchCompletionHandler?(.failed)
                 }
 
                 self.messageFetchCompletionHandler = nil
