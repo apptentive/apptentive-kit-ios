@@ -166,14 +166,6 @@ class Backend {
                 try self.payloadSender.load(from: loader)
                 try self.messageManager.load(from: loader)
             }
-
-            DispatchQueue.main.sync {
-                self.frontend?.personName = self.conversation.person.name
-                self.frontend?.personEmailAddress = self.conversation.person.emailAddress
-                self.frontend?.mParticleID = self.conversation.person.mParticleID
-                self.frontend?.personCustomData = self.conversation.person.customData
-                self.frontend?.deviceCustomData = self.conversation.device.customData
-            }
         } else {
             ApptentiveLogger.default.info("In-memory conversation already contains data from any saved conversation.")
         }

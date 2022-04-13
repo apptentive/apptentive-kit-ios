@@ -26,8 +26,17 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     /// The name of the person using the app, if available.
     @objc public var personName: String? {
-        didSet {
-            let personName = self.personName
+        get {
+            var personName: String?
+
+            self.backendQueue.sync {
+                personName = self.backend.conversation.person.name
+            }
+
+            return personName
+        }
+        set {
+            let personName = newValue
 
             ApptentiveLogger.default.debug("Setting person name to “\(personName)”.")
 
@@ -39,8 +48,17 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     /// The email address of the person using the app, if available.
     @objc public var personEmailAddress: String? {
-        didSet {
-            let personEmailAddress = self.personEmailAddress
+        get {
+            var personEmailAddress: String?
+
+            self.backendQueue.sync {
+                personEmailAddress = self.backend.conversation.person.emailAddress
+            }
+
+            return personEmailAddress
+        }
+        set {
+            let personEmailAddress = newValue
 
             ApptentiveLogger.default.debug("Setting person email address to “\(personEmailAddress)”.")
 
@@ -52,8 +70,17 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     /// The string used by the mParticle integration to identify the current user.
     @objc public var mParticleID: String? {
-        didSet {
-            let mParticleID = self.mParticleID
+        get {
+            var mParticleID: String?
+
+            self.backendQueue.sync {
+                mParticleID = self.backend.conversation.person.mParticleID
+            }
+
+            return mParticleID
+        }
+        set {
+            let mParticleID = newValue
 
             ApptentiveLogger.default.debug("Setting person mParticle ID to “\(mParticleID)”.")
 
@@ -67,8 +94,17 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///
     /// Supported types are `String`, `Bool`, and numbers.
     public var personCustomData: CustomData {
-        didSet {
-            let personCustomData = self.personCustomData
+        get {
+            var personCustomData = CustomData()
+
+            self.backendQueue.sync {
+                personCustomData = self.backend.conversation.person.customData
+            }
+
+            return personCustomData
+        }
+        set {
+            let personCustomData = newValue
 
             ApptentiveLogger.default.debug("Setting person custom data to \(String(describing: personCustomData)).")
 
@@ -82,8 +118,17 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///
     /// Supported types are `String`, `Bool`, and numbers.
     public var deviceCustomData: CustomData {
-        didSet {
-            let deviceCustomData = self.deviceCustomData
+        get {
+            var deviceCustomData = CustomData()
+
+            self.backendQueue.sync {
+                deviceCustomData = self.backend.conversation.device.customData
+            }
+
+            return deviceCustomData
+        }
+        set {
+            let deviceCustomData = newValue
 
             ApptentiveLogger.default.debug("Setting device custom data to \(String(describing: deviceCustomData)).")
 
@@ -316,9 +361,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         self.backend = Backend(queue: self.backendQueue, environment: self.environment, baseURL: self.baseURL)
 
         self.interactionPresenter = InteractionPresenter()
-
-        self.personCustomData = CustomData()
-        self.deviceCustomData = CustomData()
 
         super.init()
 

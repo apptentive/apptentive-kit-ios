@@ -165,6 +165,7 @@ class PersonAndDeviceTests: XCTestCase {
 
             DispatchQueue.main.async {
                 Apptentive.alreadyInitialized = false
+                self.environment.isProtectedDataAvailable = false
 
                 // Here we replace the Apptentive property with a new instance with no person/device properties set.
                 self.apptentive = Apptentive(baseURL: URL(string: "https://localhost"), containerDirectory: containerDirectory, backendQueue: self.dispatchQueue, environment: self.environment)
