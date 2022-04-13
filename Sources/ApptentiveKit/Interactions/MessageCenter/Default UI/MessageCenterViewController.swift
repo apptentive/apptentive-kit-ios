@@ -313,7 +313,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didUpdateRowsAt indexPaths: [IndexPath]) {
-        self.tableView.reloadRows(at: indexPaths, with: .automatic)
+        self.tableView.reloadRows(at: indexPaths, with: .fade)
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didInsertRowsAt indexPaths: [IndexPath]) {
