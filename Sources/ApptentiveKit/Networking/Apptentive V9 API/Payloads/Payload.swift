@@ -312,6 +312,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         case time
         case location
         case commerce
+        case eventCustomData
 
         // Person keys
         case emailAddress = "email"

@@ -45,22 +45,53 @@ class MessageCenterViewModelTests: XCTestCase {
         XCTAssertEqual(self.viewModel.greetingBody, "We'd love to get feedback from you on our app. The more details you can provide, the better.")
         XCTAssertEqual(self.viewModel.greetingImageURL, URL(string: "https://dfuvhehs12k8c.cloudfront.net/assets/app-icon/music.png"))
         XCTAssertEqual(self.viewModel.statusBody, "We will respond to your message soon.")
-        XCTAssertEqual(self.viewModel.automatedMessageBody, "We're sorry to hear that you don't love FooApp! Is there anything we could do to make it better?")
+
+        XCTAssertEqual(self.spyInteractionDelegate?.automatedMessageBody, "We're sorry to hear that you don't love FooApp! Is there anything we could do to make it better?")
     }
 
-    func testLaunch() {
+    func testLaunchEvent() {
         self.viewModel.launch()
 
         XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#MessageCenter#launch")
     }
 
-    func testCancel() {
+    func testCancelEvent() {
         self.viewModel.cancel()
 
         XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#MessageCenter#cancel")
     }
 
-    // TODO: Test List View Methods
+    func testReadEvent() {
+        let expectation = XCTestExpectation()
+
+        // Messages are loaded asynchronously, so have to give that time to happen.
+        DispatchQueue.main.async {
+            self.viewModel.markMessageAsRead(at: .init(row: 0, section: 0))
+
+            XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.userInfo, .messageInfo(.init(id: "abc")))
+
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 1.0)
+    }
+
+    func testListView() {
+        let expectation = XCTestExpectation()
+
+        // Messages are loaded asynchronously, so have to give that time to happen.
+        DispatchQueue.main.async {
+            XCTAssertEqual(self.viewModel.numberOfMessageGroups, 1)
+            XCTAssertEqual(self.viewModel.numberOfMessagesInGroup(at: 0), 1)
+
+            let message = self.viewModel.message(at: .init(row: 0, section: 0))
+            XCTAssertEqual(message.body, "Test Body")
+
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 1.0)
+    }
 
     // TODO: Test Draft Editing Methods
 
@@ -96,22 +127,30 @@ class MessageCenterViewModelTests: XCTestCase {
 
     func testDiffRows() {
         let message1 = MessageCenterViewModel.Message(
-            nonce: "1", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "One", sentDate: Date(timeIntervalSinceNow: 12 * 60 * 60), statusText: "100", accessibilityLabel: "", accessibilityHint: "")
+            nonce: "1", direction: .sentFromDashboard(.unread(messageID: "id100")), isAutomated: false, attachments: [], sender: nil, body: "One", sentDate: Date(timeIntervalSinceNow: 12 * 60 * 60), statusText: "100", accessibilityLabel: "",
+            accessibilityHint: "")
         let message2 = MessageCenterViewModel.Message(
-            nonce: "2", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Two", sentDate: Date(timeIntervalSinceNow: 24 * 60 * 60), statusText: "200", accessibilityLabel: "", accessibilityHint: "")
+            nonce: "2", direction: .sentFromDashboard(.unread(messageID: "id200")), isAutomated: false, attachments: [], sender: nil, body: "Two", sentDate: Date(timeIntervalSinceNow: 24 * 60 * 60), statusText: "200", accessibilityLabel: "",
+            accessibilityHint: "")
         let message3 = MessageCenterViewModel.Message(
-            nonce: "3", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Three", sentDate: Date(timeIntervalSinceNow: 36 * 60 * 60), statusText: "300", accessibilityLabel: "", accessibilityHint: "")
+            nonce: "3", direction: .sentFromDashboard(.unread(messageID: "id300")), isAutomated: false, attachments: [], sender: nil, body: "Three", sentDate: Date(timeIntervalSinceNow: 36 * 60 * 60), statusText: "300", accessibilityLabel: "",
+            accessibilityHint: "")
         let message4 = MessageCenterViewModel.Message(
-            nonce: "4", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Four", sentDate: Date(timeIntervalSinceNow: 48 * 60 * 60), statusText: "400", accessibilityLabel: "", accessibilityHint: "")
+            nonce: "4", direction: .sentFromDashboard(.unread(messageID: "id400")), isAutomated: false, attachments: [], sender: nil, body: "Four", sentDate: Date(timeIntervalSinceNow: 48 * 60 * 60), statusText: "400", accessibilityLabel: "",
+            accessibilityHint: "")
         let message5 = MessageCenterViewModel.Message(
-            nonce: "5", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Five", sentDate: Date(timeIntervalSinceNow: 60 * 60 * 60), statusText: "500", accessibilityLabel: "", accessibilityHint: "")
+            nonce: "5", direction: .sentFromDashboard(.unread(messageID: "id500")), isAutomated: false, attachments: [], sender: nil, body: "Five", sentDate: Date(timeIntervalSinceNow: 60 * 60 * 60), statusText: "500", accessibilityLabel: "",
+            accessibilityHint: "")
         let message6 = MessageCenterViewModel.Message(
-            nonce: "6", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Six", sentDate: Date(timeIntervalSinceNow: 72 * 60 * 60), statusText: "600", accessibilityLabel: "", accessibilityHint: "")
+            nonce: "6", direction: .sentFromDashboard(.unread(messageID: "id600")), isAutomated: false, attachments: [], sender: nil, body: "Six", sentDate: Date(timeIntervalSinceNow: 72 * 60 * 60), statusText: "600", accessibilityLabel: "",
+            accessibilityHint: "")
         let message7 = MessageCenterViewModel.Message(
-            nonce: "7", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Seven", sentDate: Date(timeIntervalSinceNow: 96 * 60 * 60), statusText: "700", accessibilityLabel: "", accessibilityHint: "")
+            nonce: "7", direction: .sentFromDashboard(.unread(messageID: "id700")), isAutomated: false, attachments: [], sender: nil, body: "Seven", sentDate: Date(timeIntervalSinceNow: 96 * 60 * 60), statusText: "700", accessibilityLabel: "",
+            accessibilityHint: "")
 
         let changedMessage2 = MessageCenterViewModel.Message(
-            nonce: "2", direction: .sentFromDashboard(.unread), isAutomated: false, attachments: [], sender: nil, body: "Two modified", sentDate: Date(timeIntervalSinceNow: 24 * 60 * 60), statusText: "200", accessibilityLabel: "", accessibilityHint: "")
+            nonce: "2", direction: .sentFromDashboard(.unread(messageID: "id200")), isAutomated: false, attachments: [], sender: nil, body: "Two modified", sentDate: Date(timeIntervalSinceNow: 24 * 60 * 60), statusText: "200", accessibilityLabel: "",
+            accessibilityHint: "")
 
         let oldGroupedMessages = [
             [message1, message2, message3],
@@ -134,13 +173,26 @@ class MessageCenterViewModelTests: XCTestCase {
 
     func testSettingEmail() {
         self.viewModel?.emailAddress = "test email"
+        XCTAssertNil(self.spyInteractionDelegate?.personEmailAddress)
+
+        self.viewModel?.commitProfileEdits()
         XCTAssertEqual(self.spyInteractionDelegate?.personEmailAddress, "test email")
+
+        self.viewModel?.emailAddress = "fake email"
+        self.viewModel.cancelProfileEdits()
+        XCTAssertEqual(self.viewModel?.emailAddress, "test email")
     }
 
     func testSettingName() {
         self.viewModel?.name = "name"
+        XCTAssertNil(self.spyInteractionDelegate?.personName)
+
+        self.viewModel?.commitProfileEdits()
         XCTAssertEqual(self.spyInteractionDelegate?.personName, "name")
 
+        self.viewModel?.name = "fake name"
+        self.viewModel.cancelProfileEdits()
+        XCTAssertEqual(self.viewModel?.name, "name")
     }
 
     class SpyViewModelDelegate: MessageCenterViewModelDelegate {

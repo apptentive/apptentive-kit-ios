@@ -34,7 +34,9 @@ class SpyInteractionDelegate: InteractionDelegate {
     var messageManagerDelegate: MessageManagerDelegate?
 
     func getMessages(completion: @escaping ([MessageList.Message]) -> Void) {
-
+        completion([
+            MessageList.Message(id: "abc", nonce: "def", body: "Test Body", attachments: [], sender: nil, sentDate: Date(), isAutomated: false, isHidden: false, status: .unread)
+        ])
     }
 
     func setDraftMessageBody(_ body: String?) {
@@ -47,6 +49,10 @@ class SpyInteractionDelegate: InteractionDelegate {
 
     func sendDraftMessage(completion: @escaping (Result<Void, Error>) -> Void) {
 
+    }
+
+    func setAutomatedMessageBody(_ body: String?) {
+        self.automatedMessageBody = body
     }
 
     func sendMessage(_ message: MessageList.Message, completion: ((Result<Void, Error>) -> Void)?) {
@@ -68,6 +74,7 @@ class SpyInteractionDelegate: InteractionDelegate {
     var message: MessageList.Message?
     var environment = MockEnvironment()
     var messageManager = MessageManager(notificationCenter: NotificationCenter.default)
+    var automatedMessageBody: String?
 
     func engage(event: Event) {
         self.engagedEvent = event

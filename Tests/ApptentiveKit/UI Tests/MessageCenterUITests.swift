@@ -189,6 +189,8 @@ class MessageCenterUITests: XCTestCase {
         XCTAssertFalse(XCUIApplication().textFields["Name"].exists)
         XCTAssertFalse(XCUIApplication().textFields["Email"].exists)
 
+        XCTAssertTrue(XCUIApplication().textViews["We're sorry to hear that you don't love FooApp! Is there anything we could do to make it better?"].exists)
+
         let messageTextView = XCUIApplication().textViews["composeTextView"]
         messageTextView.tap()
         messageTextView.typeText("test")

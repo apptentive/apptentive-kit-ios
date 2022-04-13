@@ -27,42 +27,66 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// The name of the person using the app, if available.
     @objc public var personName: String? {
         get {
-            self.person.name
+            var personName: String?
+
+            self.backendQueue.sync {
+                personName = self.backend.conversation.person.name
+            }
+
+            return personName
         }
         set {
-            self.person.name = newValue
+            let personName = newValue
 
-            ApptentiveLogger.default.debug("Setting person name to “\(newValue)”.")
+            ApptentiveLogger.default.debug("Setting person name to “\(personName)”.")
 
-            self.updateConversationPerson()
+            self.backendQueue.async {
+                self.backend.conversation.person.name = personName
+            }
         }
     }
 
     /// The email address of the person using the app, if available.
     @objc public var personEmailAddress: String? {
         get {
-            self.person.emailAddress
+            var personEmailAddress: String?
+
+            self.backendQueue.sync {
+                personEmailAddress = self.backend.conversation.person.emailAddress
+            }
+
+            return personEmailAddress
         }
         set {
-            self.person.emailAddress = newValue
+            let personEmailAddress = newValue
 
-            ApptentiveLogger.default.debug("Setting person email address to “\(newValue)”.")
+            ApptentiveLogger.default.debug("Setting person email address to “\(personEmailAddress)”.")
 
-            self.updateConversationPerson()
+            self.backendQueue.async {
+                self.backend.conversation.person.emailAddress = personEmailAddress
+            }
         }
     }
 
     /// The string used by the mParticle integration to identify the current user.
     @objc public var mParticleID: String? {
         get {
-            self.person.mParticleID
+            var mParticleID: String?
+
+            self.backendQueue.sync {
+                mParticleID = self.backend.conversation.person.mParticleID
+            }
+
+            return mParticleID
         }
         set {
-            self.person.mParticleID = newValue
+            let mParticleID = newValue
 
-            ApptentiveLogger.default.debug("Setting person mParticle ID to “\(newValue)”.")
+            ApptentiveLogger.default.debug("Setting person mParticle ID to “\(mParticleID)”.")
 
-            self.updateConversationPerson()
+            self.backendQueue.async {
+                self.backend.conversation.person.mParticleID = mParticleID
+            }
         }
     }
 
@@ -71,14 +95,22 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// Supported types are `String`, `Bool`, and numbers.
     public var personCustomData: CustomData {
         get {
-            self.person.customData
+            var personCustomData = CustomData()
+
+            self.backendQueue.sync {
+                personCustomData = self.backend.conversation.person.customData
+            }
+
+            return personCustomData
         }
         set {
-            self.person.customData = newValue
+            let personCustomData = newValue
 
-            ApptentiveLogger.default.debug("Setting person custom data to \(String(describing: newValue)).")
+            ApptentiveLogger.default.debug("Setting person custom data to \(String(describing: personCustomData)).")
 
-            self.updateConversationPerson()
+            self.backendQueue.async {
+                self.backend.conversation.person.customData = personCustomData
+            }
         }
     }
 
@@ -87,19 +119,60 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// Supported types are `String`, `Bool`, and numbers.
     public var deviceCustomData: CustomData {
         get {
-            self.device.customData
+            var deviceCustomData = CustomData()
+
+            self.backendQueue.sync {
+                deviceCustomData = self.backend.conversation.device.customData
+            }
+
+            return deviceCustomData
         }
         set {
-            self.device.customData = newValue
+            let deviceCustomData = newValue
 
-            ApptentiveLogger.default.debug("Setting device custom data to \(String(describing: newValue)).")
+            ApptentiveLogger.default.debug("Setting device custom data to \(String(describing: deviceCustomData)).")
 
-            self.updateConversationDevice()
+            self.backendQueue.async {
+                self.backend.conversation.device.customData = deviceCustomData
+            }
         }
     }
 
     /// The number of unread messages in message center.
     @objc dynamic public var unreadMessageCount = 0
+
+    /// The name of the distribution method for this SDK instance (not for app use).
+    ///
+    /// This property is used to track the relative popularity of various methods of
+    /// integrating this SDK, for example "React Native" or "CocoaPods".
+    ///
+    /// This property is not intended to be set by apps using the SDK, but
+    /// should be set by projects that re-package the SDK for distribution
+    /// as part of e.g. a cross-platform app framework.
+    public var distributionName: String? {
+        get {
+            return self.environment.distributionName
+        }
+        set {
+            self.environment.distributionName = newValue
+        }
+    }
+
+    /// The version of the distribution for this SDK instance (not for app use).
+    ///
+    /// This property is used to track the version of any projects
+    /// that re-package the SDK as part of e.g. a cross-platform app-
+    /// development framework.
+    ///
+    /// This property is not intended to be set by apps using the SDK.
+    public var distributionVersion: String? {
+        get {
+            return self.environment.distributionVersion?.versionString
+        }
+        set {
+            self.environment.distributionVersion = newValue.flatMap { Version(string: $0) }
+        }
+    }
 
     /// Indicates a theme that will be applied to Apptentive UI.
     public enum UITheme {
@@ -171,9 +244,19 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             self.interactionPresenter.presentingViewController = presentingViewController
         }
 
+        NotificationCenter.default.post(name: Notification.Name.apptentiveEventEngaged, object: nil, userInfo: event.userInfoForNotification())
+
         self.backendQueue.async {
             self.backend.engage(event: event, completion: completion)
         }
+    }
+
+    /// Dimisses any currently-visible interactions.
+    ///
+    /// Note that it is not possible to programmatically dismiss the Apple Rating Dialog (`SKStoreReviewController`).
+    /// - Parameter animated: Whether to animate the dismissal.
+    public func dismissAllInteractions(animated: Bool) {
+        self.interactionPresenter.dismissPresentedViewController(animated: animated)
     }
 
     // MARK: Message Center
@@ -237,6 +320,16 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         self.sendMessage(.init(nonce: "hidden", attachments: [attachment], isHidden: true))
     }
 
+    /// Checks if the event can trigger an interaction.
+    /// - Parameters:
+    ///  - event: The event used to check if it can trigger an interaction.
+    ///  - completion: A completion handler that is called with a boolean indicating whether or not an interaction can be shown using the event.
+    public func canShowInteraction(event: Event, completion: ((Result<Bool, Error>) -> Void)? = nil) {
+        self.backendQueue.async {
+            self.backend.canShowInteraction(event: event, completion: completion)
+        }
+    }
+
     /// Creates a new Apptentive SDK object using the specified URL to communicate with the Apptentive API.
     ///
     /// This should only be used for testing the SDK against a server other than the production Apptentive API server.
@@ -268,9 +361,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         self.backend = Backend(queue: self.backendQueue, environment: self.environment, baseURL: self.baseURL)
 
         self.interactionPresenter = InteractionPresenter()
-
-        self.person = self.backend.conversation.person
-        self.device = self.backend.conversation.device
 
         super.init()
 
@@ -308,9 +398,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
                 let cachesURL = try environment.cachesURL().appendingPathComponent(self.containerDirectory)
 
                 try self.backend.protectedDataDidBecomeAvailable(containerURL: containerURL, cachesURL: cachesURL, environment: environment)
-
-                self.person.merge(with: self.backend.conversation.person)
-                self.device.merge(with: self.backend.conversation.device)
             } catch let error {
                 ApptentiveLogger.default.error("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error).")
                 assertionFailure("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error)")
@@ -347,26 +434,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     }
 
     // MARK: - Private
-
-    /// Shadow of the conversation's `person` property, but accessible on the main thread.
-    private var person: Person
-
-    /// Shadow of the conversation's `device` property, but accessible on the main thread.
-    private var device: Device
-
-    /// Sync changes from the local `person` property to the conversation.
-    private func updateConversationPerson() {
-        self.backendQueue.async {
-            self.backend.conversation.person = self.person
-        }
-    }
-
-    /// Sync changes from the local `device` property to the conversation.
-    private func updateConversationDevice() {
-        self.backendQueue.async {
-            self.backend.conversation.device = self.device
-        }
-    }
 
     private func sendMessage(_ message: MessageList.Message) {
         self.backendQueue.async {

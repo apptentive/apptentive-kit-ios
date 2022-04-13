@@ -195,10 +195,3 @@ class PayloadSender {
         self.notificationCenter.post(name: Notification.Name.payloadSending, object: self, userInfo: [Self.payloadKey: firstPayload])
     }
 }
-
-extension Notification.Name {
-    static let payloadEnqueued = Notification.Name("com.apptentive.payloadEnqueued")
-    static let payloadSending = Notification.Name("com.apptentive.payloadSending")
-    static let payloadSent = Notification.Name("com.apptentive.payloadSent")
-    static let payloadFailed = Notification.Name("com.apptentive.payloadFailed")
-}

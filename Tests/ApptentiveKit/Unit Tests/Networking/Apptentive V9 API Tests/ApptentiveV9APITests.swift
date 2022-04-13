@@ -535,10 +535,10 @@ class ApptentiveV9APITests: XCTestCase {
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
 
         let expectation = XCTestExpectation()
-        let _ = client.request(ApptentiveV9API.getMessages(with: conversation)) { (result: Result<ConversationResponse, Error>) in
+        let _ = client.request(ApptentiveV9API.getMessages(with: conversation, afterMessageWithID: "last_message_id")) { (result: Result<ConversationResponse, Error>) in
             XCTAssertNotNil(requestor.request)
             XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/456/messages"))
+            XCTAssertEqual(requestor.request?.url?.absoluteString, "http://example.com/conversations/456/messages?starts_after=last_message_id")
             XCTAssertEqual(requestor.request?.httpMethod, "GET")
 
             XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")

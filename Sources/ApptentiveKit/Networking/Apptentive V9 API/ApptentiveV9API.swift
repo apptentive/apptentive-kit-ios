@@ -33,6 +33,8 @@ struct ApptentiveV9API: HTTPEndpoint {
 
     private let bodyParts: [HTTPBodyPart]
 
+    private let queryItems: [URLQueryItem]?
+
     let boundaryString: String
 
     private var contentType: String? {
@@ -65,10 +67,14 @@ struct ApptentiveV9API: HTTPEndpoint {
     }
 
     /// Builds a request to retrieve a message list from the server.
-    /// - Parameter credentials: The conversation for which to retrieve the message list.
+    /// - Parameters:
+    ///   - credentials: The conversation for which to retrieve the message list.
+    ///   - lastMessageID: The message ID from the `after_id` field of the previous response, if any.
     /// - Returns: A struct describing the HTTP request to be performed.
-    static func getMessages(with credentials: APICredentialsProviding) -> Self {
-        return Self(credentials: credentials, path: "messages", method: .get)
+    static func getMessages(with credentials: APICredentialsProviding, afterMessageWithID lastMessageID: String?) -> Self {
+        let queryItems = lastMessageID.flatMap { [URLQueryItem(name: "starts_after", value: $0)] }
+
+        return Self(credentials: credentials, path: "messages", queryItems: queryItems, method: .get)
     }
 
     /// Builds a request to retrieve a message list from the server.
@@ -96,7 +102,11 @@ struct ApptentiveV9API: HTTPEndpoint {
             fullPath = "conversations/\(conversationID)/\(path)"
         }
 
-        guard let url = URL(string: fullPath, relativeTo: baseURL) else {
+        var components = URLComponents()
+        components.path = fullPath
+        components.queryItems = self.queryItems
+
+        guard let url = components.url(relativeTo: baseURL) else {
             throw ApptentiveV9APIError.invalidURLString(self.path)
         }
 
@@ -174,27 +184,29 @@ struct ApptentiveV9API: HTTPEndpoint {
     /// - Parameters:
     ///   - credentials: The provider of credentials to use when connecting to the API.
     ///   - path: The path of the request, scoped to the conversation if appropriate.
+    ///   - queryItems: A list of key-value pairs to include in the query portion of the request URL.
     ///   - method: The HTTP method for the request.
     ///   - bodyObject: The object that should be encoded for the HTTP body of the request.
     ///   - requiresConversationCredentials: Whether the request should send conversation credentials and be scoped to the conversation.
-    init(credentials: APICredentialsProviding, path: String, method: HTTPMethod, bodyObject: HTTPBodyPart? = nil, requiresConversationCredentials: Bool = true) {
+    init(credentials: APICredentialsProviding, path: String, queryItems: [URLQueryItem]? = nil, method: HTTPMethod, bodyObject: HTTPBodyPart? = nil, requiresConversationCredentials: Bool = true) {
         var bodyParts = [HTTPBodyPart]()
 
         if let bodyObject = bodyObject {
             bodyParts.append(bodyObject)
         }
 
-        self.init(credentials: credentials, path: path, method: method, bodyParts: bodyParts, requiresConversationCredentials: requiresConversationCredentials)
+        self.init(credentials: credentials, path: path, queryItems: queryItems, method: method, bodyParts: bodyParts, requiresConversationCredentials: requiresConversationCredentials)
     }
 
     /// Initializes a new request for the endpoint.
     /// - Parameters:
     ///   - credentials: The provider of credentials to use when connecting to the API.
     ///   - path: The path of the request, scoped to the conversation if appropriate.
+    ///   - queryItems: A list of key-value pairs to include in the query portion of the request URL.
     ///   - method: The HTTP method for the request.
     ///   - bodyParts: An array of content to use as part of the request body (an empty array indicates no request body).
     ///   - requiresConversationCredentials: Whether the request should send conversation credentials and be scoped to the conversation.
-    init(credentials: APICredentialsProviding, path: String, method: HTTPMethod, bodyParts: [HTTPBodyPart], requiresConversationCredentials: Bool = true) {
+    init(credentials: APICredentialsProviding, path: String, queryItems: [URLQueryItem]? = nil, method: HTTPMethod, bodyParts: [HTTPBodyPart], requiresConversationCredentials: Bool = true) {
         self.encoder = JSONEncoder()
         self.encoder.dateEncodingStrategy = .secondsSince1970
 
@@ -203,6 +215,7 @@ struct ApptentiveV9API: HTTPEndpoint {
 
         self.credentials = credentials
         self.path = path
+        self.queryItems = queryItems
         self.method = method
         self.bodyParts = bodyParts
 

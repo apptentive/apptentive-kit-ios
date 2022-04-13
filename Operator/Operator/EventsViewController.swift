@@ -9,8 +9,27 @@
 import ApptentiveKit
 import UIKit
 
-class EventsViewController: UITableViewController {
+class EventsViewController: UITableViewController, CustomDataDataSourceDelegate {
     private static let eventsKey = "Events"
+    private static let customDataKey = "EventCustomData"
+
+    var customData = CustomData() {
+        didSet {
+            for key in self.customData.keys {
+                self.underlyingCustomData[key] = self.customData[key]
+            }
+
+            for removedKey in Set(self.customData.keys).subtracting(self.customData.keys) {
+                self.underlyingCustomData.removeValue(forKey: removedKey)
+            }
+        }
+    }
+
+    var underlyingCustomData = [String: Any]() {
+        didSet {
+            UserDefaults.standard.set(self.underlyingCustomData, forKey: Self.customDataKey)
+        }
+    }
 
     private var events: [String]! {
         didSet {
@@ -22,14 +41,42 @@ class EventsViewController: UITableViewController {
         super.viewDidLoad()
 
         self.events = UserDefaults.standard.array(forKey: Self.eventsKey) as? [String] ?? []
+        self.underlyingCustomData = UserDefaults.standard.dictionary(forKey: Self.customDataKey) ?? [:]
+
+        for (key, value) in self.underlyingCustomData {
+            switch value {
+            case let stringValue as String:
+                self.customData[key] = stringValue
+
+            case let intValue as Int:
+                self.customData[key] = intValue
+
+            case let doubleValue as Double:
+                self.customData[key] = doubleValue
+
+            case let boolValue as Bool:
+                self.customData[key] = boolValue
+
+            default:
+                break
+            }
+        }
 
         self.navigationItem.rightBarButtonItem = self.editButtonItem
+
+        NotificationCenter.default.addObserver(self, selector: #selector(eventEngaged), name: Notification.Name.apptentiveEventEngaged, object:nil)
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
 
         self.tableView.reloadSections(IndexSet(integer: 0), with: .bottom)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        self.navigationItem.prompt = self.customData.keys.count > 0 ? "Events will be engaged with Custom Data" : nil
     }
 
     // MARK: - Table view data source
@@ -90,9 +137,35 @@ class EventsViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if !self.isEditing {
-            self.apptentive.engage(event: Event(name: self.events[indexPath.row]), from: self)
+            var event = Event(name: self.events[indexPath.row])
+
+            if self.customData.keys.count > 0 {
+                event.customData = self.customData
+            }
+
+            self.apptentive.engage(event: event, from: self)
         }
 
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    @objc func eventEngaged(notification: Notification) {
+        if let eventName = notification.userInfo?["eventType"] {
+            print("Event engaged: \(eventName)")
+        }
+    }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ShowEventCustomData" {
+            guard let customDataViewController = segue.destination as? CustomDataViewController else {
+                fatalError("Custom data segue should lead to custom data view controller")
+            }
+
+            let dataSource = CustomDataDataSource(self.apptentive)
+            dataSource.customData = self.customData
+            dataSource.delegate = self
+
+            customDataViewController.dataSource = dataSource
+        }
     }
 }

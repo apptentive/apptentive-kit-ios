@@ -112,6 +112,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.scrollView.isPagingEnabled = true
         self.scrollView.showsHorizontalScrollIndicator = false
         self.scrollView.clipsToBounds = false
+        self.indicatorView.tintColor = .apptentiveSubmitButton
 
         self.nextButton.setTitle("Next", for: .normal)
         self.nextButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .bold)
@@ -416,6 +417,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         choiceButton.titleLabel?.numberOfLines = 0
         choiceButton.titleLabel?.adjustsFontForContentSizeCategory = true
         choiceButton.setTitleColor(.apptentiveChoiceLabel, for: .normal)
+        choiceButton.tintColor = .apptentiveSubmitButton
 
         choiceButton.contentHorizontalAlignment = .leading
         choiceButton.contentVerticalAlignment = .center
@@ -438,6 +440,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         textField.textColor = .apptentiveChoiceLabel
         textField.borderStyle = .roundedRect
         textField.returnKeyType = .next
+        textField.tintColor = .apptentiveSubmitButton
 
         // Create our own border to show validation state, match color with text view border
         textField.layer.borderWidth = 1.0 / textField.traitCollection.displayScale
@@ -459,7 +462,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         textView.adjustsFontForContentSizeCategory = true
         textView.font = .apptentiveChoiceLabel
         textView.textColor = .apptentiveChoiceLabel
-
+        textView.tintColor = .apptentiveSubmitButton
         textView.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
         textView.layer.borderWidth = 1.0 / textView.traitCollection.displayScale
         textView.layer.cornerRadius = 6.0

@@ -40,9 +40,9 @@ class AttachmentManager: AttachmentURLProviding {
         let path = Self.newAttachmentPath(filename: filename)
         let attachmentURL = URL(fileURLWithPath: path, relativeTo: self.savedContainerURL)
 
-        ApptentiveLogger.messageCenterAttachment.debug("Trying to write attachment data to \(attachmentURL.path).")
+        ApptentiveLogger.attachments.debug("Trying to write attachment data to \(attachmentURL.path).")
         try data.write(to: attachmentURL)
-        ApptentiveLogger.messageCenterAttachment.debug("Successfully wrote attachment data to \(attachmentURL.path).")
+        ApptentiveLogger.attachments.debug("Successfully wrote attachment data to \(attachmentURL.path).")
 
         return attachmentURL
     }
@@ -52,9 +52,9 @@ class AttachmentManager: AttachmentURLProviding {
         let attachmentURL = URL(fileURLWithPath: path, relativeTo: self.savedContainerURL)
 
         if url.startAccessingSecurityScopedResource() {
-            ApptentiveLogger.messageCenterAttachment.debug("Trying to write attachment data to \(attachmentURL.path).")
+            ApptentiveLogger.attachments.debug("Trying to write attachment data to \(attachmentURL.path).")
             try self.fileManager.copyItem(at: url, to: attachmentURL)
-            ApptentiveLogger.messageCenterAttachment.debug("Successfully wrote attachment data to \(attachmentURL.path).")
+            ApptentiveLogger.attachments.debug("Successfully wrote attachment data to \(attachmentURL.path).")
         }
         url.stopAccessingSecurityScopedResource()
         return attachmentURL
@@ -91,9 +91,9 @@ class AttachmentManager: AttachmentURLProviding {
         if case .saved(let path) = attachment.storage {
             let savedURL = URL(fileURLWithPath: path, relativeTo: self.savedContainerURL)
             let cacheURL = URL(fileURLWithPath: path, relativeTo: self.cacheContainerURL)
-            ApptentiveLogger.messageCenterAttachment.debug("Trying to write attachment data from \(savedURL.path) to \(cacheURL.path).")
+            ApptentiveLogger.attachments.debug("Trying to write attachment data from \(savedURL.path) to \(cacheURL.path).")
             try self.fileManager.moveItem(at: savedURL, to: cacheURL)
-            ApptentiveLogger.messageCenterAttachment.debug("Successfully wrote attachment data to \(cacheURL.path).")
+            ApptentiveLogger.attachments.debug("Successfully wrote attachment data to \(cacheURL.path).")
             return .cached(path: path)
         } else {
             return attachment.storage
@@ -197,9 +197,9 @@ class AttachmentManager: AttachmentURLProviding {
                     guard let tempURL = tempURL else {
                         throw AttachmentError.missingDownloadedURL(response)
                     }
-                    ApptentiveLogger.messageCenterAttachment.debug("Trying to write attachment data from \(remoteURL.path) to \(localURL.path).")
+                    ApptentiveLogger.attachments.debug("Trying to write attachment data from \(remoteURL.path) to \(localURL.path).")
                     try self.fileManager.moveItem(at: tempURL, to: localURL)
-                    ApptentiveLogger.messageCenterAttachment.debug("Successfully wrote attachment data to \(localURL.path).")
+                    ApptentiveLogger.attachments.debug("Successfully wrote attachment data to \(localURL.path).")
                     self.progressObservations.removeValue(forKey: remoteURL)?.invalidate()
 
                     return localURL

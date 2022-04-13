@@ -1,3 +1,25 @@
+# 2022-04-13 - 6.0.1
+
+#### New & Improved
+
+- Automated messages available in Message Center
+- New method available to dismiss all interactions 
+- Allow custom data to be passed with events
+- Send a notification (`apptentiveEventEngaged`) when an event is engaged
+- Increased the contrast for survey buttons
+- Added method to determine whether an event may trigger an interaction
+
+#### Bug Fixes & User Experience Updates
+
+- Fixed an issue with localized strings when integrating with Swift Package Manager
+- Fixed an issue where API requests were sent on every keystroke
+- Fixed an issue with CocoaPods integrations on iOS 11
+- Fixed a potential crash when setting custom person or device data
+- Fixed a crash when closing a partially-completed survey on iPad
+- Fixed a potential crash when using a swipe gesture to dismiss a partially-completed survey
+- Fixed a layout issue in Message Center when profile view is visible 
+- Other miscellaneous user experience improvements
+
 # 2022-03-17 - 6.0.0
 
 Initial release of the ApptentiveKit SDK for iOS and iPadOS

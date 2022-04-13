@@ -62,6 +62,8 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
     var isProtectedDataAvailable = true
     var delegate: EnvironmentDelegate?
 
+    var appDisplayName: String = "This Nifty App"
+
     func applicationSupportURL() throws -> URL {
         return Self.applicationSupportURL
     }

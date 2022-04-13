@@ -1,5 +1,5 @@
 //
-//  MessageViewController.swift
+//  MessageCenterViewController.swift
 //  ApptentiveKit
 //
 //  Created by Luqmaan Khan on 10/13/21.
@@ -10,7 +10,7 @@ import PhotosUI
 import QuickLook
 import UIKit
 
-class MessageViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate,
+class MessageCenterViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate,
     PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate,
     QLPreviewControllerDelegate, QLPreviewControllerDataSource
 {
@@ -21,6 +21,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     let profileFooterView: ProfileFooterView
     let messageReceivedCellID = "MessageCellReceived"
     let messageSentCellID = "MessageSentCell"
+    let automatedMessageCellID = "AutomatedMessageCell"
 
     init(viewModel: MessageCenterViewModel) {
         self.composeContainerView = MessageCenterComposeContainerView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 44)))
@@ -66,6 +67,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.tableView.keyboardDismissMode = .interactive
         self.tableView.register(MessageReceivedCell.self, forCellReuseIdentifier: self.messageReceivedCellID)
         self.tableView.register(MessageSentCell.self, forCellReuseIdentifier: self.messageSentCellID)
+        self.tableView.register(AutomatedMessageCell.self, forCellReuseIdentifier: self.automatedMessageCellID)
 
         self.composeContainerView.composeView.textView.delegate = self
         self.composeContainerView.composeView.textView.accessibilityLabel = self.viewModel.composerTitle
@@ -104,13 +106,14 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         self.profileFooterView.nameTextField.text = self.viewModel.name
         self.profileFooterView.nameTextField.placeholder = self.viewModel.profileNamePlaceholder
         self.profileFooterView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
+        self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
 
         self.profileFooterView.emailTextField.text = self.viewModel.emailAddress
         self.profileFooterView.emailTextField.placeholder = self.viewModel.profileEmailPlaceholder
         self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
-        self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
+        self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
 
-        self.updateProfileValidation(strict: self.viewModel.emailAddress?.isEmpty != true)
+        self.updateProfileValidation(strict: self.viewModel.emailAddress?.isEmpty == false)
         self.tableView.separatorColor = .clear
 
         self.viewModel.delegate = self
@@ -168,6 +171,9 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
         case .sentFromDashboard:
             cell = tableView.dequeueReusableCell(withIdentifier: self.messageReceivedCellID, for: indexPath)
+
+        case .automated:
+            cell = tableView.dequeueReusableCell(withIdentifier: self.automatedMessageCellID, for: indexPath)
         }
 
         cell.selectionStyle = .none
@@ -187,6 +193,9 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
             self.updateStackView(sentCell.attachmentStackView, with: message, at: indexPath)
             sentCell.accessibilityElements = [sentCell.messageText, sentCell.attachmentStackView, sentCell.statusLabel]
 
+        case (.automated, let automatedCell as AutomatedMessageCell):
+            automatedCell.messageText.text = message.body
+
         default:
             assertionFailure("Cell type doesn't match inbound value")
         }
@@ -198,9 +207,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.section == tableView.numberOfSections - 1 && indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
-            self.viewModel.updateUnreadMessages()
-        }
+        self.viewModel.markMessageAsRead(at: indexPath)
     }
 
     // MARK: - Text View Delegate
@@ -219,7 +226,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.viewModel.addImageAttachment(image, name: nil)
         } else {
-            ApptentiveLogger.default.error("UIImagePickerController failed to provide picked image.")
+            ApptentiveLogger.messages.error("UIImagePickerController failed to provide picked image.")
         }
     }
 
@@ -235,11 +242,11 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         for result in results {
             result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
                 if let error = error {
-                    ApptentiveLogger.default.debug("Error selecting images from PHPicker: \(error).")
+                    ApptentiveLogger.messages.debug("Error selecting images from PHPicker: \(error).")
                 }
 
                 guard let image = object as? UIImage else {
-                    ApptentiveLogger.default.error("PHPickerViewController failed to provide picked image.")
+                    ApptentiveLogger.messages.error("PHPickerViewController failed to provide picked image.")
                     return
                 }
 
@@ -306,7 +313,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didUpdateRowsAt indexPaths: [IndexPath]) {
-        self.tableView.reloadRows(at: indexPaths, with: .automatic)
+        self.tableView.reloadRows(at: indexPaths, with: .fade)
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didInsertRowsAt indexPaths: [IndexPath]) {
@@ -330,7 +337,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
 
         self.tableView.reloadData()
 
-        if self.isViewLoaded {
+        if self.isViewLoaded && !self.viewModel.shouldRequestProfile {
             self.scrollToBottom(false)
         }
     }
@@ -360,15 +367,15 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didFailToRemoveAttachmentAt index: Int, with error: Error) {
-        ApptentiveLogger.default.error("Unable to remove attachment at index \(index): \(error).")
+        ApptentiveLogger.messages.error("Unable to remove attachment at index \(index): \(error).")
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didFailToAddAttachmentWith error: Error) {
-        ApptentiveLogger.default.error("Unable to add attachment: \(error).")
+        ApptentiveLogger.messages.error("Unable to add attachment: \(error).")
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didFailToSendMessageWith error: Error) {
-        ApptentiveLogger.default.error("Unable to send message: \(error).")
+        ApptentiveLogger.messages.error("Unable to send message: \(error).")
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFinishAt index: Int, inMessageAt indexPath: IndexPath) {
@@ -376,7 +383,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error) {
-        ApptentiveLogger.default.error("Unable to download attachment #\(index) in row \(indexPath.row) of section \(indexPath.section).")
+        ApptentiveLogger.messages.error("Unable to download attachment #\(index) in row \(indexPath.row) of section \(indexPath.section).")
     }
 
     // MARK: - Notifications
@@ -385,7 +392,7 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
         guard let keyboardRect = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
             let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
         else {
-            ApptentiveLogger.interaction.warning("Expected keyboard frame in notification")
+            ApptentiveLogger.messages.warning("Expected keyboard frame in notification")
             return
         }
 
@@ -470,25 +477,18 @@ class MessageViewController: UITableViewController, UITextViewDelegate, MessageC
     }
 
     @objc func textFieldChanged(_ sender: UITextField) {
-        switch sender.tag {
-        case 0:
-            self.viewModel.name = sender.text
-
-        case 1:
-            self.viewModel.emailAddress = sender.text
-
-        default:
-            assertionFailure("Expected 0 or 1 for text field tag.")
-        }
-
-        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+        self.viewModel.name = self.profileFooterView.nameTextField.text
+        self.viewModel.emailAddress = self.profileFooterView.emailTextField.text
 
         self.updateProfileValidation(strict: false)
     }
 
-    @objc private func textFieldDidEndEditing(_ sender: UITextField) {
-        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
-        self.updateProfileValidation(strict: true)
+    @objc private func textFieldEditingDidEnd(_ sender: UITextField) {
+        self.updateProfileValidation(strict: sender == self.profileFooterView.emailTextField)
+
+        if self.viewModel.profileIsValid {
+            self.viewModel.commitProfileEdits()
+        }
     }
 
     // MARK: - Private

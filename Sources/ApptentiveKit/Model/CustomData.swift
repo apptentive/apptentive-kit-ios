@@ -24,7 +24,7 @@ public struct CustomData: Equatable, Codable {
     var customData: [String: CustomDataCompatible]
 
     /// Initializes a new empty custom data object.
-    init() {
+    public init() {
         self.customData = [:]
     }
 
