@@ -19,7 +19,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(APPTENTIVE_VERSION)</string>
+	<string>6.0.1</string>
 	<key>CFBundleVersion</key>
 	<string>$(APPTENTIVE_BUILD)</string>
 	<key>Carthage</key>
