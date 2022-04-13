@@ -503,6 +503,8 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             self.messageManagerDraftMessageDidChange(draftManagedMessage)
         }
 
+        self.name = self.interactionDelegate.personName
+        self.emailAddress = self.interactionDelegate.personEmailAddress
         self.validateProfile()
 
         MessageManager.thumbnailSize = self.thumbnailSize

@@ -77,7 +77,7 @@ class EditProfileViewController: UIViewController {
             self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveError.cgColor
         }
 
-        self.navigationItem.rightBarButtonItem?.isEnabled = self.viewModel.canSendMessage
+        self.navigationItem.rightBarButtonItem?.isEnabled = self.viewModel.profileIsValid
     }
 
     private func setConstraints() {
