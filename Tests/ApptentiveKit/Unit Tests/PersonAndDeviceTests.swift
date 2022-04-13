@@ -142,7 +142,6 @@ class PersonAndDeviceTests: XCTestCase {
 
         // Turn on disk access in the backend.
         self.environment.isProtectedDataAvailable = true
-        self.apptentive.protectedDataDidBecomeAvailable(self.apptentive.environment)
 
         self.apptentive.personName = "Testy McTestface"
         self.apptentive.personEmailAddress = "test@example.com"
@@ -156,6 +155,8 @@ class PersonAndDeviceTests: XCTestCase {
         self.apptentive.deviceCustomData["number"] = 43
         self.apptentive.deviceCustomData["boolean"] = false
 
+        self.apptentive.protectedDataDidBecomeAvailable(self.apptentive.environment)
+
         // Make sure the save operations on the backend queue have a chance to complete
         // By scheduling subsequent operations on the same (serial) queue.
 
@@ -164,6 +165,7 @@ class PersonAndDeviceTests: XCTestCase {
 
             DispatchQueue.main.async {
                 Apptentive.alreadyInitialized = false
+                self.environment.isProtectedDataAvailable = false
 
                 // Here we replace the Apptentive property with a new instance with no person/device properties set.
                 self.apptentive = Apptentive(baseURL: URL(string: "https://localhost"), containerDirectory: containerDirectory, backendQueue: self.dispatchQueue, environment: self.environment)

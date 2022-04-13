@@ -25,9 +25,7 @@
     "status": {
       "body": "We will respond to your message soon."
     },
-    "automated_message": {
-      "body": "We're sorry to hear that you don't love FooApp! Is there anything we could do to make it better?"
-    },
+    "automated_message": {},
     "error_messages": {
       "http_error_body": "It looks like we're having trouble sending your message. We've saved it and will try sending it again soon.",
       "network_error_body": "It looks like you aren't connected to the Internet right now. We've saved your message and will try again when we detect a connection.",

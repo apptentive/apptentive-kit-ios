@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0116CE9A27EA895D00186CC1 /* CustomDataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0116CE9927EA895D00186CC1 /* CustomDataViewController.swift */; };
+		0116CEA127EA8A0600186CC1 /* CustomDataDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0116CEA027EA8A0600186CC1 /* CustomDataDataSource.swift */; };
 		0118DD7126FBEDED00037E0E /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD7026FBEDED00037E0E /* MessagesViewController.swift */; };
 		0118DD8326FBF1C200037E0E /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD8226FBF1C200037E0E /* TextViewController.swift */; };
 		015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */; };
@@ -81,8 +83,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0116CE9927EA895D00186CC1 /* CustomDataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDataViewController.swift; sourceTree = "<group>"; };
+		0116CEA027EA8A0600186CC1 /* CustomDataDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDataDataSource.swift; sourceTree = "<group>"; };
 		0118DD7026FBEDED00037E0E /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
 		0118DD8226FBF1C200037E0E /* TextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewController.swift; sourceTree = "<group>"; };
+		011B6708275B196600148290 /* Operator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Operator.entitlements; sourceTree = "<group>"; };
 		0122AB25265D5939009C30AB /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Main.strings; sourceTree = "<group>"; };
 		0122AB26265D5939009C30AB /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		0122AB27265D5939009C30AB /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -190,6 +195,7 @@
 		018B099824577B15007450EA /* Operator */ = {
 			isa = PBXGroup;
 			children = (
+				011B6708275B196600148290 /* Operator.entitlements */,
 				015F2AC924C8EBB1004B53E2 /* Interactions */,
 				01EB6C072477409C0067F4B9 /* README.md */,
 				018B099924577B15007450EA /* AppDelegate.swift */,
@@ -197,6 +203,8 @@
 				01C060AC251E44C7006B4B30 /* EventsViewController.swift */,
 				0118DD7026FBEDED00037E0E /* MessagesViewController.swift */,
 				0118DD8226FBF1C200037E0E /* TextViewController.swift */,
+				0116CE9927EA895D00186CC1 /* CustomDataViewController.swift */,
+				0116CEA027EA8A0600186CC1 /* CustomDataDataSource.swift */,
 				01C021A225DDF54600547059 /* Data Tab */,
 				EF5F381C25C3B2D8007F823E /* Localization */,
 				01C060B3251E48EC006B4B30 /* AddEventCell.swift */,
@@ -277,7 +285,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1140;
-				LastUpgradeCheck = 1320;
+				LastUpgradeCheck = 1330;
 				ORGANIZATIONNAME = "Apptentive, Inc";
 				TargetAttributes = {
 					018B099524577B15007450EA = {
@@ -392,11 +400,13 @@
 				0176156925D1D48700BB85C6 /* DataTableViewController.swift in Sources */,
 				01A26B8025DDF610002EFA74 /* DeviceDataSource.swift in Sources */,
 				01C060B4251E48EC006B4B30 /* AddEventCell.swift in Sources */,
+				0116CE9A27EA895D00186CC1 /* CustomDataViewController.swift in Sources */,
 				01A26B7E25DDF5D4002EFA74 /* PersonDataSource.swift in Sources */,
 				01A26B7725DDF5C9002EFA74 /* CustomCells.swift in Sources */,
 				015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */,
 				018B099A24577B15007450EA /* AppDelegate.swift in Sources */,
 				01C060AD251E44C7006B4B30 /* EventsViewController.swift in Sources */,
+				0116CEA127EA8A0600186CC1 /* CustomDataDataSource.swift in Sources */,
 				0118DD8326FBF1C200037E0E /* TextViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -607,6 +617,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Operator/Operator.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development: Created via API (G9GXHMBKNM)";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 100;
@@ -629,6 +640,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Operator/Operator.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 100;

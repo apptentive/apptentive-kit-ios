@@ -12,7 +12,7 @@ class AdvanceButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.backgroundColor = self.tintColor
+        self.backgroundColor = .apptentiveSubmitButton
         self.setTitleColor(.white, for: .normal)
     }
 

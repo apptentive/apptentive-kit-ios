@@ -86,9 +86,6 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     ///the message describing customer's hours, expected time until response.
     public let statusBody: String
 
-    /// The introductory message added to conversation after consumer's message is sent.
-    public let automatedMessageBody: String?
-
     /// The messages grouped by date, according to the current calendar, sorted with oldest messages last.
     public var groupedMessages: [[Message]]
 
@@ -168,26 +165,24 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// The button label for dismissing the attachment options alert.
     public let attachmentOptionsCancelButton: String
 
+    /// The accessibility hint for buttons that show an attachment.
+    public let showAttachmentButtonAccessibilityHint: String
+
+    /// The accessibility hint for buttons that download an attachment.
+    public let downloadAttachmentButtonAccessibilityHint: String
+
+    // MARK: - Profile
+
     /// The email address set by the user in the profile views.
     public var emailAddress: String? {
-        get {
-            return self.interactionDelegate.personEmailAddress
-        }
-        set {
-            self.interactionDelegate.personEmailAddress = newValue
-
+        didSet {
             self.validateProfile()
         }
     }
 
     /// The name set by the user in the profile views.
     public var name: String? {
-        get {
-            return self.interactionDelegate.personName
-        }
-        set {
-            self.interactionDelegate.personName = newValue
-
+        didSet {
             self.validateProfile()
         }
     }
@@ -205,89 +200,16 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         case hidden
     }
 
-    /// The accessibility hint for buttons that show an attachment.
-    public let showAttachmentButtonAccessibilityHint: String
+    /// Saves changes from the `name` and `emailAddress` properties to the interactionDelegate.
+    public func commitProfileEdits() {
+        self.interactionDelegate.personName = self.name
+        self.interactionDelegate.personEmailAddress = self.emailAddress
+    }
 
-    /// The accessibility hint for buttons that download an attachment.
-    public let downloadAttachmentButtonAccessibilityHint: String
-
-    init(configuration: MessageCenterConfiguration, interaction: Interaction, interactionDelegate: MessageCenterInteractionDelegate) {
-        self.interaction = interaction
-        self.interactionDelegate = interactionDelegate
-        self.headingTitle = configuration.title
-        self.branding = configuration.branding
-        self.composerTitle = configuration.composer.title
-        self.composerSendButtonTitle = configuration.composer.sendButton
-        self.composerAttachButtonTitle = NSLocalizedString("MC Attach Button Accessibility Label", bundle: Bundle(for: Apptentive.self), value: "Attach", comment: "The accessibility label for the attach button.")
-        self.composerPlaceholderText = configuration.composer.hintText
-        self.composerCloseConfirmBody = configuration.composer.closeConfirmBody
-        self.composerCloseDiscardButtonTitle = configuration.composer.closeDiscardButton
-        self.composerCloseCancelButtonTitle = configuration.composer.closeCancelButton
-        self.sendingText = configuration.composer.sendStart
-        self.sentText = configuration.composer.sendOk
-        self.failedText = configuration.composer.sendFail
-
-        self.greetingTitle = configuration.greeting.title
-        self.greetingBody = configuration.greeting.body
-        self.greetingImageURL = configuration.greeting.imageURL
-        self.statusBody = configuration.status.body
-        self.automatedMessageBody = configuration.automatedMessage?.body
-
-        self.sentDateFormatter = DateFormatter()
-        self.sentDateFormatter.dateStyle = .short
-        self.sentDateFormatter.doesRelativeDateFormatting = true
-        self.sentDateFormatter.timeStyle = .short
-
-        self.groupDateFormatter = DateFormatter()
-        self.groupDateFormatter.dateStyle = .long
-        self.groupDateFormatter.timeStyle = .none
-
-        self.profileMode = MessageCenterViewModel.mode(for: configuration.profile)
-        self.editProfileViewTitle = configuration.profile.edit.title
-        self.editProfileNamePlaceholder = configuration.profile.edit.nameHint
-        self.editProfileEmailPlaceholder = configuration.profile.edit.emailHint
-        self.editProfileCancelButtonText = configuration.profile.edit.skipButton
-        self.editProfileSaveButtonText = configuration.profile.edit.saveButton
-        self.profileNamePlaceholder = configuration.profile.initial.nameHint
-        self.profileEmailPlaceholder = configuration.profile.initial.emailHint
-        self.profileCancelButtonText = configuration.profile.initial.skipButton
-        self.profileSaveButtonText = configuration.profile.initial.saveButton
-
-        self.hasLoadedMessages = false
-        self.profileIsValid = false
-        self.shouldRequestProfile = false
-        self.managedMessages = []
-        self.groupedMessages = []
-        self.draftMessage = Message(nonce: "", direction: .sentFromDevice(.failed), isAutomated: false, attachments: [], sender: nil, body: nil, sentDate: Date(), statusText: "", accessibilityLabel: "", accessibilityHint: "")
-
-        self.sendButtonAccessibilityLabel = NSLocalizedString("MC Send Button Accessibility Label", bundle: Bundle(for: Apptentive.self), value: "Send", comment: "The accessibility label for the send button.")
-        self.sendButtonAccessibilityHint = NSLocalizedString("MC Send Button Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Sends the message.", comment: "The accessibility hint for the send button.")
-        self.attachButtonAccessibilityLabel = NSLocalizedString("MC Attach Button Accessibility Label", bundle: Bundle(for: Apptentive.self), value: "Attach", comment: "The accessibility label for the attach button.")
-        self.attachButtonAccessibilityHint = NSLocalizedString("MC Attach Button Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Attaches a photo or file.", comment: "The accessibility hint for the attach button.")
-        self.closeButtonAccessibilityLabel = NSLocalizedString("MC Close Button Accessibility Label", bundle: Bundle(for: Apptentive.self), value: "Close", comment: "The accessibility label for the close button.")
-        self.closeButtonAccessibilityHint = NSLocalizedString("MC Close Button Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Closes Message Center.", comment: "The accessibility hint for the close button.")
-        self.profileButtonAccessibilityLabel = NSLocalizedString("MC Profile Button Accessibility Label", bundle: Bundle(for: Apptentive.self), value: "Profile", comment: "The accessibility label for the profile button.")
-        self.profileButtonAccessibilityHint = NSLocalizedString("MC Profile Button Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Displays the name and email editor.", comment: "The accessibility hint for the profile button.")
-        self.showAttachmentButtonAccessibilityHint = NSLocalizedString("Show Attachment Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Double-tap to open.", comment: "The accessibility hint for viewing attachments.")
-        self.downloadAttachmentButtonAccessibilityHint = NSLocalizedString("Download Attachment Accessibility Hint", bundle: Bundle(for: Apptentive.self), value: "Double-tap to download.", comment: "The accessibility hint for downloading attachments.")
-        self.attachmentOptionsTitle = NSLocalizedString("Attachment Options Title", bundle: Bundle(for: Apptentive.self), value: "Select an attachment type.", comment: "The title for the attachment options alert.")
-        self.attachmentOptionsFilesButton = NSLocalizedString("Attachment Options Files Button", bundle: Bundle(for: Apptentive.self), value: "Files", comment: "The button label for the images attachment option.")
-        self.attachmentOptionsImagesButton = NSLocalizedString("Attachment Options Images Button", bundle: Bundle(for: Apptentive.self), value: "Images", comment: "The button label for the files attachment option.")
-        self.attachmentOptionsCancelButton = NSLocalizedString("Attachment Options Cancel Button", bundle: Bundle(for: Apptentive.self), value: "Cancel", comment: "The button label for dismissing the attachment options alert.")
-
-        self.interactionDelegate.messageManagerDelegate = self
-
-        self.interactionDelegate.getMessages { messages in
-            self.messageManagerMessagesDidChange(messages)
-        }
-
-        self.interactionDelegate.getDraftMessage { draftManagedMessage in
-            self.messageManagerDraftMessageDidChange(draftManagedMessage)
-        }
-
-        self.validateProfile()
-
-        MessageManager.thumbnailSize = self.thumbnailSize
+    /// Reverts the values of the `name` and `emailAddress` properties to those from the interactionDelegate.
+    public func cancelProfileEdits() {
+        self.name = self.interactionDelegate.personName
+        self.emailAddress = self.interactionDelegate.personEmailAddress
     }
 
     // MARK: Events
@@ -311,12 +233,13 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         return self.groupedMessages.count
     }
 
-    /// Updates the 'read' status for all messages.
-    public func updateUnreadMessages() {
-        for messageList in groupedMessages {
-            for message in messageList {
-                self.interactionDelegate.markMessageAsRead(message.nonce)
-            }
+    /// Updates the 'read' status for the specified message.
+    public func markMessageAsRead(at indexPath: IndexPath) {
+        let message = self.message(at: indexPath)
+
+        if case .sentFromDashboard(let readStatus) = message.direction, case .unread(let id) = readStatus {
+            self.interactionDelegate.markMessageAsRead(message.nonce)
+            self.interactionDelegate.engage(event: .messageRead(with: id, from: self.interaction))
         }
     }
 
@@ -506,6 +429,87 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     let sentText: String
     let failedText: String
 
+    init(configuration: MessageCenterConfiguration, interaction: Interaction, interactionDelegate: MessageCenterInteractionDelegate) {
+        self.interaction = interaction
+        self.interactionDelegate = interactionDelegate
+        self.headingTitle = configuration.title
+        self.branding = configuration.branding
+        self.composerTitle = configuration.composer.title
+        self.composerSendButtonTitle = configuration.composer.sendButton
+        self.composerAttachButtonTitle = NSLocalizedString("MC Attach Button Accessibility Label", bundle: .module, value: "Attach", comment: "The accessibility label for the attach button.")
+        self.composerPlaceholderText = configuration.composer.hintText
+        self.composerCloseConfirmBody = configuration.composer.closeConfirmBody
+        self.composerCloseDiscardButtonTitle = configuration.composer.closeDiscardButton
+        self.composerCloseCancelButtonTitle = configuration.composer.closeCancelButton
+        self.sendingText = configuration.composer.sendStart
+        self.sentText = configuration.composer.sendOk
+        self.failedText = configuration.composer.sendFail
+
+        self.greetingTitle = configuration.greeting.title
+        self.greetingBody = configuration.greeting.body
+        self.greetingImageURL = configuration.greeting.imageURL
+        self.statusBody = configuration.status.body
+
+        self.sentDateFormatter = DateFormatter()
+        self.sentDateFormatter.dateStyle = .short
+        self.sentDateFormatter.doesRelativeDateFormatting = true
+        self.sentDateFormatter.timeStyle = .short
+
+        self.groupDateFormatter = DateFormatter()
+        self.groupDateFormatter.dateStyle = .long
+        self.groupDateFormatter.timeStyle = .none
+
+        self.profileMode = MessageCenterViewModel.mode(for: configuration.profile)
+        self.editProfileViewTitle = configuration.profile.edit.title
+        self.editProfileNamePlaceholder = configuration.profile.edit.nameHint
+        self.editProfileEmailPlaceholder = configuration.profile.edit.emailHint
+        self.editProfileCancelButtonText = configuration.profile.edit.skipButton
+        self.editProfileSaveButtonText = configuration.profile.edit.saveButton
+        self.profileNamePlaceholder = configuration.profile.initial.nameHint
+        self.profileEmailPlaceholder = configuration.profile.initial.emailHint
+        self.profileCancelButtonText = configuration.profile.initial.skipButton
+        self.profileSaveButtonText = configuration.profile.initial.saveButton
+
+        self.hasLoadedMessages = false
+        self.profileIsValid = false
+        self.shouldRequestProfile = false
+        self.managedMessages = []
+        self.groupedMessages = []
+        self.draftMessage = Message(nonce: "", direction: .sentFromDevice(.failed), isAutomated: false, attachments: [], sender: nil, body: nil, sentDate: Date(), statusText: "", accessibilityLabel: "", accessibilityHint: "")
+
+        self.sendButtonAccessibilityLabel = NSLocalizedString("MC Send Button Accessibility Label", bundle: .module, value: "Send", comment: "The accessibility label for the send button.")
+        self.sendButtonAccessibilityHint = NSLocalizedString("MC Send Button Accessibility Hint", bundle: .module, value: "Sends the message.", comment: "The accessibility hint for the send button.")
+        self.attachButtonAccessibilityLabel = NSLocalizedString("MC Attach Button Accessibility Label", bundle: .module, value: "Attach", comment: "The accessibility label for the attach button.")
+        self.attachButtonAccessibilityHint = NSLocalizedString("MC Attach Button Accessibility Hint", bundle: .module, value: "Attaches a photo or file.", comment: "The accessibility hint for the attach button.")
+        self.closeButtonAccessibilityLabel = NSLocalizedString("MC Close Button Accessibility Label", bundle: .module, value: "Close", comment: "The accessibility label for the close button.")
+        self.closeButtonAccessibilityHint = NSLocalizedString("MC Close Button Accessibility Hint", bundle: .module, value: "Closes Message Center.", comment: "The accessibility hint for the close button.")
+        self.profileButtonAccessibilityLabel = NSLocalizedString("MC Profile Button Accessibility Label", bundle: .module, value: "Profile", comment: "The accessibility label for the profile button.")
+        self.profileButtonAccessibilityHint = NSLocalizedString("MC Profile Button Accessibility Hint", bundle: .module, value: "Displays the name and email editor.", comment: "The accessibility hint for the profile button.")
+        self.showAttachmentButtonAccessibilityHint = NSLocalizedString("Show Attachment Accessibility Hint", bundle: .module, value: "Double-tap to open.", comment: "The accessibility hint for viewing attachments.")
+        self.downloadAttachmentButtonAccessibilityHint = NSLocalizedString("Download Attachment Accessibility Hint", bundle: .module, value: "Double-tap to download.", comment: "The accessibility hint for downloading attachments.")
+        self.attachmentOptionsTitle = NSLocalizedString("Attachment Options Title", bundle: .module, value: "Select an attachment type.", comment: "The title for the attachment options alert.")
+        self.attachmentOptionsFilesButton = NSLocalizedString("Attachment Options Files Button", bundle: .module, value: "Files", comment: "The button label for the images attachment option.")
+        self.attachmentOptionsImagesButton = NSLocalizedString("Attachment Options Images Button", bundle: .module, value: "Images", comment: "The button label for the files attachment option.")
+        self.attachmentOptionsCancelButton = NSLocalizedString("Attachment Options Cancel Button", bundle: .module, value: "Cancel", comment: "The button label for dismissing the attachment options alert.")
+
+        self.interactionDelegate.messageManagerDelegate = self
+        self.interactionDelegate.setAutomatedMessageBody(configuration.automatedMessage?.body)
+
+        self.interactionDelegate.getMessages { messages in
+            self.messageManagerMessagesDidChange(messages)
+        }
+
+        self.interactionDelegate.getDraftMessage { draftManagedMessage in
+            self.messageManagerDraftMessageDidChange(draftManagedMessage)
+        }
+
+        self.name = self.interactionDelegate.personName
+        self.emailAddress = self.interactionDelegate.personEmailAddress
+        self.validateProfile()
+
+        MessageManager.thumbnailSize = self.thumbnailSize
+    }
+
     // Notifies the delegate of inserted, updated, deleted, and moved indexPaths, and inserted and removed sections.
     func update(from old: [[Message]], to new: [[Message]]) {
         let oldSections = old.compactMap { $0.first.flatMap(Self.sectionDate) }
@@ -666,32 +670,36 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         let statusText: String
         let sentDateString = sentDateFormatter.string(from: managedMessage.sentDate)
 
-        switch managedMessage.status {
-        case .draft:
+        switch (managedMessage.status, managedMessage.isAutomated) {
+        case (_, true):
+            direction = .automated
+            statusText = "Automated"
+
+        case (.draft, _):
             direction = .sentFromDevice(.draft)
             statusText = "Draft"
-        case .queued:
+        case (.queued, _):
             direction = .sentFromDevice(.queued)
             statusText = self.sendingText
-        case .sending:
+        case (.sending, _):
             direction = .sentFromDevice(.sending)
             statusText = self.sendingText
-        case .sent:
+        case (.sent, _):
             direction = .sentFromDevice(.sent)
             statusText = "\(self.sentText) \(sentDateString)"
-        case .failed:
+        case (.failed, _):
             direction = .sentFromDevice(.failed)
             statusText = self.failedText
 
-        case .unread:
-            direction = .sentFromDashboard(.unread)
+        case (.unread, _):
+            direction = .sentFromDashboard(.unread(messageID: managedMessage.id))
             statusText = sentDateString
-        case .read:
+        case (.read, _):
             direction = .sentFromDashboard(.read)
             statusText = sentDateString
         }
 
-        let accessibilityLabel = managedMessage.body ?? NSLocalizedString("No Text", bundle: Bundle(for: Apptentive.self), value: "No Text", comment: "Accessibility label for messages with no text")
+        let accessibilityLabel = managedMessage.body ?? NSLocalizedString("No Text", bundle: .module, value: "No Text", comment: "Accessibility label for messages with no text")
 
         return Message(
             nonce: managedMessage.nonce, direction: direction, isAutomated: managedMessage.isAutomated, attachments: attachments, sender: sender, body: managedMessage.body, sentDate: managedMessage.sentDate,
@@ -735,6 +743,25 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     }
 
     private static let emailPredicate = NSPredicate(format: "SELF MATCHES %@", "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")
+}
+
+extension Event {
+    /// Convenience method for a `read` event for Message Center.
+    static func messageRead(with id: String?, from interaction: Interaction) -> Self {
+        var result = Self(internalName: "read", interaction: interaction)
+
+        result.userInfo = id.flatMap { .messageInfo(ReadMessageInfo(id: $0)) }
+
+        return result
+    }
+}
+
+struct ReadMessageInfo: Codable, Equatable {
+    let id: String
+
+    enum CodingKeys: String, CodingKey {
+        case id = "message_id"
+    }
 }
 
 public enum MessageCenterViewModelError: Error {

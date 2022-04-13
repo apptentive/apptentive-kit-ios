@@ -34,6 +34,18 @@ class MessageManager {
         }
     }
 
+    var automatedMessage: MessageList.Message?
+
+    var messages: [MessageList.Message] {
+        var messages = self.messageList.messages
+
+        if let automatedMessage = self.automatedMessage {
+            messages.append(automatedMessage)
+        }
+
+        return messages
+    }
+
     static var thumbnailSize = CGSize(width: 44, height: 44)
 
     var messageManagerApptentiveDelegate: MessageManagerApptentiveDelegate?
@@ -43,8 +55,9 @@ class MessageManager {
                 // When presenting, trigger a refresh of the message list at the next opportunity.
                 self.messageList.lastFetchDate = .distantPast
             } else {
-                // When closing, clear out any unsent custom data.
+                // When closing, clear out any unsent custom data and/or automated message.
                 self.customData = nil
+                self.automatedMessage = nil
             }
         }
     }
@@ -53,11 +66,11 @@ class MessageManager {
         self.messageList.lastDownloadedMessageID
     }
 
-    private(set) var messageList: MessageList {
+    private var messageList: MessageList {
         didSet {
             if self.messageList != oldValue {
                 if self.messageList.messages != oldValue.messages {
-                    self.delegate?.messageManagerMessagesDidChange(self.messageList.messages)
+                    self.delegate?.messageManagerMessagesDidChange(self.messages)
                 }
 
                 if self.messageList.draftMessage != oldValue.draftMessage {
@@ -98,7 +111,12 @@ class MessageManager {
             self.messageList.messages = Self.merge(loadedMessageList.messages, with: self.messageList.messages, attachmentManager: self.attachmentManager)
             self.messageList.draftMessage = loadedMessageList.draftMessage
             self.draftAttachmentNumber = loadedMessageList.draftMessage.attachments.count + 1
-            self.messageList.lastFetchDate = max(loadedMessageList.lastFetchDate ?? .distantPast, self.messageList.lastFetchDate ?? .distantPast)
+
+            if self.messageList.lastFetchDate ?? .distantPast < loadedMessageList.lastFetchDate ?? .distantPast {
+                self.messageList.lastFetchDate = loadedMessageList.lastFetchDate
+                self.messageList.lastDownloadedMessageID = loadedMessageList.lastDownloadedMessageID
+                self.messageList.additionalDownloadableMessagesExist = loadedMessageList.additionalDownloadableMessagesExist
+            }
         }
     }
 
@@ -116,9 +134,15 @@ class MessageManager {
         self.messageList.messages = Self.merge(self.messageList.messages, with: messagesResponse.messages.map { Self.convert(downloadedMessage: $0) }, attachmentManager: self.attachmentManager)
         self.setUnreadMessageCount()
         self.messageList.additionalDownloadableMessagesExist = messagesResponse.hasMore
-        self.messageList.lastDownloadedMessageID = messagesResponse.endsWith
+        self.messageList.lastDownloadedMessageID = messagesResponse.endsWith ?? self.messageList.lastDownloadedMessageID
         self.messageList.lastFetchDate = Date()
         self.forceMessageDownload = self.messageList.additionalDownloadableMessagesExist
+    }
+
+    func setAutomatedMessageBody(_ body: String?) {
+        self.automatedMessage = body.flatMap { MessageList.Message(nonce: "automated", body: $0, isAutomated: true) }
+
+        self.delegate?.messageManagerMessagesDidChange(self.messages)
     }
 
     var draftMessage: MessageList.Message {
@@ -234,6 +258,13 @@ class MessageManager {
         return (message, customData)
     }
 
+    func prepareAutomatedMessageForSending() throws -> MessageList.Message? {
+        let message = self.automatedMessage
+        self.automatedMessage = nil
+
+        return message
+    }
+
     /// Called when a message is added to the payload queue so that it can be tracked in the message list.
     /// - Parameters:
     ///   - message: The message that was enqueued.
@@ -294,7 +325,7 @@ class MessageManager {
 
         for (index, existingAttachment) in existing.attachments.enumerated() {
             guard result.attachments.count > index else {
-                ApptentiveLogger.default.error("Mismatch of server-side and client-side attachment counts.")
+                ApptentiveLogger.messages.error("Mismatch of server-side and client-side attachment counts.")
                 continue
             }
 
@@ -323,11 +354,13 @@ class MessageManager {
             MessageList.Message.Sender(name: sender.name, profilePhoto: sender.profilePhoto)
         }
 
-        return MessageList.Message(nonce: downloadedMessage.nonce, body: downloadedMessage.body, attachments: attachments, sender: sender, sentDate: downloadedMessage.sentDate, status: Self.status(of: downloadedMessage))
+        return MessageList.Message(
+            id: downloadedMessage.id, nonce: downloadedMessage.nonce, body: downloadedMessage.body, attachments: attachments, sender: sender, sentDate: downloadedMessage.sentDate, isAutomated: downloadedMessage.isAutomated ?? false,
+            isHidden: downloadedMessage.isHidden ?? false, status: Self.status(of: downloadedMessage))
     }
 
     static func status(of downloadedMessage: MessagesResponse.Message) -> MessageList.Message.Status {
-        return downloadedMessage.sentFromDevice ? .sent : .unread
+        return downloadedMessage.sentFromDevice || downloadedMessage.isAutomated == true ? .sent : .unread
     }
 
     static func newDraftMessage() -> MessageList.Message {
@@ -381,7 +414,7 @@ class MessageManager {
                     }
 
                 } catch let error {
-                    ApptentiveLogger.payload.error("Unable to move queued attachments for payload \(payload.jsonObject.nonce): \(error).")
+                    ApptentiveLogger.attachments.error("Unable to move queued attachments for payload \(payload.jsonObject.nonce): \(error).")
                 }
             }
         }  // else this wasn't a message payload.

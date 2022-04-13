@@ -37,6 +37,7 @@ protocol MessageProviding: AnyObject {
     func getMessages(completion: @escaping ([MessageList.Message]) -> Void)
     func setDraftMessageBody(_ body: String?)
     func getDraftMessage(completion: @escaping (MessageList.Message) -> Void)
+    func setAutomatedMessageBody(_ body: String?)
 }
 
 /// Describes an object that can send messages from the Message Center interaction.

@@ -64,6 +64,10 @@ extension Apptentive {
         self.backendQueue.async {
             completion(
                 Result(catching: {
+                    if let automatedMessage = try self.backend.messageManager.prepareAutomatedMessageForSending() {
+                        try self.backend.sendMessage(automatedMessage)
+                    }
+
                     let (message, customData) = try self.backend.messageManager.prepareDraftMessageForSending()
                     try self.backend.sendMessage(message, with: customData)
                 }))
@@ -76,10 +80,7 @@ extension Apptentive {
     /// - Parameter completion: A completion handler to be called when the message center view model is initialized.
     func getMessages(completion: @escaping ([MessageList.Message]) -> Void) {
         self.backendQueue.async {
-            let messageList = self.backend.messageManager.messageList.messages
-            DispatchQueue.main.async {
-                completion(messageList)
-            }
+            completion(self.backend.messageManager.messages)
         }
     }
 
@@ -101,6 +102,12 @@ extension Apptentive {
     func getDraftMessage(completion: @escaping (MessageList.Message) -> Void) {
         self.backendQueue.async {
             completion(self.backend.messageManager.draftMessage)
+        }
+    }
+
+    func setAutomatedMessageBody(_ body: String?) {
+        self.backendQueue.async {
+            self.backend.messageManager.setAutomatedMessageBody(body)
         }
     }
 

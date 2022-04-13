@@ -21,6 +21,9 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
     /// The interaction, if any, that the event was engaged by (the string `app` will be used in the code point if there is no interaction).
     var interaction: Interaction?
 
+    /// The custom data passed in with the event.
+    public var customData: CustomData
+
     /// Additional information to be sent along with the event.
     var userInfo: EventUserInfo?
 
@@ -30,6 +33,7 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
         self.name = name
         self.vendor = "local"
         self.interaction = nil
+        self.customData = CustomData()
     }
 
     /// Creates an event with the provided string literal as the name.
@@ -46,6 +50,7 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
         self.name = internalName
         self.vendor = "com.apptentive"
         self.interaction = interaction
+        self.customData = CustomData()
     }
 
     /// Convenience method for a `launch` event.
@@ -112,4 +117,17 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
 enum EventUserInfo: Equatable {
     case navigateToLink(NavigateToLinkResult)
     case textModalAction(TextModalAction)
+    case dismissCause(CancelInteractionCause)
+    case messageInfo(ReadMessageInfo)
+}
+
+extension Event {
+    func userInfoForNotification() -> [String: String] {
+        var userInfo = [String: String]()
+        userInfo["eventType"] = self.name
+        userInfo["interactionType"] = self.interaction?.typeName
+        userInfo["interactionID"] = self.interaction?.id
+        userInfo["eventSource"] = self.vendor
+        return userInfo
+    }
 }

@@ -26,7 +26,9 @@
        "status": {
          "body": "We will respond to your message soon."
        },
-       "automated_message": {},
+       "automated_message": {
+           "body": "We're sorry that your experience didn’t live up to your expectations. Please tell us how we can make things right."
+       },
        "error_messages": {
          "http_error_body": "It looks like we're having trouble sending your message. We've saved it and will try sending it again soon.",
          "network_error_body": "It looks like you aren't connected to the Internet right now. We've saved your message and will try again when we detect a connection."

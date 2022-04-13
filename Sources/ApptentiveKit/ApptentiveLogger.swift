@@ -218,8 +218,12 @@ extension ApptentiveLogger {
     /// Logger for targeting activity.
     public static var targeting = ApptentiveLogger(subsystem: subsystemPrefix + ".targeting")
 
+    /// Logger for message center messages.
+    public static var messages = ApptentiveLogger(subsystem: subsystemPrefix + ".messages")
+
     /// Logger for message center attachments.
-    public static var messageCenterAttachment = ApptentiveLogger(subsystem: subsystemPrefix + ".messageCenterAttachment")
+    public static var attachments = ApptentiveLogger(subsystem: subsystemPrefix + ".attachments")
+
     /// The overall log level.
     ///
     /// Reading this value returns the log level of the default log.
@@ -235,7 +239,8 @@ extension ApptentiveLogger {
             self.network.logLevel = newValue
             self.payload.logLevel = newValue
             self.targeting.logLevel = newValue
-            self.messageCenterAttachment.logLevel = newValue
+            self.attachments.logLevel = newValue
+            self.messages.logLevel = newValue
         }
     }
 }

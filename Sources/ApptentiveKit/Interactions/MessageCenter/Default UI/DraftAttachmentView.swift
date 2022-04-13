@@ -8,7 +8,8 @@
 
 import UIKit
 
-extension MessageViewController {
+extension MessageCenterViewController {
+
     class DraftAttachmentView: UIView {
         let imageView: UIImageView
         let gestureRecognizer: UIGestureRecognizer

@@ -52,13 +52,30 @@ class InteractionPresenterTests: XCTestCase {
         XCTAssertThrowsError(try self.presentInteraction(fakeInteraction))
     }
 
+    func testDismssPresentedInteraction() throws {
+        let interaction = try InteractionTestHelpers.loadInteraction(named: "TextModal")
+        let presentingViewController = FakePresentingViewController()
+
+        try self.interactionPresenter?.presentInteraction(interaction, from: presentingViewController)
+
+        let presentedViewController = presentingViewController.fakePresentedViewController as! FakePresentedViewController
+
+        self.interactionPresenter?.dismissPresentedViewController(animated: true)
+
+        XCTAssertTrue(presentedViewController.didDismiss)
+
+        let spyInteractionDelegate = self.interactionPresenter?.delegate as! SpyInteractionDelegate
+        XCTAssertEqual(spyInteractionDelegate.engagedEvent?.codePointName, "com.apptentive#TextModal#cancel")
+        XCTAssertEqual(spyInteractionDelegate.engagedEvent?.userInfo, EventUserInfo.dismissCause(.init(cause: "notification")))
+    }
+
     class FakeInteractionPresenter: InteractionPresenter {
         var viewModel: AnyObject?
 
         override func presentSurvey(with viewModel: SurveyViewModel) throws {
             self.viewModel = viewModel
 
-            let fakeSurveyViewController = UIViewController()
+            let fakeSurveyViewController = FakePresentedViewController()
             fakeSurveyViewController.view.tag = 333
 
             try self.presentViewController(fakeSurveyViewController)
@@ -67,7 +84,7 @@ class InteractionPresenterTests: XCTestCase {
         override func presentEnjoymentDialog(with viewModel: EnjoymentDialogViewModel) throws {
             self.viewModel = viewModel
 
-            let fakeAlertController = UIViewController()
+            let fakeAlertController = FakePresentedViewController()
             fakeAlertController.view.tag = 333
 
             try self.presentViewController(fakeAlertController)
@@ -76,7 +93,7 @@ class InteractionPresenterTests: XCTestCase {
         override func presentTextModal(with viewModel: TextModalViewModel) throws {
             self.viewModel = viewModel
 
-            let fakeAlertController = UIViewController()
+            let fakeAlertController = FakePresentedViewController()
             fakeAlertController.view.tag = 333
 
             try self.presentViewController(fakeAlertController)
@@ -101,6 +118,14 @@ class InteractionPresenterTests: XCTestCase {
 
         override var isViewLoaded: Bool {
             return true
+        }
+    }
+
+    class FakePresentedViewController: UIViewController {
+        var didDismiss: Bool = false
+
+        override func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
+            self.didDismiss = true
         }
     }
 

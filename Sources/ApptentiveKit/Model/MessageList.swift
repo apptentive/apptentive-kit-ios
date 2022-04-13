@@ -18,6 +18,8 @@ struct MessageList: Codable, Equatable {
 
     /// Represents an individual message within a list of messages.
     struct Message: Codable, Equatable {
+        /// The server-side identifier for the message.
+        var id: String?
         /// The nonce assigned to the message.
         var nonce: String
         /// The body text of the message.
@@ -35,7 +37,11 @@ struct MessageList: Codable, Equatable {
         /// Indicates if the status of the message.
         var status: Status
 
-        init(nonce: String, body: String? = nil, attachments: [Attachment] = [], sender: MessageList.Message.Sender? = nil, sentDate: Date = Date(), isAutomated: Bool = false, isHidden: Bool = false, status: MessageList.Message.Status = .draft) {
+        init(
+            id: String? = nil, nonce: String, body: String? = nil, attachments: [Attachment] = [], sender: MessageList.Message.Sender? = nil, sentDate: Date = Date(), isAutomated: Bool = false, isHidden: Bool = false,
+            status: MessageList.Message.Status = .draft
+        ) {
+            self.id = id
             self.nonce = nonce
             self.body = body
             self.attachments = attachments

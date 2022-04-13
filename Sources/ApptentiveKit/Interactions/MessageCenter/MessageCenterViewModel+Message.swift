@@ -67,6 +67,8 @@ extension MessageCenterViewModel {
             case sentFromDashboard(ReadStatus)
             /// The message is being sent from the device.
             case sentFromDevice(SentStatus)
+            /// The message is automated
+            case automated
         }
 
         /// The status of a message sent from the device.
@@ -93,7 +95,7 @@ extension MessageCenterViewModel {
             case read
 
             /// The message has not yet been displayed to the user.
-            case unread
+            case unread(messageID: String?)
         }
 
         /// The information associated with the sender of the message.

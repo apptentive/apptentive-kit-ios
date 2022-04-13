@@ -8,7 +8,8 @@
 
 import UIKit
 
-extension MessageViewController {
+extension MessageCenterViewController {
+
     class AttachmentView: UIView {
         let imageView: UIImageView
         let titleLabel: UILabel

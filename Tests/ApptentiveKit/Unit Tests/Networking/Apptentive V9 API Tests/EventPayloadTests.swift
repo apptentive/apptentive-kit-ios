@@ -137,4 +137,38 @@ class EventPayloadTests: XCTestCase {
 
         XCTAssertEqual(expectedDecodedContent.specializedJSONObject, actualDecodedContent.specializedJSONObject)
     }
+
+    func testCustomDataEventEncoding() throws {
+        var event = Event(name: "test")
+        event.customData["testCustomData"] = "test"
+        let eventPayload = Payload(wrapping: event)
+        let actualEncodedContent = try jsonEncoder.encode(eventPayload.jsonObject)
+        let actualDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: actualEncodedContent)
+        let expectedEncodedContent = """
+                        {
+                            "event": {
+                                "nonce": "abc123",
+                                "client_created_at": 1600904569,
+                                "client_created_at_utc_offset": 0,
+                                "label": "local#app#test",
+                                "custom_data": {
+                                    "testCustomData": "test"
+                               }
+                            }
+                        }
+            """.data(using: .utf8)!
+
+        let expectedDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: expectedEncodedContent)
+
+        XCTAssertNotNil(actualDecodedContent.nonce)
+        XCTAssertNotNil(expectedDecodedContent.nonce)
+
+        XCTAssertGreaterThan(actualDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+        XCTAssertEqual(expectedDecodedContent.creationDate, Date(timeIntervalSince1970: 1_600_904_569))
+
+        XCTAssertNotNil(actualDecodedContent.creationUTCOffset)
+        XCTAssertNotNil(expectedDecodedContent.creationUTCOffset)
+
+        XCTAssertEqual(expectedDecodedContent.specializedJSONObject, actualDecodedContent.specializedJSONObject)
+    }
 }
