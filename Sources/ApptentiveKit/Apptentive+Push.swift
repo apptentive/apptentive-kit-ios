@@ -11,7 +11,7 @@ import UIKit
 extension Apptentive: UNUserNotificationCenterDelegate {
     /// Sets the remote notification device token to the specified value.
     /// - Parameter tokenData: The remote notification device token passed into application(_:didRegisterForRemoteNotificationsWithDeviceToken:).
-    public func setRemoteNotifcationDeviceToken(_ tokenData: Data) {
+    @objc public func setRemoteNotifcationDeviceToken(_ tokenData: Data) {
         self.backendQueue.async {
             let tokenString = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
             self.backend.conversation.device.integrationConfiguration["apptentive_push"] = ["token": tokenString]

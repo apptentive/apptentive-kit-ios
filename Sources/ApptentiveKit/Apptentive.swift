@@ -153,12 +153,20 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// This property is not intended to be set by apps using the SDK, but
     /// should be set by projects that re-package the SDK for distribution
     /// as part of e.g. a cross-platform app framework.
-    public var distributionName: String? {
+    @objc public var distributionName: String? {
         get {
-            return self.environment.distributionName
+            var result: String?
+
+            self.backendQueue.sync {
+                result = self.backend.conversation.appRelease.sdkDistributionName
+            }
+
+            return result
         }
         set {
-            self.environment.distributionName = newValue
+            self.backendQueue.async {
+                self.backend.conversation.appRelease.sdkDistributionName = newValue
+            }
         }
     }
 
@@ -169,12 +177,20 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// development framework.
     ///
     /// This property is not intended to be set by apps using the SDK.
-    public var distributionVersion: String? {
+    @objc public var distributionVersion: String? {
         get {
-            return self.environment.distributionVersion?.versionString
+            var result: String?
+
+            self.backendQueue.sync {
+                result = self.backend.conversation.appRelease.sdkDistributionVersion?.versionString
+            }
+
+            return result
         }
         set {
-            self.environment.distributionVersion = newValue.flatMap { Version(string: $0) }
+            self.backendQueue.async {
+                self.backend.conversation.appRelease.sdkDistributionVersion = newValue.flatMap { Version(string: $0) }
+            }
         }
     }
 
