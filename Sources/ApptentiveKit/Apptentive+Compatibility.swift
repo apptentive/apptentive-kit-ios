@@ -14,19 +14,32 @@
 import UIKit
 
 extension Apptentive {
-    @available(swift, deprecated: 1.0, message: "Use the 'register(with:completion:' method on the 'shared' instance instead.")
+    @available(*, deprecated, message: "Use the 'register(with:completion:)' method on the 'shared' instance instead.")
     @objc(registerWithConfiguration:) public class func register(with configuration: ApptentiveConfiguration) {
         ApptentiveLogger.logLevel = configuration.logLevel.logLevel
 
         if let distributionName = configuration.distributionName {
-            self.shared.environment.distributionName = distributionName
+            self.shared.distributionName = distributionName
         }
 
         if let distributionVersion = configuration.distributionVersion {
-            self.shared.environment.distributionVersion = Version(string: distributionVersion)
+            self.shared.distributionVersion = distributionVersion
         }
 
         self.shared.register(with: AppCredentials(key: configuration.apptentiveKey, signature: configuration.apptentiveSignature))
+    }
+
+    @available(swift, deprecated: 1.0, message: "Use the 'register(with:completion:)' method instead.")
+    @objc public func register(withKey key: String, signature: String, completion: ((Bool) -> Void)? = nil) {
+        self.register(with: .init(key: key, signature: signature)) { result in
+            switch result {
+            case .success:
+                completion?(true)
+
+            case .failure:
+                completion?(false)
+            }
+        }
     }
 
     @available(*, deprecated, message: "Use the 'shared' static property instead.")
@@ -419,6 +432,7 @@ public typealias ApptentiveInteractionCallback = (String, [AnyHashable: Any]?) -
     case invalidKeySignaturePair = 11
 }
 
+@available(*, deprecated, message: "Set the properties from this class on the 'Apptentive' object directly.")
 public class ApptentiveConfiguration: NSObject {
     /// The Apptentive App Key, obtained from your Apptentive dashboard.
     @objc public let apptentiveKey: String
@@ -439,9 +453,11 @@ public class ApptentiveConfiguration: NSObject {
     @objc public var baseURL: URL? = nil
 
     /// The name of the distribution that includes the Apptentive SDK. For example "Cordova".
+    @available(*, deprecated, message: "This property may take effect after the initial app information has been sent to the API.")
     @objc public var distributionName: String? = nil
 
     /// The version of the distribution that includes the Apptentive SDK.
+    @available(*, deprecated, message: "This property may take effect after the initial app information has been sent to the API.")
     @objc public var distributionVersion: String? = nil
 
     /// The iTunes store app ID of the app (used for Apptentive rating prompt).
