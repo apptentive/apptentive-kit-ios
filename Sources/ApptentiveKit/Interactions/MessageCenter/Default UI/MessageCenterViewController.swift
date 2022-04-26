@@ -63,7 +63,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.navigationItem.leftBarButtonItem?.accessibilityHint = self.viewModel.profileButtonAccessibilityHint
 
         self.tableView.rowHeight = UITableView.automaticDimension
-        self.tableView.estimatedRowHeight = 120
+        self.tableView.estimatedRowHeight = 1000
         self.tableView.keyboardDismissMode = .interactive
         self.tableView.register(MessageReceivedCell.self, forCellReuseIdentifier: self.messageReceivedCellID)
         self.tableView.register(MessageSentCell.self, forCellReuseIdentifier: self.messageSentCellID)
