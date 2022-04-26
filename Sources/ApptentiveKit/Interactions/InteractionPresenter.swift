@@ -62,7 +62,10 @@ open class InteractionPresenter {
         case .notImplemented:
             let viewModel = NotImplementedAlertViewModel(interactionTypeName: interaction.typeName)
             try self.presentViewController(UIAlertController(viewModel: viewModel))
-            throw InteractionPresenterError.notImplemented(interaction.typeName)
+            throw InteractionPresenterError.notImplemented(interaction.typeName, interaction.id)
+
+        case .failedDecoding:
+            throw InteractionPresenterError.decodingFailed(interaction.typeName, interaction.id)
         }
 
         self.presentedInteraction = interaction
@@ -218,7 +221,8 @@ open class InteractionPresenter {
 
 /// An error that occurs while presenting an interaction.
 public enum InteractionPresenterError: Error {
-    case notImplemented(String)
+    case notImplemented(String, String)
+    case decodingFailed(String, String)
     case noPresentingViewController
 }
 
