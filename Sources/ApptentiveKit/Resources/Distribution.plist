@@ -5,6 +5,6 @@
 	<key>ApptentiveDistributionName</key>
 	<string>Source</string>
 	<key>CFBundleShortVersionString</key>
-	<string>6.0.1</string>
+	<string>$(APPTENTIVE_VERSION)</string>
 </dict>
 </plist>
