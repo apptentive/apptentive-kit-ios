@@ -4,8 +4,6 @@
 <dict>
 	<key>ApptentiveDistributionName</key>
 	<string>$(APPTENTIVE_DISTRIBUTION)</string>
-	<key>Carthage</key>
-	<string>$(CARTHAGE)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -19,8 +17,10 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>6.0.1</string>
+	<string>$(APPTENTIVE_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>0</string>
+	<string>$(APPTENTIVE_BUILD)</string>
+	<key>Carthage</key>
+	<string>$(CARTHAGE)</string>
 </dict>
 </plist>
