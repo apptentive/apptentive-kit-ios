@@ -218,17 +218,19 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
 
         self.backendQueue.async {
-            self.backend.connect(appCredentials: credentials) { result in
-                switch result {
-                case .success:
-                    completion?(.success(()))
-                    ApptentiveLogger.default.info("Apptentive SDK registered successfully.")
+            self.backend.register(appCredentials: credentials) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let connectionType):
+                        completion?(.success(()))
+                        ApptentiveLogger.default.info("Apptentive SDK registered successfully (\(connectionType == .new ? "new" : "existing") conversation).")
 
-                case .failure(let error):
-                    completion?(.failure(error))
-                    ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
-                    if !self.environment.isTesting {
-                        assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                    case .failure(let error):
+                        completion?(.failure(error))
+                        ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
+                        if !self.environment.isTesting {
+                            assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                        }
                     }
                 }
             }
@@ -400,7 +402,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             }
         }
 
-        ApptentiveLogger.default.info("Apptentive SDK Initialized.")
+        ApptentiveLogger.default.info("Apptentive SDK Version \(self.environment.sdkVersion.versionString) Initialized.")
     }
 
     static var alreadyInitialized = false
