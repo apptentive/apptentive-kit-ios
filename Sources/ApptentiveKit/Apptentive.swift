@@ -226,7 +226,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
 
         self.backendQueue.async {
-            self.backend.register(appCredentials: credentials, environment: self.environment) { result in
+            self.backend.register(appCredentials: credentials) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let connectionType):
@@ -237,7 +237,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
                         completion?(.failure(error))
                         ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
                         if !self.environment.isTesting {
-                            apptentiveCriticalError("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                            assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
                         }
                     }
                 }

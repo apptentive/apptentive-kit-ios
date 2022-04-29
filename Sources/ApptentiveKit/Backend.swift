@@ -88,11 +88,8 @@ class Backend {
         }
     }
 
-    /// The name of the Application Support subdirectory where Apptentive files are stored.
-    let containerName: String
-
-    /// The saver used to load and save the conversation from/to persistent storage.
-    private var conversationSaver: PropertyListSaver<Conversation>?
+    /// Whether the `register(completion:)` method has been called and the conversation has been created via the API.
+    private var isRegistered = false
 
     /// Whether the conversation has changes that need to be saved to persistent storage.
     private var conversationNeedsSaving: Bool = false
@@ -105,9 +102,6 @@ class Backend {
 
     /// A flag indicating whether the persistenc timer is active.
     private var persistenceTimerActive = false
-
-    /// Whether the `register(completion:)` method has been called and the conversation has been created via the API.
-    private var isRegistered = false
 
     private var lastSyncedConversation: Conversation?
 
@@ -160,19 +154,42 @@ class Backend {
     ///   - appCredentials: The App Key and App Signature to use when communicating with the Apptentive API
     ///   - environment: An object implementing the `GlobalEnvironment` protocol.
     ///   - completion: A completion handler to be called when conversation credentials are loaded/retrieved, or when loading/retrieving fails.
-    func register(appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
-        self.conversation.appCredentials = appCredentials
-        self.registerCompletion = completion
+    func register(appCredentials: Apptentive.AppCredentials, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
+        guard self.conversation.appCredentials == nil || self.conversation.appCredentials == appCredentials else {
+            completion(.failure(ApptentiveError.mismatchedCredentials))
+            return assertionFailure("Mismatched Credentials: Please delete and reinstall the app.")
+        }
 
-        if environment.isProtectedDataAvailable {
-            do {
-                try self.start(appCredentials: appCredentials, environment: environment)
-            } catch let error {
-                completion(.failure(error))
-                self.registerCompletion = nil
-            }
+        self.conversation.appCredentials = appCredentials
+
+        if self.conversation.conversationCredentials != nil {
+            self.isRegistered = true
+
+            completion(.success(.cached))
         } else {
-            ApptentiveLogger.default.debug("Deferring start until protected data is available.")
+            let postedConversation = self.conversation
+
+            self.postConversation { result in
+                switch result {
+                case .success(let conversationCredentials):
+                    self.conversation.conversationCredentials = conversationCredentials
+                    self.payloadSender.credentialsProvider = self.conversation
+                    self.isRegistered = true
+
+                    self.lastSyncedConversation = postedConversation
+                    self.syncConversationWithAPI()
+
+                    do {
+                        try self.saveConversationIfNeeded()
+                        completion(.success(.new))
+                    } catch let error {
+                        completion(.failure(error))
+                    }
+
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
         }
     }
 
@@ -454,7 +471,6 @@ class Backend {
         self.lastSyncedConversation = previousConversation
         self.conversation = try previousConversation.merged(with: self.conversation)
 
-        self.payloadSender.credentialsProvider = self.conversation
         self.syncConversationWithAPI()
 
         if self.conversation != previousConversation {
@@ -506,19 +522,19 @@ class Backend {
 
         self.getMessagesIfNeeded()
 
-        if AppReleaseContent(with: lastSyncedConversation.appRelease) != AppReleaseContent(with: conversation.appRelease) {
+        if lastSyncedConversation.appRelease != conversation.appRelease {
             ApptentiveLogger.network.debug("App release data changed. Enqueueing update.")
             self.payloadSender.send(Payload(wrapping: self.conversation.appRelease))
             self.lastSyncedConversation?.appRelease = conversation.appRelease
         }
 
-        if PersonContent(with: lastSyncedConversation.person) != PersonContent(with: conversation.person) {
+        if lastSyncedConversation.person != conversation.person {
             ApptentiveLogger.network.debug("Person data changed. Enqueueing update.")
             self.payloadSender.send(Payload(wrapping: self.conversation.person))
             self.lastSyncedConversation?.person = conversation.person
         }
 
-        if DeviceContent(with: lastSyncedConversation.device) != DeviceContent(with: conversation.device) {
+        if lastSyncedConversation.device != conversation.device {
             ApptentiveLogger.network.debug("Device data changed. Enqueueing update.")
             self.payloadSender.send(Payload(wrapping: self.conversation.device))
 
@@ -527,50 +543,7 @@ class Backend {
                 self.invalidateEngagementManifest()
             }
 
-            // Supply the payload sender with necessary credentials
-            if payloadSender.credentialsProvider == nil {
-                ApptentiveLogger.network.debug("Activating payload sender.")
-
-                self.payloadSender.credentialsProvider = self.conversation
-            }
-
-            // Retrieve a new engagement manifest if the previous one is missing or expired.
-            self.getInteractionsIfNeeded()
-
-            // Retrieve a new app configuration if the previous one is missing or expired.
-            self.getConfigurationIfNeeded()
-
-            if self.conversation.person != oldValue.person {
-                ApptentiveLogger.network.debug("Person data changed. Enqueueing update.")
-
-                self.payloadSender.send(Payload(wrapping: self.conversation.person))
-            }
-
-            if self.conversation.device != oldValue.device {
-                ApptentiveLogger.network.debug("Device data changed. Enqueueing update.")
-
-                self.payloadSender.send(Payload(wrapping: self.conversation.device))
-
-                if self.conversation.device.localeRaw != oldValue.device.localeRaw {
-                    ApptentiveLogger.engagement.debug("Locale changed. Invalidating engagement manifest.")
-
-                    self.invalidateEngagementManifest()
-                }
-            }
-
-            if self.conversation.appRelease != oldValue.appRelease {
-                ApptentiveLogger.network.debug("App release data changed. Enqueueing update.")
-
-                self.payloadSender.send(Payload(wrapping: self.conversation.appRelease))
-            }
-        } else if let _ = conversation.appCredentials {
-            // App credentials allow us to retrieve conversation credentials from the API.
-            self.createConversationOnServer()
-        }  // else we can't really do anything because we can't talk to the API.
-
-        if self.conversation != oldValue {
-            // Mark the conversation as needing to be saved.
-            self.conversationNeedsSaving = true
+            self.lastSyncedConversation?.device = conversation.device
         }
     }
 
@@ -649,9 +622,9 @@ class Backend {
                 switch result {
                 case .success(let messagesResponse):
                     ApptentiveLogger.default.debug("Message List received.")
-                    let oldUnreadCount = self.messageManager.unreadMessageCount
-                    self.messageManager.update(with: messagesResponse)
-                    self.messageFetchCompletionHandler?((self.messageManager.unreadMessageCount - oldUnreadCount) > 0 ? .newData : .noData)
+
+                    let didReceiveNewMessages = self.messageManager.update(with: messagesResponse)
+                    self.messageFetchCompletionHandler?(didReceiveNewMessages ? .newData : .noData)
 
                 case .failure(let error):
                     ApptentiveLogger.network.error("Failed to download message list: \(error)")

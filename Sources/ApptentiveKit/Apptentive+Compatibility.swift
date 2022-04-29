@@ -25,27 +25,14 @@ extension Apptentive {
         ApptentiveLogger.logLevel = configuration.logLevel.logLevel
 
         if let distributionName = configuration.distributionName {
-            self.shared.distributionName = distributionName
+            self.distributionName = distributionName
         }
 
         if let distributionVersion = configuration.distributionVersion {
-            self.shared.distributionVersion = distributionVersion
+            self.distributionVersion = distributionVersion
         }
 
         self.register(with: .init(key: configuration.apptentiveKey, signature: configuration.apptentiveSignature)) { result in
-            switch result {
-            case .success:
-                completion?(true)
-
-            case .failure:
-                completion?(false)
-            }
-        }
-    }
-
-    @available(swift, deprecated: 1.0, message: "Use the 'register(with:completion:)' method instead.")
-    @objc public func register(withKey key: String, signature: String, completion: ((Bool) -> Void)? = nil) {
-        self.register(with: .init(key: key, signature: signature)) { result in
             switch result {
             case .success:
                 completion?(true)
@@ -243,7 +230,7 @@ extension Apptentive {
     @objc public func setPushProvider(_ pushProvider: ApptentivePushProvider, deviceToken: Data) {
         switch pushProvider {
         case .apptentive:
-            self.setRemoteNotifcationDeviceToken(deviceToken)
+            self.setRemoteNotificationDeviceToken(deviceToken)
 
         default:
             assertionFailure("Alternative push providers are no longer supported.")
@@ -446,7 +433,7 @@ public typealias ApptentiveInteractionCallback = (String, [AnyHashable: Any]?) -
     case invalidKeySignaturePair = 11
 }
 
-@available(*, deprecated, message: "Set the properties from this class on the 'Apptentive' object directly.")
+@available(swift, deprecated: 1.0, message: "Set the properties from this class on the 'Apptentive' object directly.")
 public class ApptentiveConfiguration: NSObject {
     /// The Apptentive App Key, obtained from your Apptentive dashboard.
     @objc public let apptentiveKey: String
@@ -455,7 +442,7 @@ public class ApptentiveConfiguration: NSObject {
     @objc public let apptentiveSignature: String
 
     /// The granularity of log messages to show.
-    @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of it's static log properties.")
+    @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of its static log properties.")
     @objc public var logLevel: ApptentiveLogLevel = .warn
 
     /// If set, redacts potentially-sensitive information such as user data and credentials from logging.
@@ -467,11 +454,11 @@ public class ApptentiveConfiguration: NSObject {
     @objc public var baseURL: URL? = nil
 
     /// The name of the distribution that includes the Apptentive SDK. For example "Cordova".
-    @available(*, deprecated, message: "This property may take effect after the initial app information has been sent to the API.")
+    @available(swift, deprecated: 1.0, message: "Set the 'distributionName' property on 'Apptentive' directly before calling 'register(with:completion)'.")
     @objc public var distributionName: String? = nil
 
     /// The version of the distribution that includes the Apptentive SDK.
-    @available(*, deprecated, message: "This property may take effect after the initial app information has been sent to the API.")
+    @available(swift, deprecated: 1.0, message: "Set the 'distributionVersion' property on 'Apptentive' directly before calling 'register(with:completion)'.")
     @objc public var distributionVersion: String? = nil
 
     /// The iTunes store app ID of the app (used for Apptentive rating prompt).

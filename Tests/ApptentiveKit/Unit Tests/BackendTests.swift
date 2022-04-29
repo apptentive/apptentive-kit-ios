@@ -35,28 +35,20 @@ class BackendTests: XCTestCase {
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
 
         self.backend = Backend(
-            queue: queue, conversation: conversation, containerName: containerURL.lastPathComponent, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: self.messageManager, requestRetrier: requestRetrier,
-            payloadSender: payloadSender, isDebugBuild: true)
-
-        let expectation = self.expectation(description: "Backend configured")
+            queue: queue, conversation: conversation, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: self.messageManager, requestRetrier: requestRetrier,
+            payloadSender: payloadSender)
 
         queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: environment)
+                try self.backend.protectedDataDidBecomeAvailable(containerURL: self.containerURL, cachesURL: self.containerURL, environment: environment)
 
                 self.requestor.responseData = try JSONEncoder().encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456"))
 
-                self.backend.register(
-                    appCredentials: conversation.appCredentials!, environment: environment,
-                    completion: { _ in
-                        expectation.fulfill()
-                    })
+                self.backend.register(appCredentials: conversation.appCredentials!, completion: { _ in })
             } catch let error {
                 XCTFail(error.localizedDescription)
             }
         }
-
-        self.wait(for: [expectation], timeout: 5)
     }
 
     override func tearDownWithError() throws {
@@ -115,16 +107,5 @@ class BackendTests: XCTestCase {
         }
 
         self.wait(for: [expectation], timeout: 5)
-    }
-
-    func testOverridingStyles() {
-        let credentials = Apptentive.AppCredentials(key: "", signature: "")
-        let baseURL = URL(string: "https://api.apptentive.com/")!
-        let queue = DispatchQueue(label: "Test Queue")
-        let environment = MockEnvironment()
-        let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: queue, environment: environment)
-        apptentive.theme = .none
-        apptentive.register(with: credentials)
-        XCTAssertTrue(apptentive.environment.isOverridingStyles)
     }
 }
