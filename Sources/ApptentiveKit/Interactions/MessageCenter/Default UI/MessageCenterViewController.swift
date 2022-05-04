@@ -328,9 +328,8 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
         self.tableView.endUpdates()
-        guard let _ = self.viewModel.oldestUnreadMessage else {
+        if self.viewModel.oldestUnreadMessage == nil {
             self.scrollToBottom(false)
-            return
         }
     }
 
@@ -516,7 +515,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
     }
 
-    @objc func scrollToBottom(_ animated: Bool) {
+    private func scrollToBottom(_ animated: Bool) {
         self.initialScrollToBottomCompleted = true
 
         DispatchQueue.main.async {
@@ -709,6 +708,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         }
     }
 }
+
 extension UITableView {
     func scrollToBottom() {
 
