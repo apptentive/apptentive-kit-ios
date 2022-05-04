@@ -200,6 +200,41 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         case hidden
     }
 
+    ///  The index path corresponding to the oldest unread message.
+    public var oldestUnreadMessage: IndexPath? {
+
+        //oldest group that contains an unread message
+        let oldestUnreadMessageGroupSection = self.groupedMessages.firstIndex { messages in
+            for message in messages {
+                if case .sentFromDashboard(let readStatus) = message.direction, case .unread(_) = readStatus {
+
+                    return true
+                }
+            }
+            return false
+        }
+
+        guard let section = oldestUnreadMessageGroupSection else {
+            return nil
+        }
+
+        //oldest unread message in group
+        let messagesInGroup = self.groupedMessages[section]
+        let oldestUnreadMessageRow = messagesInGroup.firstIndex { message in
+            if case .sentFromDashboard(let readStatus) = message.direction, case .unread(_) = readStatus {
+                return true
+            }
+            return false
+        }
+
+        guard let row = oldestUnreadMessageRow else {
+            return nil
+        }
+        let indexPath = IndexPath(row: row, section: section)
+        return indexPath
+
+    }
+
     /// Saves changes from the `name` and `emailAddress` properties to the interactionDelegate.
     public func commitProfileEdits() {
         self.interactionDelegate.personName = self.name

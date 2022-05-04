@@ -350,8 +350,10 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
         self.tableView.endUpdates()
-
-        self.scrollToRelevantMessage(false)
+        guard let _ = self.viewModel.oldestUnreadMessage else {
+            self.scrollToBottom(false)
+            return
+        }
     }
 
     func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel) {
@@ -554,11 +556,15 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
     }
 
-    @objc func scrollToRelevantMessage(_ animated: Bool) {
+    @objc func scrollToBottom(_ animated: Bool) {
         self.initialScrollToBottomCompleted = true
 
-        guard let scrollTargetIndexPath = self.viewModel.oldestUnreadMessageIndexPath ?? self.viewModel.newestMessageIndexPath else {
-            return
+        DispatchQueue.main.async {
+            if let oldestUnreadIndexPath = self.viewModel.oldestUnreadMessage {
+                self.tableView.scrollToRow(at: oldestUnreadIndexPath, at: .top, animated: animated)
+            } else {
+                self.tableView.scrollToBottom()
+            }
         }
 
         self.tableView.scrollToRow(at: scrollTargetIndexPath, at: .top, animated: animated)
@@ -743,5 +749,22 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         } else {
             animations()
         }
+    }
+}
+extension UITableView {
+    func scrollToBottom() {
+
+        let lastSectionIndex = self.numberOfSections - 1
+        if lastSectionIndex < 0 {
+            return
+        }
+
+        let lastRowIndex = self.numberOfRows(inSection: lastSectionIndex) - 1
+        if lastRowIndex < 0 {
+            return
+        }
+
+        let pathToLastRow = IndexPath(row: lastRowIndex, section: lastSectionIndex)
+        self.scrollToRow(at: pathToLastRow, at: .bottom, animated: true)
     }
 }

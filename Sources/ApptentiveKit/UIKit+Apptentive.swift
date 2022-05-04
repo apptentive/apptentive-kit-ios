@@ -559,8 +559,8 @@ extension UIFont {
     }()
 
     /// The font to use for the greeting title for message center.
-    @objc public static var apptentiveMessageCenterStatus: UIFont = {
-        return .preferredFont(forTextStyle: .footnote)
+    public static var apptentiveMessageCenterStatus: UIFont = {
+        return .preferredFont(forTextStyle: .caption1)
     }()
 
     /// The font to use for the greeting title for message center.
