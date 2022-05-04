@@ -57,16 +57,6 @@ class Backend {
         }
     }
 
-    var messageFetchCompletionHandler: ((UIBackgroundFetchResult) -> Void)? {
-        didSet {
-            if self.messageFetchCompletionHandler != nil {
-                self.messageManager.forceMessageDownload = true
-
-                self.getMessagesIfNeeded()
-            }
-        }
-    }
-
     /// The saver used to load and save the conversation from/to persistent storage.
     private var conversationSaver: PropertyListSaver<Conversation>?
 
