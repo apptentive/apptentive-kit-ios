@@ -328,8 +328,10 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
         self.tableView.endUpdates()
-
-        self.scrollToBottom(true)
+        guard let _ = self.viewModel.oldestUnreadMessage else {
+            self.scrollToBottom(false)
+            return
+        }
     }
 
     func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel) {
@@ -514,15 +516,15 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
     }
 
-    private func scrollToBottom(_ animated: Bool) {
+    @objc func scrollToBottom(_ animated: Bool) {
         self.initialScrollToBottomCompleted = true
-        self.tableView.layoutIfNeeded()
 
-        if self.tableView.bounds.height > self.tableView.contentSize.height + self.tableView.adjustedContentInset.bottom {
-            self.tableView.setContentOffset(.zero, animated: animated)
-        } else {
-            let verticalContentOffset = self.tableView.contentSize.height + self.tableView.adjustedContentInset.bottom - self.tableView.bounds.height
-            self.tableView.setContentOffset(CGPoint(x: 0, y: verticalContentOffset), animated: animated)
+        DispatchQueue.main.async {
+            if let oldestUnreadIndexPath = self.viewModel.oldestUnreadMessage {
+                self.tableView.scrollToRow(at: oldestUnreadIndexPath, at: .top, animated: animated)
+            } else {
+                self.tableView.scrollToBottom()
+            }
         }
 
         self.postAccessibilityNotificationForLastMessage()
@@ -705,5 +707,22 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         } else {
             animations()
         }
+    }
+}
+extension UITableView {
+    func scrollToBottom() {
+
+        let lastSectionIndex = self.numberOfSections - 1
+        if lastSectionIndex < 0 {
+            return
+        }
+
+        let lastRowIndex = self.numberOfRows(inSection: lastSectionIndex) - 1
+        if lastRowIndex < 0 {
+            return
+        }
+
+        let pathToLastRow = IndexPath(row: lastRowIndex, section: lastSectionIndex)
+        self.scrollToRow(at: pathToLastRow, at: .bottom, animated: true)
     }
 }

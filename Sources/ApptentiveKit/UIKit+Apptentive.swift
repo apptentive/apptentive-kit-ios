@@ -402,7 +402,7 @@ extension UIFont {
     }()
 
     /// The font to use for the greeting title for message center.
-    public static var apptentiveMessageCenterStatusMessage: UIFont = {
+    public static var apptentiveMessageCenterStatus: UIFont = {
         return .preferredFont(forTextStyle: .caption1)
     }()
 
