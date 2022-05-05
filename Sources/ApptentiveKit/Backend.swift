@@ -471,6 +471,7 @@ class Backend {
         self.lastSyncedConversation = previousConversation
         self.conversation = try previousConversation.merged(with: self.conversation)
 
+        self.payloadSender.credentialsProvider = self.conversation
         self.syncConversationWithAPI()
 
         if self.conversation != previousConversation {
