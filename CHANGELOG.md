@@ -1,3 +1,15 @@
+# 2022-05-05 - 6.0.2
+
+#### New & Improved:
+
+- Increased the contrast between the numbers and background for NPS/range inputs in Surveys
+- Increased the available space the “Thank You” message in Surveys
+- Increased the reliability of parsing interaction configurations
+
+#### Bugs fixed:
+
+- Fixed the layout of extremely long messages/conversations in Message Center
+
 # 2022-04-13 - 6.0.1
 
 #### New & Improved
