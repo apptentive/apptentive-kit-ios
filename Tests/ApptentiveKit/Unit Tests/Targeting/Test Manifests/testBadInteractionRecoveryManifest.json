@@ -1,0 +1,1713 @@
+{
+    "interactions": [
+        {
+            "configuration": {
+                "automated_message": {},
+                "branding": "Powered by Apptentive",
+                "composer": {
+                    "close_cancel_button": "Cancel",
+                    "close_confirm_body": "Are you sure you want to discard this message?",
+                    "close_discard_button": "Discard",
+                    "close_text": "Close",
+                    "hint_text": "Please leave detailed feedback",
+                    "send_button": "Send",
+                    "send_fail": "Failed",
+                    "send_ok": "Sent",
+                    "send_start": "Sending...",
+                    "title": "New Message"
+                },
+                "error_messages": {
+                    "http_error_body": "It looks like we're having trouble sending your message. We've saved it and will try sending it again soon.",
+                    "network_error_body": "It looks like you aren't connected to the Internet right now. We've saved your message and will try again when we detect a connection."
+                },
+                "greeting": {
+                    "body": "We'd love to get feedback from you on our app. The more details you can provide, the better.",
+                    "image_url": "https://app-icons.apptentive.com/60bdf3365d4a814c76000024_1647599372.png",
+                    "title": "Hello!"
+                },
+                "profile": {
+                    "edit": {
+                        "email_hint": "Email",
+                        "name_hint": "Name",
+                        "save_button": "Save",
+                        "skip_button": "Cancel",
+                        "title": "Profile"
+                    },
+                    "initial": {
+                        "email_hint": "Email",
+                        "name_hint": "Name",
+                        "save_button": "That's Me!",
+                        "skip_button": "Skip",
+                        "title": "Who are we speaking with?"
+                    },
+                    "request": false,
+                    "require": false
+                },
+                "status": {
+                    "body": "We will respond to your message soon."
+                },
+                "title": "Message Center"
+            },
+            "display_type": null,
+            "id": "60bdf3365d4a814c76000025",
+            "type": "MessageCenter",
+            "version": 2
+        },
+        {
+            "configuration": {
+                "automated_message": {
+                    "body": "Lass uns bitte wissen, wie wir Centurio iOS f\u00fcr dich besser machen k\u00f6nnen!"
+                },
+                "branding": "Unterst\u00fctzt von Apptentive",
+                "composer": {
+                    "close_cancel_button": "Abbrechen",
+                    "close_confirm_body": "Bist du sicher, dass du diese Nachricht verwerfen m\u00f6chtest?",
+                    "close_discard_button": "Verwerfen",
+                    "close_text": "Schlie\u00dfen",
+                    "hint_text": "Bitte hinterlasse ein detailliertes Feedback",
+                    "send_button": "Senden",
+                    "send_fail": "Fehlgeschlagen",
+                    "send_ok": "Gesendet",
+                    "send_start": "Senden...",
+                    "title": "Neue Nachricht"
+                },
+                "error_messages": {
+                    "http_error_body": "Es scheint Schwierigkeiten mit dem Versenden der Nachricht zu geben. Wir haben sie gespeichert und werden versuchen, sie erneut zu senden.",
+                    "network_error_body": "Es scheint momentan keine Verbindung zum Internet zu bestehen. Wir haben deine Nachricht gespeichert, und werden versuchen sie erneut zu senden, wenn wir eine Verbindung erkennen."
+                },
+                "greeting": {
+                    "body": "Wir w\u00fcrden uns freuen, dein Feedback auf unserer App zu bekommen. Je ausf\u00fchrlicher, desto besser.",
+                    "image_url": "https://app-icons.apptentive.com/60bdf3365d4a814c76000024_1647599372.png",
+                    "title": "Hallo!"
+                },
+                "profile": {
+                    "edit": {
+                        "email_hint": "E-Mail",
+                        "name_hint": "Name",
+                        "save_button": "Speichern",
+                        "skip_button": "Abbrechen",
+                        "title": "Profil"
+                    },
+                    "initial": {
+                        "email_hint": "E-Mail",
+                        "name_hint": "Name",
+                        "save_button": "Der/die bin ich!",
+                        "skip_button": "\u00dcberspringen",
+                        "title": "Mit wem sprechen wir?"
+                    },
+                    "request": false,
+                    "require": false
+                },
+                "status": {
+                    "body": "Wir werden deine Nachricht bald beantworten."
+                },
+                "title": "Mitteilungszentrale"
+            },
+            "display_type": null,
+            "id": "60bdf3365d4a814c76000029",
+            "type": "MessageCenter",
+            "version": 2
+        },
+        {
+            "configuration": {
+                "no_text": "Nein",
+                "show_dismiss_button": false,
+                "title": "Bist du von Centurio iOS begeistert?",
+                "yes_text": "Ja"
+            },
+            "display_type": null,
+            "id": "60bdf3365d4a814c7600002b",
+            "type": "EnjoymentDialog",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "body": "Danke f\u00fcr deine Kundentreue. W\u00fcrdest du dir 30 Sekunden Zeit nehmen und deine Begeisterung im App Store mit anderen teilen?",
+                "decline_text": "Nein, danke",
+                "rate_text": "Centurio iOS bewerten",
+                "remind_text": "Sp\u00e4ter erinnern",
+                "title": "Teile deine Begeisterung!"
+            },
+            "display_type": null,
+            "id": "60bdf3365d4a814c7600002d",
+            "type": "RatingDialog",
+            "version": 1
+        },
+        {
+            "configuration": {},
+            "display_type": null,
+            "id": "60bdf3365d4a814c7600002e",
+            "type": "AppleRatingDialog",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "method": "app_store",
+                "store_id": "99999999"
+            },
+            "display_type": null,
+            "id": "60bdf3365d4a814c7600002f",
+            "type": "AppStoreRating",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "description": "Here is the survey for future IRT. Please answer consciously here",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "All answers",
+                "questions": [
+                    {
+                        "answer_choices": [
+                            {
+                                "id": "611e5f27ac09eb4e3c000042",
+                                "type": "select_option",
+                                "value": "Option one"
+                            },
+                            {
+                                "id": "611e5f27ac09eb4e3c000043",
+                                "type": "select_option",
+                                "value": "Option two"
+                            },
+                            {
+                                "hint": "Bitte angeben",
+                                "id": "611e5f27ac09eb4e3c000051",
+                                "type": "select_other"
+                            }
+                        ],
+                        "error_message": "Error - There was a problem with your single-select answer.",
+                        "id": "611e5f27ac09eb4e3c00004a",
+                        "instructions": "eine Antwort w\u00e4hlen",
+                        "randomize": false,
+                        "required": true,
+                        "type": "multichoice",
+                        "value": "Single select question - required"
+                    },
+                    {
+                        "answer_choices": [
+                            {
+                                "id": "611e5f27ac09eb4e3c000044",
+                                "type": "select_option",
+                                "value": "Option 1"
+                            },
+                            {
+                                "id": "611e5f27ac09eb4e3c000045",
+                                "type": "select_option",
+                                "value": "Option 2"
+                            },
+                            {
+                                "id": "611e5f27ac09eb4e3c000046",
+                                "type": "select_option",
+                                "value": "Option 3"
+                            },
+                            {
+                                "id": "611e5f27ac09eb4e3c000047",
+                                "type": "select_option",
+                                "value": "Option 4"
+                            },
+                            {
+                                "id": "611e5f27ac09eb4e3c000048",
+                                "type": "select_option",
+                                "value": "Option 5"
+                            },
+                            {
+                                "id": "611e5f27ac09eb4e3c000049",
+                                "type": "select_option",
+                                "value": "Option 6"
+                            },
+                            {
+                                "hint": "Bitte angeben",
+                                "id": "611e5f27ac09eb4e3c000052",
+                                "type": "select_other"
+                            }
+                        ],
+                        "error_message": "Error - There was a problem with your multi-select answer.",
+                        "id": "611e5f27ac09eb4e3c00004b",
+                        "instructions": "zwischen 1 und 4 Antworten w\u00e4hlen",
+                        "max_selections": 4,
+                        "min_selections": 1,
+                        "required": true,
+                        "type": "multiselect",
+                        "value": "Multiple select option with max 4 answers"
+                    },
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie uns eine detaillierte R\u00fcckmeldung",
+                        "id": "611e5f27ac09eb4e3c00004c",
+                        "multiline": true,
+                        "required": true,
+                        "type": "singleline",
+                        "value": "Free form question multiple line"
+                    },
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "611e5f27ac09eb4e3c00004d",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "Free form question single line"
+                    },
+                    {
+                        "error_message": "Error - There was a problem with your range answer.",
+                        "id": "611e5f27ac09eb4e3c00004e",
+                        "max": 25,
+                        "max_label": "Completely",
+                        "min": 15,
+                        "min_label": "Not at all",
+                        "required": false,
+                        "type": "range",
+                        "value": "Range question"
+                    },
+                    {
+                        "error_message": "Error - There was a problem with your NPS answer.",
+                        "id": "611e5f27ac09eb4e3c00004f",
+                        "max": 10,
+                        "max_label": "Extremely Likely",
+                        "min": 0,
+                        "min_label": "Not Likely",
+                        "required": true,
+                        "type": "range",
+                        "value": "Wie wahrscheinlich ist es, dass Sie  einem Freund oder einem Kollegen empfehlen?"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "QA complete check",
+                "template_locked": false,
+                "title": "All survey type answers",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "611e5f27ac09eb4e3c000050",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "actions": [
+                    {
+                        "action": "dismiss",
+                        "id": "615f07361f70a25b90000000",
+                        "label": "Dismiss"
+                    }
+                ],
+                "name": "Change name",
+                "position": "center",
+                "title": "QA note"
+            },
+            "display_type": null,
+            "id": "615f07361f70a25b90000001",
+            "type": "TextModal",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "actions": [
+                    {
+                        "action": "dismiss",
+                        "id": "616fdede6e4af51b860000f0",
+                        "label": "Dismiss"
+                    }
+                ],
+                "name": "attribute note",
+                "position": "center",
+                "title": "note"
+            },
+            "display_type": null,
+            "id": "616fdede6e4af51b860000f1",
+            "type": "TextModal",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "actions": [
+                    {
+                        "action": "dismiss",
+                        "id": "6172ab5e085357765800000e",
+                        "label": "Dismiss"
+                    }
+                ],
+                "name": "new note for manifest",
+                "position": "center",
+                "title": "new note for manifest"
+            },
+            "display_type": null,
+            "id": "6172ab5e085357765800000f",
+            "type": "TextModal",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "actions": [
+                    {
+                        "action": "dismiss",
+                        "id": "6172abf06e4af56cb3000016",
+                        "label": "Dismiss"
+                    },
+                    {
+                        "action": "interaction",
+                        "id": "61b762f9fd2bda1db5000004",
+                        "invokes": [
+                            {
+                                "criteria": {},
+                                "interaction_id": "611e5dc60ce48e2e2f00004a"
+                            }
+                        ],
+                        "label": "Survey"
+                    }
+                ],
+                "body": "2",
+                "name": "new note DE",
+                "position": "center",
+                "title": "111"
+            },
+            "display_type": null,
+            "id": "6172abf06e4af56cb3000017",
+            "type": "TextModal",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "new survey name",
+                "questions": [
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "6194ec11bdd72c605e000023",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "qa check 2"
+                    },
+                    {
+                        "answer_choices": [
+                            {
+                                "id": "6233415fcda2af27d300017a",
+                                "type": "select_option",
+                                "value": "1"
+                            },
+                            {
+                                "id": "6233415fcda2af27d300017b",
+                                "type": "select_option",
+                                "value": "2"
+                            }
+                        ],
+                        "error_message": "Error - There was a problem with your single-select answer.",
+                        "id": "6233415fcda2af27d300017c",
+                        "instructions": "eine Antwort w\u00e4hlen",
+                        "randomize": false,
+                        "required": false,
+                        "type": "multichoice",
+                        "value": "check1"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Sofia Costanza Brigida Villani Scicolone, known professionally as Sophia Loren, is an Italian actress. She was named by the American Film Institute as one of the greatest female stars of Classical Hollywood cinema.",
+                "template_locked": false,
+                "title": "new survey title",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "6194ec11bdd72c605e000024",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "survey title",
+                "questions": [
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "61b09922fd2bda678f00008f",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "Targeting - do you see me?"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "new survey",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "61b09922fd2bda678f00008e",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "actions": [
+                    {
+                        "action": "dismiss",
+                        "id": "61c33a8de104771786000009",
+                        "label": "Dismiss"
+                    }
+                ],
+                "name": "note for keyPerson",
+                "position": "center",
+                "title": "note for keyPerson"
+            },
+            "display_type": null,
+            "id": "61c33a8de10477178600000a",
+            "type": "TextModal",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "actions": [
+                    {
+                        "action": "dismiss",
+                        "id": "61c33abefd2bda748f000006",
+                        "label": "Dismiss"
+                    }
+                ],
+                "name": "new Note for Person",
+                "position": "center",
+                "title": "title note person"
+            },
+            "display_type": null,
+            "id": "61c33abefd2bda748f000007",
+            "type": "TextModal",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "new journey reporting",
+                "questions": [
+                    {
+                        "answer_choices": [
+                            {
+                                "id": "61dee18411ec795d8d000000",
+                                "type": "select_option",
+                                "value": "one"
+                            },
+                            {
+                                "id": "61dee18411ec795d8d000001",
+                                "type": "select_option",
+                                "value": "two"
+                            },
+                            {
+                                "id": "61dee18411ec795d8d000002",
+                                "type": "select_option",
+                                "value": "three"
+                            }
+                        ],
+                        "error_message": "Error - There was a problem with your single-select answer.",
+                        "id": "61dee18411ec795d8d000003",
+                        "instructions": "eine Antwort w\u00e4hlen",
+                        "randomize": false,
+                        "required": true,
+                        "type": "multichoice",
+                        "value": "Single select"
+                    },
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "61dee18411ec795d8d000004",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "Do you see me?"
+                    },
+                    {
+                        "error_message": "Error - There was a problem with your NPS answer.",
+                        "id": "61dee18411ec795d8d000005",
+                        "max": 10,
+                        "max_label": "Extremely Likely",
+                        "min": 0,
+                        "min_label": "Not Likely",
+                        "required": false,
+                        "type": "range",
+                        "value": "Wie wahrscheinlich ist es, dass Sie  einem Freund oder einem Kollegen empfehlen?"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "new journey reporting",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "61dee18411ec795d8d000006",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "insights gloo",
+                "questions": [
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "61e7fd3bcdc43365c700003e",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "Do you see me?"
+                    },
+                    {
+                        "answer_choices": [
+                            {
+                                "id": "61e7fd3bcdc43365c700003c",
+                                "type": "select_option",
+                                "value": "hello"
+                            },
+                            {
+                                "id": "61e7fd3bcdc43365c700003d",
+                                "type": "select_option",
+                                "value": "yes"
+                            },
+                            {
+                                "hint": "Bitte angeben",
+                                "id": "61e7fd3bcdc43365c7000041",
+                                "type": "select_other",
+                                "value": "Sonstige"
+                            }
+                        ],
+                        "error_message": "Error - There was a problem with your single-select answer.",
+                        "id": "61e7fd3bcdc43365c700003f",
+                        "instructions": "eine Antwort w\u00e4hlen",
+                        "randomize": false,
+                        "required": false,
+                        "type": "multichoice",
+                        "value": "with other"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "insights gloo",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "61e7fd3bcdc43365c7000040",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "actions": [
+                    {
+                        "action": "dismiss",
+                        "id": "6221e390f35f1b68c5000002",
+                        "label": "Dismiss"
+                    }
+                ],
+                "name": "m - new interaction test",
+                "position": "center",
+                "title": "m - new interaction test"
+            },
+            "display_type": null,
+            "id": "6221e390f35f1b68c5000003",
+            "type": "TextModal",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "actions": [
+                    {
+                        "action": "dismiss",
+                        "id": "623076aa6de4052a0a000106",
+                        "label": "Dismiss"
+                    },
+                    {
+                        "action": "interaction",
+                        "id": "623076aa6de4052a0a000107",
+                        "invokes": [
+                            {
+                                "criteria": {},
+                                "interaction_id": "60bdf3365d4a814c76000025"
+                            }
+                        ],
+                        "label": "Message Center"
+                    }
+                ],
+                "name": "note with MC",
+                "position": "center",
+                "title": "Message center tets"
+            },
+            "display_type": null,
+            "id": "623076aa6de4052a0a000108",
+            "type": "TextModal",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "actions": [
+                    {
+                        "action": "dismiss",
+                        "id": "62348041552679124500005d",
+                        "label": "Dismiss"
+                    },
+                    {
+                        "action": "interaction",
+                        "id": "62348041552679124500005e",
+                        "invokes": [
+                            {
+                                "criteria": {},
+                                "interaction_id": "60bdf3365d4a814c76000025"
+                            }
+                        ],
+                        "label": "Message Center"
+                    },
+                    {
+                        "action": "interaction",
+                        "id": "623a00673ff4ff208d0000a9",
+                        "invokes": [
+                            {
+                                "criteria": {},
+                                "interaction_id": "612f6537d035840a3900001f"
+                            }
+                        ],
+                        "label": "Survey"
+                    }
+                ],
+                "name": "one more note with MC",
+                "position": "center",
+                "title": "one more note with MC"
+            },
+            "display_type": null,
+            "id": "62348041552679124500005f",
+            "type": "TextModal",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "irt ios",
+                "questions": [
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "623c6097adeb671126000002",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "?"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "irt ios",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "623c6097adeb671126000003",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "title",
+                "questions": [
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "6241c2bfadeb673f98000035",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "?"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "random sampling test 2",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "6241c2bfadeb673f98000036",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "title",
+                "questions": [
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "6241c2eeadeb673f9800003a",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "?"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "(copy) random sampling test 1",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "6241c2eeadeb673f98000039",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "actions": [
+                    {
+                        "action": "dismiss",
+                        "id": "6242c7f4f1cbd37124000085",
+                        "label": "Dismiss"
+                    }
+                ],
+                "name": "rs test 1",
+                "position": "center",
+                "title": "rs title 1"
+            },
+            "display_type": null,
+            "id": "6242c7f4f1cbd37124000086",
+            "type": "TextModal",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "rs",
+                "questions": [
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "6246c120adeb67052000003e",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "?"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "(copy) rs test 3",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "6246c120adeb67052000003d",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "survey_title original",
+                "questions": [
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "624c28c4f1cbd36cc80000fe",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "?"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "(copy) survey_name original",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "624c28c4f1cbd36cc80000fd",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "cloned from another app",
+                "questions": [
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "624d7b60adeb67530200003f",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "?"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "rd test (cloned from another app)",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "624d7b60adeb67530200003e",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "survey for LD",
+                "questions": [
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "611e5dc60ce48e2e2f000049",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "test"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "survey for LD",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "611e5dc60ce48e2e2f00004a",
+            "type": "Survey",
+            "version": 1
+        },
+        {
+            "configuration": {
+                "close_confirm_back_text": "Zur\u00fcck zur Umfrage",
+                "close_confirm_close_text": "Schlie\u00dfen",
+                "close_confirm_message": "Sie verlieren Ihren Fortschritt, wenn Sie diese Umfrage schlie\u00dfen.",
+                "close_confirm_title": "Umfrage schlie\u00dfen?",
+                "description": "1-2-3-4",
+                "from_template": "",
+                "multiple_responses": true,
+                "name": "survey to note",
+                "questions": [
+                    {
+                        "answer_choices": [
+                            {
+                                "id": "612f6537d035840a39000012",
+                                "type": "select_option",
+                                "value": "onE"
+                            },
+                            {
+                                "id": "612f6537d035840a39000013",
+                                "type": "select_option",
+                                "value": "TWO"
+                            },
+                            {
+                                "hint": "Bitte angeben",
+                                "id": "612f6537d035840a39000020",
+                                "type": "select_other",
+                                "value": "Sonstige"
+                            }
+                        ],
+                        "error_message": "Error - There was a problem with your single-select answer.",
+                        "id": "612f6537d035840a3900001a",
+                        "instructions": "eine Antwort w\u00e4hlen",
+                        "randomize": false,
+                        "required": true,
+                        "type": "multichoice",
+                        "value": "single select"
+                    },
+                    {
+                        "answer_choices": [
+                            {
+                                "id": "612f6537d035840a39000016",
+                                "type": "select_option",
+                                "value": "3"
+                            },
+                            {
+                                "id": "612f6537d035840a39000015",
+                                "type": "select_option",
+                                "value": "2"
+                            },
+                            {
+                                "id": "612f6537d035840a39000014",
+                                "type": "select_option",
+                                "value": "1"
+                            },
+                            {
+                                "id": "612f6537d035840a39000017",
+                                "type": "select_option",
+                                "value": "4"
+                            },
+                            {
+                                "id": "612f6537d035840a39000019",
+                                "type": "select_option",
+                                "value": "6"
+                            },
+                            {
+                                "id": "612f6537d035840a39000018",
+                                "type": "select_option",
+                                "value": "5"
+                            },
+                            {
+                                "hint": "Bitte angeben",
+                                "id": "612f6537d035840a39000021",
+                                "type": "select_other",
+                                "value": "Sonstige"
+                            }
+                        ],
+                        "error_message": "Error - There was a problem with your multi-select answer.",
+                        "id": "612f6537d035840a3900001b",
+                        "instructions": "zwischen 2 und 4 Antworten w\u00e4hlen",
+                        "max_selections": 4,
+                        "min_selections": 2,
+                        "randomize": true,
+                        "required": true,
+                        "type": "multiselect",
+                        "value": "select"
+                    },
+                    {
+                        "error_message": "Error - There was a problem with your text answer.",
+                        "freeform_hint": "Bitte geben Sie eine Antwort",
+                        "id": "612f6537d035840a3900001c",
+                        "multiline": false,
+                        "required": false,
+                        "type": "singleline",
+                        "value": "Free form"
+                    },
+                    {
+                        "error_message": "Error - There was a problem with your range answer.",
+                        "id": "612f6537d035840a3900001d",
+                        "max": 25,
+                        "max_label": "Completely",
+                        "min": 15,
+                        "min_label": "Not at all",
+                        "required": false,
+                        "type": "range",
+                        "value": "range"
+                    },
+                    {
+                        "error_message": "Error - There was a problem with your NPS answer.",
+                        "id": "612f6537d035840a3900001e",
+                        "max": 10,
+                        "max_label": "Extremely Likely",
+                        "min": 0,
+                        "min_label": "Not Likely",
+                        "required": false,
+                        "type": "range",
+                        "value": "Wie wahrscheinlich ist es, dass Sie  einem Freund oder einem Kollegen empfehlen?"
+                    }
+                ],
+                "required": false,
+                "required_text": "erforderlich",
+                "show_success_message": true,
+                "submit_text": "\u00dcbermitteln",
+                "success_message": "Thank you!",
+                "template_locked": false,
+                "title": "survey to note",
+                "validation_error": "Mit Ihrer Antwort gibt es Probleme.",
+                "view_period": 86400
+            },
+            "display_type": null,
+            "id": "612f6537d035840a3900001f",
+            "type": "Survey",
+            "version": 1
+        }
+    ],
+    "targets": {
+        "com.apptentive#EnjoymentDialog#no": [
+            {
+                "criteria": {},
+                "interaction_id": "60bdf3365d4a814c76000029"
+            }
+        ],
+        "com.apptentive#EnjoymentDialog#yes": [
+            {
+                "criteria": {
+                    "device/os_version": {
+                        "$gte": {
+                            "_type": "version",
+                            "version": "10.3"
+                        }
+                    }
+                },
+                "interaction_id": "60bdf3365d4a814c7600002e"
+            },
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "device/os_name": {
+                                        "$ne": "iOS"
+                                    }
+                                },
+                                {
+                                    "device/os_name": {
+                                        "$ne": "iPhone OS"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "$and": [
+                                {
+                                    "$or": [
+                                        {
+                                            "device/os_name": {
+                                                "$eq": "iOS"
+                                            }
+                                        },
+                                        {
+                                            "device/os_name": {
+                                                "$eq": "iPhone OS"
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "device/os_version": {
+                                        "$lt": {
+                                            "_type": "version",
+                                            "version": "11"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "interaction_id": "60bdf3365d4a814c7600002d"
+            }
+        ],
+        "com.apptentive#RatingDialog#rate": [
+            {
+                "criteria": {},
+                "interaction_id": "60bdf3365d4a814c7600002f"
+            }
+        ],
+        "com.apptentive#app#show_message_center": [
+            {
+                "criteria": {},
+                "interaction_id": "60bdf3365d4a814c76000025"
+            }
+        ],
+        "local#app#17jan": [
+            {
+                "criteria": {
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1647561600
+                        }
+                    },
+                    "interactions/62348041552679124500005f/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "62348041552679124500005f"
+            },
+            {
+                "criteria": {
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1642550400
+                        }
+                    }
+                },
+                "interaction_id": "61e7fd3bcdc43365c7000040"
+            }
+        ],
+        "local#app#18": [
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "random/624d7ab1f1cbd35ca4000139/percent": {
+                                        "$lt": 97.5
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1649203200
+                        }
+                    }
+                },
+                "interaction_id": "624d7b60adeb67530200003e"
+            }
+        ],
+        "local#app#check_LD": [
+            {
+                "criteria": {
+                    "code_point/com.apptentive#app#launch/invokes/cf_bundle_short_version_string": {
+                        "$gte": 1
+                    },
+                    "interactions/60bdf3365d4a814c7600002b/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "60bdf3365d4a814c7600002b"
+            },
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "device/os_name": {
+                                        "$ne": "iOS"
+                                    }
+                                },
+                                {
+                                    "device/os_name": {
+                                        "$ne": "iPhone OS"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "$and": [
+                                {
+                                    "$or": [
+                                        {
+                                            "device/os_name": {
+                                                "$eq": "iOS"
+                                            }
+                                        },
+                                        {
+                                            "device/os_name": {
+                                                "$eq": "iPhone OS"
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "device/os_version": {
+                                        "$lt": {
+                                            "_type": "version",
+                                            "version": "11"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "code_point/com.apptentive#RatingDialog#cancel/invokes/cf_bundle_short_version_string": {
+                        "$eq": 0
+                    },
+                    "code_point/com.apptentive#RatingDialog#decline/invokes/cf_bundle_short_version_string": {
+                        "$eq": 0
+                    },
+                    "code_point/com.apptentive#RatingDialog#rate/invokes/cf_bundle_short_version_string": {
+                        "$eq": 0
+                    },
+                    "code_point/com.apptentive#RatingDialog#remind/last_invoked_at/total": {
+                        "$before": -345600
+                    },
+                    "interactions/60bdf3365d4a814c7600002d/invokes/cf_bundle_short_version_string": {
+                        "$gt": 0
+                    }
+                },
+                "interaction_id": "60bdf3365d4a814c7600002d"
+            }
+        ],
+        "local#app#initial_event": [
+            {
+                "criteria": {
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1633564800
+                        }
+                    },
+                    "interactions/615f07361f70a25b90000001/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "615f07361f70a25b90000001"
+            }
+        ],
+        "local#app#irt2": [
+            {
+                "criteria": {
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1634860800
+                        }
+                    },
+                    "interactions/6172ab5e085357765800000f/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "6172ab5e085357765800000f"
+            }
+        ],
+        "local#app#journey_qa": [
+            {
+                "criteria": {
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1641945600
+                        }
+                    }
+                },
+                "interaction_id": "61dee18411ec795d8d000006"
+            }
+        ],
+        "local#app#nastia": [
+            {
+                "criteria": {
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1647302400
+                        }
+                    },
+                    "interactions/623076aa6de4052a0a000108/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "623076aa6de4052a0a000108"
+            }
+        ],
+        "local#app#note_launched": [
+            {
+                "criteria": {
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1646352000
+                        }
+                    },
+                    "interactions/6221e390f35f1b68c5000003/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "6221e390f35f1b68c5000003"
+            }
+        ],
+        "local#app#qa_DE": [
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "person/custom_data/keyPerson": {
+                                        "$eq": "PersonValueString"
+                                    }
+                                },
+                                {
+                                    "person/custom_data/keyPersonString": {
+                                        "$eq": "PersonValueString"
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1640131200
+                        }
+                    },
+                    "interactions/61c33a8de10477178600000a/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "61c33a8de10477178600000a"
+            },
+            {
+                "criteria": {
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1634860800
+                        }
+                    },
+                    "interactions/6172abf06e4af56cb3000017/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "6172abf06e4af56cb3000017"
+            }
+        ],
+        "local#app#qa_event": [
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "person/custom_data/keyPersonNumber": {
+                                        "$gt": 10
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1640131200
+                        }
+                    },
+                    "interactions/61c33abefd2bda748f000007/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "61c33abefd2bda748f000007"
+            },
+            {
+                "criteria": {
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1637107200
+                        }
+                    }
+                },
+                "interaction_id": "6194ec11bdd72c605e000024"
+            },
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "person/custom_data/candidate": {
+                                        "$eq": "new"
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1634688000
+                        }
+                    },
+                    "interactions/616fdede6e4af51b860000f1/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "616fdede6e4af51b860000f1"
+            }
+        ],
+        "local#app#rs_1": [
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "random/6241c2bfadeb673f98000036/percent": {
+                                        "$lt": 0.5
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1648425600
+                        }
+                    }
+                },
+                "interaction_id": "6241c2bfadeb673f98000036"
+            }
+        ],
+        "local#app#rs_2": [
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "random/6241c2eeadeb673f98000039/percent": {
+                                        "$lt": 99.5
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1648425600
+                        }
+                    }
+                },
+                "interaction_id": "6241c2eeadeb673f98000039"
+            }
+        ],
+        "local#app#rs_3": [
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "random/6242c7f4f1cbd37124000086/percent": {
+                                        "$lt": 0.5
+                                    }
+                                },
+                                {
+                                    "code_point/local#app#rs_3/invokes/total": {
+                                        "$gt": 10
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "$and": [
+                                {
+                                    "random/6242c7f4f1cbd37124000086/percent": {
+                                        "$lt": 99.5
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1648512000
+                        }
+                    },
+                    "interactions/6242c7f4f1cbd37124000086/invokes/total": {
+                        "$eq": 0
+                    }
+                },
+                "interaction_id": "6242c7f4f1cbd37124000086"
+            }
+        ],
+        "local#app#rs_4": [
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "random/624c24c0f1cbd35ca4000136/percent": {
+                                        "$lt": 99.5
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1649116800
+                        }
+                    }
+                },
+                "interaction_id": "624c28c4f1cbd36cc80000fd"
+            }
+        ],
+        "local#app#rs_5": [
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "random/6246bd83adeb670b5000015b/percent": {
+                                        "$lt": 5.5
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1648771200
+                        }
+                    }
+                },
+                "interaction_id": "6246c120adeb67052000003d"
+            }
+        ],
+        "local#app#rules_targeting": [
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "device/custom_data/Device_New_Key_Targeting": {
+                                        "$eq": "First_String"
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1638921600
+                        }
+                    }
+                },
+                "interaction_id": "61b09922fd2bda678f00008e"
+            }
+        ],
+        "local#app#survey_event": [
+            {
+                "criteria": {
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1635724800
+                        }
+                    }
+                },
+                "interaction_id": "611e5f27ac09eb4e3c000050"
+            }
+        ],
+        "local#app#test": [
+            {
+                "criteria": {
+                    "$or": [
+                        {
+                            "$and": [
+                                {
+                                    "interactions/623076aa6de4052a0a000108/answers/id": {
+                                        "$eq": "623076aa6de4052a0a000106"
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "current_time": {
+                        "$gte": {
+                            "_type": "datetime",
+                            "sec": 1648080000
+                        }
+                    }
+                },
+                "interaction_id": "623c6097adeb671126000003"
+            }
+        ]
+    }
+}

@@ -39,13 +39,17 @@ class SurveySubmitView: UIView {
         self.submitLabel.adjustsFontForContentSizeCategory = true
         self.submitLabel.textAlignment = .center
         self.submitLabel.isHidden = true
+        self.submitLabel.numberOfLines = 2
+        self.submitLabel.lineBreakMode = .byWordWrapping
 
         self.submitLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
             self.submitLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             self.submitLabel.topAnchor.constraint(equalTo: self.submitButton.bottomAnchor, constant: 10),
-            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.submitButton.bottomAnchor, multiplier: 5.0),
+            self.submitLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            self.submitLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.submitButton.bottomAnchor, multiplier: 7.0),
         ])
     }
 

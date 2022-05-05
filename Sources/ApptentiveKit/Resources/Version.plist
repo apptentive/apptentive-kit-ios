@@ -3,6 +3,6 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleShortVersionString</key>
-	<string>6.0.1</string>
+	<string>$(APPTENTIVE_VERSION)</string>
 </dict>
 </plist>

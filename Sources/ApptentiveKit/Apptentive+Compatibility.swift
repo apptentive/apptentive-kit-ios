@@ -14,19 +14,33 @@
 import UIKit
 
 extension Apptentive {
-    @available(swift, deprecated: 1.0, message: "Use the 'register(with:completion:' method on the 'shared' instance instead.")
+    @available(*, deprecated, message: "Use the 'register(with:completion:)' method on the 'shared' instance instead.")
     @objc(registerWithConfiguration:) public class func register(with configuration: ApptentiveConfiguration) {
+        self.shared.register(with: configuration)
+    }
+
+    @available(swift, deprecated: 1.0, message: "Use the 'register(with:completion:) method that takes an 'AppCredentials' argument.")
+    @objc(registerWithConfiguration:completion:) public func register(with configuration: ApptentiveConfiguration, completion: ((Bool) -> Void)? = nil) {
+        ApptentiveLogger.shouldHideSensitiveLogs = configuration.shouldSanitizeLogMessages
         ApptentiveLogger.logLevel = configuration.logLevel.logLevel
 
         if let distributionName = configuration.distributionName {
-            self.shared.environment.distributionName = distributionName
+            self.distributionName = distributionName
         }
 
         if let distributionVersion = configuration.distributionVersion {
-            self.shared.environment.distributionVersion = Version(string: distributionVersion)
+            self.distributionVersion = distributionVersion
         }
 
-        self.shared.register(with: AppCredentials(key: configuration.apptentiveKey, signature: configuration.apptentiveSignature))
+        self.register(with: .init(key: configuration.apptentiveKey, signature: configuration.apptentiveSignature)) { result in
+            switch result {
+            case .success:
+                completion?(true)
+
+            case .failure:
+                completion?(false)
+            }
+        }
     }
 
     @available(*, deprecated, message: "Use the 'shared' static property instead.")
@@ -216,7 +230,7 @@ extension Apptentive {
     @objc public func setPushProvider(_ pushProvider: ApptentivePushProvider, deviceToken: Data) {
         switch pushProvider {
         case .apptentive:
-            self.setRemoteNotifcationDeviceToken(deviceToken)
+            self.setRemoteNotificationDeviceToken(deviceToken)
 
         default:
             assertionFailure("Alternative push providers are no longer supported.")
@@ -419,6 +433,7 @@ public typealias ApptentiveInteractionCallback = (String, [AnyHashable: Any]?) -
     case invalidKeySignaturePair = 11
 }
 
+@available(swift, deprecated: 1.0, message: "Set the properties from this class on the 'Apptentive' object directly.")
 public class ApptentiveConfiguration: NSObject {
     /// The Apptentive App Key, obtained from your Apptentive dashboard.
     @objc public let apptentiveKey: String
@@ -427,11 +442,11 @@ public class ApptentiveConfiguration: NSObject {
     @objc public let apptentiveSignature: String
 
     /// The granularity of log messages to show.
-    @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of it's static log properties.")
+    @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of its static log properties.")
     @objc public var logLevel: ApptentiveLogLevel = .warn
 
     /// If set, redacts potentially-sensitive information such as user data and credentials from logging.
-    @available(*, deprecated, message: "This property is ignored. Log messages will be redacted unless the app has a debugger attached.")
+    @available(swift, deprecated: 1.0, message: "Set the 'shouldHideSensitiveLogs' property on 'ApptentiveLogger' or one of its static log properties.")
     @objc public var shouldSanitizeLogMessages: Bool = true
 
     /// The server URL to use for API calls. Should only be used for testing.
@@ -439,9 +454,11 @@ public class ApptentiveConfiguration: NSObject {
     @objc public var baseURL: URL? = nil
 
     /// The name of the distribution that includes the Apptentive SDK. For example "Cordova".
+    @available(swift, deprecated: 1.0, message: "Set the 'distributionName' property on 'Apptentive' directly before calling 'register(with:completion)'.")
     @objc public var distributionName: String? = nil
 
     /// The version of the distribution that includes the Apptentive SDK.
+    @available(swift, deprecated: 1.0, message: "Set the 'distributionVersion' property on 'Apptentive' directly before calling 'register(with:completion)'.")
     @objc public var distributionVersion: String? = nil
 
     /// The iTunes store app ID of the app (used for Apptentive rating prompt).
@@ -453,10 +470,10 @@ public class ApptentiveConfiguration: NSObject {
     @objc public var showInfoButton: Bool = false
 
     /// If set, will show a link to terms and conditions in the bottom bar in Surveys.
-    @available(*, deprecated, message: "This feature is currently not implemented.")
+    @available(*, deprecated, message: "This property is ignored. Configure survey terms and conditions in the Apptentive Dashboard.")
     @objc public var surveyTermsAndConditions: TermsAndConditions? = nil
 
-    public required init?(apptentiveKey: String, apptentiveSignature: String) {
+    @objc(initWithApptentiveKey:apptentiveSignature:) public required init?(apptentiveKey: String, apptentiveSignature: String) {
         self.apptentiveKey = apptentiveKey
         self.apptentiveSignature = apptentiveSignature
     }

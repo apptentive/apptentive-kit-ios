@@ -130,13 +130,21 @@ class MessageManager {
         }
     }
 
-    func update(with messagesResponse: MessagesResponse) {
+    /// Updates the message list with a response from the API.
+    /// - Parameter messagesResponse: The API response from the messages endpoint.
+    /// - Returns: Whether any new messages were received.
+    func update(with messagesResponse: MessagesResponse) -> Bool {
         self.messageList.messages = Self.merge(self.messageList.messages, with: messagesResponse.messages.map { Self.convert(downloadedMessage: $0) }, attachmentManager: self.attachmentManager)
-        self.setUnreadMessageCount()
         self.messageList.additionalDownloadableMessagesExist = messagesResponse.hasMore
         self.messageList.lastDownloadedMessageID = messagesResponse.endsWith ?? self.messageList.lastDownloadedMessageID
         self.messageList.lastFetchDate = Date()
+
         self.forceMessageDownload = self.messageList.additionalDownloadableMessagesExist
+
+        let oldUnreadCount = self.unreadMessageCount
+        self.setUnreadMessageCount()
+
+        return self.unreadMessageCount > oldUnreadCount
     }
 
     func setAutomatedMessageBody(_ body: String?) {

@@ -26,7 +26,7 @@ class MessageListFooterView: UIView {
         self.statusTextLabel.translatesAutoresizingMaskIntoConstraints = false
         self.statusTextLabel.numberOfLines = 0
         self.statusTextLabel.lineBreakMode = .byWordWrapping
-        self.statusTextLabel.font = .apptentiveMessageCenterStatusMessage
+        self.statusTextLabel.font = .apptentiveMessageCenterStatus
         self.statusTextLabel.textColor = .apptentiveMessageCenterStatus
         self.statusTextLabel.textAlignment = .center
         self.statusTextLabel.adjustsFontForContentSizeCategory = true

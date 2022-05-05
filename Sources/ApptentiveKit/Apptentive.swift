@@ -149,12 +149,20 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// This property is not intended to be set by apps using the SDK, but
     /// should be set by projects that re-package the SDK for distribution
     /// as part of e.g. a cross-platform app framework.
-    public var distributionName: String? {
+    @objc public var distributionName: String? {
         get {
-            return self.environment.distributionName
+            var result: String?
+
+            self.backendQueue.sync {
+                result = self.backend.conversation.appRelease.sdkDistributionName
+            }
+
+            return result
         }
         set {
-            self.environment.distributionName = newValue
+            self.backendQueue.async {
+                self.backend.conversation.appRelease.sdkDistributionName = newValue
+            }
         }
     }
 
@@ -165,12 +173,20 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// development framework.
     ///
     /// This property is not intended to be set by apps using the SDK.
-    public var distributionVersion: String? {
+    @objc public var distributionVersion: String? {
         get {
-            return self.environment.distributionVersion?.versionString
+            var result: String?
+
+            self.backendQueue.sync {
+                result = self.backend.conversation.appRelease.sdkDistributionVersion?.versionString
+            }
+
+            return result
         }
         set {
-            self.environment.distributionVersion = newValue.flatMap { Version(string: $0) }
+            self.backendQueue.async {
+                self.backend.conversation.appRelease.sdkDistributionVersion = newValue.flatMap { Version(string: $0) }
+            }
         }
     }
 
@@ -202,17 +218,19 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
 
         self.backendQueue.async {
-            self.backend.connect(appCredentials: credentials) { result in
-                switch result {
-                case .success:
-                    completion?(.success(()))
-                    ApptentiveLogger.default.info("Apptentive SDK registered successfully.")
+            self.backend.register(appCredentials: credentials) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let connectionType):
+                        completion?(.success(()))
+                        ApptentiveLogger.default.info("Apptentive SDK registered successfully (\(connectionType == .new ? "new" : "existing") conversation).")
 
-                case .failure(let error):
-                    completion?(.failure(error))
-                    ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
-                    if !self.environment.isTesting {
-                        assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                    case .failure(let error):
+                        completion?(.failure(error))
+                        ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
+                        if !self.environment.isTesting {
+                            assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                        }
                     }
                 }
             }
@@ -384,7 +402,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             }
         }
 
-        ApptentiveLogger.default.info("Apptentive SDK Initialized.")
+        ApptentiveLogger.default.info("Apptentive SDK Version \(self.environment.sdkVersion.versionString) Initialized.")
     }
 
     static var alreadyInitialized = false

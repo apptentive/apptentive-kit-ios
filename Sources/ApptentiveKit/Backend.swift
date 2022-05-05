@@ -41,7 +41,9 @@ class Backend {
     /// are called.
     var conversation: Conversation {
         didSet {
-            self.processChanges(from: oldValue)
+            if self.conversation != oldValue {
+                self.conversationNeedsSaving = true
+            }
         }
     }
 
@@ -74,8 +76,8 @@ class Backend {
         }
     }
 
-    /// The completion handler that should be called when conversation credentials are loaded/retrieved.
-    private var connectCompletion: ((Result<ConnectionType, Error>) -> Void)?
+    /// Whether the `register(completion:)` method has been called and the conversation has been created via the API.
+    private var isRegistered = false
 
     /// Whether the conversation has changes that need to be saved to persistent storage.
     private var conversationNeedsSaving: Bool = false
@@ -88,6 +90,8 @@ class Backend {
 
     /// A flag indicating whether the persistenc timer is active.
     private var persistenceTimerActive = false
+
+    private var lastSyncedConversation: Conversation?
 
     /// Initializes a new backend instance.
     /// - Parameters:
@@ -132,15 +136,43 @@ class Backend {
     /// - Parameters:
     ///   - appCredentials: The App Key and App Signature to use when communicating with the Apptentive API
     ///   - completion: A completion handler to be called when conversation credentials are loaded/retrieved, or when loading/retrieving fails.
-    func connect(appCredentials: Apptentive.AppCredentials, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
+    func register(appCredentials: Apptentive.AppCredentials, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
         guard self.conversation.appCredentials == nil || self.conversation.appCredentials == appCredentials else {
-            assertionFailure("Mismatched Credentials: Please delete and reinstall the app.")
-            return
+            completion(.failure(ApptentiveError.mismatchedCredentials))
+            return assertionFailure("Mismatched Credentials: Please delete and reinstall the app.")
         }
 
-        self.connectCompletion = completion
-
         self.conversation.appCredentials = appCredentials
+
+        if self.conversation.conversationCredentials != nil {
+            self.isRegistered = true
+
+            completion(.success(.cached))
+        } else {
+            let postedConversation = self.conversation
+
+            self.postConversation { result in
+                switch result {
+                case .success(let conversationCredentials):
+                    self.conversation.conversationCredentials = conversationCredentials
+                    self.payloadSender.credentialsProvider = self.conversation
+                    self.isRegistered = true
+
+                    self.lastSyncedConversation = postedConversation
+                    self.syncConversationWithAPI()
+
+                    do {
+                        try self.saveConversationIfNeeded()
+                        completion(.success(.new))
+                    } catch let error {
+                        completion(.failure(error))
+                    }
+
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
     }
 
     /// Sets up access to persistent storage and loads any previously-saved conversation data if needed.
@@ -196,6 +228,8 @@ class Backend {
 
     func didEnterBackground(environment: GlobalEnvironment) {
         environment.startBackgroundTask()
+
+        self.syncConversationWithAPI()
 
         self.payloadSender.drain {
             DispatchQueue.main.async {
@@ -342,11 +376,18 @@ class Backend {
     /// - Throws: An error if loading or merging the conversation fails.
     private func loadConversation(from loader: Loader) throws {
         let previousConversation = try loader.loadConversation()
-        self.conversation = try previousConversation.merged(with: self.conversation)
 
         self.conversationNeedsLoading = false
+        self.lastSyncedConversation = previousConversation
+        self.conversation = try previousConversation.merged(with: self.conversation)
 
-        self.processChanges(from: previousConversation)
+        self.payloadSender.credentialsProvider = self.conversation
+        self.syncConversationWithAPI()
+
+        if self.conversation != previousConversation {
+            self.conversationNeedsSaving = true
+        }
+
         try self.saveConversationIfNeeded()
     }
 
@@ -372,66 +413,48 @@ class Backend {
         }
     }
 
-    /// Reacts to any changes in the conversation.
+    /// If registered, sends updates to person, device, and app release if they have changed since the last sync.
     ///
-    /// This is the main "event loop" of the SDK, and centralizes the behavior in response to changes in the conversation.
-    /// - Parameter oldValue: The previous value of the conversation.
-    private func processChanges(from oldValue: Conversation) {
-        // Determine whether we have conversation credentials.
-        if let _ = conversation.conversationCredentials, let _ = conversation.appCredentials {
+    /// Would be private but needs to be internal for testing.
+    internal func syncConversationWithAPI() {
+        guard self.isRegistered else {
+            ApptentiveLogger.network.debug("Skipping API sync: Not yet registered.")
+            return
+        }
 
-            // If we have credentials but we have not called the completion block, do so.
-            if let connectCompletion = self.connectCompletion {
-                self.connectCompletion = nil
-                DispatchQueue.main.async {
-                    connectCompletion(.success(.cached))
-                }
+        guard let lastSyncedConversation = self.lastSyncedConversation else {
+            ApptentiveLogger.network.debug("Skipping API sync: No previously synced conversation.")
+            return
+        }
+
+        self.getInteractionsIfNeeded()
+
+        self.getConfigurationIfNeeded()
+
+        self.getMessagesIfNeeded()
+
+        if lastSyncedConversation.appRelease != conversation.appRelease {
+            ApptentiveLogger.network.debug("App release data changed. Enqueueing update.")
+            self.payloadSender.send(Payload(wrapping: self.conversation.appRelease))
+            self.lastSyncedConversation?.appRelease = conversation.appRelease
+        }
+
+        if lastSyncedConversation.person != conversation.person {
+            ApptentiveLogger.network.debug("Person data changed. Enqueueing update.")
+            self.payloadSender.send(Payload(wrapping: self.conversation.person))
+            self.lastSyncedConversation?.person = conversation.person
+        }
+
+        if lastSyncedConversation.device != conversation.device {
+            ApptentiveLogger.network.debug("Device data changed. Enqueueing update.")
+            self.payloadSender.send(Payload(wrapping: self.conversation.device))
+
+            if lastSyncedConversation.device.localeRaw != self.conversation.device.localeRaw {
+                ApptentiveLogger.engagement.debug("Locale changed. Invalidating engagement manifest.")
+                self.invalidateEngagementManifest()
             }
 
-            // Supply the payload sender with necessary credentials
-            if payloadSender.credentialsProvider == nil {
-                ApptentiveLogger.network.debug("Activating payload sender.")
-
-                self.payloadSender.credentialsProvider = self.conversation
-            }
-
-            // Retrieve a new engagement manifest if the previous one is missing or expired.
-            self.getInteractionsIfNeeded()
-
-            // Retrieve a new app configuration if the previous one is missing or expired.
-            self.getConfigurationIfNeeded()
-
-            if self.conversation.person != oldValue.person {
-                ApptentiveLogger.network.debug("Person data changed. Enqueueing update.")
-
-                self.payloadSender.send(Payload(wrapping: self.conversation.person))
-            }
-
-            if self.conversation.device != oldValue.device {
-                ApptentiveLogger.network.debug("Device data changed. Enqueueing update.")
-
-                self.payloadSender.send(Payload(wrapping: self.conversation.device))
-
-                if self.conversation.device.localeRaw != oldValue.device.localeRaw {
-                    ApptentiveLogger.engagement.debug("Locale changed. Invalidating engagement manifest.")
-
-                    self.invalidateEngagementManifest()
-                }
-            }
-
-            if self.conversation.appRelease != oldValue.appRelease {
-                ApptentiveLogger.network.debug("App release data changed. Enqueueing update.")
-
-                self.payloadSender.send(Payload(wrapping: self.conversation.appRelease))
-            }
-        } else if let _ = conversation.appCredentials {
-            // App credentials allow us to retrieve conversation credentials from the API.
-            self.createConversationOnServer()
-        }  // else we can't really do anything because we can't talk to the API.
-
-        if self.conversation != oldValue {
-            // Mark the conversation as needing to be saved.
-            self.conversationNeedsSaving = true
+            self.lastSyncedConversation?.device = conversation.device
         }
     }
 
@@ -457,15 +480,15 @@ class Backend {
         }
     }
 
+    // MARK: Persistence timer
+
     private func startPersistenceTimer() {
         let persistenceTimer = DispatchSource.makeTimerSource(flags: [], queue: self.queue)
         persistenceTimer.schedule(deadline: .now(), repeating: .seconds(10), leeway: .seconds(1))
         persistenceTimer.setEventHandler { [weak self] in
-            ApptentiveLogger.default.debug("Running periodic persistence task")
+            ApptentiveLogger.default.debug("Running periodic housekeeping task")
+            self?.syncConversationWithAPI()
             self?.saveToPersistentStorageIfNeeded()
-            if self?.conversation.conversationCredentials != nil {
-                self?.getMessagesIfNeeded()
-            }
         }
 
         persistenceTimer.resume()
@@ -489,23 +512,16 @@ class Backend {
     }
 
     /// Creates a conversation on the Apptentive server using the API.
-    private func createConversationOnServer() {
-        ApptentiveLogger.default.info("Requesting a new conversation via Apptentive API.")
+    private func postConversation(completion: @escaping (Result<Conversation.ConversationCredentials, Error>) -> Void) {
+        ApptentiveLogger.default.info("Creating a new conversation via Apptentive API.")
 
         self.requestRetrier.startUnlessUnderway(ApptentiveV9API.createConversation(self.conversation), identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
-            let completion = self.connectCompletion
-            self.connectCompletion = nil
-
             switch result {
             case .success(let conversationResponse):
-                self.conversation.conversationCredentials = Conversation.ConversationCredentials(token: conversationResponse.token, id: conversationResponse.id)
-                DispatchQueue.main.sync {
-                    completion?(.success(.new))
-                }
+                completion(.success(Conversation.ConversationCredentials(token: conversationResponse.token, id: conversationResponse.id)))
+
             case .failure(let error):
-                DispatchQueue.main.sync {
-                    completion?(.failure(error))
-                }
+                completion(.failure(error))
             }
         }
     }
@@ -517,9 +533,9 @@ class Backend {
                 switch result {
                 case .success(let messagesResponse):
                     ApptentiveLogger.default.debug("Message List received.")
-                    let oldUnreadCount = self.messageManager.unreadMessageCount
-                    self.messageManager.update(with: messagesResponse)
-                    self.messageFetchCompletionHandler?((self.messageManager.unreadMessageCount - oldUnreadCount) > 0 ? .newData : .noData)
+
+                    let didReceiveNewMessages = self.messageManager.update(with: messagesResponse)
+                    self.messageFetchCompletionHandler?(didReceiveNewMessages ? .newData : .noData)
 
                 case .failure(let error):
                     ApptentiveLogger.network.error("Failed to download message list: \(error)")

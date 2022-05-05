@@ -63,7 +63,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.navigationItem.leftBarButtonItem?.accessibilityHint = self.viewModel.profileButtonAccessibilityHint
 
         self.tableView.rowHeight = UITableView.automaticDimension
-        self.tableView.estimatedRowHeight = 120
+        self.tableView.estimatedRowHeight = 1000
         self.tableView.keyboardDismissMode = .interactive
         self.tableView.register(MessageReceivedCell.self, forCellReuseIdentifier: self.messageReceivedCellID)
         self.tableView.register(MessageSentCell.self, forCellReuseIdentifier: self.messageSentCellID)
@@ -328,8 +328,9 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
         self.tableView.endUpdates()
-
-        self.scrollToBottom(true)
+        if self.viewModel.oldestUnreadMessage == nil {
+            self.scrollToBottom(false)
+        }
     }
 
     func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel) {
@@ -516,13 +517,13 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     private func scrollToBottom(_ animated: Bool) {
         self.initialScrollToBottomCompleted = true
-        self.tableView.layoutIfNeeded()
 
-        if self.tableView.bounds.height > self.tableView.contentSize.height + self.tableView.adjustedContentInset.bottom {
-            self.tableView.setContentOffset(.zero, animated: animated)
-        } else {
-            let verticalContentOffset = self.tableView.contentSize.height + self.tableView.adjustedContentInset.bottom - self.tableView.bounds.height
-            self.tableView.setContentOffset(CGPoint(x: 0, y: verticalContentOffset), animated: animated)
+        DispatchQueue.main.async {
+            if let oldestUnreadIndexPath = self.viewModel.oldestUnreadMessage {
+                self.tableView.scrollToRow(at: oldestUnreadIndexPath, at: .top, animated: animated)
+            } else {
+                self.tableView.scrollToBottom()
+            }
         }
 
         self.postAccessibilityNotificationForLastMessage()
@@ -705,5 +706,23 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         } else {
             animations()
         }
+    }
+}
+
+extension UITableView {
+    func scrollToBottom() {
+
+        let lastSectionIndex = self.numberOfSections - 1
+        if lastSectionIndex < 0 {
+            return
+        }
+
+        let lastRowIndex = self.numberOfRows(inSection: lastSectionIndex) - 1
+        if lastRowIndex < 0 {
+            return
+        }
+
+        let pathToLastRow = IndexPath(row: lastRowIndex, section: lastSectionIndex)
+        self.scrollToRow(at: pathToLastRow, at: .bottom, animated: true)
     }
 }

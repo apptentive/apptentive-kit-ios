@@ -14,29 +14,45 @@ class BackendTests: XCTestCase {
     var backend: Backend!
     var requestor: SpyRequestor!
     var messageManager: MessageManager!
+    var containerURL: URL!
 
     override func setUpWithError() throws {
         try MockEnvironment.cleanContainerURL()
+
+        self.containerURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString)")
 
         self.requestor = SpyRequestor(responseData: Data())
         let environment = MockEnvironment()
         let queue = DispatchQueue(label: "Test Queue")
         self.messageManager = MessageManager(notificationCenter: NotificationCenter.default)
-        self.messageManager.attachmentManager = AttachmentManager(fileManager: environment.fileManager, requestor: self.requestor, cacheContainerURL: URL(string: "file:///tmp/")!, savedContainerURL: URL(string: "file:///tmp/")!)
 
         var conversation = Conversation(environment: environment)
         conversation.appCredentials = Apptentive.AppCredentials(key: "123abc", signature: "456def")
-        conversation.conversationCredentials = Conversation.ConversationCredentials(token: "abc123", id: "def456")
 
         let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://api.apptentive.com/")!, userAgent: "foo")
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
 
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
-        payloadSender.credentialsProvider = conversation
 
         self.backend = Backend(
             queue: queue, conversation: conversation, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: self.messageManager, requestRetrier: requestRetrier,
             payloadSender: payloadSender)
+
+        queue.async {
+            do {
+                try self.backend.protectedDataDidBecomeAvailable(containerURL: self.containerURL, cachesURL: self.containerURL, environment: environment)
+
+                self.requestor.responseData = try JSONEncoder().encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456"))
+
+                self.backend.register(appCredentials: conversation.appCredentials!, completion: { _ in })
+            } catch let error {
+                XCTFail(error.localizedDescription)
+            }
+        }
+    }
+
+    override func tearDownWithError() throws {
+        try? FileManager.default.removeItem(at: self.containerURL)
     }
 
     func testPersonChange() {
@@ -48,7 +64,11 @@ class BackendTests: XCTestCase {
             }
         }
 
-        self.backend.conversation.person.name = "Testy McTestface"
+        self.backend.queue.async {
+            self.backend.conversation.person.name = "Testy McTestface"
+
+            self.backend.syncConversationWithAPI()
+        }
 
         self.wait(for: [expectation], timeout: 5)
     }
@@ -62,7 +82,11 @@ class BackendTests: XCTestCase {
             }
         }
 
-        self.backend.conversation.device.customData["string"] = "foo"
+        self.backend.queue.async {
+            self.backend.conversation.device.customData["string"] = "foo"
+
+            self.backend.syncConversationWithAPI()
+        }
 
         self.wait(for: [expectation], timeout: 5)
     }
@@ -76,68 +100,12 @@ class BackendTests: XCTestCase {
             }
         }
 
-        self.backend.conversation.appRelease.version = "1.2.3"
+        self.backend.queue.async {
+            self.backend.conversation.appRelease.version = "1.2.3"
 
-        self.wait(for: [expectation], timeout: 5)
-    }
-
-    func testMessageCenterCustomData() throws {
-        let expectation = XCTestExpectation(description: "First message sent with custom data")
-
-        self.requestor.extraCompletion = {
-            if self.requestor.request?.url == URL(string: "https://api.apptentive.com/conversations/def456/messages") {
-                if let body = self.requestor.request?.httpBody {
-                    let jsonObject = try! JSONDecoder().decode(Payload.JSONObject.self, from: body)
-
-                    guard case Payload.SpecializedJSONObject.message(let expectedMessageContent) = jsonObject.specializedJSONObject else {
-                        return XCTFail("Expected message JSON")
-                    }
-
-                    XCTAssertEqual(expectedMessageContent.customData?["string"] as? String, "string")
-                    XCTAssertEqual(expectedMessageContent.customData?["number"] as? Int, 5)
-                    XCTAssertEqual(expectedMessageContent.customData?["boolean"] as? Bool, true)
-                } else {
-                    XCTFail("Expected HTTP body.")
-                }
-                expectation.fulfill()
-            }
+            self.backend.syncConversationWithAPI()
         }
 
-        var customData = CustomData()
-
-        customData["string"] = "string"
-        customData["number"] = 5
-        customData["boolean"] = true
-
-        self.backend.messageManager.customData = customData
-
-        self.backend.messageManager.draftMessage.body = "Hey"
-        let (message, customData2) = try self.backend.messageManager.prepareDraftMessageForSending()
-        try self.backend.sendMessage(message, with: customData2)
-
         self.wait(for: [expectation], timeout: 5)
-
-        let expectation2 = XCTestExpectation(description: "Subsequent message sent without custom data")
-
-        self.requestor.extraCompletion = {
-            if self.requestor.request?.url == URL(string: "https://api.apptentive.com/conversations/def456/messages") {
-                if let body = self.requestor.request?.httpBody {
-                    let jsonObject = try! JSONDecoder().decode(Payload.JSONObject.self, from: body)
-
-                    guard case Payload.SpecializedJSONObject.message(let expectedMessageContent) = jsonObject.specializedJSONObject else {
-                        return XCTFail("Expected message JSON")
-                    }
-
-                    XCTAssertNil(expectedMessageContent.customData)
-                } else {
-                    XCTFail("Expected HTTP body.")
-                }
-                expectation2.fulfill()
-            }
-        }
-
-        try self.backend.sendMessage(MessageList.Message(nonce: "draft", body: "Test Message 2", status: .draft))
-
-        self.wait(for: [expectation2], timeout: 5)
     }
 }

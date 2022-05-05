@@ -23,27 +23,37 @@ public struct Interaction: Decodable {
         self.id = try container.decode(String.self, forKey: .id)
         self.typeName = try container.decode(String.self, forKey: .type)
 
-        switch self.typeName {
-        case "AppleRatingDialog":
-            self.configuration = .appleRatingDialog
+        do {
+            switch self.typeName {
+            case "AppleRatingDialog":
+                self.configuration = .appleRatingDialog
 
-        case "EnjoymentDialog":
-            self.configuration = .enjoymentDialog(try container.decode(EnjoymentDialogConfiguration.self, forKey: .configuration))
+            case "EnjoymentDialog":
+                self.configuration = .enjoymentDialog(try container.decode(EnjoymentDialogConfiguration.self, forKey: .configuration))
 
-        case "NavigateToLink":
-            self.configuration = .navigateToLink(try container.decode(NavigateToLinkConfiguration.self, forKey: .configuration))
+            case "NavigateToLink":
+                self.configuration = .navigateToLink(try container.decode(NavigateToLinkConfiguration.self, forKey: .configuration))
 
-        case "Survey":
-            self.configuration = .survey(try container.decode(SurveyConfiguration.self, forKey: .configuration))
+            case "Survey":
+                self.configuration = .survey(try container.decode(SurveyConfiguration.self, forKey: .configuration))
 
-        case "TextModal":
-            self.configuration = .textModal(try container.decode(TextModalConfiguration.self, forKey: .configuration))
+            case "TextModal":
+                self.configuration = .textModal(try container.decode(TextModalConfiguration.self, forKey: .configuration))
 
-        case "MessageCenter":
-            self.configuration = .messageCenter(try container.decode(MessageCenterConfiguration.self, forKey: .configuration))
+            case "MessageCenter":
+                self.configuration = .messageCenter(try container.decode(MessageCenterConfiguration.self, forKey: .configuration))
 
-        default:
-            self.configuration = .notImplemented
+            default:
+                let typeName = self.typeName
+                ApptentiveLogger.interaction.warning("Interaction of type \(typeName) is not implemented.")
+                self.configuration = .notImplemented
+            }
+        } catch let error {
+            let id = self.id
+            let typeName = self.typeName
+            ApptentiveLogger.interaction.error("Failure decoding configuration for interaction id \(id) of type \(typeName): \(error).")
+
+            self.configuration = .failedDecoding
         }
     }
 
@@ -61,6 +71,7 @@ public struct Interaction: Decodable {
         case textModal(TextModalConfiguration)
         case messageCenter(MessageCenterConfiguration)
         case notImplemented
+        case failedDecoding
     }
 
     internal init(id: String, configuration: Interaction.InteractionConfiguration, typeName: String) {

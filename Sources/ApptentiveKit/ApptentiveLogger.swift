@@ -13,6 +13,15 @@ import OSLog
 public struct ApptentiveLogger {
     private let log: OSLog?
 
+    /// Whether potentially-sensitve portions of log messages should be redacted.
+    ///
+    /// Defaults to `false` if the SDK detects that a debugger is attached, `true` otherwise.
+    public static var shouldHideSensitiveLogs: Bool = !Self.isDebugging
+
+    static let isDebugging: Bool = {
+        isatty(STDERR_FILENO) != 0
+    }()
+
     /// Creates a logger with the specified subsystem.
     init(subsystem: String) {
         if #available(iOS 12.0, *) {
@@ -114,14 +123,14 @@ extension ApptentiveLogMessage: ExpressibleByStringInterpolation {
     struct StringInterpolation: StringInterpolationProtocol {
         var segments: [(() -> String, ApptentiveLogPrivacy)]
         var value: String {
-            let isDebugging = isatty(STDERR_FILENO) != 0
-
             return self.segments.map { (segment, privacy) in
                 switch privacy {
                 case .public:
                     return segment()
-                case .private, .auto:
-                    return isDebugging ? segment() : "<private>"
+                case .private:
+                    return !ApptentiveLogger.isDebugging ? "<private>" : segment()
+                case .auto:
+                    return ApptentiveLogger.shouldHideSensitiveLogs ? "<private>" : segment()
                 }
             }.joined()
         }

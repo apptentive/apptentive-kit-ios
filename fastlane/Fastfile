@@ -157,19 +157,8 @@ platform :ios do
       duration: 1200, # optional
       in_house: false, # optional but may be required if using match/sigh
     )
-    
-    # Match the version number of the SDK
-    version = get_version_number(
-      xcodeproj: "ApptentiveKit.xcodeproj",
-      target: "ApptentiveKit"
-    )
-    
-    increment_version_number(
-      xcodeproj: "Operator/Operator.xcodeproj",
-      version_number: version
-    )
-    
-    # Use the build number from travis if available
+
+    # Use the build number from CI if available
     if ENV["BUILD_NUMBER"]
       increment_build_number(
         xcodeproj: "Operator/Operator.xcodeproj",

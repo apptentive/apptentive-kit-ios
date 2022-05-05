@@ -380,6 +380,7 @@
 		01870CEB264358D800DC8796 /* AdvanceButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdvanceButton.swift; sourceTree = "<group>"; };
 		01870CEC264358D800DC8796 /* SurveyIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyIndicator.swift; sourceTree = "<group>"; };
 		01870CED264358D800DC8796 /* QuestionCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuestionCardView.swift; sourceTree = "<group>"; };
+		0188E38E28130C9800C8B7D0 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		018A9090247EFFEC004577EB /* SurveyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyViewModel.swift; sourceTree = "<group>"; };
 		018A9099247F09D4004577EB /* Interaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interaction.swift; sourceTree = "<group>"; };
 		019121802404581B00FFE0F4 /* ApptentiveFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveFeatureTests.swift; sourceTree = "<group>"; };
@@ -807,6 +808,7 @@
 		01A0916223FCB4A700AF187E = {
 			isa = PBXGroup;
 			children = (
+				0188E38E28130C9800C8B7D0 /* Version.xcconfig */,
 				016E6DD925F9493300151E29 /* Package.swift */,
 				01C9B65526C5ED11006A6A5E /* ApptentiveKit.podspec */,
 				016E6DD825F9493300151E29 /* README.md */,
@@ -1535,6 +1537,7 @@
 /* Begin XCBuildConfiguration section */
 		01A0917223FCB4A700AF187E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0188E38E28130C9800C8B7D0 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -1601,6 +1604,7 @@
 		};
 		01A0917323FCB4A700AF187E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0188E38E28130C9800C8B7D0 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;

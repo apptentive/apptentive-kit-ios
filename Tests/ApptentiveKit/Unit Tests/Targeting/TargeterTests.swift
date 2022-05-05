@@ -33,10 +33,11 @@ final class TargeterTests: XCTestCase {
         XCTAssertNil(try targeter.interactionData(for: "event_4", state: targetingState)?.id)
     }
 
-    static var allTests = [
-        ("testManifest1", testManifest1),
-        ("testNoManifest", testNoManifest),
-    ]
+    func testBadInteractionRecoveryManifest() throws {
+        guard let _ = try manifest(for: #function) else {
+            return XCTFail()
+        }
+    }
 
     private func manifest(for testMethodName: String) throws -> EngagementManifest? {
         let testName = String(testMethodName.dropLast(2))  // strip parentheses from method name.
