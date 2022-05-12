@@ -17,7 +17,11 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     @objc public static let shared = Apptentive()
 
     /// An object that overrides the `InteractionPresenter` class used to display interactions to the user.
-    public var interactionPresenter: InteractionPresenter
+    public var interactionPresenter: InteractionPresenter {
+        didSet {
+            self.interactionPresenter.delegate = self
+        }
+    }
 
     /// The theme to apply to Apptentive UI.
     ///
