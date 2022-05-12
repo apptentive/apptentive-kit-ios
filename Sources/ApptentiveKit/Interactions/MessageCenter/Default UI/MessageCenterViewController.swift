@@ -328,9 +328,8 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
         self.tableView.endUpdates()
-        guard let _ = self.viewModel.oldestUnreadMessage else {
+        if self.viewModel.oldestUnreadMessage == nil {
             self.scrollToBottom(false)
-            return
         }
     }
 
@@ -709,6 +708,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         }
     }
 }
+
 extension UITableView {
     func scrollToBottom() {
 
