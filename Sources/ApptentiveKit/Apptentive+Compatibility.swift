@@ -388,6 +388,59 @@ extension Apptentive {
     }
 }
 
+extension UIButton {
+    @available(swift, deprecated: 1.0, message: "Set the 'apptentiveStyle' property to 'ApptentiveButtonStyle.pill'.")
+    /// Magic value for specifying a pill-style button (corner radius is half the height).
+    @objc public static let apptentivePillRadius: CGFloat = 15411
+
+    @available(swift, deprecated: 1.0, message: "Use the 'apptentiveStyle' property.")
+    /// The corner radius to use for the submit button in surveys.
+    @objc public static var apptentiveCornerRadius: CGFloat {
+        get {
+            switch self.apptentiveStyle {
+            case .pill:
+                return self.apptentivePillRadius
+
+            case .radius(let radius):
+                return radius
+            }
+        }
+        set {
+            if newValue == apptentivePillRadius {
+                self.apptentiveStyle = .pill
+            } else {
+                self.apptentiveStyle = .radius(newValue)
+            }
+        }
+    }
+}
+
+extension UITableView {
+    @available(swift, deprecated: 1.0, message: "Use the 'apptentive' property on 'UITableView.Style'.")
+    /// The table view style to use for Survey interactions.
+    @objc public static var apptentiveStyle: Int {
+        get {
+            return UITableView.Style.apptentive.rawValue
+        }
+        set {
+            UITableView.Style.apptentive = UITableView.Style(rawValue: newValue) ?? .grouped
+        }
+    }
+}
+
+extension UIViewController {
+    @available(swift, deprecated: 1.0, message: "Use the 'apptentive' property on 'UIModalPresentationStyle'.")
+    /// The modal presentation style for presenting Message Center and Survey interactions.
+    @objc public var apptentiveModalPresentationStyle: UIModalPresentationStyle {
+        get {
+            return UIModalPresentationStyle.apptentive
+        }
+        set {
+            UIModalPresentationStyle.apptentive = newValue
+        }
+    }
+}
+
 @available(*, deprecated, message: "Multiple users on the same device is not currently supported.")
 public typealias ApptentiveAuthenticationFailureCallback = (ApptentiveAuthenticationFailureReason, String) -> Void
 

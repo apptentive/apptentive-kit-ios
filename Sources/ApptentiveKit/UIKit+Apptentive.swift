@@ -10,7 +10,14 @@ import UIKit
 
 /// `UINavigationController` subclass intended primarily to facilitate scoping `UIAppearance` rules to Apptentive UI.
 public class ApptentiveNavigationController: UINavigationController {
-    static var preferredStatusBarStyle: UIStatusBarStyle = .default
+    /// Overrides the bar tint color on navigation bars owned by this class.
+    ///
+    /// Used to work around a bug in iOS 15 beta 8 (and earlier?) where
+    /// navigation/tool bars end up clear in some cases.
+    @objc public static var barTintColor: UIColor? = nil
+
+    /// Sets the preferred status bar style for all instances of this class.
+    @objc public static var preferredStatusBarStyle: UIStatusBarStyle = .default
 
     // swift-format-ignore
     public override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -90,29 +97,22 @@ extension UIImage {
     }()
 
     /// The image to use as the chat bubble for outbound messages.
-    public static var apptentiveSentMessageBubble: UIImage? = {
+    @objc public static var apptentiveSentMessageBubble: UIImage? = {
         return UIImage(named: "messageSentBubble", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 18, right: 18))
     }()
 
     /// The image to use as the chat bubble for inbound messages.
-    public static var apptentiveReceivedMessageBubble: UIImage? = {
+    @objc public static var apptentiveReceivedMessageBubble: UIImage? = {
         return UIImage(named: "messageReceivedBubble", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 18, bottom: 18, right: 9))
     }()
 
     /// The image to use for attachment placeholders in messages and the composer.
-    public static var apptentiveAttachmentPlaceholder: UIImage? = {
+    @objc public static var apptentiveAttachmentPlaceholder: UIImage? = {
         return UIImage(named: "document", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal).resizableImage(withCapInsets: UIEdgeInsets(top: 14, left: 4, bottom: 4, right: 14))
     }()
 
     /// The image to use for the attachment delete button.
     @objc public static var apptentiveAttachmentRemoveButton: UIImage? = {
-        if #available(iOS 13.0, *) {
-            if let minusImage = UIImage.init(systemName: "minus.circle.fill") {
-                return minusImage
-            }
-        } else {
-            return .apptentiveImage(named: "minus.circle.fill")
-        }
         return .apptentiveImage(named: "minus.circle.fill")
     }()
 
@@ -219,7 +219,7 @@ extension UIColor {
     }()
 
     /// The border color to use for the message text view.
-    @objc public static var apptentiveMessageCenterTextInputBorder: UIColor = {
+    @objc public static var apptentiveMessageCenterTextViewBorder: UIColor = {
         return .darkGray
     }()
 
@@ -240,8 +240,13 @@ extension UIColor {
     }()
 
     /// The color to use for the text view placeholder for the compose view for message center.
-    @objc public static var apptentiveMessageTextInputPlaceholder: UIColor = {
+    @objc public static var apptentiveMessageTextViewPlaceholder: UIColor = {
         return .lightGray
+    }()
+
+    /// The color to use for the text view border for the compose view for message center.
+    @objc public static var apptentiveMessageTextViewBorder: UIColor = {
+        return .gray
     }()
 
     /// The color to use for the status message in message center.
@@ -278,7 +283,7 @@ extension UIColor {
 
     /// The color to use for the message bubble view for outbound messages.
     @objc public static var apptentiveMessageBubbleOutbound: UIColor = {
-        return UIColor(red: 0, green: 0.42, blue: 1, alpha: 1)
+        return .systemBlue
     }()
 
     /// The color to use for message labels for the inbound message body.
@@ -316,22 +321,7 @@ extension UIColor {
 
     /// The color to use for UI elements to indicate an error state.
     @objc public static var apptentiveError: UIColor = {
-        let lightModeError = UIColor(red: 0.86, green: 0.1, blue: 0, alpha: 1)
-        let darkModeError = UIColor(red: 1, green: 0.28, blue: 0.24, alpha: 1)
-
-        if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-                    return darkModeError
-
-                default:
-                    return lightModeError
-                }
-            }
-        } else {
-            return lightModeError
-        }
+        .systemRed
     }()
 
     /// An alternative to 'apptentiveLabel' in gray.
@@ -408,11 +398,7 @@ extension UIColor {
 
     /// The color used for min and max labels for the range survey.
     @objc public static var apptentiveMinMaxLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .darkGray
-        }
+        return .gray
     }()
 
     /// The color used for the background of the entire survey.
@@ -462,13 +448,7 @@ extension UIColor {
     }()
 
     /// The color to use for the survey footer label (Thank You text).
-    @available(*, deprecated, message: "This property has been renamed to 'apptentiveSubmitStatusLabel'.")
-    public static var apptentiveSubmitLabel: UIColor = {
-        return .apptentiveSubmitStatusLabel
-    }()
-
-    /// The color to use for the survey footer label (Thank You text).
-    @objc public static var apptentiveSubmitStatusLabel: UIColor = {
+    @objc public static var apptentiveSubmitLabel: UIColor = {
         if #available(iOS 13.0, *) {
             return .label
         } else {
@@ -542,24 +522,8 @@ extension UIColor {
 }
 
 extension UIFont {
-
-    /// The font to use for placeholder for text inputs in message center.
-    @objc public static var apptentiveMessageCenterTextInputPlaceholder: UIFont = {
-        return .preferredFont(forTextStyle: .body)
-    }()
-
-    /// The font to use for text inputs in message menter.
-    @objc public static var apptentiveMessageCenterTextInput: UIFont = {
-        return .preferredFont(forTextStyle: .body)
-    }()
-
-    /// The font to use for placeholder text for text inputs in surveys.
-    @objc public static var apptentiveTextInputPlaceholder: UIFont = {
-        return .preferredFont(forTextStyle: .body)
-    }()
-
     /// The font to use for the greeting title for message center.
-    public static var apptentiveMessageCenterStatus: UIFont = {
+    @objc public static var apptentiveMessageCenterStatus: UIFont = {
         return .preferredFont(forTextStyle: .caption1)
     }()
 
@@ -600,7 +564,7 @@ extension UIFont {
 
     /// The font used for the min and max labels for the range survey.
     @objc public static var apptentiveMinMaxLabel: UIFont = {
-        return .preferredFont(forTextStyle: .footnote)
+        return .preferredFont(forTextStyle: .caption2)
     }()
 
     /// The font used for the sender label in message center.
@@ -615,7 +579,7 @@ extension UIFont {
 
     /// The font used for the instructions label for surveys.
     @objc public static var apptentiveInstructionsLabel: UIFont = {
-        return .preferredFont(forTextStyle: .footnote)
+        return .preferredFont(forTextStyle: .caption1)
     }()
 
     /// The font used for the survey introduction label.
@@ -624,13 +588,7 @@ extension UIFont {
     }()
 
     /// The font used for the survey footer label (Thank You text).
-    @available(*, deprecated, message: "This property has been renamed to 'apptentiveSubmitStatusLabel'.")
-    public static var apptentiveSubmitLabel: UIFont = {
-        return .apptentiveSubmitStatusLabel
-    }()
-
-    /// The font used for the survey footer label (Thank You text).
-    @objc public static var apptentiveSubmitStatusLabel: UIFont = {
+    @objc public static var apptentiveSubmitLabel: UIFont = {
         return .preferredFont(forTextStyle: .headline)
     }()
 
@@ -658,11 +616,4 @@ extension UIToolbar {
 
     /// Determines when to show a toolbar in Apptentive view controllers.
     @objc public static var apptentiveMode: ToolbarMode = .hiddenWhenEmpty
-}
-
-extension CGFloat {
-    /// The width of the layer border for Apptentive buttons.
-    public static var apptentiveButtonBorderWidth: CGFloat = {
-        return 2
-    }()
 }
