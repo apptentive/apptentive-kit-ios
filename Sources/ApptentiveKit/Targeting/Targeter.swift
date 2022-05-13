@@ -22,6 +22,17 @@ class Targeter {
         }
     }
 
+    /// Debug/development override of the API-delivered engagement manifest.
+    var localEngagementManifest: EngagementManifest? {
+        didSet {
+            buildInteractionIndex()
+        }
+    }
+
+    var activeManifest: EngagementManifest {
+        self.localEngagementManifest ?? self.engagementManifest
+    }
+
     /// Creates a new targeter with the specified engagement manifest.
     /// - Parameter engagementManifest: The engagement manifest to use for targeting and describing interactions.
     init(engagementManifest: EngagementManifest) {
@@ -53,7 +64,7 @@ class Targeter {
 
     /// Builds a dictionary of interactions indexed by interaction ID.
     private func buildInteractionIndex() {
-        interactionIndex = Dictionary(uniqueKeysWithValues: engagementManifest.interactions.map { ($0.id, $0) })
+        interactionIndex = Dictionary(uniqueKeysWithValues: self.activeManifest.interactions.map { ($0.id, $0) })
     }
 
     /// Returns the interaction (if any) that should be presented when the given event is engaged.
@@ -63,7 +74,7 @@ class Targeter {
     /// - Throws: An error if criteria evaluation fails.
     /// - Returns: The interaction to present, if any.
     private func interactionIdentifier(for event: Event, state: TargetingState) throws -> String? {
-        if let invocations = engagementManifest.targets[event.codePointName] {
+        if let invocations = self.activeManifest.targets[event.codePointName] {
             if let interactionID = try self.interactionIdentifier(for: invocations, state: state) {
                 return interactionID
             } else {

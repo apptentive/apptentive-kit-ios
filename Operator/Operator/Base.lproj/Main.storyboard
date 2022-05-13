@@ -48,7 +48,13 @@
                             <outlet property="delegate" destination="JbX-vn-CvK" id="fkB-Nz-hHn"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Interactions" id="wYm-fi-Xuz"/>
+                    <navigationItem key="navigationItem" title="Interactions" id="wYm-fi-Xuz">
+                        <barButtonItem key="rightBarButtonItem" title="Item" image="point.3.connected.trianglepath.dotted" catalog="system" id="g0g-w8-X34">
+                            <connections>
+                                <segue destination="met-be-kpf" kind="presentation" id="u9u-nG-DFX"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Rpp-xX-sQm" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -593,7 +599,6 @@
         <!--Custom Data-->
         <scene sceneID="VSi-yh-C7n">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ywH-Id-ffL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <tableViewController id="bMU-sQ-RuB" customClass="CustomDataViewController" customModule="Operator" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" id="9Pv-df-G7l">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
@@ -772,14 +777,72 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Custom Data" id="WCO-7F-6xt"/>
                 </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ywH-Id-ffL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1555" y="-210"/>
+        </scene>
+        <!--Manifest Override-->
+        <scene sceneID="Tdn-50-a2D">
+            <objects>
+                <tableViewController id="GLF-bI-SJp" customClass="ManifestsViewController" customModule="Operator" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="D7k-F4-Cze">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="manifest" id="A0h-3z-jaZ">
+                                <rect key="frame" x="0.0" y="44.5" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="A0h-3z-jaZ" id="YYY-Jg-RHy">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="GLF-bI-SJp" id="bLx-zV-r9z"/>
+                            <outlet property="delegate" destination="GLF-bI-SJp" id="MkZ-to-Dxn"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Manifest Override" id="3bx-ZV-B0f" customClass="Mani">
+                        <barButtonItem key="leftBarButtonItem" systemItem="play" id="Dx8-Sy-j46">
+                            <connections>
+                                <action selector="launch" destination="GLF-bI-SJp" id="Siy-C9-leN"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="stop" id="8dN-VK-tWY">
+                            <connections>
+                                <action selector="dismiss" destination="GLF-bI-SJp" id="SF2-XQ-tzO"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="agF-Ao-z5D" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2481" y="505"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="98H-y3-4Ub">
+            <objects>
+                <navigationController id="met-be-kpf" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="XH2-7J-Uae">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="56"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="GLF-bI-SJp" kind="relationship" relationship="rootViewController" id="GDT-wX-Ogs"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0Gx-TC-PvT" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1636" y="505"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="e4d-Hd-ILS"/>
     </inferredMetricsTieBreakers>
     <resources>
+        <image name="point.3.connected.trianglepath.dotted" catalog="system" width="128" height="96"/>
         <image name="slider.horizontal.3" catalog="system" width="128" height="100"/>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>

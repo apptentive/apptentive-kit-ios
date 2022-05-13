@@ -26,6 +26,8 @@
 		01C021A925DDF56400547059 /* DataDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C021A825DDF56400547059 /* DataDataSource.swift */; };
 		01C060AD251E44C7006B4B30 /* EventsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C060AC251E44C7006B4B30 /* EventsViewController.swift */; };
 		01C060B4251E48EC006B4B30 /* AddEventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C060B3251E48EC006B4B30 /* AddEventCell.swift */; };
+		01CBA936282B2E7500614A24 /* Manifests in Resources */ = {isa = PBXBuildFile; fileRef = 01CBA930282B2E7500614A24 /* Manifests */; };
+		01CBA938282B34AB00614A24 /* ManifestsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CBA937282B34AB00614A24 /* ManifestsViewController.swift */; };
 		01D762A3246358FD007A5AD5 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; };
 		01D762A4246358FD007A5AD5 /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EF5F380D25C3725D007F823E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EF5F380F25C3725D007F823E /* Localizable.strings */; };
@@ -145,6 +147,8 @@
 		01C021A825DDF56400547059 /* DataDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataDataSource.swift; sourceTree = "<group>"; };
 		01C060AC251E44C7006B4B30 /* EventsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsViewController.swift; sourceTree = "<group>"; };
 		01C060B3251E48EC006B4B30 /* AddEventCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEventCell.swift; sourceTree = "<group>"; };
+		01CBA930282B2E7500614A24 /* Manifests */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Manifests; sourceTree = "<group>"; };
+		01CBA937282B34AB00614A24 /* ManifestsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManifestsViewController.swift; sourceTree = "<group>"; };
 		01D19C6F265D7FD900BD8CF9 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Main.strings; sourceTree = "<group>"; };
 		01D19C75265D7FD900BD8CF9 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		01D19C76265D7FD900BD8CF9 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -199,9 +203,11 @@
 			children = (
 				011B6708275B196600148290 /* Operator.entitlements */,
 				015F2AC924C8EBB1004B53E2 /* Interactions */,
+				01CBA930282B2E7500614A24 /* Manifests */,
 				01EB6C072477409C0067F4B9 /* README.md */,
 				018B099924577B15007450EA /* AppDelegate.swift */,
 				015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */,
+				01CBA937282B34AB00614A24 /* ManifestsViewController.swift */,
 				01C060AC251E44C7006B4B30 /* EventsViewController.swift */,
 				0118DD7026FBEDED00037E0E /* MessagesViewController.swift */,
 				0118DD8226FBF1C200037E0E /* TextViewController.swift */,
@@ -385,6 +391,7 @@
 				0188E39028130D4500C8B7D0 /* Version.xcconfig in Resources */,
 				018B09C62457AEF7007450EA /* Defaults.plist in Resources */,
 				EF5F380D25C3725D007F823E /* Localizable.strings in Resources */,
+				01CBA936282B2E7500614A24 /* Manifests in Resources */,
 				018B09A824577B17007450EA /* LaunchScreen.storyboard in Resources */,
 				018B09A524577B17007450EA /* Assets.xcassets in Resources */,
 				018B09A324577B15007450EA /* Main.storyboard in Resources */,
@@ -410,6 +417,7 @@
 				015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */,
 				018B099A24577B15007450EA /* AppDelegate.swift in Sources */,
 				01C060AD251E44C7006B4B30 /* EventsViewController.swift in Sources */,
+				01CBA938282B34AB00614A24 /* ManifestsViewController.swift in Sources */,
 				0116CEA127EA8A0600186CC1 /* CustomDataDataSource.swift in Sources */,
 				0118DD8326FBF1C200037E0E /* TextViewController.swift in Sources */,
 			);

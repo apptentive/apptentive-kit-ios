@@ -1,0 +1,177 @@
+{
+  "interactions": [
+    {
+      "id": "54483e047724c5bd21000007",
+      "type": "Survey",
+      "version": 3,
+      "configuration": {
+        "name": "Test Survey Title",
+        "description": "Test Survey Description",
+        "multiple_responses": true,
+        "show_success_message": false,
+        "questions": [
+          {
+            "id": "54483e117724c50297000034",
+            "answer_choices": [
+              {
+                "id": "54483e117724c50297000035",
+                "value": "b"
+              },
+              {
+                "id": "54483e117724c50297000036",
+                "value": "c"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "a",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": true
+          }
+        ],
+        "required": false
+      }
+    },
+    {
+      "id": "545bdb2d49f63bbd8b0002fd",
+      "type": "EnjoymentDialog",
+      "version": 7,
+      "configuration": {
+        "title": "Do you love Travel Keeper?",
+        "yes_text": "Yes",
+        "no_text": "No"
+      }
+    },
+    {
+      "id": "545bdb2e49f63bbd8b000301",
+      "type": "AppleRatingDialog",
+      "version": 4,
+      "configuration": {
+        "not_shown_interaction": "548cc5dd49f63bb5c2000001"
+      }
+    },
+    {
+      "id": "545bdb3049f63bbd8b000309",
+      "type": "AppStoreRating",
+      "configuration": {
+        "store_id": "com.achellies.android.games.CoolTetris"
+      }
+    },
+    {
+      "id": "548cc5dd49f63bb5c2000001",
+      "type": "TextModal",
+      "configuration": {
+        "title": "Centered TextModal Title",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "URL",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {
+                }
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "id": "54a3437b7724c57cf6000043",
+      "type": "NavigateToLink",
+      "configuration": {
+        "url": "http://www.apptentive.com/"
+      }
+    }
+  ],
+  "targets": {
+    "local#app#launch": [
+      {
+        "interaction_id": "545bdb2d49f63bbd8b0002fd",
+        "criteria": {
+          "interactions/545bdb2d49f63bbd8b0002fd/invokes/cf_bundle_short_version_string": 0,
+          "$or": [
+            {
+              "interactions/545bdb2d49f63bbd8b0002fd/invokes/total": 0
+            },
+            {
+              "interactions/545bdb2d49f63bbd8b0002fd/last_invoked_at/total": {
+                "$after": -604800
+              }
+            }
+          ],
+          "code_point/com.apptentive#app#launch/invokes/cf_bundle_short_version_string": {
+            "$gte": 1
+          }
+        }
+      },
+      {
+        "interaction_id": "545bdb2e49f63bbd8b000301",
+        "criteria": {
+          "interactions/545bdb2e49f63bbd8b000301/invokes/cf_bundle_short_version_string": {
+            "$gt": 0,
+            "$lte": 1
+          },
+          "code_point/com.apptentive#RatingDialog#rate/invokes/total": 0,
+          "code_point/com.apptentive#RatingDialog#decline/invokes/total": 0,
+          "code_point/com.apptentive#RatingDialog#remind/last_invoked_at/total": {
+            "$after": 0
+          }
+        }
+      },
+      {
+        "interaction_id": "54ab39f47724c52af3000003",
+        "criteria": {
+          "interactions/54ab39f47724c52af3000003/invokes/total": 0,
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1420507458
+            }
+          }
+        }
+      }
+    ],
+    "com.apptentive#EnjoymentDialog#yes": [
+      {
+        "interaction_id": "545bdb2e49f63bbd8b000301",
+        "criteria": {
+        }
+      }
+    ],
+    "com.apptentive#EnjoymentDialog#no": [
+      {
+        "interaction_id": "54483e047724c5bd21000007",
+        "criteria": {
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1414020582
+            }
+          }
+        }
+      },
+      {
+        "interaction_id": "545bdb2f49f63bbd8b000305",
+        "criteria": {
+        }
+      }
+    ],
+    "com.apptentive#RatingDialog#rate": [
+      {
+        "interaction_id": "545bdb3049f63bbd8b000309",
+        "criteria": {
+        }
+      }
+    ]
+  }
+}

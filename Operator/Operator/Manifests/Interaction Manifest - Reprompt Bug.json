@@ -1,0 +1,1323 @@
+{
+  "interactions": [
+    {
+      "id": "55c94045a71b52ea570054d6",
+      "type": "MessageCenter",
+      "version": 2,
+      "configuration": {
+        "title": "Message Center",
+        "branding": "Powered by Apptentive",
+        "composer": {
+          "title": "New Message",
+          "hint_text": "Please leave detailed feedback",
+          "send_button": "Send",
+          "send_start": "Sending...",
+          "send_ok": "Sent",
+          "send_fail": "Failed",
+          "close_text": "Close",
+          "close_confirm_body": "Are you sure you want to discard this message?",
+          "close_discard_button": "Discard",
+          "close_cancel_button": "Cancel"
+        },
+        "greeting": {
+          "title": "Hello!",
+          "body": "We'd love to get feedback from you on our app. The more details you can provide, the better.",
+          "image_url": "https://apptentive-app-icons-production.s3.amazonaws.com/521f9bba68e2758b6d00098d_1443569347.png"
+        },
+        "status": {
+          "body": "We will respond to your message soon."
+        },
+        "automated_message": {},
+        "error_messages": {
+          "http_error_body": "It looks like we're having trouble sending your message. We've saved it and will try sending it again soon.",
+          "network_error_body": "It looks like you aren't connected to the Internet right now. We've saved your message and will try again when we detect a connection."
+        },
+        "profile": {
+          "request": true,
+          "require": true,
+          "initial": {
+            "title": "Who are we speaking with?",
+            "name_hint": "Name",
+            "email_hint": "Email (required)",
+            "email_explanation": "So we're able to reply",
+            "skip_button": "Skip",
+            "save_button": "Next"
+          },
+          "edit": {
+            "title": "Profile",
+            "name_hint": "Name",
+            "email_hint": "Email",
+            "email_explanation": "So we're able to reply",
+            "skip_button": "Cancel",
+            "save_button": "Save"
+          }
+        }
+      }
+    },
+    {
+      "id": "55c94046a71b52ea570054dd",
+      "type": "AppStoreRating",
+      "version": 1,
+      "configuration": {
+        "store_id": "com.imdb.mobile"
+      }
+    },
+    {
+      "id": "55c94046a71b52ea570054df",
+      "type": "MessageCenter",
+      "version": 2,
+      "configuration": {
+        "title": "Message Center",
+        "branding": "Powered by Apptentive",
+        "composer": {
+          "title": "New Message",
+          "hint_text": "Please leave detailed feedback",
+          "send_button": "Send",
+          "send_start": "Sending...",
+          "send_ok": "Sent",
+          "send_fail": "Failed",
+          "close_text": "Close",
+          "close_confirm_body": "Are you sure you want to discard this message?",
+          "close_discard_button": "Discard",
+          "close_cancel_button": "Cancel"
+        },
+        "greeting": {
+          "title": "Hello!",
+          "body": "We'd love to get feedback from you on our app. The more details you can provide, the better.",
+          "image_url": "https://apptentive-app-icons-production.s3.amazonaws.com/521f9bba68e2758b6d00098d_1443569347.png"
+        },
+        "status": {
+          "body": "We will respond to your message soon."
+        },
+        "automated_message": {
+          "body": "Please let us know how to make Android Dev better for you! http://www.google.com"
+        },
+        "error_messages": {
+          "http_error_body": "It looks like we're having trouble sending your message. We've saved it and will try sending it again soon.",
+          "network_error_body": "It looks like you aren't connected to the Internet right now. We've saved your message and will try again when we detect a connection."
+        },
+        "profile": {
+          "request": true,
+          "require": true,
+          "initial": {
+            "title": "Who are we speaking with?",
+            "name_hint": "Name",
+            "email_hint": "Email (required)",
+            "email_explanation": "So we're able to reply",
+            "skip_button": "Skip",
+            "save_button": "Next"
+          },
+          "edit": {
+            "title": "Profile",
+            "name_hint": "Name",
+            "email_hint": "Email",
+            "email_explanation": "So we're able to reply",
+            "skip_button": "Cancel",
+            "save_button": "Save"
+          }
+        }
+      }
+    },
+    {
+      "id": "55c94046a71b52ea570054d9",
+      "type": "EnjoymentDialog",
+      "version": 1,
+      "configuration": {
+        "title": "Do you love this app?",
+        "yes_text": "Yes",
+        "no_text": "No",
+        "dismiss_text": "Dismiss",
+        "show_dismiss_button": true
+      }
+    },
+    {
+      "id": "55c94046a71b52ea570054db",
+      "type": "RatingDialog",
+      "version": 1,
+      "configuration": {
+        "title": "Thank You",
+        "body": "We're so happy to hear that you love Sky's App! It'd be really helpful if you rated us. Thanks so much for spending some time with us.",
+        "rate_text": "Rate",
+        "remind_text": "Remind Me Later",
+        "decline_text": "No Thanks"
+      }
+    },
+    {
+      "id": "55e6037a45ce55118900001a",
+      "type": "TextModal",
+      "version": 1,
+      "configuration": {
+        "actions": [
+          {
+            "id": "55e6037a45ce551189000016",
+            "action": "interaction",
+            "label": "MESSAGE CENTER",
+            "invokes": [
+              {
+                "interaction_id": "55c94045a71b52ea570054d6",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "55e6037a45ce551189000017",
+            "action": "interaction",
+            "label": "SURVEY",
+            "invokes": [
+              {
+                "interaction_id": "55e6033045ce5551eb00000b",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "55e6037a45ce551189000018",
+            "action": "interaction",
+            "label": "LINK",
+            "invokes": [
+              {
+                "interaction_id": "56b248fac21f96e6700001d3",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "55e6037a45ce551189000019",
+            "action": "dismiss",
+            "label": "DISMISS"
+          }
+        ],
+        "title": "Message Title",
+        "body": "Message content.",
+        "name": "Message Center 2.0 Note"
+      }
+    },
+    {
+      "id": "56945f6b67f732bcc2000041",
+      "type": "TextModal",
+      "version": 1,
+      "configuration": {
+        "actions": [
+          {
+            "id": "56945f6c67f732bcc2000042",
+            "action": "interaction",
+            "label": "MESSAGE CENTER",
+            "invokes": [
+              {
+                "interaction_id": "55c94045a71b52ea570054d6",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "56945f6c67f732bcc2000043",
+            "action": "interaction",
+            "label": "SURVEY",
+            "invokes": [
+              {
+                "interaction_id": "55e6033045ce5551eb00000b",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "56945f6c67f732bcc2000044",
+            "action": "interaction",
+            "label": "LINK",
+            "invokes": [
+              {
+                "interaction_id": "56b249d1c21f96e670000392",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "56945f6c67f732bcc2000045",
+            "action": "dismiss",
+            "label": "DISMISS"
+          }
+        ],
+        "title": "Oops",
+        "body": "We are so sorry that our application just crashed on you. Please give us another chance. If the crash persists, please let us know",
+        "name": "Crash Note"
+      }
+    },
+    {
+      "id": "56d0bc3bc719926f3300001b",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "56d0bc3bc719926f33000011",
+            "answer_choices": [
+              {
+                "id": "56d0bc3bc719926f33000001",
+                "value": "A"
+              },
+              {
+                "id": "56d0bc3bc719926f33000002",
+                "value": "B"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Multichoice Optional",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": false
+          },
+          {
+            "id": "56d0bc3bc719926f33000012",
+            "answer_choices": [
+              {
+                "id": "56d0bc3bc719926f33000003",
+                "value": "A"
+              },
+              {
+                "id": "56d0bc3bc719926f33000004",
+                "value": "B"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Multichoice Required",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": true
+          },
+          {
+            "id": "56d0bc3bc719926f33000013",
+            "answer_choices": [
+              {
+                "id": "56d0bc3bc719926f33000005",
+                "value": "A"
+              },
+              {
+                "id": "56d0bc3bc719926f33000006",
+                "value": "B"
+              }
+            ],
+            "instructions": "select all that apply",
+            "randomize": false,
+            "value": "Multiselect Optional",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 0,
+            "max_selections": 2
+          },
+          {
+            "id": "56d0bc3bc719926f33000014",
+            "answer_choices": [
+              {
+                "id": "56d0bc3bc719926f33000007",
+                "value": "A"
+              },
+              {
+                "id": "56d0bc3bc719926f33000008",
+                "value": "B"
+              }
+            ],
+            "instructions": "select at least 1",
+            "randomize": false,
+            "value": "MultiSelect Required",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": true,
+            "min_selections": 1,
+            "max_selections": 2
+          },
+          {
+            "id": "56d0bc3bc719926f33000015",
+            "answer_choices": [
+              {
+                "id": "56d0bc3bc719926f33000009",
+                "value": "A"
+              },
+              {
+                "id": "56d0bc3bc719926f3300000a",
+                "value": "B"
+              },
+              {
+                "id": "56d0bc3bc719926f3300000b",
+                "value": "C"
+              },
+              {
+                "id": "56d0bc3bc719926f3300000c",
+                "value": "D"
+              }
+            ],
+            "instructions": "select between 1 and 3",
+            "randomize": false,
+            "value": "Multiselect Optional With Limits",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 1,
+            "max_selections": 3
+          },
+          {
+            "id": "56d0bc3bc719926f33000016",
+            "answer_choices": [
+              {
+                "id": "56d0bc3bc719926f3300000d",
+                "value": "A"
+              },
+              {
+                "id": "56d0bc3bc719926f3300000e",
+                "value": "B"
+              },
+              {
+                "id": "56d0bc3bc719926f3300000f",
+                "value": "C"
+              },
+              {
+                "id": "56d0bc3bc719926f33000010",
+                "value": "D"
+              }
+            ],
+            "instructions": "select between 1 and 3",
+            "randomize": false,
+            "value": "Multiselect Required With Limits",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": true,
+            "min_selections": 1,
+            "max_selections": 3
+          },
+          {
+            "id": "56d0bc3bc719926f33000017",
+            "randomize": false,
+            "multiline": false,
+            "value": "Singleline Short Optional",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Please provide a response"
+          },
+          {
+            "id": "56d0bc3bc719926f33000018",
+            "randomize": false,
+            "multiline": false,
+            "value": "Singleline Short Required",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": true,
+            "freeform_hint": "Please provide a response"
+          },
+          {
+            "id": "56d0bc3bc719926f33000019",
+            "randomize": false,
+            "multiline": true,
+            "value": "Singleline Long Optional",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Please leave detailed feedback"
+          },
+          {
+            "id": "56d0bc3bc719926f3300001a",
+            "randomize": false,
+            "multiline": true,
+            "value": "Singleline Long Required",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": true,
+            "freeform_hint": "Please leave detailed feedback"
+          }
+        ],
+        "submit_text": "Submit",
+        "required_text": "Required",
+        "validation_error": "There are issues with your response.",
+        "title": "All Combos Survey",
+        "name": "Every Question Type",
+        "description": "Please help us see how each question is formatted when returning a survey response to the server.",
+        "multiple_responses": true,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "Thank you!"
+      }
+    },
+    {
+      "id": "56d0cdfac719923b36000020",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "56d0cdfac719923b3600001d",
+            "answer_choices": [
+              {
+                "id": "56d0cdfac719923b36000019",
+                "value": "Seitan gentrify next level mumblecore, photo booth cornhole tofu dreamcatcher brunch biodiesel pop-up meditation squid. Drinking vinegar chambray hashtag, tattooed irony banjo cold-pressed celiac sustainable asymmetrical kinfolk godard pop-up marfa viral."
+              },
+              {
+                "id": "56d0cdfac719923b3600001a",
+                "value": "Before they sold out ennui umami, offal cold-pressed selfies bitters truffaut everyday carry tattooed. Single-origin coffee iPhone selvage, mumblecore taxidermy retro man braid before they sold out locavore waistcoat you probably haven't heard of them twee master cleanse shabby chic."
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Chia waistcoat tofu, art party synth chambray gastropub migas sartorial. Mlkshk fingerstache pour-over, quinoa fap you probably haven't heard of them schlitz. Lo-fi vice photo booth wolf, salvia kogi before they sold out narwhal pinterest kale chips drinking vinegar aesthetic semiotics locavore taxidermy.",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": false
+          },
+          {
+            "id": "56d0cdfac719923b3600001e",
+            "answer_choices": [
+              {
+                "id": "56d0cdfac719923b3600001b",
+                "value": "Intelligentsia 90's leggings stumptown chillwave bitters. Sriracha meh pabst, VHS master cleanse direct trade chambray mlkshk post-ironic vegan. Chambray VHS street art fanny pack, cold-pressed beard artisan."
+              },
+              {
+                "id": "56d0cdfac719923b3600001c",
+                "value": "Mumblecore +1 venmo fashion axe, franzen iPhone lo-fi PBR&B man braid flannel put a bird on it 8-bit drinking vinegar. Microdosing pickled deep v distillery pug yr franzen bushwick, taxidermy fap pop-up twee 8-bit."
+              }
+            ],
+            "instructions": "select all that apply",
+            "randomize": false,
+            "value": "Distillery leggings gluten-free, tofu kinfolk trust fund ramps pop-up four dollar toast organic try-hard bicycle rights fashion axe viral. IPhone seitan chillwave actually chartreuse, shabby chic marfa.",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 0,
+            "max_selections": 2
+          },
+          {
+            "id": "56d0cdfac719923b3600001f",
+            "randomize": false,
+            "multiline": false,
+            "value": "Godard listicle four loko, four dollar toast gentrify lomo cred wolf fanny pack food truck iPhone. Master cleanse pork belly truffaut pickled cray. Kinfolk cray irony drinking vinegar, 3 wolf moon VHS godard chicharrones umami. Brunch forage typewriter, stumptown tofu shoreditch semiotics bitters messenger bag ugh +1 sustainable. Fashion axe occupy +1 wolf, umami small batch leggings lumbersexual DIY kickstarter swag blog.",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Please provide a response"
+          }
+        ],
+        "submit_text": "Submit",
+        "required_text": "Required",
+        "validation_error": "There are issues with your response.",
+        "title": "Long Text Surveys",
+        "name": "Thundercats twee literally to chia fashion axe butcher authentic vinyl locavore.",
+        "description": "Mumblecore sustainable fixie man bun synth. Intelligentsia organic truffaut shoreditch, readymade cornhole affogato four loko semiotics. Meggings mixtape dreamcatcher, synth ugh lumbersexual four dollar toast small batch bicycle rights. Schlitz iPhone locavore biodiesel keffiyeh, twee stumptown leggings squid paleo normcore organic thundercats green juice.",
+        "multiple_responses": true,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "Tacos before they sold out paleo pinterest kale chips church-key. Next level."
+      }
+    },
+    {
+      "id": "56e0b5d7c7199274f7000003",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "56e0b5d9c7199274f7000004",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f7000005",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000006",
+                "value": "B"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Multichoice Optional",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": false
+          },
+          {
+            "id": "56e0b5d9c7199274f7000007",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f7000008",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000009",
+                "value": "B"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Multichoice Required",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": true
+          },
+          {
+            "id": "56e0b5d9c7199274f700000a",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f700000b",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f700000c",
+                "value": "B"
+              }
+            ],
+            "instructions": "select all that apply",
+            "randomize": false,
+            "value": "Multiselect Optional",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 0,
+            "max_selections": 2
+          },
+          {
+            "id": "56e0b5d9c7199274f700000d",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f700000e",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f700000f",
+                "value": "B"
+              }
+            ],
+            "instructions": "select at least 1",
+            "randomize": false,
+            "value": "MultiSelect Required",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": true,
+            "min_selections": 1,
+            "max_selections": 2
+          },
+          {
+            "id": "56e0b5d9c7199274f7000010",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f7000012",
+                "value": "B"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000013",
+                "value": "C"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000014",
+                "value": "D"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000011",
+                "value": "A"
+              }
+            ],
+            "instructions": "select between 1 and 3",
+            "randomize": true,
+            "value": "Multiselect Optional With Limits",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 1,
+            "max_selections": 3
+          },
+          {
+            "id": "56e0b5d9c7199274f7000015",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f7000016",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000017",
+                "value": "B"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000018",
+                "value": "C"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000019",
+                "value": "D"
+              }
+            ],
+            "instructions": "select between 1 and 3",
+            "randomize": false,
+            "value": "Multiselect Required With Limits",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": true,
+            "min_selections": 1,
+            "max_selections": 3
+          },
+          {
+            "id": "56e0b5d9c7199274f700001a",
+            "randomize": false,
+            "multiline": false,
+            "value": "Singleline Short Optional",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Please provide a response"
+          },
+          {
+            "id": "56e0b5d9c7199274f700001b",
+            "randomize": false,
+            "multiline": false,
+            "value": "Singleline Short Required",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": true,
+            "freeform_hint": "Please provide a response"
+          },
+          {
+            "id": "56e0b5d9c7199274f700001c",
+            "randomize": false,
+            "multiline": true,
+            "value": "Singleline Long Optional",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Please leave detailed feedback"
+          },
+          {
+            "id": "56e0b5d9c7199274f700001d",
+            "randomize": false,
+            "multiline": true,
+            "value": "Singleline Long Required",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": true,
+            "freeform_hint": "Please leave detailed feedback"
+          }
+        ],
+        "submit_text": "Submit",
+        "required_text": "Required",
+        "validation_error": "There are issues with your response.",
+        "title": "(copy) All Combos Survey",
+        "name": "Every Question Type",
+        "description": "Please help us see how each question is formatted when returning a survey response to the server.",
+        "multiple_responses": true,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "Thank you!"
+      }
+    },
+    {
+      "id": "56f0897bc71992032c000012",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "56f0897bc71992032c00000d",
+            "answer_choices": [
+              {
+                "id": "56f0897bc71992032c000003",
+                "value": "Left"
+              },
+              {
+                "id": "56f0897bc71992032c000002",
+                "value": "Right"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": true,
+            "value": "What is your primary hand?",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": true
+          },
+          {
+            "id": "56f0897bc71992032c00000e",
+            "answer_choices": [
+              {
+                "id": "56f0897bc71992032c000005",
+                "value": "Oranges"
+              },
+              {
+                "id": "56f0897bc71992032c000006",
+                "value": "Pineapple"
+              },
+              {
+                "id": "56f0897bc71992032c000004",
+                "value": "Apples"
+              }
+            ],
+            "instructions": "select at least 1",
+            "randomize": true,
+            "value": "Pick some things you like:",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": true,
+            "min_selections": 1,
+            "max_selections": 3
+          },
+          {
+            "id": "56f0897bc71992032c00000f",
+            "randomize": false,
+            "multiline": false,
+            "value": "What is your name?",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": true,
+            "freeform_hint": "Please provide a response"
+          },
+          {
+            "id": "56f0897bc71992032c000010",
+            "randomize": false,
+            "multiline": true,
+            "value": "How are you doing?",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": true,
+            "freeform_hint": "Please leave detailed feedback"
+          },
+          {
+            "id": "56f0897bc71992032c000011",
+            "answer_choices": [
+              {
+                "id": "56f0897bc71992032c000007",
+                "value": "Colorado"
+              },
+              {
+                "id": "56f0897bc71992032c000008",
+                "value": "Hawaii"
+              },
+              {
+                "id": "56f0897bc71992032c000009",
+                "value": "New York"
+              },
+              {
+                "id": "56f0897bc71992032c00000a",
+                "value": "Vermont"
+              },
+              {
+                "id": "56f0897bc71992032c00000b",
+                "value": "Alaska"
+              },
+              {
+                "id": "56f0897bc71992032c00000c",
+                "value": "Michigan"
+              }
+            ],
+            "instructions": "select between 2 and 4",
+            "randomize": false,
+            "value": "Which states are you interested in going to?",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 2,
+            "max_selections": 4
+          }
+        ],
+        "submit_text": "Submit",
+        "required_text": "Required",
+        "validation_error": "There are issues with your response.",
+        "title": "Required Survey test",
+        "name": "Required",
+        "description": "Andrew some questions!",
+        "multiple_responses": true,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "Thank you!"
+      }
+    },
+    {
+      "id": "5703251dc71992526f000013",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "5703251dc71992526f000012",
+            "answer_choices": [
+              {
+                "id": "5703251dc71992526f000010",
+                "value": "B"
+              },
+              {
+                "id": "5703251dc71992526f000011",
+                "value": "C"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "A",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": true
+          }
+        ],
+        "submit_text": "Submit",
+        "required_text": "Required",
+        "validation_error": "There are issues with your response.",
+        "title": "New New Survey",
+        "name": "New New",
+        "description": "Survey",
+        "multiple_responses": true,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "Thank you!"
+      }
+    },
+    {
+      "id": "570694f855d9f42ce5000005",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "570694f855d9f42ce5000003",
+            "answer_choices": [
+              {
+                "id": "570694f855d9f42ce5000001",
+                "value": "Good"
+              },
+              {
+                "id": "570694f855d9f42ce5000002",
+                "value": "Bad"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Please rate your experience using OfferUp Payments to purchase an item:",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": true
+          },
+          {
+            "id": "570694f855d9f42ce5000004",
+            "randomize": false,
+            "multiline": true,
+            "value": "Do you have any feedback that you would like to share? We read all comments and value your input",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Please leave detailed feedback"
+          }
+        ],
+        "submit_text": "Submit",
+        "required_text": "Required",
+        "validation_error": "There are issues with your response.",
+        "title": "OfferUpSurvey",
+        "name": "OfferUp Survey",
+        "description": "Payments Buyer Response Survey",
+        "multiple_responses": true,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "Thank you!"
+      }
+    },
+    {
+      "id": "5708214855d9f41dec000007",
+      "type": "TextModal",
+      "version": 1,
+      "configuration": {
+        "actions": [
+          {
+            "id": "5708214855d9f41dec000006",
+            "action": "dismiss",
+            "label": "DISMISS"
+          }
+        ],
+        "title": "http://www.apptentive.com",
+        "body": "http://www.apptentive.com",
+        "name": "http://www.apptentive.com"
+      }
+    },
+    {
+      "id": "5708218655d9f43a3400000c",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "5708218655d9f43a34000009",
+            "answer_choices": [
+              {
+                "id": "5708218655d9f43a34000005",
+                "value": "http://www.apptentive.com"
+              },
+              {
+                "id": "5708218655d9f43a34000006",
+                "value": "http://www.apptentive.com"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "http://www.apptentive.com",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": false
+          },
+          {
+            "id": "5708218655d9f43a3400000a",
+            "answer_choices": [
+              {
+                "id": "5708218655d9f43a34000007",
+                "value": "http://www.apptentive.com"
+              },
+              {
+                "id": "5708218655d9f43a34000008",
+                "value": "http://www.apptentive.com"
+              }
+            ],
+            "instructions": "select all that apply",
+            "randomize": false,
+            "value": "http://www.apptentive.com",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 0,
+            "max_selections": 2
+          },
+          {
+            "id": "5708218655d9f43a3400000b",
+            "randomize": false,
+            "multiline": false,
+            "value": "http://www.apptentive.com",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Please provide a response"
+          }
+        ],
+        "submit_text": "Submit",
+        "required_text": "Required",
+        "validation_error": "There are issues with your response.",
+        "title": "http://www.apptentive.com",
+        "name": "http://www.apptentive.com",
+        "description": "http://www.apptentive.com",
+        "multiple_responses": true,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "http://www.apptentive.com"
+      }
+    },
+    {
+      "id": "55e6033045ce5551eb00000b",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "55e6033045ce5551eb000008",
+            "answer_choices": [
+              {
+                "id": "55e6033045ce5551eb000002",
+                "value": "A"
+              },
+              {
+                "id": "55e6033045ce5551eb000003",
+                "value": "B"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Single Select",
+            "type": "multichoice",
+		    "error_message": "Error - There was a problem with your single-select answer.",
+            "required": false
+          },
+          {
+            "id": "55e6033045ce5551eb000009",
+            "answer_choices": [
+              {
+                "id": "55e6033045ce5551eb000004",
+                "value": "A"
+              },
+              {
+                "id": "55e6033045ce5551eb000005",
+                "value": "B"
+              },
+              {
+                "id": "55e6033045ce5551eb000006",
+                "value": "C"
+              },
+              {
+                "id": "55e6033045ce5551eb000007",
+                "value": "D"
+              }
+            ],
+            "instructions": "select between 1 and 3",
+            "randomize": false,
+            "value": "Multiple Select",
+            "type": "multiselect",
+		    "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 1,
+            "max_selections": 3
+          },
+          {
+            "id": "55e6033045ce5551eb00000a",
+            "randomize": false,
+            "multiline": false,
+            "value": "Free Form",
+            "type": "singleline",
+		    "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Please provide a response"
+          }
+        ],
+        "submit_text": "Submit",
+        "required_text": "Required",
+        "validation_error": "There are issues with your response.",
+        "title": "Survey From Note",
+        "name": "Survey Title",
+        "description": "Survey Introduction",
+        "multiple_responses": false,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "Thank you!"
+      }
+    },
+    {
+      "id": "56b248fac21f96e6700001d3",
+      "type": "NavigateToLink",
+      "version": 1,
+      "configuration": {
+        "target": "new",
+        "url": "https://play.google.com/store/apps/details?id=com.tmobile.pr.mytmobile&hl=en"
+      }
+    },
+    {
+      "id": "56b249d1c21f96e670000392",
+      "type": "NavigateToLink",
+      "version": 1,
+      "configuration": {
+        "target": "new",
+        "url": "http://www.whatsmyip.org/"
+      }
+    }
+  ],
+  "targets": {
+    "com.apptentive#app#show_message_center": [
+      {
+        "interaction_id": "55c94045a71b52ea570054d6",
+        "criteria": {}
+      }
+    ],
+    "com.apptentive#RatingDialog#rate": [
+      {
+        "interaction_id": "55c94046a71b52ea570054dd",
+        "criteria": {}
+      }
+    ],
+    "com.apptentive#EnjoymentDialog#no": [
+      {
+        "interaction_id": "55c94046a71b52ea570054df",
+        "criteria": {}
+      }
+    ],
+    "local#app#launch": [
+      {
+        "interaction_id": "55c94046a71b52ea570054db",
+        "criteria": {
+          "code_point/com.apptentive#RatingDialog#rate/invokes/total": {
+            "$eq": 0
+          },
+          "code_point/com.apptentive#RatingDialog#decline/invokes/total": {
+            "$eq": 0
+          },
+          "interactions/55c94046a71b52ea570054db/invokes/version": {
+            "$gt": 0,
+            "$lte": 1
+          },
+          "$and": [
+            {
+              "$or": [
+                {
+                  "code_point/com.apptentive#RatingDialog#remind/invokes/total": {
+                    "$eq": 0
+                  }
+                },
+                {
+                  "code_point/com.apptentive#RatingDialog#remind/last_invoked_at/total": {
+                    "$before": -432000
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "interaction_id": "55c94046a71b52ea570054d9",
+        "criteria": {
+          "code_point/com.apptentive#app#launch/invokes/version": {
+            "$gte": 1
+          },
+          "interactions/55c94046a71b52ea570054d9/invokes/version": {
+            "$eq": 0
+          },
+          "$and": [
+            {
+              "$or": [
+                {
+                  "interactions/55c94046a71b52ea570054d9/last_invoked_at/total": {
+                    "$before": -604800
+                  }
+                },
+                {
+                  "interactions/55c94046a71b52ea570054d9/invokes/total": {
+                    "$eq": 0
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "com.apptentive#EnjoymentDialog#yes": [
+      {
+        "interaction_id": "55c94046a71b52ea570054db",
+        "criteria": {}
+      }
+    ],
+    "local#app#note_event": [
+      {
+        "interaction_id": "55e6037a45ce55118900001a",
+        "criteria": {
+          "interactions/55e6037a45ce55118900001a/invokes/total": {
+            "$eq": 0
+          },
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1441137470
+            }
+          }
+        }
+      }
+    ],
+    "local#app#crash_event": [
+      {
+        "interaction_id": "56945f6b67f732bcc2000041",
+        "criteria": {
+          "interactions/56945f6b67f732bcc2000041/invokes/total": {
+            "$eq": 0
+          },
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1441137470
+            }
+          }
+        }
+      }
+    ],
+    "local#app#survey_event": [
+      {
+        "interaction_id": "56d0cdfac719923b36000020",
+        "criteria": {
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1456524496
+            }
+          }
+        }
+      },
+      {
+        "interaction_id": "56d0bc3bc719926f3300001b",
+        "criteria": {
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1456520042
+            }
+          }
+        }
+      }
+    ],
+    "local#app#survey_event_2": [
+      {
+        "interaction_id": "56e0b5d7c7199274f7000003",
+        "criteria": {
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1456520042
+            }
+          }
+        }
+      }
+    ],
+    "local#app#survey_req": [
+      {
+        "interaction_id": "56f0897bc71992032c000012",
+        "criteria": {
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1458604209
+            }
+          }
+        }
+      }
+    ],
+    "local#app#event_3": [
+      {
+        "interaction_id": "5708218655d9f43a3400000c",
+        "criteria": {
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1460150636
+            }
+          }
+        }
+      },
+      {
+        "interaction_id": "5708214855d9f41dec000007",
+        "criteria": {
+          "interactions/5708214855d9f41dec000007/invokes/total": {
+            "$eq": 0
+          },
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1460150587
+            }
+          }
+        }
+      },
+      {
+        "interaction_id": "5703251dc71992526f000013",
+        "criteria": {
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1459823887
+            }
+          }
+        }
+      }
+    ],
+    "local#app#event_4": [
+      {
+        "interaction_id": "570694f855d9f42ce5000005",
+        "criteria": {
+          "current_time": {
+            "$gte": {
+              "_type": "datetime",
+              "sec": 1460049074
+            }
+          }
+        }
+      }
+    ]
+  }
+}

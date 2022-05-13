@@ -1,5 +1,5 @@
 //
-//  Apptentive+TemporaryAPI.swift
+//  Apptentive+Debugging.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 8/10/20.
@@ -17,5 +17,25 @@ extension Apptentive {
     /// - Throws: An error if the interaction is invalid or if—for view-controller-based interactions—the view controller is  either`nil` or not currently capable of presenting the view controller for the interaction.
     public func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController) throws {
         try self.interactionPresenter.presentInteraction(interaction, from: presentingViewController)
+    }
+
+    /// Overrides the API-provided engagement manifest with one from the specified URL.
+    /// - Parameter url: The (file) URL of the manifest to load.
+    public func loadEngagementManifest(at url: URL?) {
+        self.backendQueue.async {
+            if let url = url {
+                do {
+                    let manifestData = try Data(contentsOf: url)
+
+                    let engagementManifest = try JSONDecoder().decode(EngagementManifest.self, from: manifestData)
+
+                    self.backend.targeter.localEngagementManifest = engagementManifest
+                } catch let error {
+                    ApptentiveLogger.engagement.error("Unable to load local manifest at \(url.absoluteString): \(error).")
+                }
+            } else {
+                self.backend.targeter.localEngagementManifest = nil
+            }
+        }
     }
 }
