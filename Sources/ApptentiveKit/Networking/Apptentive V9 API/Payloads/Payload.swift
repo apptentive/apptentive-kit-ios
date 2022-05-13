@@ -28,6 +28,9 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
     /// The attachments to send along with the request, if any.
     let attachments: [Attachment]
 
+    /// Generates nonces, creation dates, UTC offsets, and stores session ID.
+    static var context = Context()
+
     /// The parts making up the body of the HTTP request.
     ///
     /// This array will contain a single item except for payloads that include attachments.
@@ -101,10 +104,34 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
     ///   - method: The HTTP method for the API request.
     ///   - attachments: The attachments to send with the payload, if any.
     private init(specializedJSONObject: SpecializedJSONObject, path: String, method: HTTPMethod, attachments: [Attachment] = []) {
-        self.jsonObject = JSONObject(specializedJSONObject: specializedJSONObject, shouldStripContainer: attachments.count > 0)
+        self.jsonObject = JSONObject(specializedJSONObject: specializedJSONObject, context: Self.context, shouldStripContainer: attachments.count > 0)
         self.path = path
         self.method = method
         self.attachments = attachments
+    }
+
+    struct Context {
+        func getNextNonce() -> String {
+            return UUID().uuidString
+        }
+
+        var date: Date {
+            return Date()
+        }
+
+        var utcOffset: Int {
+            return TimeZone.current.secondsFromGMT()
+        }
+
+        mutating func startSession() {
+            self.sessionID = UUID().uuidString
+        }
+
+        mutating func endSession() {
+            self.sessionID = nil
+        }
+
+        var sessionID: String?
     }
 
     /// Represents JSON request data and augments it with universal parameters for the Apptentive API.
@@ -127,6 +154,9 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         /// For multipart requests, the key for the container is used as the part's name.
         let shouldStripContainer: Bool
 
+        /// A string that uniquely identifies a particular launch (warm or cold) of the app.
+        let sessionID: String?
+
         /// The name for JSON that will be included in a multipart request.
         ///
         /// Used as the value for the `name` attribute of the part's `Content-Disposition` header.
@@ -144,13 +174,14 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             return try encoder.encode(self)
         }
 
-        init(specializedJSONObject: SpecializedJSONObject, shouldStripContainer: Bool = false) {
+        init(specializedJSONObject: SpecializedJSONObject, context: Context, shouldStripContainer: Bool = false) {
             self.specializedJSONObject = specializedJSONObject
             self.shouldStripContainer = shouldStripContainer
 
-            self.nonce = UUID().uuidString
-            self.creationDate = Date()
-            self.creationUTCOffset = TimeZone.current.secondsFromGMT()
+            self.nonce = context.getNextNonce()
+            self.creationDate = context.date
+            self.creationUTCOffset = context.utcOffset
+            self.sessionID = context.sessionID
         }
 
         init(from decoder: Decoder) throws {
@@ -193,6 +224,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             self.nonce = try nestedContainer.decode(String.self, forKey: .nonce)
             self.creationDate = try nestedContainer.decode(Date.self, forKey: .creationDate)
             self.creationUTCOffset = try nestedContainer.decode(Int.self, forKey: .creationUTCOffset)
+            self.sessionID = try nestedContainer.decodeIfPresent(String.self, forKey: .sessionID)
         }
 
         /// Encodes the payload to the specified encoder.
@@ -223,6 +255,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             try container.encode(self.nonce, forKey: .nonce)
             try container.encode(self.creationDate, forKey: .creationDate)
             try container.encode(self.creationUTCOffset, forKey: .creationUTCOffset)
+            try container.encodeIfPresent(self.sessionID, forKey: .sessionID)
 
             try self.specializedJSONObject.encodeContents(to: &container)
         }

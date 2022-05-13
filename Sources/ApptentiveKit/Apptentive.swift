@@ -403,6 +403,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             self.backendQueue.async {
                 self.backend.invalidateEngagementManifestForDebug(environment: self.environment)
                 self.backend.messageManager.forceMessageDownload = true
+                Payload.context.startSession()
             }
         }
 

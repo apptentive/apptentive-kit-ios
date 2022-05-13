@@ -221,6 +221,7 @@ class Backend {
 
     func willEnterForeground(environment: GlobalEnvironment) {
         self.invalidateEngagementManifestForDebug(environment: environment)
+        Payload.context.startSession()
         self.payloadSender.resume()
         self.resumePersistenceTimer()
         self.messageManager.forceMessageDownload = true
@@ -233,6 +234,7 @@ class Backend {
 
         self.payloadSender.drain {
             DispatchQueue.main.async {
+                Payload.context.endSession()
                 environment.endBackgroundTask()
             }
         }
