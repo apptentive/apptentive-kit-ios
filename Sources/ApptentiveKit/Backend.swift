@@ -44,6 +44,12 @@ class Backend {
         }
     }
 
+    /// A Message Manager object which is initialized on launch.
+    var messageManager: MessageManager
+
+    /// The object that determines whether an interaction should be presented when an event is engaged.
+    var targeter: Targeter
+
     var messageFetchCompletionHandler: ((UIBackgroundFetchResult) -> Void)? {
         didSet {
             if self.messageFetchCompletionHandler != nil {
@@ -57,11 +63,7 @@ class Backend {
     /// The saver used to load and save the conversation from/to persistent storage.
     private var conversationSaver: PropertyListSaver<Conversation>?
 
-    /// The object that determines whether an interaction should be presented when an event is engaged.
-    let targeter: Targeter
-
-    /// A Message Manager object which is initialized on launch.
-    let messageManager: MessageManager
+    private var payloadSender: PayloadSender
 
     private let requestRetrier: HTTPRequestRetrier
 

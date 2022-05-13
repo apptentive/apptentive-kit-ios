@@ -33,8 +33,6 @@ class Targeter {
         self.localEngagementManifest ?? self.engagementManifest
     }
 
-    var interactionIndex = [String: Interaction]()
-
     /// Creates a new targeter with the specified engagement manifest.
     /// - Parameter engagementManifest: The engagement manifest to use for targeting and describing interactions.
     init(engagementManifest: EngagementManifest) {
@@ -58,12 +56,7 @@ class Targeter {
 
     /// Builds a dictionary of interactions indexed by interaction ID.
     private func buildInteractionIndex() {
-        interactionIndex = Dictionary(
-            self.activeManifest.interactions.map { ($0.id, $0) },
-            uniquingKeysWith: { old, new in
-                apptentiveCriticalError("Invalid engagement manifest: Interaction IDs must be unique.")
-                return old
-            })
+        interactionIndex = Dictionary(uniqueKeysWithValues: self.activeManifest.interactions.map { ($0.id, $0) })
     }
 
     /// Returns the interaction (if any) that should be presented when the given event is engaged.

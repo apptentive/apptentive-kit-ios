@@ -37,7 +37,7 @@
 		0130E80C25D326CF004B2895 /* HTTPRequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0130E80B25D326CF004B2895 /* HTTPRequestRetrierTests.swift */; };
 		0130E81225D327B9004B2895 /* SpyRequestor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0130E81125D327B9004B2895 /* SpyRequestor.swift */; };
 		01324C5027E126BC00225B59 /* AutomatedMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01324C4F27E126BC00225B59 /* AutomatedMessageCell.swift */; };
-		013877C82603002100F3462A /* Apptentive+TemporaryAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */; };
+		013877C82603002100F3462A /* Apptentive+Debugging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013877C72603002100F3462A /* Apptentive+Debugging.swift */; };
 		013D8E0B24EEFA13005EC4D1 /* SurveyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */; };
 		013D8E0C24EEFA13005EC4D1 /* InteractionPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */; };
 		013D8E0D24EEFA13005EC4D1 /* InteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */; };
@@ -853,7 +853,7 @@
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */,
 				011B67062759BCD300148290 /* Apptentive+Push.swift */,
-				013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */,
+				013877C72603002100F3462A /* Apptentive+Debugging.swift */,
 				EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */,
 				0165B80B258181CF001DF54E /* Apptentive+Theme.swift */,
 				013D8EB824F5C99B005EC4D1 /* Backend.swift */,

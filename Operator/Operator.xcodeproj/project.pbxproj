@@ -201,6 +201,7 @@
 			children = (
 				011B6708275B196600148290 /* Operator.entitlements */,
 				015F2AC924C8EBB1004B53E2 /* Interactions */,
+				01CBA930282B2E7500614A24 /* Manifests */,
 				01EB6C072477409C0067F4B9 /* README.md */,
 				018B099924577B15007450EA /* AppDelegate.swift */,
 				015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */,
@@ -416,6 +417,7 @@
 				015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */,
 				018B099A24577B15007450EA /* AppDelegate.swift in Sources */,
 				01C060AD251E44C7006B4B30 /* EventsViewController.swift in Sources */,
+				01CBA938282B34AB00614A24 /* ManifestsViewController.swift in Sources */,
 				0116CEA127EA8A0600186CC1 /* CustomDataDataSource.swift in Sources */,
 				0118DD8326FBF1C200037E0E /* TextViewController.swift in Sources */,
 			);
