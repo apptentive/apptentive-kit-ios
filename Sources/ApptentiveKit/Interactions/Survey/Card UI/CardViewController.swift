@@ -59,7 +59,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
 
     override func loadView() {
         self.view = UIView()
-        self.view.backgroundColor = .white
+        self.view.backgroundColor = .apptentiveGroupedBackground
     }
 
     override func viewDidLoad() {
@@ -417,7 +417,6 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         choiceButton.titleLabel?.numberOfLines = 0
         choiceButton.titleLabel?.adjustsFontForContentSizeCategory = true
         choiceButton.setTitleColor(.apptentiveChoiceLabel, for: .normal)
-        choiceButton.tintColor = .apptentiveSubmitButton
 
         choiceButton.contentHorizontalAlignment = .leading
         choiceButton.contentVerticalAlignment = .center

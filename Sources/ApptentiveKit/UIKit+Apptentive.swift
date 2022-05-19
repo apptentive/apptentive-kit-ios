@@ -10,14 +10,7 @@ import UIKit
 
 /// `UINavigationController` subclass intended primarily to facilitate scoping `UIAppearance` rules to Apptentive UI.
 public class ApptentiveNavigationController: UINavigationController {
-    /// Overrides the bar tint color on navigation bars owned by this class.
-    ///
-    /// Used to work around a bug in iOS 15 beta 8 (and earlier?) where
-    /// navigation/tool bars end up clear in some cases.
-    @objc public static var barTintColor: UIColor? = nil
-
-    /// Sets the preferred status bar style for all instances of this class.
-    @objc public static var preferredStatusBarStyle: UIStatusBarStyle = .default
+    static var preferredStatusBarStyle: UIStatusBarStyle = .default
 
     // swift-format-ignore
     public override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -388,6 +381,11 @@ extension UIColor {
         return .white
     }()
 
+    /// The color to use for submit button border.
+    public static var apptentiveSubmitButtonBorder: UIColor = {
+        return .clear
+    }()
+
 }
 
 extension UIFont {
@@ -485,4 +483,11 @@ extension UIToolbar {
 
     /// Determines when to show a toolbar in Apptentive view controllers.
     @objc public static var apptentiveMode: ToolbarMode = .hiddenWhenEmpty
+}
+
+extension CGFloat {
+    /// The width of the layer border for Apptentive buttons.
+    public static var apptentiveButtonBorderWidth: CGFloat = {
+        return 2
+    }()
 }

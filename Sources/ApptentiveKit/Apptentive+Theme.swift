@@ -50,21 +50,36 @@ extension Apptentive {
 
         let barTitleTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .title2)]
 
-        ApptentiveNavigationController.barTintColor = barTintColor
         ApptentiveNavigationController.preferredStatusBarStyle = .lightContent
 
         UIModalPresentationStyle.apptentive = .fullScreen
 
-        let navigationBarAppearance = UINavigationBar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
-        navigationBarAppearance.backgroundColor = barTintColor
-        navigationBarAppearance.barTintColor = barTintColor
-        navigationBarAppearance.titleTextAttributes = barTitleTextAttributes
-        navigationBarAppearance.isTranslucent = false
+        let navigationBarAppearanceProxy = UINavigationBar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
+        navigationBarAppearanceProxy.titleTextAttributes = barTitleTextAttributes
 
-        let toolBarAppearance = UIToolbar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
-        toolBarAppearance.barTintColor = barTintColor
-        toolBarAppearance.backgroundColor = barTintColor
-        toolBarAppearance.isTranslucent = false
+        let toolBarAppearanceProxy = UIToolbar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
+
+        if #available(iOS 13.0, *) {
+            let barAppearance = UIBarAppearance()
+            barAppearance.configureWithOpaqueBackground()
+            barAppearance.backgroundColor = barTintColor
+
+            let navigationBarAppearance = UINavigationBarAppearance(barAppearance: barAppearance)
+            navigationBarAppearance.titleTextAttributes = barTitleTextAttributes
+            navigationBarAppearanceProxy.standardAppearance = navigationBarAppearance
+            navigationBarAppearanceProxy.scrollEdgeAppearance = navigationBarAppearance
+
+            toolBarAppearanceProxy.standardAppearance = UIToolbarAppearance(barAppearance: barAppearance)
+            if #available(iOS 15.0, *) {
+                toolBarAppearanceProxy.scrollEdgeAppearance = toolBarAppearanceProxy.standardAppearance
+            }
+        } else {
+            navigationBarAppearanceProxy.barTintColor = barTintColor
+            navigationBarAppearanceProxy.isTranslucent = false
+
+            toolBarAppearanceProxy.barTintColor = barTintColor
+            toolBarAppearanceProxy.isTranslucent = false
+        }
 
         UIToolbar.apptentiveMode = .alwaysShown
 
