@@ -359,7 +359,13 @@ extension UIColor {
     }()
 
     /// The color to use for the survey footer label (Thank You text).
-    @objc public static var apptentiveSubmitLabel: UIColor = {
+    @available(*, deprecated, message: "This property has been renamed to 'apptentiveSubmitStatusLabel'.")
+    public static var apptentiveSubmitLabel: UIColor = {
+        return .apptentiveSubmitStatusLabel
+    }()
+
+    /// The color to use for the survey footer label (Thank You text).
+    @objc public static var apptentiveSubmitStatusLabel: UIColor = {
         if #available(iOS 13.0, *) {
             return .label
         } else {
@@ -385,7 +391,6 @@ extension UIColor {
     public static var apptentiveSubmitButtonBorder: UIColor = {
         return .clear
     }()
-
 }
 
 extension UIFont {
@@ -455,7 +460,13 @@ extension UIFont {
     }()
 
     /// The font used for the survey footer label (Thank You text).
-    @objc public static var apptentiveSubmitLabel: UIFont = {
+    @available(*, deprecated, message: "This property has been renamed to 'apptentiveSubmitStatusLabel'.")
+    public static var apptentiveSubmitLabel: UIFont = {
+        return .apptentiveSubmitStatusLabel
+    }()
+
+    /// The font used for the survey footer label (Thank You text).
+    @objc public static var apptentiveSubmitStatusLabel: UIFont = {
         return .preferredFont(forTextStyle: .headline)
     }()
 

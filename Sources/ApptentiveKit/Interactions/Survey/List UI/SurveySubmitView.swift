@@ -36,7 +36,7 @@ class SurveySubmitView: UIView {
             self.submitButton.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: self.topAnchor, multiplier: 1.0),
         ])
 
-        self.submitLabel.font = .apptentiveSubmitLabel
+        self.submitLabel.font = .apptentiveSubmitStatusLabel
         self.submitLabel.adjustsFontForContentSizeCategory = true
         self.submitLabel.textAlignment = .center
         self.submitLabel.isHidden = true

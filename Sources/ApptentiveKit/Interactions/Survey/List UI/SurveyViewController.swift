@@ -44,7 +44,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             case .thankYou:
                 self.submitView.submitLabel.text = self.viewModel.thankYouMessage
-                self.submitView.submitLabel.textColor = .apptentiveSubmitLabel
+                self.submitView.submitLabel.textColor = .apptentiveSubmitStatusLabel
                 viewToShow = self.submitView.submitLabel
 
             case .validationError:
