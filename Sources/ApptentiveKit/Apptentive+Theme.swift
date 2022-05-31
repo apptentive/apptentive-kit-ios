@@ -38,8 +38,8 @@ extension Apptentive {
         }
 
         if #available(iOS 13.0, *) {
-            let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: UIColor.darkGray, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13.0, weight: .medium)] as [NSAttributedString.Key: Any]
-            let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13.0, weight: .medium)] as [NSAttributedString.Key: Any]
+            let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: UIColor.darkGray, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0, weight: .medium)] as [NSAttributedString.Key: Any]
+            let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0, weight: .medium)] as [NSAttributedString.Key: Any]
 
             let segmentedControlAppearance = UISegmentedControl.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesOnLoad, for: .normal)
