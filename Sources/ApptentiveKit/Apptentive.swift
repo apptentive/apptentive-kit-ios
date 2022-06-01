@@ -243,10 +243,14 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
     }
 
-    /// Contains the credentials necessary to connect to the Apptentive API.
+    /// Contains the app-level credentials necessary to connect to the Apptentive API.
     public struct AppCredentials: Codable, Equatable {
-        let key: String
-        let signature: String
+
+        /// The Apptentive App Key (found in the API & Development section of the Settings tab in the Apptentive Dashboard).
+        public let key: String
+
+        /// The Apptentive App Signature (found in the API & Development section of the Settings tab in the Apptentive Dashboard).
+        public let signature: String
 
         /// Creates a new `AppCredentials` object.
         /// - Parameters:
