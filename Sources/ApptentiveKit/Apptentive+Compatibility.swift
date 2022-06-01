@@ -376,8 +376,8 @@ extension Apptentive {
                 case let int as Int:
                     result[key] = int
 
-                case let float as Float:
-                    result[key] = float
+                case let double as Double:
+                    result[key] = double
 
                 case let string as String:
                     result[key] = string

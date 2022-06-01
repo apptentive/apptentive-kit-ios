@@ -16,10 +16,10 @@ import Foundation
 ///
 /// For that reason we make this object a class so that it has reference semantics.
 class Random: Equatable, Codable {
-    var values: [String: Float]
+    var values: [String: Double]
 
     init() {
-        self.values = [String: Float]()
+        self.values = [String: Double]()
     }
 
     /// Merges the random values with newer random values.
@@ -34,11 +34,11 @@ class Random: Equatable, Codable {
         }
     }
 
-    func randomPercent(for key: String) -> Float {
+    func randomPercent(for key: String) -> Double {
         return self.randomValue(for: key) * 100.0
     }
 
-    func newRandomPercent() -> Float {
+    func newRandomPercent() -> Double {
         return self.newRandomValue() * 100.0
     }
 
@@ -46,7 +46,7 @@ class Random: Equatable, Codable {
         lhs.values == rhs.values
     }
 
-    private func randomValue(for key: String) -> Float {
+    private func randomValue(for key: String) -> Double {
         let result = self.values[key] ?? self.newRandomValue()
 
         self.values[key] = result
@@ -54,11 +54,11 @@ class Random: Equatable, Codable {
         return result
     }
 
-    private func newRandomValue() -> Float {
+    private func newRandomValue() -> Double {
         #if DEBUG
             return 0.5
         #else
-            return Float.random(in: 0..<1)
+            return Double.random(in: 0..<1)
         #endif
     }
 }

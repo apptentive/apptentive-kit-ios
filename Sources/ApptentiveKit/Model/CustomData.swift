@@ -44,7 +44,14 @@ public struct CustomData: Equatable, Codable {
             return self.customData[key]
         }
         set {
-            self.customData[key] = newValue
+            var value = newValue
+
+            // Standardize Float to Double
+            if let float = newValue as? Float {
+                value = Double(float)
+            }
+
+            self.customData[key] = value
         }
     }
 
@@ -102,8 +109,8 @@ public struct CustomData: Equatable, Codable {
 
         return allKeys.allSatisfy({ (key) -> Bool in
             switch (lhs.customData[key], rhs.customData[key]) {
-            case let (lhFloat, rhFloat) as (Float, Float):
-                return lhFloat == rhFloat
+            case let (lhDouble, rhDouble) as (Double, Double):
+                return lhDouble == rhDouble
 
             case let (lhInt, rhInt) as (Int, Int):
                 return lhInt == rhInt
