@@ -210,7 +210,9 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     public func register(with credentials: AppCredentials, completion: ((Result<Void, Error>) -> Void)? = nil) {
         if case .apptentive = self.theme {
             ApptentiveLogger.interaction.info("Using Apptentive theme for interaction UI.")
-            self.applyApptentiveTheme()
+            DispatchQueue.main.async {
+                self.applyApptentiveTheme()
+            }
         }
 
         if !self.environment.isTesting {
@@ -330,7 +332,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// - Parameters:
     ///   - fileData: The contents of the file.
     ///   - mediaType: The media type for the file.
-    @objc(sendAttachmentData:mimeType:)
+    @objc(sendAttachmentFile:withMimeType:)
     public func sendAttachment(_ fileData: Data, mediaType: String) {
         var filename = "file"
 

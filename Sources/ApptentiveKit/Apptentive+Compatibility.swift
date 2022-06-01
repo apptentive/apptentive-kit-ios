@@ -178,6 +178,11 @@ extension Apptentive {
         completion(false)
     }
 
+    @objc(presentMessageCenterFromViewController:)
+    public func presentMessageCenterCompat(from viewController: UIViewController?) {
+        self.presentMessageCenter(from: viewController)
+    }
+
     @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
     @objc(presentMessageCenterFromViewController:completion:)
     public func presentMessageCenterCompat(from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
