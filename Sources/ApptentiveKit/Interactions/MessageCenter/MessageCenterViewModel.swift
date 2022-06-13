@@ -51,7 +51,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     public let headingTitle: String
 
     /// Text for branding watermark, where "Apptentive" is replaced with the logo image.
-    public let branding: String
+    public let branding: String?
 
     /// The title for the composer window.
     public let composerTitle: String
