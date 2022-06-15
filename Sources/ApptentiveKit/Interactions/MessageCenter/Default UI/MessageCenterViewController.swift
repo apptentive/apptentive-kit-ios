@@ -350,19 +350,16 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
         self.tableView.endUpdates()
-        if self.viewModel.oldestUnreadMessage == nil {
-            self.scrollToBottom(false)
-        }
+
+        self.scrollToRelevantMessage(false)
     }
 
     func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel) {
         self.tableView.reloadData()
         self.updateFooter()
 
-        self.tableView.reloadData()
-
-        if self.isViewLoaded && !self.viewModel.shouldRequestProfile {
-            self.scrollToBottom(false)
+        if !self.viewModel.shouldRequestProfile {
+            self.scrollToRelevantMessage(false)
         }
     }
 
@@ -382,7 +379,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
                 return self.tableView
 
             default:
-                apptentiveCriticalError("Expected sent, received, or automated message cell")
+                assertionFailure("Expected sent, received, or automated message cell")
                 return self.tableView
             }
         }()
@@ -555,15 +552,11 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
     }
 
-    @objc func scrollToBottom(_ animated: Bool) {
+    @objc func scrollToRelevantMessage(_ animated: Bool) {
         self.initialScrollToBottomCompleted = true
 
-        DispatchQueue.main.async {
-            if let oldestUnreadIndexPath = self.viewModel.oldestUnreadMessage {
-                self.tableView.scrollToRow(at: oldestUnreadIndexPath, at: .top, animated: animated)
-            } else {
-                self.tableView.scrollToBottom()
-            }
+        guard let scrollTargetIndexPath = self.viewModel.oldestUnreadMessageIndexPath ?? self.viewModel.newestMessageIndexPath else {
+            return
         }
 
         self.tableView.scrollToRow(at: scrollTargetIndexPath, at: .top, animated: animated)
@@ -748,23 +741,5 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         } else {
             animations()
         }
-    }
-}
-
-extension UITableView {
-    func scrollToBottom() {
-
-        let lastSectionIndex = self.numberOfSections - 1
-        if lastSectionIndex < 0 {
-            return
-        }
-
-        let lastRowIndex = self.numberOfRows(inSection: lastSectionIndex) - 1
-        if lastRowIndex < 0 {
-            return
-        }
-
-        let pathToLastRow = IndexPath(row: lastRowIndex, section: lastSectionIndex)
-        self.scrollToRow(at: pathToLastRow, at: .bottom, animated: true)
     }
 }
