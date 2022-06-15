@@ -213,11 +213,16 @@ class Environment: GlobalEnvironment {
 
         self.appDisplayName = possibleDisplayNames.compactMap { $0 }.first ?? "App"
 
-        #if canImport(CoreTelephony)
-            self.telephonyNetworkInfo = CTTelephonyNetworkInfo()
-            if #available(iOS 12.0, *) {
-                if let carriers = telephonyNetworkInfo.serviceSubscriberCellularProviders, carriers.count > 0 {
-                    self.carrier = carriers.values.compactMap({ $0.carrierName }).joined(separator: "|")
+        #if targetEnvironment(macCatalyst)
+        #else
+            #if canImport(CoreTelephony)
+                self.telephonyNetworkInfo = CTTelephonyNetworkInfo()
+                if #available(iOS 12.0, *) {
+                    if let carriers = telephonyNetworkInfo.serviceSubscriberCellularProviders, carriers.count > 0 {
+                        self.carrier = carriers.values.compactMap({ $0.carrierName }).joined(separator: "|")
+                    }
+                } else {
+                    self.carrier = telephonyNetworkInfo.subscriberCellularProvider?.carrierName
                 }
             #endif
         #endif
