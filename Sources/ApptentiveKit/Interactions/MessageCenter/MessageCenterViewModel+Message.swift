@@ -110,20 +110,24 @@ extension MessageCenterViewModel {
         /// An attachment that can be associated with a message.
         public class Attachment: NSObject, QLPreviewItem {
             /// The file extension to show as a placeholder.
-            let fileExtension: String?
+            public let fileExtension: String?
+
+            internal var thumbnailData: Data?
 
             /// The thumbnail image for the attachment, if any.
-            var thumbnail: UIImage?
+            public var thumbnail: UIImage? {
+                return self.thumbnailData.flatMap { UIImage(data: $0) }
+            }
 
             /// The attachment download progress from 0 to 1.
-            var downloadProgress: Float
+            public var downloadProgress: Float
 
             /// The file URL on the device where the attachment is cached.
-            var localURL: URL?
+            public var localURL: URL?
 
             internal init(fileExtension: String?, thumbnailData: Data?, localURL: URL?, downloadProgress: Float) {
                 self.fileExtension = fileExtension
-                self.thumbnail = thumbnailData.flatMap { UIImage(data: $0) }
+                self.thumbnailData = thumbnailData
                 self.localURL = localURL
                 self.downloadProgress = downloadProgress
             }

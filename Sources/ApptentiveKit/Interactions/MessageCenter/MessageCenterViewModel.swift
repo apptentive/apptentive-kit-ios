@@ -201,8 +201,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     }
 
     ///  The index path corresponding to the oldest unread message.
-    public var oldestUnreadMessage: IndexPath? {
-
+    public var oldestUnreadMessageIndexPath: IndexPath? {
         //oldest group that contains an unread message
         let oldestUnreadMessageGroupSection = self.groupedMessages.firstIndex { messages in
             for message in messages {
@@ -233,6 +232,15 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         let indexPath = IndexPath(row: row, section: section)
         return indexPath
 
+    }
+
+    /// The index path of the newest (last) message.
+    public var newestMessageIndexPath: IndexPath? {
+        guard let lastGroup = self.groupedMessages.last, lastGroup.count > 0 else {
+            return nil
+        }
+
+        return IndexPath(row: lastGroup.count - 1, section: self.groupedMessages.count - 1)
     }
 
     /// Saves changes from the `name` and `emailAddress` properties to the interactionDelegate.
