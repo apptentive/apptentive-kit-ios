@@ -63,6 +63,14 @@ Runs the swift-format linter on all swift files in repo
 
 Runs the swift-format formatter in-place on all swift files
 
+### ios documentation
+
+```sh
+[bundle exec] fastlane ios documentation
+```
+
+Rebuilds documentation
+
 ### ios framework
 
 ```sh
