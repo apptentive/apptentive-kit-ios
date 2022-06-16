@@ -32,7 +32,6 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         super.init(style: .grouped)
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        self.viewModel.delegate = self
     }
 
     deinit {
@@ -115,14 +114,6 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.updateProfileValidation(strict: self.viewModel.emailAddress?.isEmpty == false)
         self.tableView.separatorColor = .clear
-
-        self.viewModel.delegate = self
-
-        self.messageCenterViewModelDraftMessageDidUpdate(self.viewModel)
-
-        if self.viewModel.hasLoadedMessages {
-            self.messageCenterViewModelMessageListDidLoad(self.viewModel)
-        }
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -136,8 +127,25 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         super.viewDidLayoutSubviews()
 
         if !self.initialScrollToBottomCompleted {
+            self.messageCenterViewModelDraftMessageDidUpdate(self.viewModel)
+
+            if self.viewModel.hasLoadedMessages {
+                self.messageCenterViewModelMessageListDidLoad(self.viewModel)
+            }
+
+            self.viewModel.delegate = self
+
             self.sizeHeaderFooterViews()
-            self.scrollToBottom(false)
+            self.scrollToRelevantMessage(false)
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if let argument = self.accessibilityArgument {
+            UIAccessibility.post(notification: .layoutChanged, argument: argument)
+            self.accessibilityArgument = nil
         }
     }
 
@@ -328,32 +336,45 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
         self.tableView.endUpdates()
-        if self.viewModel.oldestUnreadMessage == nil {
-            self.scrollToBottom(false)
-        }
+
+        self.scrollToRelevantMessage(false)
     }
 
     func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel) {
+        self.tableView.reloadData()
         self.updateFooter()
 
-        self.tableView.reloadData()
-
-        if self.isViewLoaded && !self.viewModel.shouldRequestProfile {
-            self.scrollToBottom(false)
+        if !self.viewModel.shouldRequestProfile {
+            self.scrollToRelevantMessage(false)
         }
     }
 
-    func postAccessibilityNotificationForLastMessage() {
-        if self.viewModel.numberOfMessageGroups > 0 && self.viewModel.numberOfMessagesInGroup(at: self.viewModel.numberOfMessageGroups - 1) > 0 {
-            let lastIndexPath = IndexPath(row: self.viewModel.numberOfMessagesInGroup(at: self.viewModel.numberOfMessageGroups - 1) - 1, section: self.viewModel.numberOfMessageGroups - 1)
-            let lastTableViewCell = self.tableView.cellForRow(at: lastIndexPath)
+    func postAccessibilityNotification(for indexPath: IndexPath) {
+        let argument: UIView = {
+            switch self.tableView.cellForRow(at: indexPath) {
+            case let receivedCell as MessageReceivedCell:
+                return receivedCell.messageText
 
-            if let receivedCell = lastTableViewCell as? MessageReceivedCell {
-                UIAccessibility.post(notification: .layoutChanged, argument: receivedCell.messageText)
-            } else if let sentCell = lastTableViewCell as? MessageSentCell {
-                UIAccessibility.post(notification: .layoutChanged, argument: sentCell.messageText)
+            case let sentCell as MessageSentCell:
+                return sentCell.messageText
+
+            case let automatedCell as AutomatedMessageCell:
+                return automatedCell.messageText
+
+            case .none:
+                return self.tableView
+
+            default:
+                assertionFailure("Expected sent, received, or automated message cell")
+                return self.tableView
             }
-        }
+        }()
+
+        // Notify when a new message arrives.
+        UIAccessibility.post(notification: .screenChanged, argument: argument)
+
+        // The previous call gets overridden when first loading, so make sure to re-post in viewDidAppear.
+        self.accessibilityArgument = argument
     }
 
     func messageCenterViewModelDraftMessageDidUpdate(_: MessageCenterViewModel) {
@@ -496,6 +517,8 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     private var initialScrollToBottomCompleted = false
 
+    private var accessibilityArgument: UIView?
+
     private static let draftMessageTag: Int = 0xFFFF
 
     private var previewedMessage: MessageCenterViewModel.Message?
@@ -515,18 +538,16 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
     }
 
-    private func scrollToBottom(_ animated: Bool) {
+    @objc func scrollToRelevantMessage(_ animated: Bool) {
         self.initialScrollToBottomCompleted = true
 
-        DispatchQueue.main.async {
-            if let oldestUnreadIndexPath = self.viewModel.oldestUnreadMessage {
-                self.tableView.scrollToRow(at: oldestUnreadIndexPath, at: .top, animated: animated)
-            } else {
-                self.tableView.scrollToBottom()
-            }
+        guard let scrollTargetIndexPath = self.viewModel.oldestUnreadMessageIndexPath ?? self.viewModel.newestMessageIndexPath else {
+            return
         }
 
-        self.postAccessibilityNotificationForLastMessage()
+        self.tableView.scrollToRow(at: scrollTargetIndexPath, at: .top, animated: animated)
+
+        self.postAccessibilityNotification(for: scrollTargetIndexPath)
     }
 
     private func updateFooter() {
@@ -709,20 +730,3 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     }
 }
 
-extension UITableView {
-    func scrollToBottom() {
-
-        let lastSectionIndex = self.numberOfSections - 1
-        if lastSectionIndex < 0 {
-            return
-        }
-
-        let lastRowIndex = self.numberOfRows(inSection: lastSectionIndex) - 1
-        if lastRowIndex < 0 {
-            return
-        }
-
-        let pathToLastRow = IndexPath(row: lastRowIndex, section: lastSectionIndex)
-        self.scrollToRow(at: pathToLastRow, at: .bottom, animated: true)
-    }
-}

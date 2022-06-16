@@ -86,10 +86,18 @@ extension Apptentive {
 
     var messageManagerDelegate: MessageManagerDelegate? {
         get {
-            self.backend.messageManager.delegate
+            var result: MessageManagerDelegate?
+
+            self.backendQueue.sync {
+                result = self.backend.messageManager.delegate
+            }
+
+            return result
         }
         set {
-            self.backend.messageManager.delegate = newValue
+            self.backendQueue.async {
+                self.backend.messageManager.delegate = newValue
+            }
         }
     }
 

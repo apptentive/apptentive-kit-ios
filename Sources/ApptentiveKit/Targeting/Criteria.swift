@@ -235,10 +235,10 @@ enum ConditionalOperator: String {
         // Comparison operators
         case (_, _ as Bool, _ as Int):
             return false
-        case (_, let value as Float, let parameter as Float):
+        case (_, let value as Double, let parameter as Double):
             return compare(value, with: parameter)
-        case (_, let value as Int, let parameter as Int):
-            return compare(value, with: parameter)
+        case (_, let value as Int, let parameter as Double):
+            return compare(Double(value), with: parameter)
         case (_, let value as Date, let parameter as Date):
             return compare(value, with: parameter)
         case (_, let value as Version, let parameter as Version):

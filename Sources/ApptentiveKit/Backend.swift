@@ -19,9 +19,6 @@ class Backend {
     /// The `Apptentive` instance that owns this `Backend` instance.
     weak var frontend: Apptentive?
 
-    /// A Message Manager object which is initialized on launch.
-    public var messageManager: MessageManager
-
     /// Indicates the source of the conversation credentials when calling `connect(appCredentials:baseURL:completion:)`.
     enum ConnectionType {
 
@@ -47,6 +44,12 @@ class Backend {
         }
     }
 
+    /// A Message Manager object which is initialized on launch.
+    var messageManager: MessageManager
+
+    /// The object that determines whether an interaction should be presented when an event is engaged.
+    var targeter: Targeter
+
     var messageFetchCompletionHandler: ((UIBackgroundFetchResult) -> Void)? {
         didSet {
             if self.messageFetchCompletionHandler != nil {
@@ -59,9 +62,6 @@ class Backend {
 
     /// The saver used to load and save the conversation from/to persistent storage.
     private var conversationSaver: PropertyListSaver<Conversation>?
-
-    /// The object that determines whether an interaction should be presented when an event is engaged.
-    private var targeter: Targeter
 
     private var payloadSender: PayloadSender
 
@@ -221,6 +221,7 @@ class Backend {
 
     func willEnterForeground(environment: GlobalEnvironment) {
         self.invalidateEngagementManifestForDebug(environment: environment)
+        Payload.context.startSession()
         self.payloadSender.resume()
         self.resumePersistenceTimer()
         self.messageManager.forceMessageDownload = true
@@ -233,6 +234,7 @@ class Backend {
 
         self.payloadSender.drain {
             DispatchQueue.main.async {
+                Payload.context.endSession()
                 environment.endBackgroundTask()
             }
         }

@@ -10,7 +10,7 @@ import Foundation
 
 @objc(ApptentiveRandom)
 class LegacyRandom: NSObject, NSSecureCoding {
-    let randomValues: [String: Float]?
+    let randomValues: [String: Double]?
 
     static var supportsSecureCoding: Bool {
         return true
@@ -21,7 +21,7 @@ class LegacyRandom: NSObject, NSSecureCoding {
     }
 
     required init?(coder: NSCoder) {
-        if let randomValues = coder.decodeObject(of: [NSDictionary.self, NSString.self, NSNumber.self], forKey: NSCodingKeys.randomValues) as? [String: Float]? {
+        if let randomValues = coder.decodeObject(of: [NSDictionary.self, NSString.self, NSNumber.self], forKey: NSCodingKeys.randomValues) as? [String: Double]? {
             self.randomValues = randomValues
         } else {
             self.randomValues = nil

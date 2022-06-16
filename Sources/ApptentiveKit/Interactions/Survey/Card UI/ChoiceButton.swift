@@ -15,4 +15,15 @@ class ChoiceButton: UIButton {
 
         return CGSize(width: superSize.width, height: height)
     }
+
+    override var isSelected: Bool {
+        didSet {
+            if self.isHighlighted {
+                self.tintColor = .apptentiveImageSelected
+            } else {
+                self.tintColor = .apptentiveImageNotSelected
+            }
+
+        }
+    }
 }

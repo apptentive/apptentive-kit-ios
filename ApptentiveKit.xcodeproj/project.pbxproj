@@ -38,7 +38,7 @@
 		0130E80C25D326CF004B2895 /* HTTPRequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0130E80B25D326CF004B2895 /* HTTPRequestRetrierTests.swift */; };
 		0130E81225D327B9004B2895 /* SpyRequestor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0130E81125D327B9004B2895 /* SpyRequestor.swift */; };
 		01324C5027E126BC00225B59 /* AutomatedMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01324C4F27E126BC00225B59 /* AutomatedMessageCell.swift */; };
-		013877C82603002100F3462A /* Apptentive+TemporaryAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */; };
+		013877C82603002100F3462A /* Apptentive+Debugging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013877C72603002100F3462A /* Apptentive+Debugging.swift */; };
 		013D8E0B24EEFA13005EC4D1 /* SurveyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */; };
 		013D8E0C24EEFA13005EC4D1 /* InteractionPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */; };
 		013D8E0D24EEFA13005EC4D1 /* InteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */; };
@@ -277,7 +277,7 @@
 		0130E81125D327B9004B2895 /* SpyRequestor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpyRequestor.swift; sourceTree = "<group>"; };
 		01324C4F27E126BC00225B59 /* AutomatedMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomatedMessageCell.swift; sourceTree = "<group>"; };
 		013877BD2602FFBF00F3462A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Apptentive+TemporaryAPI.swift"; sourceTree = "<group>"; };
+		013877C72603002100F3462A /* Apptentive+Debugging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Apptentive+Debugging.swift"; sourceTree = "<group>"; };
 		013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyViewModelTests.swift; sourceTree = "<group>"; };
 		013D8DE124EEFA13005EC4D1 /* InteractionPresenterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractionPresenterTests.swift; sourceTree = "<group>"; };
 		013D8DE224EEFA13005EC4D1 /* InteractionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractionTests.swift; sourceTree = "<group>"; };
@@ -848,7 +848,7 @@
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */,
 				011B67062759BCD300148290 /* Apptentive+Push.swift */,
-				013877C72603002100F3462A /* Apptentive+TemporaryAPI.swift */,
+				013877C72603002100F3462A /* Apptentive+Debugging.swift */,
 				EF9B2C72265D79110044D2E2 /* UIWindow+TopViewController.swift */,
 				0165B80B258181CF001DF54E /* Apptentive+Theme.swift */,
 				013D8EB824F5C99B005EC4D1 /* Backend.swift */,
@@ -1328,7 +1328,7 @@
 				014304012722305C00A07F79 /* MessageComposeView.swift in Sources */,
 				0126ECDA2739DC1B0037EEC3 /* HTTPBodyPart.swift in Sources */,
 				EF9F405B2711624D005D7209 /* MessageCenterViewModel.swift in Sources */,
-				013877C82603002100F3462A /* Apptentive+TemporaryAPI.swift in Sources */,
+				013877C82603002100F3462A /* Apptentive+Debugging.swift in Sources */,
 				017230EC253673960095AEAA /* Field.swift in Sources */,
 				011C64D3264D881400219243 /* Answer.swift in Sources */,
 				EF0E661627229687007A6457 /* GreetingHeaderView.swift in Sources */,

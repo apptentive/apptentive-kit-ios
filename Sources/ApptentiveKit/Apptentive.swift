@@ -17,7 +17,11 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     @objc public static let shared = Apptentive()
 
     /// An object that overrides the `InteractionPresenter` class used to display interactions to the user.
-    public var interactionPresenter: InteractionPresenter
+    public var interactionPresenter: InteractionPresenter {
+        didSet {
+            self.interactionPresenter.delegate = self
+        }
+    }
 
     /// The theme to apply to Apptentive UI.
     ///
@@ -206,7 +210,9 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     public func register(with credentials: AppCredentials, completion: ((Result<Void, Error>) -> Void)? = nil) {
         if case .apptentive = self.theme {
             ApptentiveLogger.interaction.info("Using Apptentive theme for interaction UI.")
-            self.applyApptentiveTheme()
+            DispatchQueue.main.async {
+                self.applyApptentiveTheme()
+            }
         }
 
         if !self.environment.isTesting {
@@ -237,10 +243,14 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
     }
 
-    /// Contains the credentials necessary to connect to the Apptentive API.
+    /// Contains the app-level credentials necessary to connect to the Apptentive API.
     public struct AppCredentials: Codable, Equatable {
-        let key: String
-        let signature: String
+
+        /// The Apptentive App Key (found in the API & Development section of the Settings tab in the Apptentive Dashboard).
+        public let key: String
+
+        /// The Apptentive App Signature (found in the API & Development section of the Settings tab in the Apptentive Dashboard).
+        public let signature: String
 
         /// Creates a new `AppCredentials` object.
         /// - Parameters:
@@ -326,7 +336,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// - Parameters:
     ///   - fileData: The contents of the file.
     ///   - mediaType: The media type for the file.
-    @objc(sendAttachmentData:mimeType:)
+    @objc(sendAttachmentFile:withMimeType:)
     public func sendAttachment(_ fileData: Data, mediaType: String) {
         var filename = "file"
 
@@ -399,6 +409,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             self.backendQueue.async {
                 self.backend.invalidateEngagementManifestForDebug(environment: self.environment)
                 self.backend.messageManager.forceMessageDownload = true
+                Payload.context.startSession()
             }
         }
 

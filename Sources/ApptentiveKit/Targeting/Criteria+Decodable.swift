@@ -95,8 +95,8 @@ private func decodeUnkeyedSubClauses(from decoder: Decoder) throws -> [CriteriaC
 private func decodeSimpleParameter(from container: SingleValueDecodingContainer) throws -> AnyObject? {
     if let int = try? container.decode(Int.self) {
         return int as AnyObject
-    } else if let float = try? container.decode(Float.self) {
-        return float as AnyObject
+    } else if let double = try? container.decode(Double.self) {
+        return double as AnyObject
     } else if let bool = try? container.decode(Bool.self) {
         return bool as AnyObject
     } else if let string = try? container.decode(String.self) {

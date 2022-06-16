@@ -5,7 +5,6 @@
      "version": 2,
      "configuration": {
        "title": "Message Center",
-       "branding": "Powered by Apptentive",
        "composer": {
          "title": "New Message",
          "hint_text": "Please leave detailed feedback",

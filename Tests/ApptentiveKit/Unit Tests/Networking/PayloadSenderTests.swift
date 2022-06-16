@@ -21,6 +21,29 @@ class PayloadSenderTests: XCTestCase {
         self.payloadSender = PayloadSender(requestRetrier: self.requestRetrier, notificationCenter: self.notificationCenter)
     }
 
+    func testSessionID() throws {
+        Payload.context.startSession()
+
+        let payloadWithSession = Payload(wrapping: "test1")
+
+        Payload.context.endSession()
+
+        let payloadWithoutSession = Payload(wrapping: "test2")
+
+        Payload.context.startSession()
+
+        let payloadWithOtherSession = Payload(wrapping: "test3")
+
+        XCTAssertNotNil(payloadWithSession.jsonObject.sessionID)
+        XCTAssertNil(payloadWithoutSession.jsonObject.sessionID)
+        XCTAssertNotEqual(payloadWithSession.jsonObject.sessionID, payloadWithOtherSession.jsonObject.sessionID)
+
+        let encodedPayload = try JSONEncoder().encode(payloadWithSession)
+        let decodedPayload = try JSONDecoder().decode(Payload.self, from: encodedPayload)
+
+        XCTAssertNotNil(decodedPayload.jsonObject.sessionID)
+    }
+
     func testNormalOperation() throws {
         self.payloadSender.saver = self.saver
 

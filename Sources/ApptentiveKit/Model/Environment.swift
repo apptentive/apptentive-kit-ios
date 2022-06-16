@@ -155,9 +155,12 @@ class Environment: GlobalEnvironment {
     /// The dynamic text size selected by the user.
     var contentSizeCategory: UIContentSizeCategory
 
-    #if canImport(CoreTelephony)
-        /// The current telephony network information.
-        let telephonyNetworkInfo: CTTelephonyNetworkInfo
+    #if targetEnvironment(macCatalyst)
+    #else
+        #if canImport(CoreTelephony)
+            /// The current telephony network information.
+            let telephonyNetworkInfo: CTTelephonyNetworkInfo
+        #endif
     #endif
 
     /// Whether the application is in the foreground.
@@ -205,15 +208,18 @@ class Environment: GlobalEnvironment {
 
         self.appDisplayName = possibleDisplayNames.compactMap { $0 }.first ?? "App"
 
-        #if canImport(CoreTelephony)
-            self.telephonyNetworkInfo = CTTelephonyNetworkInfo()
-            if #available(iOS 12.0, *) {
-                if let carriers = telephonyNetworkInfo.serviceSubscriberCellularProviders, carriers.count > 0 {
-                    self.carrier = carriers.values.compactMap({ $0.carrierName }).joined(separator: "|")
+        #if targetEnvironment(macCatalyst)
+        #else
+            #if canImport(CoreTelephony)
+                self.telephonyNetworkInfo = CTTelephonyNetworkInfo()
+                if #available(iOS 12.0, *) {
+                    if let carriers = telephonyNetworkInfo.serviceSubscriberCellularProviders, carriers.count > 0 {
+                        self.carrier = carriers.values.compactMap({ $0.carrierName }).joined(separator: "|")
+                    }
+                } else {
+                    self.carrier = telephonyNetworkInfo.subscriberCellularProvider?.carrierName
                 }
-            } else {
-                self.carrier = telephonyNetworkInfo.subscriberCellularProvider?.carrierName
-            }
+            #endif
         #endif
 
         self.osBuild = Version(string: Sysctl.osVersion)
