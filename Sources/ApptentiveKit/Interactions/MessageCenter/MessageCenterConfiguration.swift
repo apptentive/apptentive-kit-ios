@@ -14,7 +14,7 @@ import Foundation
 /// of the engagement manfiest. The view model receives this object in its initializer and then sets these values in the MesssageCenterViewModel.
 struct MessageCenterConfiguration: Codable {
     let title: String
-    let branding: String
+    let branding: String?
     let composer: Composer
     let greeting: Greeting
     let status: Status
