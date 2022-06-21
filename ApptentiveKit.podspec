@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name             = "ApptentiveKit"
-  spec.version          = "6.0.2"
+  spec.version          = "6.0.3"
   spec.summary          = "Apptentive Customer Communications SDK."
   spec.homepage         = "https://www.apptentive.com/"
   spec.license          = "BSD"
