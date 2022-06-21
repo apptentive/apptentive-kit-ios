@@ -86,6 +86,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         if let headerLogo = UIImage.apptentiveHeaderLogo {
             let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
+            headerImageView.contentMode = .scaleAspectFit
             self.navigationItem.titleView = headerImageView
         } else {
             self.navigationItem.title = self.viewModel.name

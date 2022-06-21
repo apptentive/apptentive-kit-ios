@@ -1,12 +1,35 @@
+# 2022-06-16 - 6.0.3
+
+#### New & Improved
+
+- Added additional customization properties:
+  - `CGFloat.apptentiveButtonBorderWidth`
+  - `UIColor.apptentiveSubmitButtonBorder`
+- Renamed the `UIColor` and `UIFont` extension properties from `apptentiveSubmitLabel` to `apptentiveSubmitStatusLabel` (the old name is still present but deprecated)
+- Marked the `key` and `signature` properties on `Apptentive.AppCredentials` as `public` (to facilitate testing code that creates a credentials object)
+- Added `@objc` annotations to interaction UI customization parameters
+- Added appropriate guards to allow the SDK to compile for Mac Catalyst targets*
+
+*We recommend that your code avoid any calls to ApptentiveKit methods when running in a Mac Catalyst app, since some interactions are not currently usable in a desktop environment. 
+
+#### Bugs Fixed
+
+- Fixed a layout issue in Message Center
+- Corrected Objective-C method signatures for better backward compatibility with previous iOS SDK versions
+- Fixed an issue with using non-integer parameters in targeting criteria
+- Fixed a bug where a branding setting could cause a Message Center interaction to fail to decode
+- Adjusted the text size in range controls to allow them to display properly on smaller devices
+- Fixed an issue where setting a value for `Apptentive.interactionPresenter` did not set its (internal) `interactionDelegate` property
+
 # 2022-05-05 - 6.0.2
 
-#### New & Improved:
+#### New & Improved
 
 - Increased the contrast between the numbers and background for NPS/range inputs in Surveys
 - Increased the available space the “Thank You” message in Surveys
 - Increased the reliability of parsing interaction configurations
 
-#### Bugs fixed:
+#### Bugs fixed
 
 - Fixed the layout of extremely long messages/conversations in Message Center
 
