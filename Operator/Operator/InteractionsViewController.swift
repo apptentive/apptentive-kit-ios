@@ -13,17 +13,8 @@ class InteractionsViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        if let manifestName = UserDefaults.standard.string(forKey: "OverrideManifest"),
-           let interactionsDirectoryURL = Bundle.main.url(forResource: "Manifests", withExtension: "")
-        {
-            self.apptentive.loadEngagementManifest(at: interactionsDirectoryURL.appendingPathComponent(manifestName).appendingPathExtension("json")) { _ in
-                self.loadInteractions()
-                self.updatePrompt()
-            }
-        } else {
-            self.loadInteractions()
-            self.updatePrompt()
-        }
+        self.loadInteractions()
+        self.updatePrompt()
     }
 
     // MARK: UITableViewDataSource
@@ -44,10 +35,8 @@ class InteractionsViewController: UITableViewController {
         return cell
     }
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        try? self.apptentive.presentInteraction(self.interactions[indexPath.row].1, from: self)
-
-        self.tableView.deselectRow(at: indexPath, animated: true)
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return InteractionType(rawValue: interactionGroupNames[section])?.displayName ?? "Unknown"
     }
 
     // MARK: UITableViewDelegate

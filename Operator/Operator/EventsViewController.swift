@@ -10,37 +10,10 @@ import ApptentiveKit
 import UIKit
 
 class EventsViewController: UITableViewController, CustomDataDataSourceDelegate {
-    private static let eventsKey = "Events"
-    private static let customDataKey = "EventCustomData"
-
-    var customData = CustomData() {
-        didSet {
-            for key in self.customData.keys {
-                self.underlyingCustomData[key] = self.customData[key]
-            }
-
-            for removedKey in Set(self.customData.keys).subtracting(self.customData.keys) {
-                self.underlyingCustomData.removeValue(forKey: removedKey)
-            }
-        }
-    }
-
-    var underlyingCustomData = [String: Any]() {
-        didSet {
-            UserDefaults.standard.set(self.underlyingCustomData, forKey: Self.customDataKey)
-        }
-    }
-
-    private var events: [String]! {
-        didSet {
-            UserDefaults.standard.setValue(self.events, forKey: Self.eventsKey)
-        }
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.events = UserDefaults.standard.array(forKey: Self.eventsKey) as? [String] ?? []
+        self.customEvents = UserDefaults.standard.array(forKey: Self.eventsKey) as? [String] ?? []
         self.underlyingCustomData = UserDefaults.standard.dictionary(forKey: Self.customDataKey) ?? [:]
 
         for (key, value) in self.underlyingCustomData {
@@ -67,16 +40,18 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
         NotificationCenter.default.addObserver(self, selector: #selector(eventEngaged), name: Notification.Name.apptentiveEventEngaged, object:nil)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        self.loadEvents()
+
+        self.updatePrompt()
+    }
+
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
 
         self.tableView.reloadSections(IndexSet(integer: 0), with: .bottom)
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        self.navigationItem.prompt = self.customData.keys.count > 0 ? "Events will be engaged with Custom Data" : nil
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -125,7 +100,7 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "Event", for: indexPath)
 
-            cell.textLabel?.text = self.events[indexPath.row]
+            cell.textLabel?.text = self.manifestEvents[indexPath.row]
 
             return cell
         }
@@ -143,7 +118,7 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
             let cell = tableView.cellForRow(at: indexPath) as! AddEventCell
 
             if let newEvent = cell.textField.text?.trimmingCharacters(in: .whitespacesAndNewlines), newEvent.count > 0 {
-                self.events.append(newEvent)
+                self.customEvents.append(newEvent)
                 tableView.insertRows(at: [indexPath], with: .bottom)
             }
         }
@@ -173,7 +148,7 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if !self.isEditing {
-            var event = Event(name: self.events[indexPath.row])
+            var event = indexPath.section == 0 ? Event(name: self.customEvents[indexPath.row]) : Event(name: self.manifestEvents[indexPath.row])
 
             if self.customData.keys.count > 0 {
                 event.customData = self.customData
@@ -184,6 +159,14 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
 
         tableView.deselectRow(at: indexPath, animated: true)
     }
+
+    // MARK: - Actions
+
+    @IBAction func reload(_ sender: UIBarButtonItem) {
+        self.loadEvents()
+    }
+
+    // MARK: - Notifications
     
     @objc func eventEngaged(notification: Notification) {
         if let eventName = notification.userInfo?["eventType"] {
@@ -191,17 +174,52 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
         }
     }
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "ShowEventCustomData" {
-            guard let customDataViewController = segue.destination as? CustomDataViewController else {
-                fatalError("Custom data segue should lead to custom data view controller")
+    // MARK: - Internal
+
+    internal var customData = CustomData() {
+        didSet {
+            for key in self.customData.keys {
+                self.underlyingCustomData[key] = self.customData[key]
             }
 
-            let dataSource = CustomDataDataSource(self.apptentive)
-            dataSource.customData = self.customData
-            dataSource.delegate = self
+            for removedKey in Set(self.customData.keys).subtracting(self.customData.keys) {
+                self.underlyingCustomData.removeValue(forKey: removedKey)
+            }
+        }
+    }
 
-            customDataViewController.dataSource = dataSource
+    // MARK: - Private
+
+    private static let eventsKey = "Events"
+    private static let customDataKey = "EventCustomData"
+
+    private func updatePrompt() {
+        if let manifestOverride = self.apptentive.engagementManifestURL?.lastPathComponent {
+            self.navigationItem.prompt = "Using “\(manifestOverride)” Manifest"
+        } else {
+            self.navigationItem.prompt = nil
+        }
+    }
+
+    private var underlyingCustomData = [String: Any]() {
+        didSet {
+            UserDefaults.standard.set(self.underlyingCustomData, forKey: Self.customDataKey)
+        }
+    }
+
+    private var customEvents: [String]! {
+        didSet {
+            UserDefaults.standard.setValue(self.customEvents, forKey: Self.eventsKey)
+        }
+    }
+
+    private var manifestEvents = [String]()
+
+    private func loadEvents() {
+        self.apptentive.getEventList { events in
+            self.manifestEvents = events
+
+            self.tableView.reloadData()
         }
     }
 }
