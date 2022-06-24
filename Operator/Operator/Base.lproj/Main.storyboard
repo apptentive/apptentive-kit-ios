@@ -13,30 +13,22 @@
         <scene sceneID="Iup-Vg-Kxg">
             <objects>
                 <tableViewController id="JbX-vn-CvK" customClass="InteractionsViewController" customModule="Operator" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="avo-ug-pWF">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" id="avo-ug-pWF">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Interaction" textLabel="40y-w3-ZgR" detailTextLabel="CQb-ZG-fCF" style="IBUITableViewCellStyleValue1" id="tLx-jv-PkX">
-                                <rect key="frame" x="0.0" y="44.5" width="414" height="43.5"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Interaction" textLabel="40y-w3-ZgR" style="IBUITableViewCellStyleDefault" id="tLx-jv-PkX">
+                                <rect key="frame" x="20" y="49.5" width="374" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="tLx-jv-PkX" id="Ele-zD-Xs3">
-                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="374" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="40y-w3-ZgR">
-                                            <rect key="frame" x="20" y="14" width="28.5" height="17"/>
+                                            <rect key="frame" x="20" y="0.0" width="334" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
-                                            <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
-                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" id="CQb-ZG-fCF">
-                                            <rect key="frame" x="356.5" y="14" width="37.5" height="17"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                            <color key="textColor" systemColor="secondaryLabelColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
@@ -49,7 +41,12 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Interactions" id="wYm-fi-Xuz">
-                        <barButtonItem key="rightBarButtonItem" title="Item" image="point.3.connected.trianglepath.dotted" catalog="system" id="g0g-w8-X34">
+                        <barButtonItem key="leftBarButtonItem" systemItem="refresh" id="Q09-TZ-qPX">
+                            <connections>
+                                <action selector="reload:" destination="JbX-vn-CvK" id="nGm-u7-ooV"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="bookmarks" id="g0g-w8-X34">
                             <connections>
                                 <segue destination="met-be-kpf" kind="presentation" id="u9u-nG-DFX"/>
                             </connections>
@@ -136,7 +133,12 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Events" id="uyN-Rt-eY3">
-                        <barButtonItem key="leftBarButtonItem" title="Item" image="slider.horizontal.3" catalog="system" id="gNF-Pu-z4t">
+                        <barButtonItem key="leftBarButtonItem" systemItem="refresh" id="Lji-G5-bCu">
+                            <connections>
+                                <action selector="reload:" destination="uhZ-Kq-GZd" id="mQC-Qz-JaC"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="Item" image="slider.horizontal.3" catalog="system" id="gNF-Pu-z4t">
                             <connections>
                                 <segue destination="bMU-sQ-RuB" kind="show" identifier="ShowEventCustomData" id="0IW-b0-4hm"/>
                             </connections>
@@ -502,7 +504,7 @@
                     </tableView>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Messages" id="IdO-ww-w5h">
-                        <barButtonItem key="leftBarButtonItem" title="Item" image="slider.horizontal.3" catalog="system" id="jib-cq-iFd">
+                        <barButtonItem key="rightBarButtonItem" title="Item" image="slider.horizontal.3" catalog="system" id="jib-cq-iFd">
                             <connections>
                                 <segue destination="bMU-sQ-RuB" kind="show" identifier="ShowMessageCenterCustomData" id="e4d-Hd-ILS"/>
                             </connections>
@@ -785,16 +787,15 @@
         <scene sceneID="Tdn-50-a2D">
             <objects>
                 <tableViewController id="GLF-bI-SJp" customClass="ManifestsViewController" customModule="Operator" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="D7k-F4-Cze">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="insetGrouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" id="D7k-F4-Cze">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="manifest" id="A0h-3z-jaZ">
-                                <rect key="frame" x="0.0" y="44.5" width="414" height="43.5"/>
+                                <rect key="frame" x="20" y="49.5" width="374" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="A0h-3z-jaZ" id="YYY-Jg-RHy">
-                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="374" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                             </tableViewCell>
@@ -804,20 +805,16 @@
                             <outlet property="delegate" destination="GLF-bI-SJp" id="MkZ-to-Dxn"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Manifest Override" id="3bx-ZV-B0f" customClass="Mani">
-                        <barButtonItem key="leftBarButtonItem" systemItem="play" id="Dx8-Sy-j46">
+                    <navigationItem key="navigationItem" title="Manifest Override" id="3bx-ZV-B0f">
+                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="8dN-VK-tWY">
                             <connections>
-                                <action selector="launch" destination="GLF-bI-SJp" id="Siy-C9-leN"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="stop" id="8dN-VK-tWY">
-                            <connections>
-                                <action selector="dismiss" destination="GLF-bI-SJp" id="SF2-XQ-tzO"/>
+                                <segue destination="5Xs-b0-1Su" kind="unwind" unwindAction="doneChoosingManifestWithSender:" id="psq-zQ-OAS"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="agF-Ao-z5D" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="5Xs-b0-1Su" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="2481" y="505"/>
         </scene>
@@ -839,10 +836,9 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="e4d-Hd-ILS"/>
+        <segue reference="0IW-b0-4hm"/>
     </inferredMetricsTieBreakers>
     <resources>
-        <image name="point.3.connected.trianglepath.dotted" catalog="system" width="128" height="96"/>
         <image name="slider.horizontal.3" catalog="system" width="128" height="100"/>
         <systemColor name="secondaryLabelColor">
             <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>

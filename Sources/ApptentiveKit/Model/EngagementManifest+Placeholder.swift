@@ -16,7 +16,7 @@ extension EngagementManifest {
         let fallbackMessage = NSLocalizedString("MC Unavailable Message", tableName: nil, bundle: .module, value: "Make sure your device can access the internet and try again.", comment: "Message for note saying MC is unavailable")
         let fallbackButtonTitle = NSLocalizedString("MC Unavailable Dismiss Button", tableName: nil, bundle: .module, value: "OK", comment: "Dismiss button title for note saying MC is unavailable")
 
-        let configuration = TextModalConfiguration(title: fallbackTitle, body: fallbackMessage, actions: [.init(id: "dismiss", label: fallbackButtonTitle, actionType: .dismiss, invocations: [])])
+        let configuration = TextModalConfiguration(title: fallbackTitle, name: nil, body: fallbackMessage, actions: [.init(id: "dismiss", label: fallbackButtonTitle, actionType: .dismiss, invocations: [])])
         let fallbackInteraction = Interaction(id: fallbackInteractionID, configuration: .textModal(configuration), typeName: "TextModal")
         let fallbackInvocation = Invocation(interactionID: fallbackInteractionID, criteria: ImplicitAndClause(subClauses: []))
 

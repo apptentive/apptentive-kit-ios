@@ -10,6 +10,7 @@ import Foundation
 
 struct TextModalConfiguration: Decodable {
     let title: String?
+    let name: String?
     let body: String?
     let actions: [Action]
 

@@ -12,7 +12,6 @@
 		0118DD7126FBEDED00037E0E /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD7026FBEDED00037E0E /* MessagesViewController.swift */; };
 		0118DD8326FBF1C200037E0E /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD8226FBF1C200037E0E /* TextViewController.swift */; };
 		015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */; };
-		015F2ACA24C8EBB2004B53E2 /* Interactions in Resources */ = {isa = PBXBuildFile; fileRef = 015F2AC924C8EBB1004B53E2 /* Interactions */; };
 		0176156925D1D48700BB85C6 /* DataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0176156825D1D48700BB85C6 /* DataTableViewController.swift */; };
 		0188E39028130D4500C8B7D0 /* Version.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 0188E38F28130D4500C8B7D0 /* Version.xcconfig */; };
 		018B099A24577B15007450EA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018B099924577B15007450EA /* AppDelegate.swift */; };
@@ -131,7 +130,6 @@
 		0122AB4B265D7E13009C30AB /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		0122AB4C265D7E13009C30AB /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionsViewController.swift; sourceTree = "<group>"; };
-		015F2AC924C8EBB1004B53E2 /* Interactions */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Interactions; sourceTree = "<group>"; };
 		0176156825D1D48700BB85C6 /* DataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTableViewController.swift; sourceTree = "<group>"; };
 		0188E38F28130D4500C8B7D0 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		018B099624577B15007450EA /* Operator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Operator.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -202,7 +200,6 @@
 			isa = PBXGroup;
 			children = (
 				011B6708275B196600148290 /* Operator.entitlements */,
-				015F2AC924C8EBB1004B53E2 /* Interactions */,
 				01CBA930282B2E7500614A24 /* Manifests */,
 				01EB6C072477409C0067F4B9 /* README.md */,
 				018B099924577B15007450EA /* AppDelegate.swift */,
@@ -395,7 +392,6 @@
 				018B09A824577B17007450EA /* LaunchScreen.storyboard in Resources */,
 				018B09A524577B17007450EA /* Assets.xcassets in Resources */,
 				018B09A324577B15007450EA /* Main.storyboard in Resources */,
-				015F2ACA24C8EBB2004B53E2 /* Interactions in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

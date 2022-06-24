@@ -1,0 +1,898 @@
+{
+  "interactions": [
+    {
+      "type": "some random interaction",
+      "name": "not implemented",
+      "id": "textmodal_interaction_centered",
+      "priority": 1,
+      "configuration": {
+        "title": "Random",
+        "body": "Mauris morbi bibendum erat vestibulum nulla augue sociis in quis cras a hac suspendisse orci litora tellus feugiat feugiat non suspendisse natoque pharetra commodo augue.Natoque ullamcorper vestibulum nascetur dui dui erat ornare vestibulum suscipit porta curabitur fringilla vestibulum accumsan morbi cum adipiscing metus parturient.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "ONE",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "priority": 1,
+      "id": "apple_rating_dialog_interaction_1234567890",
+      "type": "AppleRatingDialog",
+      "configuration": {
+      "not_shown_interaction": "abc123456"
+      }
+    },
+    {
+      "priority": 1,
+      "id": "enjoyment_dialog_interaction_1234567890",
+      "type": "EnjoymentDialog",
+      "configuration": {
+        "title": "Do you love this app?",
+        "yes_text": "Yes",
+        "no_text": "No"
+      }
+    },
+    {
+        "id": "5f6a1a17a342601f9f000010",
+        "type": "Survey",
+        "version": 1,
+        "configuration": {
+            "description": "This survey only has freeform text questions.",
+            "from_template": "",
+            "multiple_responses": 1,
+            "name": "Freeform Survey",
+            "questions": [
+                {
+                    "error_message": "Error - There was a problem with your text answer.",
+                    "freeform_hint": "Please provide a response",
+                    "id": "5f6a1a17a342601f9f00000c",
+                    "multiline": false,
+                    "required": false,
+                    "type": "singleline",
+                    "value": "Short"
+                },
+                {
+                    "error_message": "Error - There was a problem with your text answer.",
+                    "freeform_hint": "Please provide a response",
+                    "id": "5f6a1a17a342601f9f00000d",
+                    "multiline": false,
+                    "required": true,
+                    "type": "singleline",
+                    "value": "Short Required"
+                },
+                {
+                    "error_message": "Error - There was a problem with your text answer.",
+                    "freeform_hint": "Please leave detailed feedback",
+                    "id": "5f6a1a17a342601f9f00000e",
+                    "multiline": true,
+                    "required": false,
+                    "type": "singleline",
+                    "value": "Long"
+                },
+                {
+                    "error_message": "Error - There was a problem with your text answer.",
+                    "freeform_hint": "Please leave detailed feedback",
+                    "id": "5f6a1a17a342601f9f00000f",
+                    "multiline": true,
+                    "required": true,
+                    "type": "singleline",
+                    "value": "Long Required"
+                }
+            ],
+            "required": false,
+            "required_text": "Required",
+            "show_success_message": true,
+            "submit_text": "Submit",
+            "success_message": "Thank you!",
+            "template_locked": false,
+            "title": "Freeform Survey",
+            "validation_error": "There are issues with your response.",
+            "view_period": 86400
+        }
+    },
+    {
+      "id": "55c94045a71b52ea570054d6",
+      "type": "MessageCenter",
+      "version": 2,
+      "configuration": {
+        "title": "Message Center",
+        "composer": {
+          "title": "New Message",
+          "hint_text": "Please leave detailed feedback",
+          "send_button": "Send",
+          "send_start": "Sending...",
+          "send_ok": "Sent",
+          "send_fail": "Failed",
+          "close_text": "Close",
+          "close_confirm_body": "Are you sure you want to discard this message?",
+          "close_discard_button": "Discard",
+          "close_cancel_button": "Cancel"
+        },
+        "greeting": {
+          "title": "Hello!",
+          "body": "We'd love to get feedback from you on our app. The more details you can provide, the better.",
+          "image_url": "https://apptentive-app-icons-production.s3.amazonaws.com/521f9bba68e2758b6d00098d_1443569347.png"
+        },
+        "status": {
+          "body": "We will respond to your message soon."
+        },
+        "automated_message": {
+          "body": "We're sorry that your experience didn’t live up to your expectations. Please tell us how we can make things right."
+        },
+        "error_messages": {
+          "http_error_body": "It looks like we're having trouble sending your message. We've saved it and will try sending it again soon.",
+          "network_error_body": "It looks like you aren't connected to the Internet right now. We've saved your message and will try again when we detect a connection."
+        },
+        "profile": {
+          "request": true,
+          "require": true,
+          "initial": {
+            "title": "Who are we speaking with?",
+            "name_hint": "Name",
+            "email_hint": "Email (required)",
+            "email_explanation": "So we're able to reply",
+            "skip_button": "Skip",
+            "save_button": "Next"
+          },
+          "edit": {
+            "title": "Profile",
+            "name_hint": "Name",
+            "email_hint": "Email",
+            "email_explanation": "So we're able to reply",
+            "skip_button": "Cancel",
+            "save_button": "Save"
+          }
+        }
+      }
+    },
+    {
+      "id": "54ab3c537724c52af3000017",
+      "type": "NavigateToLink",
+      "configuration": {
+        "url": "http://www.apptentive.com"
+      }
+    },
+    {
+      "id": "56e0b5d7c7199274f7000003",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "56e0b5d9c7199274f7000004",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f7000005",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000006",
+                "value": "B"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Multichoice Optional",
+            "type": "multichoice",
+          "error_message": "Error - There was a problem with your single-select answer.",
+            "required": false
+          },
+          {
+            "id": "56e0b5d9c7199274f7000007",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f7000008",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000009",
+                "value": "B"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Multichoice Required",
+            "type": "multichoice",
+          "error_message": "Error - There was a problem with your single-select answer.",
+            "required": true
+          },
+          {
+            "id": "56e0b5d9c7199274f700000a",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f700000b",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f700000c",
+                "value": "B"
+              }
+            ],
+            "instructions": "select all that apply",
+            "randomize": false,
+            "value": "Multiselect Optional",
+            "type": "multiselect",
+          "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 0,
+            "max_selections": 2
+          },
+          {
+            "id": "56e0b5d9c7199274f700000d",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f700000e",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f700000f",
+                "value": "B"
+              }
+            ],
+            "instructions": "select at least 1",
+            "randomize": false,
+            "value": "MultiSelect Required",
+            "type": "multiselect",
+          "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": true,
+            "min_selections": 1,
+            "max_selections": 2
+          },
+          {
+            "id": "56e0b5d9c7199274f7000010",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f7000012",
+                "value": "B"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000011",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000013",
+                "value": "C"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000014",
+                "value": "D"
+              }
+            ],
+            "instructions": "select between 1 and 3",
+            "randomize": true,
+            "value": "Multiselect Optional With Limits",
+            "type": "multiselect",
+          "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 1,
+            "max_selections": 3
+          },
+          {
+            "id": "56e0b5d9c7199274f7000015",
+            "answer_choices": [
+              {
+                "id": "56e0b5d9c7199274f7000016",
+                "value": "A"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000017",
+                "value": "B"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000018",
+                "value": "C"
+              },
+              {
+                "id": "56e0b5d9c7199274f7000019",
+                "value": "D"
+              }
+            ],
+            "instructions": "select between 1 and 3",
+            "randomize": false,
+            "value": "Multiselect Required With Limits",
+            "type": "multiselect",
+          "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": true,
+            "min_selections": 1,
+            "max_selections": 3
+          },
+          {
+            "id": "56e0b5d9c7199274f700001a",
+            "randomize": false,
+            "multiline": false,
+            "value": "Singleline Short Optional",
+            "type": "singleline",
+          "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Whatchu thinking?"
+          },
+          {
+            "id": "56e0b5d9c7199274f700001b",
+            "randomize": false,
+            "multiline": false,
+            "value": "Singleline Short Required",
+            "type": "singleline",
+          "error_message": "Error - There was a problem with your text answer.",
+            "required": true,
+            "freeform_hint": "Whatchu thinking?"
+          },
+          {
+            "id": "56e0b5d9c7199274f700001c",
+            "randomize": false,
+            "multiline": true,
+            "value": "Singleline Long Optional",
+            "type": "singleline",
+          "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Whatchu thinking?"
+          },
+          {
+            "id": "56e0b5d9c7199274f700001d",
+            "randomize": false,
+            "multiline": true,
+            "value": "Singleline Long Required",
+            "type": "singleline",
+          "error_message": "Error - There was a problem with your text answer.",
+            "required": true,
+            "freeform_hint": "Whatchu thinking?"
+          }
+        ],
+        "submit_text": "Boom",
+        "required_text": "Mandatory",
+        "validation_error": "You done goofed.",
+        "title": "(copy) All Combos Survey",
+        "name": "Every Question Type",
+        "description": "Please help us see how each question is formatted when returning a survey response to the server.",
+        "multiple_responses": true,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "Thank you!"
+      }
+    },
+    {
+      "id": "survey_2",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "2",
+            "answer_choices": [
+              {
+                "id": "3",
+                "value": "A",
+                "type": "select_option"
+              },
+              {
+                "id": "4",
+                "value": "B",
+                "type": "select_option"
+              },
+              {
+                "id": "5",
+                "value": "Other",
+                "type": "select_other"
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Multichoice Optional",
+            "type": "multichoice",
+          "error_message": "Error - There was a problem with your single-select answer.",
+            "required": false
+          },
+          {
+            "id": "6",
+            "answer_choices": [
+              {
+                "id": "7",
+                "value": "A",
+                "type": "select_option"
+              },
+              {
+                "id": "8",
+                "value": "B",
+                "type": "select_option"
+              },
+              {
+                "id": "9",
+                "value": "What else?",
+                "type": "select_other",
+                "hint": "Here's a hint..."
+              },
+              {
+                "id": "10",
+                "value": "And then?",
+                "type": "select_other",
+                "hint": "Here's a hint..."
+              }
+            ],
+            "instructions": "select one",
+            "randomize": false,
+            "value": "Multichoice Required",
+            "type": "multichoice",
+          "error_message": "Error - There was a problem with your single-select answer.",
+            "required": true
+          },
+          {
+            "id": "11",
+            "answer_choices": [
+              {
+                "id": "12",
+                "value": "A",
+                "type": "select_option"
+              },
+              {
+                "id": "13",
+                "value": "Got more?",
+                "type": "select_other",
+                "hint": "Here's a hint..."
+              },
+              {
+                "id": "14",
+                "value": "B",
+                "type": "select_option"
+              }
+            ],
+            "instructions": "select all that apply",
+            "randomize": false,
+            "value": "Multiselect Optional",
+            "type": "multiselect",
+          "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 0,
+            "max_selections": 3
+          },
+          {
+            "id": "15",
+            "answer_choices": [
+              {
+                "id": "16",
+                "value": "Do you have a more specific way to answer this question?",
+                "type": "select_other"
+              },
+              {
+                "id": "17",
+                "value": "B",
+                "type": "select_option"
+              }
+            ],
+            "instructions": "select at least 1",
+            "randomize": false,
+            "value": "MultiSelect Required",
+            "type": "multiselect",
+          "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": true,
+            "min_selections": 1,
+            "max_selections": 2
+          },
+          {
+            "id": "18",
+            "answer_choices": [
+              {
+                "id": "19",
+                "value": "A",
+                "type": "select_option"
+              },
+              {
+                "id": "20",
+                "value": "B",
+                "type": "select_option"
+              },
+              {
+                "id": "21",
+                "value": "Other #1",
+                "type": "select_other",
+                "hint": "Here's a hint..."
+              },
+              {
+                "id": "22",
+                "value": "C",
+                "type": "select_option"
+              },
+              {
+                "id": "23",
+                "value": "Other #2",
+                "type": "select_other",
+                "hint": "Another hint..."
+              },
+              {
+                "id": "24",
+                "value": "D",
+                "type": "select_option"
+              }
+            ],
+            "instructions": "select between 1 and 3",
+            "randomize": true,
+            "value": "Multiselect Optional With Limits",
+            "type": "multiselect",
+          "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false,
+            "min_selections": 1,
+            "max_selections": 3
+          },
+          {
+            "id": "25",
+            "answer_choices": [
+              {
+                "id": "26",
+                "value": "A",
+                "type": "select_option"
+              },
+              {
+                "id": "27",
+                "value": "B",
+                "type": "select_option"
+              },
+              {
+                "id": "28",
+                "value": "Other #1",
+                "type": "select_other"
+              },
+              {
+                "id": "29",
+                "value": "C",
+                "type": "select_option"
+              },
+              {
+                "id": "30",
+                "value": "Other #2",
+                "type": "select_other"
+              },
+              {
+                "id": "31",
+                "value": "D",
+                "type": "select_option"
+              }
+            ],
+            "instructions": "select between 1 and 3",
+            "randomize": false,
+            "value": "Multiselect Required With Limits",
+            "type": "multiselect",
+          "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": true,
+            "min_selections": 1,
+            "max_selections": 3
+          },
+          {
+            "id": "56e0b5d9c7199274f700001a",
+            "randomize": false,
+            "multiline": false,
+            "value": "Singleline Short Optional",
+            "type": "singleline",
+          "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Whatchu thinking?"
+          },
+          {
+            "id": "56e0b5d9c7199274f700001b",
+            "randomize": false,
+            "multiline": false,
+            "value": "Singleline Short Required",
+            "type": "singleline",
+          "error_message": "Error - There was a problem with your text answer.",
+            "required": true,
+            "freeform_hint": "Whatchu thinking?"
+          },
+          {
+            "id": "56e0b5d9c7199274f700001c",
+            "randomize": false,
+            "multiline": true,
+            "value": "Singleline Long Optional",
+            "type": "singleline",
+          "error_message": "Error - There was a problem with your text answer.",
+            "required": false,
+            "freeform_hint": "Whatchu thinking?"
+          },
+          {
+            "id": "56e0b5d9c7199274f700001d",
+            "randomize": false,
+            "multiline": true,
+            "value": "Singleline Long Required",
+            "type": "singleline",
+          "error_message": "Error - There was a problem with your text answer.",
+            "required": true,
+            "freeform_hint": "Whatchu thinking?"
+          }
+        ],
+        "submit_text": "Boom",
+        "required_text": "Mandatory",
+        "validation_error": "You done goofed.",
+        "title": "(copy) All Combos Survey",
+        "name": "Every Question Type",
+        "description": "Please help us see how each question is formatted when returning a survey response to the server.",
+        "multiple_responses": true,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "Thank you!"
+      }
+    },
+    {
+      "id": "survey_1",
+      "type": "Survey",
+      "version": 1,
+      "configuration": {
+        "questions": [
+          {
+            "id": "1",
+            "type": "range",
+          "error_message": "Error - There was a problem with your NPS answer.",
+            "value": "How likely is it that you would recommend our app to a friend or colleague?",
+            "min": 0,
+            "max": 10,
+            "min_label": "Not at all likely",
+            "max_label": "Extremely likely",
+            "required": false
+          },
+          {
+            "id": "2",
+            "type": "range",
+          "error_message": "Error - There was a problem with your NPS answer.",
+            "value": "How are you feeling about using this app?",
+            "min": 1,
+            "max": 5,
+            "min_label": "Sad",
+            "max_label": "Happy",
+            "required": true
+          },
+          {
+            "id": "3",
+            "type": "range",
+          "error_message": "Error - There was a problem with your NPS answer.",
+            "value": "How close to zero do you feel comfortable getting?",
+            "min": -5,
+            "max": 5,
+            "min_label": "Negative",
+            "max_label": "Positive",
+            "required": false
+          },
+          {
+            "id": "4",
+            "type": "range",
+          "error_message": "Error - There was a problem with your NPS answer.",
+            "value": "Missing labels",
+            "min": 1,
+            "max": 5,
+            "required": false
+          },
+          {
+            "id": "5",
+            "type": "range",
+          "error_message": "Error - There was a problem with your NPS answer.",
+            "value": "Empty labels",
+            "min": 1,
+            "max": 5,
+            "required": false
+          },
+          {
+            "id": "6",
+            "type": "range",
+          "error_message": "Error - There was a problem with your NPS answer.",
+            "value": "Missing min/max",
+            "required": false
+          }
+        ],
+        "submit_text": "Boom",
+        "required_text": "Mandatory",
+        "validation_error": "You done goofed.",
+        "title": "The survey's dashboard display name",
+        "name": "Range Question Survey Example",
+        "description": "This survey is for testing out the Range question type.",
+        "multiple_responses": true,
+        "show_success_message": true,
+        "view_period": 86400,
+        "required": false,
+        "success_message": "Thank you!"
+      }
+    },
+    {
+      "id": "526fe2836dd8bf546a00000c",
+      "type": "Survey",
+      "configuration": {
+        "questions": [
+          {
+            "id": "multi-select-question",
+            "answer_choices": [
+              {
+                "id": "multi-select-answer-0",
+                "value": "Better user interface"
+              },
+              {
+                "id": "multi-select-answer-1",
+                "value": "Cloud support"
+              },
+              {
+                "id": "multi-select-answer-2",
+                "value": "Login with Facebook / Google / Twitter"
+              }
+            ],
+            "instructions": "select up to 2",
+            "min_selections": 0,
+            "max_selections": 2,
+            "value": "Which two qualities for an app are the most important to you?",
+            "type": "multiselect",
+          "error_message": "Error - There was a problem with your multi-select answer.",
+            "required": false
+          },
+          {
+            "id": "single-line-question",
+            "multiline": false,
+            "value": "Is there anything you'd like to add?",
+            "type": "singleline",
+          "error_message": "Error - There was a problem with your text answer.",
+            "required": false
+          }
+        ],
+        "name": "What should we build?",
+        "show_success_message": true,
+        "success_message": "Thank you for your input.",
+        "description": "Please help us figure this out!",
+        "app_id": "517884df584ef064fc00000e",
+        "active": true,
+        "date": "2014-01-19T04:51:14Z",
+        "device_attrs": {
+          "os_name": "Android",
+          "os_version": "4.4.2"
+        }
+      }
+    },
+    {
+      "type": "TextModal",
+      "name": "Centered TextModal Interaction",
+      "id": "textmodal_1_button",
+      "priority": 1,
+      "configuration": {
+        "title": "Centered TextModal Title",
+        "body": "Mauris morbi bibendum erat vestibulum nulla augue sociis in quis cras a hac suspendisse orci litora tellus feugiat feugiat non suspendisse natoque pharetra commodo augue.Natoque ullamcorper vestibulum nascetur dui dui erat ornare vestibulum suscipit porta curabitur fringilla vestibulum accumsan morbi cum adipiscing metus parturient.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "ONE",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "type": "TextModal",
+      "name": "Centered TextModal Interaction",
+      "id": "textmodal_2_buttons",
+      "priority": 1,
+      "configuration": {
+        "title": "Use Google's location service?",
+        "body": "Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "DISAGREE",
+            "action": "dismiss"
+          },
+          {
+            "id": "action_id_2",
+            "label": "AGREE",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "type": "TextModal",
+      "name": "Centered TextModal Interaction",
+      "id": "textmodal_3_buttons",
+      "priority": 1,
+      "configuration": {
+        "title": "Centered TextModal Title",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "One",
+            "action": "dismiss"
+          },
+          {
+            "id": "action_id_2",
+            "label": "Two",
+            "action": "dismiss"
+          },
+          {
+            "id": "action_id_3",
+            "label": "Three",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "type": "TextModal",
+      "name": "Centered TextModal Interaction",
+      "id": "textmodal_4_buttons",
+      "priority": 1,
+      "configuration": {
+        "title": "Centered TextModal Title",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "One",
+            "action": "dismiss"
+          },
+          {
+            "id": "action_id_2",
+            "label": "Two",
+            "action": "dismiss"
+          },
+          {
+            "id": "action_id_3",
+            "label": "Three",
+            "action": "dismiss"
+          },
+          {
+            "id": "action_id_4",
+            "label": "Four-Five!",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "type": "TextModal",
+      "name": "Two Long Button Labels",
+      "id": "textmodal_long_buttons",
+      "priority": 1,
+      "configuration": {
+        "title": "Long Content",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "OK",
+            "action": "dismiss"
+          },
+          {
+            "id": "action_id_2",
+            "label": "NO THANKS",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "type": "TextModal",
+      "name": "Centered TextModal Interaction",
+      "id": "textmodal_missing_body",
+      "priority": 1,
+      "configuration": {
+        "title": "Centered TextModal Title",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "OnNE",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "type": "TextModal",
+      "name": "Centered TextModal Interaction",
+      "id": "textmodal_missing_title",
+      "priority": 1,
+      "configuration": {
+        "body": "Mauris morbi bibendum erat vestibulum nulla augue sociis in quis cras a hac suspendisse orci litora tellus feugiat feugiat non suspendisse natoque pharetra commodo augue.Natoque ullamcorper vestibulum nascetur dui dui erat ornare vestibulum suscipit porta curabitur fringilla vestibulum accumsan morbi cum adipiscing metus parturient.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "OnNE",
+            "action": "dismiss"
+          }
+        ]
+      }
+    }
+  ],
+  "targets" : {}
+}

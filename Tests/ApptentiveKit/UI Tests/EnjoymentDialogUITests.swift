@@ -20,7 +20,7 @@ class EnjoymentDialogUITests: XCTestCase {
 
         let tablesQuery = XCUIApplication().tables
 
-        tablesQuery.staticTexts["EnjoymentDialog"].tap()
+        tablesQuery.staticTexts["Do you love this app?"].tap()
 
         let alertsQuery = XCUIApplication().alerts["Do you love this app?"]
 
@@ -30,6 +30,6 @@ class EnjoymentDialogUITests: XCTestCase {
 
         alertsQuery.buttons["Yes"].tap()
 
-        XCTAssertTrue(tablesQuery.staticTexts["EnjoymentDialog"].exists)
+        XCTAssertTrue(tablesQuery.staticTexts["Do you love this app?"].exists)
     }
 }

@@ -20,7 +20,7 @@ class NavigateToLinkUITests: XCTestCase {
 
         let tablesQuery = XCUIApplication().tables
 
-        tablesQuery.staticTexts["NavigateToLink"].tap()
+        tablesQuery.staticTexts["http://www.apptentive.com"].tap()
 
         // let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
 

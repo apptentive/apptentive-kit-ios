@@ -10,59 +10,114 @@ import ApptentiveKit
 import UIKit
 
 class InteractionsViewController: UITableViewController {
-    var interactions = [(String, Interaction)]()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
         self.loadInteractions()
+        self.updatePrompt()
     }
 
-    // MARK: - Table view data source
+    // MARK: UITableViewDataSource
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return self.groupedInteractions.count
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.interactions.count
+        return self.groupedInteractions[section].count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let interactionListItem = self.groupedInteractions[indexPath.section][indexPath.row]
+
         let cell = tableView.dequeueReusableCell(withIdentifier: "Interaction", for: indexPath)
-        cell.textLabel?.text = self.interactions[indexPath.row].0
-        cell.detailTextLabel?.text = self.interactions[indexPath.row].1.typeName
+        cell.textLabel?.text = interactionListItem.displayName
         return cell
     }
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        try? self.apptentive.presentInteraction(self.interactions[indexPath.row].1, from: self)
-
-        self.tableView.deselectRow(at: indexPath, animated: true)
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return InteractionType(rawValue: interactionGroupNames[section])?.displayName ?? "Unknown"
     }
 
-    private func loadInteractions() {
-        guard let interactionsDirectoryURL = Bundle.main.url(forResource: "Interactions", withExtension: "") else {
-            return assertionFailure("Can't find bundled interactions")
+    // MARK: UITableViewDelegate
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.apptentive.presentInteraction(with: self.groupedInteractions[indexPath.section][indexPath.row].id) { result in
+            self.tableView.deselectRow(at: indexPath, animated: true)
         }
+    }
 
-        self.interactions.removeAll()
+    // MARK: - Actions
 
-        do {
-            let interactionsFiles = try FileManager.default.contentsOfDirectory(at: interactionsDirectoryURL, includingPropertiesForKeys: nil, options: [])
+    @IBAction func reload(_ sender: UIBarButtonItem) {
+        self.loadInteractions()
+    }
 
-            let decoder = JSONDecoder()
-            interactionsFiles.forEach { (url) in
-                do {
-                    let interactionData = try Data(contentsOf: url)
-                    let interaction = try decoder.decode(Interaction.self, from: interactionData)
+    @IBAction func doneChoosingManifest(sender: UIStoryboardSegue) {
+        self.loadInteractions()
 
-                    self.interactions.append((url.deletingPathExtension().lastPathComponent, interaction))
-                } catch let error {
-                    assertionFailure("Error loading bundled interaction from \(url): \(error)")
-                }
+        self.navigationController?.isNavigationBarHidden = true
+        self.updatePrompt()
+        self.navigationController?.isNavigationBarHidden = false
+    }
+
+    // MARK: - Private
+
+    private var interactionGroupNames = [String]()
+    private var groupedInteractions = [[Apptentive.InteractionListItem]]()
+
+    private func loadInteractions() {
+        self.apptentive.getInteractionList { interactions in
+            let interactionGroups = Dictionary(grouping: interactions) { $0.typeName }
+
+            self.interactionGroupNames = Array(interactionGroups.keys).sorted()
+            self.groupedInteractions = self.interactionGroupNames.compactMap { interactionGroups[$0] }
+
+            self.tableView.reloadData()
+        }
+    }
+
+    private func updatePrompt() {
+        if let manifestOverride = self.apptentive.engagementManifestURL?.lastPathComponent {
+            self.navigationItem.prompt = "Using “\(manifestOverride)” Manifest"
+        } else {
+            self.navigationItem.prompt = nil
+        }
+    }
+
+    private enum InteractionType: String {
+        case AppleRatingDialog
+        case AppStoreRating
+        case TextModal
+        case NotImplemented
+        case MessageCenter
+        case EnjoymentDialog
+        case Survey
+        case NavigateToLink
+
+        var displayName: String {
+            switch self {
+            case .AppleRatingDialog:
+                return "Apple Rating Dialog"
+
+            case .AppStoreRating:
+                return "Legacy Rating Dialog"
+
+            case .TextModal:
+                return "Note"
+
+            case .EnjoymentDialog:
+                return "Love Dialog"
+
+            case .MessageCenter:
+                return "Message Center"
+
+            case .NavigateToLink:
+                return "Open URL"
+
+            default:
+                return self.rawValue
             }
-        } catch let error {
-            assertionFailure("Error loading bundled interactions: \(error)")
         }
     }
 }
