@@ -302,7 +302,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         guard let footer = tableView.dequeueReusableHeaderFooterView(withIdentifier: "questionFooter") as? SurveyQuestionFooterView else {
-            apptentiveCriticalError("Unexpected footer view registered for identifier `question`.")
+            assertionFailure("Unexpected footer view registered for identifier `question`.")
             return nil
         }
 
@@ -445,7 +445,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             }
 
-            reloadSections.insert(sectionIndex)
+            self.tableView.reloadSections(IndexSet(integer: sectionIndex), with: .fade)
         })
 
         self.tableView.reloadSections(reloadSections, with: .fade)

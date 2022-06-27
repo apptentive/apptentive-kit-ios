@@ -473,6 +473,11 @@ extension UIColor {
     public static var apptentiveSubmitButtonBorder: UIColor = {
         return .clear
     }()
+
+    /// The color to use for the space between questions.
+    public static var apptentiveQuestionSeparator: UIColor = {
+        return .clear
+    }()
 }
 
 extension UIFont {
