@@ -18,6 +18,13 @@ public class ApptentiveNavigationController: UINavigationController {
     }
 }
 
+extension UITableView {
+    /// Determines height of the separator between questions.
+    public static var apptentiveQuestionSeparatorHeight: CGFloat = {
+        return 0
+    }()
+}
+
 extension UITableView.Style {
     /// The table view style to use for Apptentive UI.
     ///
@@ -389,6 +396,11 @@ extension UIColor {
 
     /// The color to use for submit button border.
     public static var apptentiveSubmitButtonBorder: UIColor = {
+        return .clear
+    }()
+
+    /// The color to use for the space between questions.
+    public static var apptentiveQuestionSeparator: UIColor = {
         return .clear
     }()
 }

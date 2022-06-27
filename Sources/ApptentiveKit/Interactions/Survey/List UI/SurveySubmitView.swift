@@ -31,9 +31,11 @@ class SurveySubmitView: UIView {
 
         self.submitButton.translatesAutoresizingMaskIntoConstraints = false
 
+        let multiplier = UITableView.apptentiveQuestionSeparatorHeight == 0 ? 1.0 : 3.5
+
         NSLayoutConstraint.activate([
             self.submitButton.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            self.submitButton.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: self.topAnchor, multiplier: 1.0),
+            self.submitButton.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: self.topAnchor, multiplier: multiplier),
         ])
 
         self.submitLabel.font = .apptentiveSubmitStatusLabel

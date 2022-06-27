@@ -195,6 +195,7 @@
 		EF9F40B0271894C7005D7209 /* MessageReceivedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */; };
 		EFAA223227B1895300B4FC3B /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAA223127B1895300B4FC3B /* EditProfileViewController.swift */; };
 		EFAA226827C5520200B4FC3B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EFAA226A27C5520200B4FC3B /* Localizable.strings */; };
+		EFADFDCC2842CA0700D36DA2 /* SurveyQuestionFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFADFDCB2842CA0700D36DA2 /* SurveyQuestionFooterView.swift */; };
 		EFCE2AF027E3F553001ADB11 /* Apptentive+NotificationName.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCE2AEF27E3F553001ADB11 /* Apptentive+NotificationName.swift */; };
 		EFE8D6F027AC9E7600388AA9 /* ProfileFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE8D6EF27AC9E7500388AA9 /* ProfileFooterView.swift */; };
 /* End PBXBuildFile section */
@@ -463,6 +464,7 @@
 		EFAA223127B1895300B4FC3B /* EditProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
 		EFAA226927C5520200B4FC3B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		EFAA226B27C5521600B4FC3B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		EFADFDCB2842CA0700D36DA2 /* SurveyQuestionFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyQuestionFooterView.swift; sourceTree = "<group>"; };
 		EFCE2AEF27E3F553001ADB11 /* Apptentive+NotificationName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Apptentive+NotificationName.swift"; sourceTree = "<group>"; };
 		EFE8D6EF27AC9E7500388AA9 /* ProfileFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFooterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -659,12 +661,14 @@
 				015F2ACE24C8F2DD004B53E2 /* SurveyViewController.swift */,
 				EF69E0BB258962DA00FA0636 /* SurveyRangeCell.swift */,
 				01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */,
+				EFADFDCB2842CA0700D36DA2 /* SurveyQuestionFooterView.swift */,
 				015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */,
 				015A0D4025509C0A00EF077D /* SurveyChoiceCell.swift */,
 				01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */,
 				015F2ADE24C9F85D004B53E2 /* SurveySingleLineCell.swift */,
 				015F2AE024C9FEBF004B53E2 /* SurveyMultiLineCell.swift */,
 				015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */,
+				EFADFDCB2842CA0700D36DA2 /* SurveyQuestionFooterView.swift */,
 			);
 			path = "List UI";
 			sourceTree = "<group>";
@@ -1309,6 +1313,7 @@
 				0113867527DA63B10024653F /* LegacyPerson.swift in Sources */,
 				017481F127B1D27900FE020B /* DraftAttachmentView.swift in Sources */,
 				01ED6271257B0AA90023208C /* NavigateToLinkController.swift in Sources */,
+				EFADFDCC2842CA0700D36DA2 /* SurveyQuestionFooterView.swift in Sources */,
 				015F2ADF24C9F85D004B53E2 /* SurveySingleLineCell.swift in Sources */,
 				017230ED253673960095AEAA /* Criteria+Decodable.swift in Sources */,
 				013D8E8B24F038D3005EC4D1 /* ApptentiveV9API.swift in Sources */,

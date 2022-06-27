@@ -68,7 +68,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.introductionView = SurveyIntroductionView(frame: .zero)
         self.submitView = SurveySubmitView(frame: .zero)
         super.init(style: .apptentive)
-
         viewModel.delegate = self
     }
 
@@ -80,7 +79,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         super.viewDidLoad()
         view.backgroundColor = .apptentiveGroupedBackground
         self.tableView.separatorColor = .apptentiveSeparator
-
         self.configureTermsOfService()
         self.navigationController?.presentationController?.delegate = self
 
@@ -116,6 +114,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "unimplemented")
 
         self.tableView.register(SurveyQuestionHeaderView.self, forHeaderFooterViewReuseIdentifier: "question")
+        self.tableView.register(SurveyQuestionFooterView.self, forHeaderFooterViewReuseIdentifier: "questionFooter")
 
         self.tableView.sectionHeaderHeight = UITableView.automaticDimension
         self.tableView.rowHeight = UITableView.automaticDimension
@@ -292,9 +291,25 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         return header
     }
 
-    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        guard let footer = tableView.dequeueReusableHeaderFooterView(withIdentifier: "questionFooter") as? SurveyQuestionFooterView else {
+            assertionFailure("Unexpected footer view registered for identifier `question`.")
+            return nil
+        }
+
         let question = self.viewModel.questions[section]
-        return question.isMarkedAsInvalid ? question.errorMessage : nil
+
+        footer.errorLabel.text = question.isMarkedAsInvalid ? question.errorMessage : nil
+
+        return footer
+    }
+
+    override func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
+        return 75
+    }
+
+    override func tableView(_ tableView: UITableView, estimatedHeightForFooterInSection section: Int) -> CGFloat {
+        return 35
     }
 
     // MARK: Table View Delegate
@@ -371,9 +386,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         guard let footerView = view as? UITableViewHeaderFooterView else {
             return
         }
-
-        footerView.textLabel?.alpha = 1  // We may have faded this out in `surveyViewModelValidationDidChange(_:)`.
-        footerView.textLabel?.textColor = .apptentiveError  // Footers always display an error in the error color.
+        footerView.textLabel?.alpha = 1
+        footerView.textLabel?.textColor = .apptentiveError
     }
 
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
@@ -430,13 +444,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             }
 
-            // The footer's position animates properly when a question is un-marked,
-            // but the text stays visible for some reason (a UIKit bug?).
-            if let footer = self.tableView.footerView(forSection: sectionIndex) {
-                UIView.animate(withDuration: Self.animationDuration) {
-                    footer.textLabel?.alpha = question.isMarkedAsInvalid ? 1 : 0
-                }
-            }
+            self.tableView.reloadSections(IndexSet(integer: sectionIndex), with: .fade)
         })
 
         self.tableView.indexPathsForVisibleRows?.forEach { indexPath in
