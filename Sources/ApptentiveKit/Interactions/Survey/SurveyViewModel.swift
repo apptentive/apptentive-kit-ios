@@ -64,6 +64,9 @@ public class SurveyViewModel {
     /// The label for an optional link to the terms and conditions for the survey.
     public var termsAndConditionsLabel: String?
 
+    /// The number formatter used to produce choice label strings for range questions.
+    public var rangeChoiceLabelNumberFormatter: NumberFormatter
+
     required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: SurveyInteractionDelegate) {
         self.interaction = interaction
         self.interactionDelegate = interactionDelegate
@@ -87,7 +90,7 @@ public class SurveyViewModel {
             configuration.closeConfirmationBackButtonText ?? "Back to Survey"
         self.closeConfirmationCloseButtonLabel =
             configuration.closeConfirmationCloseButtonText ?? "Close"
-
+        self.rangeChoiceLabelNumberFormatter = NumberFormatter()
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self
         }
