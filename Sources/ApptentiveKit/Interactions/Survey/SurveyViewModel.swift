@@ -67,6 +67,9 @@ public class SurveyViewModel {
     /// The number formatter used to produce choice label strings for range questions.
     public var rangeChoiceLabelNumberFormatter: NumberFormatter
 
+    /// The number formatter used to produce choice label strings for range questions.
+    public var rangeChoiceLabelNumberFormatter: NumberFormatter
+
     required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: SurveyInteractionDelegate) {
         self.interaction = interaction
         self.interactionDelegate = interactionDelegate
