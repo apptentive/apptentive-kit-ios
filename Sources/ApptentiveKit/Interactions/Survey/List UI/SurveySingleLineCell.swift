@@ -74,7 +74,7 @@ class SurveySingleLineCell: UITableViewCell {
         self.textField.adjustsFontForContentSizeCategory = true
         self.textField.font = .apptentiveTextInput
         self.textField.returnKeyType = .done
-        self.textField.tintColor = .apptentiveSubmitButton
+        self.textField.tintColor = .apptentivetextInputTint
 
         self.leadingConstraint = self.textField.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 15.0)
         self.trailingConstraint = self.contentView.trailingAnchor.constraint(equalTo: self.textField.trailingAnchor, constant: 15.0)

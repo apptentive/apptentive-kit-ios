@@ -187,7 +187,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         switch (question, cell) {
         case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let singleLineCell as SurveySingleLineCell):
-            singleLineCell.textField.placeholder = freeformQuestion.placeholderText
+            singleLineCell.textField.attributedPlaceholder = NSAttributedString(string: freeformQuestion.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
             singleLineCell.textField.text = freeformQuestion.value
             singleLineCell.textField.delegate = self
             singleLineCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
@@ -248,6 +248,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let otherCell as SurveyOtherChoiceCell):
             let choice = choiceQuestion.choices[indexPath.row]
 
+            otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
             otherCell.otherTextLabel.text = choice.label
             otherCell.isSelected = choice.isSelected
             otherCell.textField.text = choice.value

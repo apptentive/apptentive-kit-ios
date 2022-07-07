@@ -147,6 +147,15 @@ extension UIImage {
 
 extension UIColor {
 
+    /// The tint color for text inputs for surveys.
+    @objc public static var apptentivetextInputTint: UIColor = {
+        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
+            return tintColor
+        } else {
+            return .systemBlue
+        }
+    }()
+
     /// The border color to use for the message text view.
     @objc public static var apptentiveMessageCenterTextViewBorder: UIColor = {
         return .darkGray
@@ -406,6 +415,12 @@ extension UIColor {
 }
 
 extension UIFont {
+
+    /// The font to use for placeholder text for text inputs in surveys.
+    @objc public static var apptentiveTextInputPlaceholder: UIFont = {
+        return .preferredFont(forTextStyle: .body)
+    }()
+
     /// The font to use for the greeting title for message center.
     @objc public static var apptentiveMessageCenterStatus: UIFont = {
         return .preferredFont(forTextStyle: .caption1)

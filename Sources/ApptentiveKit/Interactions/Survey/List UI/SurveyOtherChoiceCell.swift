@@ -96,11 +96,11 @@ class SurveyOtherChoiceCell: UITableViewCell {
         self.textField.translatesAutoresizingMaskIntoConstraints = false
         self.textField.borderStyle = .roundedRect
         self.textField.accessibilityIdentifier = "OtherCell"
-        self.textField.tintColor = .apptentiveSubmitButton
+        self.textField.tintColor = .apptentivetextInputTint
 
         // Set up additional border to display validation state
         self.textField.layer.borderWidth = 1.0 / self.traitCollection.displayScale
-        self.textField.layer.borderColor = UIColor.clear.cgColor
+        self.textField.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
         self.textField.layer.cornerRadius = 6.0
 
         self.textField.translatesAutoresizingMaskIntoConstraints = false
@@ -108,7 +108,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
         self.textField.adjustsFontForContentSizeCategory = true
         self.textField.backgroundColor = .apptentiveTextInputBackground
-        self.textField.textColor = .apptentiveChoiceLabel
+        self.textField.textColor = .apptentiveTextInput
         self.textField.returnKeyType = .done
 
         NSLayoutConstraint.activate([
