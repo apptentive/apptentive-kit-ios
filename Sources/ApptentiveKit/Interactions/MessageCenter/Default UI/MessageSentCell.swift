@@ -55,6 +55,7 @@ class MessageSentCell: UITableViewCell {
         self.messageText.sizeToFit()
         self.messageText.setContentHuggingPriority(.defaultHigh, for: .vertical)
         self.messageText.adjustsFontForContentSizeCategory = true
+        self.messageText.dataDetectorTypes = UIDataDetectorTypes.all
 
         self.attachmentStackView.translatesAutoresizingMaskIntoConstraints = false
         self.attachmentStackView.distribution = .fillProportionally
