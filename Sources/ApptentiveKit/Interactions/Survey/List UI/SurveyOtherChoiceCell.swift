@@ -98,12 +98,31 @@ class SurveyOtherChoiceCell: UITableViewCell {
         self.textField.setContentHuggingPriority(.defaultHigh, for: .vertical)
         self.textField.borderStyle = .roundedRect
         self.textField.accessibilityIdentifier = "OtherCell"
-        self.textField.tintColor = .apptentiveSubmitButton
+        self.textField.tintColor = .apptentivetextInputTint
 
         // Set up additional border to display validation state
         self.textField.layer.borderWidth = 1.0 / self.traitCollection.displayScale
         self.textField.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
         self.textField.layer.cornerRadius = 6.0
+
+        self.textField.translatesAutoresizingMaskIntoConstraints = false
+        self.textField.font = .apptentiveTextInput
+
+        self.textField.adjustsFontForContentSizeCategory = true
+        self.textField.backgroundColor = .apptentiveTextInputBackground
+        self.textField.textColor = .apptentiveTextInput
+        self.textField.returnKeyType = .done
+
+        NSLayoutConstraint.activate([
+            self.otherTextLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 55.5),
+            self.contentView.trailingAnchor.constraint(equalTo: self.otherTextLabel.trailingAnchor, constant: 20),
+            self.contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: self.textField.trailingAnchor, multiplier: 2.0),
+            self.otherTextLabel.leadingAnchor.constraint(equalTo: self.textField.leadingAnchor, constant: 7),
+
+            self.otherTextLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 12),
+            self.textField.topAnchor.constraint(greaterThanOrEqualTo: self.contentView.topAnchor, constant: 4.5),
+            self.contentView.bottomAnchor.constraint(equalTo: self.textField.bottomAnchor, constant: 5.5),
+        ])
     }
 
     override func layoutSubviews() {

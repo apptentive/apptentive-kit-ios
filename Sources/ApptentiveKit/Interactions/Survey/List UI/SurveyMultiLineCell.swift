@@ -91,7 +91,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.textView.adjustsFontForContentSizeCategory = true
         self.textView.font = .apptentiveTextInput
         self.textView.returnKeyType = .default
-        self.textView.tintColor = .apptentiveSubmitButton
+        self.textView.tintColor = .apptentivetextInputTint
 
         self.leadingConstraint = self.textView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 10.0)
 

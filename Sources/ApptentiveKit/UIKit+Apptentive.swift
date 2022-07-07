@@ -147,61 +147,6 @@ extension UIImage {
 
 extension UIColor {
 
-    /// The color to use for the background in text inputs for message center.
-    @objc public static var apptentiveMessageCenterTextInputBackground: UIColor = {
-        if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-                    return .black
-
-                default:
-                    return .white
-
-                }
-            }
-        } else {
-            return .white
-        }
-    }()
-
-    /// The placeholder color to use for text inputs for message center.
-    @objc public static var apptentiveMessageCenterTextInputPlaceholder: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .placeholderText
-        } else {
-            return UIColor(red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 67.0 / 255.0, alpha: 74.0 / 255.0)
-        }
-    }()
-
-    /// The placeholder color to use for text inputs for message center.
-    @available(*, deprecated, message: "This property has been renamed to 'apptentiveMessageTextInputPlaceholder'.")
-    @objc public static var apptentiveMessageTextViewPlaceholder: UIColor {
-        get {
-            return self.apptentiveMessageTextInputPlaceholder
-        }
-        set {
-            self.apptentiveMessageTextInputPlaceholder = newValue
-        }
-    }
-
-    /// The text color to use for all text inputs in message center.
-    @objc public static var apptentiveMessageCenterTextInput: UIColor = {
-        if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-                    return .secondaryLabel
-
-                default:
-                    return .black
-                }
-            }
-        } else {
-            return .black
-        }
-    }()
-
     /// The tint color for text inputs for surveys.
     @objc public static var apptentivetextInputTint: UIColor = {
         if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
@@ -481,6 +426,12 @@ extension UIColor {
 }
 
 extension UIFont {
+
+    /// The font to use for placeholder text for text inputs in surveys.
+    @objc public static var apptentiveTextInputPlaceholder: UIFont = {
+        return .preferredFont(forTextStyle: .body)
+    }()
+
     /// The font to use for the greeting title for message center.
     @objc public static var apptentiveMessageCenterStatus: UIFont = {
         return .preferredFont(forTextStyle: .caption1)

@@ -80,7 +80,7 @@ class SurveySingleLineCell: UITableViewCell {
         self.textField.adjustsFontForContentSizeCategory = true
         self.textField.font = .apptentiveTextInput
         self.textField.returnKeyType = .done
-        self.textField.tintColor = .apptentiveSubmitButton
+        self.textField.tintColor = .apptentivetextInputTint
 
         self.topConstraint = self.textField.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0)
         self.leadingConstraint = self.textField.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 15.0)
