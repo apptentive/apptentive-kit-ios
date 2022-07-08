@@ -34,7 +34,7 @@ class EditProfileViewController: UIViewController {
         self.view.addSubview(self.profileView)
 
         self.profileView.translatesAutoresizingMaskIntoConstraints = false
-
+        self.profileView.slaLabel.text = self.viewModel.statusBody
         self.profileView.emailTextField.text = self.viewModel.emailAddress
         self.profileView.emailTextField.placeholder = self.viewModel.editProfileEmailPlaceholder
         self.profileView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)

@@ -13,15 +13,18 @@ class ProfileFooterView: UIView {
 
     let nameTextField: UITextField
     let emailTextField: UITextField
+    let slaLabel: UILabel
 
     override init(frame: CGRect) {
         self.nameTextField = UITextField(frame: .zero)
         self.emailTextField = UITextField(frame: .zero)
+        self.slaLabel = UILabel(frame: .zero)
 
         super.init(frame: frame)
 
         self.addSubview(self.nameTextField)
         self.addSubview(self.emailTextField)
+        self.addSubview(self.slaLabel)
 
         configureViews()
     }
@@ -61,6 +64,14 @@ class ProfileFooterView: UIView {
         self.emailTextField.autocapitalizationType = .none
         self.emailTextField.accessibilityIdentifier = "email"
 
+        self.slaLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.slaLabel.numberOfLines = 0
+        self.slaLabel.lineBreakMode = .byWordWrapping
+        self.slaLabel.font = .apptentiveMessageCenterStatus
+        self.slaLabel.textColor = .apptentiveMessageCenterStatus
+        self.slaLabel.contentMode = .center
+        self.slaLabel.textAlignment = .center
+
         setConstraints()
     }
 
@@ -74,8 +85,13 @@ class ProfileFooterView: UIView {
             self.emailTextField.topAnchor.constraint(equalToSystemSpacingBelow: self.nameTextField.bottomAnchor, multiplier: 1),
             self.emailTextField.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.readableContentGuide.trailingAnchor.constraint(equalTo: self.emailTextField.trailingAnchor),
-            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.emailTextField.bottomAnchor, multiplier: 1),
             self.emailTextField.heightAnchor.constraint(equalToConstant: 40),
+
+            self.slaLabel.topAnchor.constraint(equalToSystemSpacingBelow: self.emailTextField.bottomAnchor, multiplier: 4),
+            self.slaLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: self.readableContentGuide.leadingAnchor, multiplier: 1),
+            self.readableContentGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: self.slaLabel.trailingAnchor, multiplier: 1),
+            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.slaLabel.bottomAnchor, multiplier: 1),
+
         ])
     }
 }

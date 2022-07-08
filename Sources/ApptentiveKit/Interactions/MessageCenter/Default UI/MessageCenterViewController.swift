@@ -102,6 +102,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.messageListFooterView.statusTextLabel.text = self.viewModel.statusBody
 
+        self.profileFooterView.slaLabel.text = self.viewModel.statusBody
         self.profileFooterView.nameTextField.text = self.viewModel.name
         self.profileFooterView.nameTextField.placeholder = self.viewModel.profileNamePlaceholder
         self.profileFooterView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
