@@ -40,29 +40,31 @@ class ProfileFooterView: UIView {
         self.nameTextField.translatesAutoresizingMaskIntoConstraints = false
         self.nameTextField.layer.borderWidth = 1 / self.traitCollection.displayScale
         self.nameTextField.layer.masksToBounds = false
-        self.nameTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextViewBorder.cgColor
+        self.nameTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
         self.nameTextField.layer.cornerRadius = 5
         self.nameTextField.leftView = spacerView
         self.nameTextField.leftViewMode = .always
         self.nameTextField.contentVerticalAlignment = .center
-        self.nameTextField.font = .apptentiveTextInput
-        self.nameTextField.textColor = .apptentiveTextInput
+        self.nameTextField.font = .apptentiveMessageCenterTextInput
+        self.nameTextField.textColor = .apptentiveMessageCenterTextInput
         self.emailTextField.autocapitalizationType = .words
         self.nameTextField.accessibilityIdentifier = "name"
+        self.nameTextField.backgroundColor = .apptentiveTextInputBackground
 
         self.emailTextField.translatesAutoresizingMaskIntoConstraints = false
         self.emailTextField.layer.borderWidth = 1 / self.traitCollection.displayScale
         self.emailTextField.layer.masksToBounds = false
-        self.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextViewBorder.cgColor
+        self.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
         self.emailTextField.layer.cornerRadius = 5
         self.emailTextField.leftView = secondSpacerView
         self.emailTextField.leftViewMode = .always
         self.emailTextField.contentVerticalAlignment = .center
-        self.emailTextField.font = .apptentiveTextInput
-        self.emailTextField.textColor = .apptentiveTextInput
+        self.emailTextField.font = .apptentiveMessageCenterTextInput
+        self.emailTextField.textColor = .apptentiveMessageCenterTextInput
         self.emailTextField.keyboardType = .emailAddress
         self.emailTextField.autocapitalizationType = .none
         self.emailTextField.accessibilityIdentifier = "email"
+        self.emailTextField.backgroundColor = .apptentiveTextInputBackground
 
         self.slaLabel.translatesAutoresizingMaskIntoConstraints = false
         self.slaLabel.numberOfLines = 0

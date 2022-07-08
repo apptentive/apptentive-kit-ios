@@ -147,6 +147,50 @@ extension UIImage {
 
 extension UIColor {
 
+    /// The color to use for the background in text inputs for message center.
+    @objc public static var apptentiveMessageCenterTextInputBackground: UIColor = {
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return .black
+
+                default:
+                    return .white
+
+                }
+            }
+        } else {
+            return .white
+        }
+    }()
+
+    /// The placeholder color to use for text inputs for message center.
+    @objc public static var apptentiveMessageCenterTextInputPlaceholder: UIColor = {
+        if #available(iOS 13.0, *) {
+            return .placeholderText
+        } else {
+            return UIColor(red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 67.0 / 255.0, alpha: 74.0 / 255.0)
+        }
+    }()
+
+    /// The text color to use for all text inputs in message center.
+    @objc public static var apptentiveMessageCenterTextInput: UIColor = {
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return .secondaryLabel
+
+                default:
+                    return .black
+                }
+            }
+        } else {
+            return .black
+        }
+    }()
+
     /// The tint color for text inputs for surveys.
     @objc public static var apptentivetextInputTint: UIColor = {
         if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
@@ -157,7 +201,7 @@ extension UIColor {
     }()
 
     /// The border color to use for the message text view.
-    @objc public static var apptentiveMessageCenterTextViewBorder: UIColor = {
+    @objc public static var apptentiveMessageCenterTextInputBorder: UIColor = {
         return .darkGray
     }()
 
@@ -167,13 +211,8 @@ extension UIColor {
     }()
 
     /// The color to use for the text view placeholder for the compose view for message center.
-    @objc public static var apptentiveMessageTextViewPlaceholder: UIColor = {
+    @objc public static var apptentiveMessageTextInputPlaceholder: UIColor = {
         return .lightGray
-    }()
-
-    /// The color to use for the text view border for the compose view for message center.
-    @objc public static var apptentiveMessageTextViewBorder: UIColor = {
-        return .gray
     }()
 
     /// The color to use for the status message in message center.
@@ -415,6 +454,16 @@ extension UIColor {
 }
 
 extension UIFont {
+
+    /// The font to use for placeholder for text inputs in message center.
+    @objc public static var apptentiveMessageCenterTextInputPlaceholder: UIFont = {
+        return .preferredFont(forTextStyle: .body)
+    }()
+
+    /// The font to use for text inputs in message menter.
+    @objc public static var apptentiveMessageCenterTextInput: UIFont = {
+        return .preferredFont(forTextStyle: .body)
+    }()
 
     /// The font to use for placeholder text for text inputs in surveys.
     @objc public static var apptentiveTextInputPlaceholder: UIFont = {

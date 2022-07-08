@@ -104,12 +104,12 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.profileFooterView.slaLabel.text = self.viewModel.statusBody
         self.profileFooterView.nameTextField.text = self.viewModel.name
-        self.profileFooterView.nameTextField.placeholder = self.viewModel.profileNamePlaceholder
+        self.profileFooterView.nameTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileNamePlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
         self.profileFooterView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
         self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
 
         self.profileFooterView.emailTextField.text = self.viewModel.emailAddress
-        self.profileFooterView.emailTextField.placeholder = self.viewModel.profileEmailPlaceholder
+        self.profileFooterView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
         self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
         self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
 
@@ -531,7 +531,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     private func updateProfileValidation(strict: Bool) {
         if self.viewModel.profileIsValid || !strict {
-            self.profileFooterView.emailTextField.layer.borderColor = UIColor.apptentiveMessageTextViewBorder.cgColor
+            self.profileFooterView.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
         } else {
             self.profileFooterView.emailTextField.layer.borderColor = UIColor.apptentiveError.cgColor
         }

@@ -121,7 +121,7 @@ extension Apptentive {
         UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
         UIColor.apptentiveMessageCenterAttachmentButton = buttonTintColor
-        UIColor.apptentiveMessageCenterTextViewBorder = messageTextInputBorderColor
+        UIColor.apptentiveMessageCenterTextInputBorder = messageTextInputBorderColor
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
