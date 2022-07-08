@@ -77,6 +77,14 @@ class ProfileFooterView: UIView {
         self.slaLabel.contentMode = .center
         self.slaLabel.textAlignment = .center
 
+        self.slaLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.slaLabel.numberOfLines = 0
+        self.slaLabel.lineBreakMode = .byWordWrapping
+        self.slaLabel.font = .apptentiveMessageCenterStatus
+        self.slaLabel.textColor = .apptentiveMessageCenterStatus
+        self.slaLabel.contentMode = .center
+        self.slaLabel.textAlignment = .center
+
         setConstraints()
     }
 
@@ -90,7 +98,7 @@ class ProfileFooterView: UIView {
             self.emailTextField.topAnchor.constraint(equalToSystemSpacingBelow: self.nameTextField.bottomAnchor, multiplier: 1),
             self.emailTextField.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.readableContentGuide.trailingAnchor.constraint(equalTo: self.emailTextField.trailingAnchor),
-            self.emailTextField.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
+            self.emailTextField.heightAnchor.constraint(equalToConstant: 40),
 
             self.slaLabel.topAnchor.constraint(equalToSystemSpacingBelow: self.emailTextField.bottomAnchor, multiplier: 4),
             self.slaLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: self.readableContentGuide.leadingAnchor, multiplier: 1),
