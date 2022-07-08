@@ -112,13 +112,11 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.profileFooterView.slaLabel.text = self.viewModel.statusBody
         self.profileFooterView.nameTextField.text = self.viewModel.name
         self.profileFooterView.nameTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileNamePlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
-        self.profileFooterView.nameTextField.accessibilityLabel = self.viewModel.editProfileNamePlaceholder
         self.profileFooterView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
         self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
 
         self.profileFooterView.emailTextField.text = self.viewModel.emailAddress
         self.profileFooterView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
-        self.profileFooterView.emailTextField.accessibilityLabel = self.viewModel.editProfileEmailPlaceholder
         self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
         self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
 

@@ -127,22 +127,8 @@ extension Apptentive {
         UIColor.apptentiveMessageBubbleOutbound = messageBubbleOutboundColor
         UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
+        UIColor.apptentiveMessageCenterAttachmentButton = buttonTintColor
         UIColor.apptentiveMessageCenterTextInputBorder = messageTextInputBorderColor
-        UIColor.apptentiveSurveyIntroduction = surveyGreeting
-        UIColor.apptentiveImageSelected = surveyImageChoice
-        UIColor.apptentiveMessageCenterBackground = apptentiveGroupPrimaryColor
-        UIColor.apptentiveMessageCenterComposeBoxBackground = apptentiveGroupPrimaryColor
-        UIColor.apptentiveMessageCenterGreetingTitle = surveyGreeting
-        UIColor.apptentiveMessageCenterGreetingBody = question
-        UIColor.apptentiveMessageCenterStatus = textInputColor
-        UIColor.apptentiveMessageCenterTextInputBorder = textInputBorderColor
-        UIColor.apptentiveMessageCenterTextInputBackground = textInputBackgroundColor
-        UIColor.apptentiveMessageCenterTextInput = textInputColor
-        UIColor.apptentiveMessageCenterAttachmentDeleteButton = attachmentDeleteButton
-        UIColor.apptentiveError = error
-        UIColor.apptentiveTextInputPlaceholder = textInputPlaceholder
-        UIColor.apptentiveMessageCenterTextInputPlaceholder = textInputPlaceholder
-        UIColor.apptentiveTextInputBorderSelected = textInputBorderSelected
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
