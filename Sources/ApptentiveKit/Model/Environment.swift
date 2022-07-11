@@ -46,6 +46,7 @@ protocol AppEnvironment {
     var isDebugBuild: Bool { get }
     var isTesting: Bool { get }
     var appDisplayName: String { get }
+    var isOverridingStyles: Bool { get set }
 }
 
 /// The portions of the Environment that provide information about the device.
@@ -97,6 +98,9 @@ protocol EnvironmentDelegate: AnyObject {
 ///
 /// Allows these values to be injected as a dependency to aid in testing.
 class Environment: GlobalEnvironment {
+
+    /// Whether the apptentive theme is set to `none` and is being overidden.
+    var isOverridingStyles: Bool
 
     /// The file manager that should be used when interacting with the filesystem.
     let fileManager: FileManager
@@ -194,7 +198,7 @@ class Environment: GlobalEnvironment {
     /// Initializes a new environment based on values captured from the operating system.
     init() {
         self.fileManager = FileManager.default
-
+        self.isOverridingStyles = false
         self.infoDictionary = Bundle.main.infoDictionary
         let localizedInfoDictionary = Bundle.main.localizedInfoDictionary
         self.appStoreReceiptURL = Bundle.main.appStoreReceiptURL

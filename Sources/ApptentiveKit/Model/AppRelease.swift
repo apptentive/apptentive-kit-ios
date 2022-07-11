@@ -140,7 +140,7 @@ struct AppRelease: Equatable, Codable {
         self.sdkProgrammingLanguage = "Swift"
         self.sdkAuthorName = "Apptentive, Inc."
         self.sdkPlatform = "iOS"
-
+        self.isOverridingStyles = environment.isOverridingStyles
         self.sdkDistributionName = environment.distributionName
         self.sdkDistributionVersion = environment.distributionVersion
     }

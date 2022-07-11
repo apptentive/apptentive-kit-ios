@@ -108,4 +108,15 @@ class BackendTests: XCTestCase {
 
         self.wait(for: [expectation], timeout: 5)
     }
+
+    func testOverridingStyles() {
+        let credentials = Apptentive.AppCredentials(key: "", signature: "")
+        let baseURL = URL(string: "https://api.apptentive.com/")!
+        let queue = DispatchQueue(label: "Test Queue")
+        let environment = MockEnvironment()
+        let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: queue, environment: environment)
+        apptentive.theme = .none
+        apptentive.register(with: credentials)
+        XCTAssertTrue(apptentive.environment.isOverridingStyles)
+    }
 }

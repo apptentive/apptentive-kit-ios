@@ -213,6 +213,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             DispatchQueue.main.async {
                 self.applyApptentiveTheme()
             }
+        } else {
+            self.environment.isOverridingStyles = true
         }
 
         if !self.environment.isTesting {
