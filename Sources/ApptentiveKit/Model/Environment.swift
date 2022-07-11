@@ -46,6 +46,7 @@ protocol AppEnvironment {
     var isDebugBuild: Bool { get }
     var isTesting: Bool { get }
     var appDisplayName: String { get }
+    var isOverridingStyles: Bool { get set }
 }
 
 /// The portions of the Environment that provide information about the device.
