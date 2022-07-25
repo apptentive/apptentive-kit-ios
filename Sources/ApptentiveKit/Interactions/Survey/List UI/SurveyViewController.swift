@@ -253,7 +253,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
             otherCell.otherTextLabel.text = choice.label
-            otherCell.isSelected = choice.isSelected
             otherCell.textField.text = choice.value
             otherCell.textField.delegate = self
             otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
@@ -444,7 +443,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             }
 
-            self.tableView.reloadSections(IndexSet(integer: sectionIndex), with: .fade)
+            reloadSections.insert(sectionIndex)
         })
 
         self.tableView.reloadSections(reloadSections, with: .fade)
@@ -541,17 +540,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 self.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
             } else if !isSelected && cell.isSelected {
                 self.tableView.deselectRow(at: indexPath, animated: true)
-
-                if let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell {
-                    otherCell.textField.resignFirstResponder()
-
-                    UIView.animate(withDuration: Self.animationDuration) {
-                        otherCell.isExpanded = false
-                    }
-
-                    self.tableView.beginUpdates()
-                    self.tableView.endUpdates()
-                }
             }
         }
     }
