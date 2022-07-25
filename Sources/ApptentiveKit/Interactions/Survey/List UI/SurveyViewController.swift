@@ -251,7 +251,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
             otherCell.otherTextLabel.text = choice.label
-            otherCell.isSelected = choice.isSelected
             otherCell.textField.text = choice.value
             otherCell.textField.delegate = self
             otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
@@ -319,14 +318,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     // MARK: Table View Delegate
-
-    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
-            return  // Not a choice question
-        }
-
-        cell.isSelected = choiceQuestion.choices[indexPath.row].isSelected
-    }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
@@ -437,6 +428,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             visibleSectionIndexes.append(firstVisibleSectionIndex - 1)
         }
 
+        var reloadSections = IndexSet()
         visibleSectionIndexes.forEach({ sectionIndex in
             let question = viewModel.questions[sectionIndex]
 
@@ -452,8 +444,10 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             }
 
-            self.tableView.reloadSections(IndexSet(integer: sectionIndex), with: .fade)
+            reloadSections.insert(sectionIndex)
         })
+
+        self.tableView.reloadSections(reloadSections, with: .fade)
 
         self.tableView.indexPathsForVisibleRows?.forEach { indexPath in
             guard let cell = self.tableView.cellForRow(at: indexPath) else {
@@ -514,18 +508,10 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             let isSelected = choiceQuestion.choices[indexPath.row].isSelected
 
-            if let choiceCell = cell as? SurveyChoiceCell {
-                choiceCell.isSelected = isSelected
-            } else if let choiceCell = cell as? SurveyOtherChoiceCell {
-
-                // cell selection is out of sync with view model selection
-                if (!isSelected && choiceCell.isSelected) || (isSelected && !choiceCell.isSelected) {
-                    choiceCell.isSelected = isSelected
-                    self.tableView.reloadRows(at: [indexPath], with: .fade)
-                }
-
-            } else {
-                return assertionFailure("Should have choice cell for choice question")
+            if isSelected && !cell.isSelected {
+                self.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+            } else if !isSelected && cell.isSelected {
+                self.tableView.deselectRow(at: indexPath, animated: true)
             }
         }
     }
