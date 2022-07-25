@@ -27,6 +27,9 @@ class SurveySingleLineCell: UITableViewCell {
                     self.textField.borderStyle = .none
                     self.leadingConstraint?.constant = 16.0
                     self.trailingConstraint?.constant = 16.0
+                    self.topConstraint?.constant = 0
+                    self.bottomConstraint?.constant = 0
+                    self.heightConstraint?.constant = 44
                 }
             }
         }
@@ -52,6 +55,9 @@ class SurveySingleLineCell: UITableViewCell {
 
     var leadingConstraint: NSLayoutConstraint?
     var trailingConstraint: NSLayoutConstraint?
+    var topConstraint: NSLayoutConstraint?
+    var bottomConstraint: NSLayoutConstraint?
+    var heightConstraint: NSLayoutConstraint?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.textField = UITextField(frame: .zero)
@@ -76,14 +82,12 @@ class SurveySingleLineCell: UITableViewCell {
         self.textField.returnKeyType = .done
         self.textField.tintColor = .apptentivetextInputTint
 
+        self.topConstraint = self.textField.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0)
         self.leadingConstraint = self.textField.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 15.0)
         self.trailingConstraint = self.contentView.trailingAnchor.constraint(equalTo: self.textField.trailingAnchor, constant: 15.0)
+        self.bottomConstraint = self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textField.bottomAnchor, multiplier: 1.0)
+        self.heightConstraint = self.textField.heightAnchor.constraint(greaterThanOrEqualToConstant: 33)
 
-        NSLayoutConstraint.activate(
-            [
-                self.textField.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
-                self.leadingConstraint, self.trailingConstraint,
-                self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textField.bottomAnchor, multiplier: 1.0),
-            ].compactMap({ $0 }))
+        NSLayoutConstraint.activate([self.topConstraint, self.leadingConstraint, self.trailingConstraint, self.bottomConstraint, self.heightConstraint].compactMap { $0 })
     }
 }

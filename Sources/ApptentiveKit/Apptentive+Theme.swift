@@ -131,9 +131,9 @@ extension Apptentive {
 
         UIColor.apptentiveTermsOfServiceLabel = termsOfServiceColor
 
-        UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .callout)
-        UIFont.apptentiveChoiceLabel = .preferredFont(forTextStyle: .callout)
-        UIFont.apptentiveTextInput = .preferredFont(forTextStyle: .callout)
+        UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .body)
+        UIFont.apptentiveChoiceLabel = .preferredFont(forTextStyle: .body)
+        UIFont.apptentiveTextInput = .preferredFont(forTextStyle: .body)
 
         UIBarButtonItem.apptentiveClose = {
             let systemClose: UIBarButtonItem = {

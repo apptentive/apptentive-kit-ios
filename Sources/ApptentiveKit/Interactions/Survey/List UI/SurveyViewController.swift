@@ -193,6 +193,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             singleLineCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
             singleLineCell.textField.tag = self.tag(for: indexPath)
             singleLineCell.textField.accessibilityIdentifier = String(indexPath.section)
+
             singleLineCell.tableViewStyle = tableView.style
             singleLineCell.isMarkedAsInvalid = question.isMarkedAsInvalid
 
@@ -287,8 +288,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         header.instructionsLabel.isHidden = instructionsText.isEmpty
         header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveQuestionLabel
         header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
+
+        header.contentView.accessibilityTraits = .header
         header.contentView.accessibilityLabel = question.accessibilityLabel
         header.contentView.accessibilityHint = question.accessibilityHint
+        header.contentView.isAccessibilityElement = true
+
         return header
     }
 
@@ -394,7 +399,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         if let firstIndex = self.viewModel.invalidQuestionIndexes.min() {
             if let header = self.tableView.headerView(forSection: firstIndex) as? SurveyQuestionHeaderView {
-                UIAccessibility.post(notification: UIAccessibility.Notification.layoutChanged, argument: header)
+                UIAccessibility.post(notification: .layoutChanged, argument: header)
             }
         }
     }
@@ -404,6 +409,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {
         if let _ = self.viewModel.thankYouMessage {
             self.footerMode = .thankYou
+
+            UIAccessibility.post(notification: .screenChanged, argument: self.submitView.submitLabel)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(800)) {
                 self.dismiss()

@@ -249,7 +249,7 @@ extension UIColor {
 
     /// The color to use for the message bubble view for outbound messages.
     @objc public static var apptentiveMessageBubbleOutbound: UIColor = {
-        return .systemBlue
+        return UIColor(red: 0, green: 0.42, blue: 1, alpha: 1)
     }()
 
     /// The color to use for message labels for the inbound message body.
@@ -287,7 +287,22 @@ extension UIColor {
 
     /// The color to use for UI elements to indicate an error state.
     @objc public static var apptentiveError: UIColor = {
-        .systemRed
+        let lightModeError = UIColor(red: 0.86, green: 0.1, blue: 0, alpha: 1)
+        let darkModeError = UIColor(red: 1, green: 0.28, blue: 0.24, alpha: 1)
+
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return darkModeError
+
+                default:
+                    return lightModeError
+                }
+            }
+        } else {
+            return lightModeError
+        }
     }()
 
     /// An alternative to 'apptentiveLabel' in gray.
@@ -364,7 +379,11 @@ extension UIColor {
 
     /// The color used for min and max labels for the range survey.
     @objc public static var apptentiveMinMaxLabel: UIColor = {
-        return .gray
+        if #available(iOS 13.0, *) {
+            return .secondaryLabel
+        } else {
+            return .darkGray
+        }
     }()
 
     /// The color used for the background of the entire survey.
@@ -472,7 +491,7 @@ extension UIFont {
 
     /// The font to use for the greeting title for message center.
     @objc public static var apptentiveMessageCenterStatus: UIFont = {
-        return .preferredFont(forTextStyle: .caption1)
+        return .preferredFont(forTextStyle: .footnote)
     }()
 
     /// The font to use for the greeting title for message center.
@@ -512,7 +531,7 @@ extension UIFont {
 
     /// The font used for the min and max labels for the range survey.
     @objc public static var apptentiveMinMaxLabel: UIFont = {
-        return .preferredFont(forTextStyle: .caption2)
+        return .preferredFont(forTextStyle: .footnote)
     }()
 
     /// The font used for the sender label in message center.
@@ -527,7 +546,7 @@ extension UIFont {
 
     /// The font used for the instructions label for surveys.
     @objc public static var apptentiveInstructionsLabel: UIFont = {
-        return .preferredFont(forTextStyle: .caption1)
+        return .preferredFont(forTextStyle: .footnote)
     }()
 
     /// The font used for the survey introduction label.
