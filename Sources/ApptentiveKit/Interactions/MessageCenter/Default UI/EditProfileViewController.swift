@@ -37,12 +37,13 @@ class EditProfileViewController: UIViewController {
         self.profileView.slaLabel.text = self.viewModel.statusBody
         self.profileView.emailTextField.text = self.viewModel.emailAddress
         self.profileView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.editProfileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
+        self.profileView.emailTextField.accessibilityLabel = self.viewModel.editProfileEmailPlaceholder
         self.profileView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
         self.profileView.emailTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
 
         self.profileView.nameTextField.text = self.viewModel.name
         self.profileView.nameTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.editProfileNamePlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
-
+        self.profileView.nameTextField.accessibilityLabel = self.viewModel.editProfileNamePlaceholder
         self.profileView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
 
         self.setConstraints()

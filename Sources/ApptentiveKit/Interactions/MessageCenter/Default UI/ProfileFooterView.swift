@@ -48,7 +48,7 @@ class ProfileFooterView: UIView {
         self.nameTextField.contentVerticalAlignment = .center
         self.nameTextField.font = .apptentiveMessageCenterTextInput
         self.nameTextField.textColor = .apptentiveMessageCenterTextInput
-        self.emailTextField.autocapitalizationType = .words
+        self.nameTextField.autocapitalizationType = .words
         self.nameTextField.accessibilityIdentifier = "name"
         self.nameTextField.backgroundColor = .apptentiveTextInputBackground
 

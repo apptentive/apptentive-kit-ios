@@ -289,10 +289,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         header.instructionsLabel.text = instructionsText
         header.instructionsLabel.isHidden = instructionsText.isEmpty
         header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveQuestionLabel
-        header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveInstructionsLabel
+        header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
 
         header.contentView.accessibilityTraits = .header
         header.contentView.accessibilityLabel = question.accessibilityLabel
+        header.contentView.accessibilityHint = question.accessibilityHint
         header.contentView.isAccessibilityElement = true
 
         return header
