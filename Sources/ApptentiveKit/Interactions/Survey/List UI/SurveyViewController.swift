@@ -234,9 +234,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             rangeChoiceCell.maxLabel.text = rangeQuestion.maxText
 
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell as SurveyChoiceCell):
-            choiceCell.textLabel?.text = choiceQuestion.choices[indexPath.row].label
+            let choice = choiceQuestion.choices[indexPath.row]
+
+            choiceCell.textLabel?.text = choice.label
             choiceCell.detailTextLabel?.text = nil
-            choiceCell.accessibilityLabel = choiceQuestion.choices[indexPath.row].label
+            choiceCell.accessibilityLabel = choice.label
             switch choiceQuestion.selectionStyle {
             case .radioButton:
                 choiceCell.imageView?.image = .apptentiveRadioButton
@@ -252,6 +254,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
             otherCell.otherTextLabel.text = choice.label
             otherCell.textField.text = choice.value
+            otherCell.isSelected = choice.isSelected
             otherCell.textField.delegate = self
             otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
             otherCell.textField.tag = self.tag(for: indexPath)
@@ -411,9 +414,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
     }
 
+    private var tableViewIsReloading = false
+
     func surveyViewModelValidationDidChange(_ viewModel: SurveyViewModel) {
         self.footerMode = viewModel.isMarkedAsInvalid ? .validationError : .submitButton
 
+        self.tableViewIsReloading = true
         self.tableView.beginUpdates()  // Animate in/out any error message footers
 
         var visibleSectionIndexes = tableView.indexPathsForVisibleRows?.map { $0.section } ?? []
@@ -475,6 +481,35 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
 
         self.tableView.endUpdates()
+        self.tableViewIsReloading = false
+
+        for sectionIndex in reloadSections {
+            // Reloading a section clears the table view's record of what was selected, so restore it here.
+            if let choiceQuestion = self.viewModel.questions[sectionIndex] as? SurveyViewModel.ChoiceQuestion {
+                for (choiceIndex, choice) in choiceQuestion.choices.enumerated() {
+                    if choice.isSelected {
+                        tableView.selectRow(at: IndexPath(row: choiceIndex, section: sectionIndex), animated: false, scrollPosition: .none)
+                    }
+                }
+            }
+
+            // Reloading a section calls resignFirstResponder on any responders, so restore it here.
+            if let firstResponderIndexPath = self.firstResponderIndexPath, sectionIndex == firstResponderIndexPath.section {
+                switch self.tableView.cellForRow(at: firstResponderIndexPath) {
+                case let singleLineCell as SurveySingleLineCell:
+                    singleLineCell.textField.becomeFirstResponder()
+
+                case let multiLineCell as SurveyMultiLineCell:
+                    multiLineCell.textView.becomeFirstResponder()
+
+                case let otherChoiceCell as SurveyOtherChoiceCell:
+                    otherChoiceCell.textField.becomeFirstResponder()
+
+                default:
+                    break
+                }
+            }
+        }
     }
 
     private func setIsMarkedAsInvalid(at indexPath: IndexPath, cell: UITableViewCell?) {
@@ -571,19 +606,20 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     func textFieldDidBeginEditing(_ textField: UITextField) {
         let indexPath = self.indexPath(forTag: textField.tag)
 
-        guard let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
-            return  // Not a choice question
-        }
-
-        if !question.choices[indexPath.row].isSelected {
-            question.toggleChoice(at: indexPath.row)
+        if let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion {
+            // Ensure that the choice corresponding to this "Other" text field is selected
+            if !question.choices[indexPath.row].isSelected {
+                question.toggleChoice(at: indexPath.row)
+            }
         }
 
         self.firstResponderIndexPath = indexPath
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        self.firstResponderIndexPath = nil
+        if !self.tableViewIsReloading {
+            self.firstResponderIndexPath = nil
+        }
     }
 
     // MARK: Text View Delegate
@@ -603,7 +639,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func textViewDidEndEditing(_ textView: UITextView) {
-        self.firstResponderIndexPath = nil
+        if !self.tableViewIsReloading {
+            self.firstResponderIndexPath = nil
+        }
     }
 
     // MARK: - Adaptive Presentation Controller Delegate

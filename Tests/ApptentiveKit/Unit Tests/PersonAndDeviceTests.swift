@@ -48,9 +48,6 @@ class PersonAndDeviceTests: XCTestCase {
         self.environment?.isProtectedDataAvailable = false
 
         self.apptentive = Apptentive(baseURL: URL(string: "https://localhost"), containerDirectory: "com.apptentive.feedback.\(UUID().uuidString)", backendQueue: self.dispatchQueue, environment: self.environment)
-        
-        
-        
 
         // Clean up data directory before running tests
         let containerURL = try self.environment.applicationSupportURL().appendingPathComponent(self.apptentive.containerDirectory)
