@@ -254,6 +254,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
             otherCell.otherTextLabel.text = choice.label
             otherCell.textField.text = choice.value
+            otherCell.isSelected = choice.isSelected
             otherCell.textField.delegate = self
             otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
             otherCell.textField.tag = self.tag(for: indexPath)
@@ -596,15 +597,22 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     // We probably don't need this now that the Other text field is only visible when the choice is selected.
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        self.firstResponderIndexPath = self.indexPath(forTag: textField.tag)
-        textField.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
+        let indexPath = self.indexPath(forTag: textField.tag)
+
+        if let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion {
+            // Ensure that the choice corresponding to this "Other" text field is selected
+            if !question.choices[indexPath.row].isSelected {
+                question.toggleChoice(at: indexPath.row)
+            }
+        }
+
+        self.firstResponderIndexPath = indexPath
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
         if !self.tableViewIsReloading {
             self.firstResponderIndexPath = nil
         }
-        textField.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
     }
 
     // MARK: Text View Delegate
@@ -628,7 +636,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         if !self.tableViewIsReloading {
             self.firstResponderIndexPath = nil
         }
-        textView.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
     }
 
     // MARK: - Adaptive Presentation Controller Delegate

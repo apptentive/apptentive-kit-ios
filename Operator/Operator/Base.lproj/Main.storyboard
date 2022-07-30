@@ -808,7 +808,7 @@
                     <navigationItem key="navigationItem" title="Manifest Override" id="3bx-ZV-B0f">
                         <barButtonItem key="rightBarButtonItem" systemItem="done" id="8dN-VK-tWY">
                             <connections>
-                                <segue destination="5Xs-b0-1Su" kind="unwind" unwindAction="doneChoosingManifestWithSender:" id="psq-zQ-OAS"/>
+                                <segue destination="5Xs-b0-1Su" kind="unwind" identifier="doneChoosing" unwindAction="doneChoosingManifestWithSender:" id="psq-zQ-OAS"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

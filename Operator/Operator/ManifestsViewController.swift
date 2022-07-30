@@ -67,6 +67,8 @@ class ManifestsViewController: UITableViewController {
             }
 
             tableView.deselectRow(at: indexPath, animated: true)
+            
+            self.performSegue(withIdentifier: "doneChoosing", sender: self)
         }
     }
 
