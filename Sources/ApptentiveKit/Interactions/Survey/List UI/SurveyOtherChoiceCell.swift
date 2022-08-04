@@ -77,8 +77,13 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
     var isExpanded = false {
         didSet {
-            self.textField.isAccessibilityElement = self.isExpanded
-            self.textField.alpha = self.isExpanded ? 1 : 0
+            if self.isExpanded {
+                self.setExpandedConstraints()
+                self.textField.alpha = 1
+            } else {
+                self.setCollapsedConstraints()
+                self.textField.alpha = 0
+            }
         }
     }
 
@@ -125,49 +130,13 @@ class SurveyOtherChoiceCell: UITableViewCell {
         ])
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        if self.skipLayoutAdjustment {
-            self.skipLayoutAdjustment = false
-            return
-        }
-
-        if let textLabel = self.textLabel, let imageView = self.imageView, let textLabelFrame = self.textLabelFrame, let imageViewFrame = self.imageViewFrame {
-
-            if textLabelFrame != .zero {
-                textLabel.frame = textLabelFrame
-            }
-
-            if imageViewFrame != .zero {
-                imageView.frame = imageViewFrame
-            }
-
-            self.textField.frame = CGRect(
-                x: textLabel.frame.minX - 7.5,
-                y: textLabel.frame.maxY - 1,
-                width: self.contentView.bounds.width - textLabel.frame.minX - 8.5,
-                height: self.textField.intrinsicContentSize.height)
-        }
+    private func setCollapsedConstraints() {
+        self.contentViewBottomConstraint.isActive = true
+        self.splitterConstraint.isActive = false
     }
 
-    override func sizeThatFits(_ size: CGSize) -> CGSize {
-        let additionalTextFieldHeight = self.textField.intrinsicContentSize.height * 1.5
-        var fitSize = size
-
-        if self.isExpanded {
-            fitSize = CGSize(width: size.width, height: size.height - additionalTextFieldHeight)
-        }
-
-        let superSize = super.sizeThatFits(fitSize)
-
-        self.textLabelFrame = self.textLabel?.frame
-        self.imageViewFrame = self.imageView?.frame
-
-        if self.isExpanded {
-            return CGSize(width: superSize.width, height: superSize.height + additionalTextFieldHeight)
-        } else {
-            return superSize
-        }
+    private func setExpandedConstraints() {
+        self.contentViewBottomConstraint.isActive = false
+        self.splitterConstraint.isActive = true
     }
 }

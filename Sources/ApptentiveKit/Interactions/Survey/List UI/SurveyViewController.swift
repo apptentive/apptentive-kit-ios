@@ -253,8 +253,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
             otherCell.otherTextLabel.text = choice.label
+            otherCell.accessibilityLabel = choice.label
+            otherCell.isExpanded = choice.isSelected
             otherCell.textField.text = choice.value
-            otherCell.isSelected = choice.isSelected
             otherCell.textField.delegate = self
             otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
             otherCell.textField.tag = self.tag(for: indexPath)
@@ -541,6 +542,17 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 self.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
             } else if !isSelected && cell.isSelected {
                 self.tableView.deselectRow(at: indexPath, animated: true)
+
+                if let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell {
+                    otherCell.textField.resignFirstResponder()
+
+                    UIView.animate(withDuration: Self.animationDuration) {
+                        otherCell.isExpanded = false
+                    }
+
+                    self.tableView.beginUpdates()
+                    self.tableView.endUpdates()
+                }
             }
         }
     }
@@ -597,16 +609,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     // We probably don't need this now that the Other text field is only visible when the choice is selected.
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        let indexPath = self.indexPath(forTag: textField.tag)
-
-        if let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion {
-            // Ensure that the choice corresponding to this "Other" text field is selected
-            if !question.choices[indexPath.row].isSelected {
-                question.toggleChoice(at: indexPath.row)
-            }
-        }
-
-        self.firstResponderIndexPath = indexPath
+        self.firstResponderIndexPath = self.indexPath(forTag: textField.tag)
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
