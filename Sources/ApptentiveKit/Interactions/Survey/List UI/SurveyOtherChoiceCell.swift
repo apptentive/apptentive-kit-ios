@@ -56,21 +56,22 @@ class SurveyOtherChoiceCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         self.imageView?.isHighlighted = selected
-
         if self.isSelected {
             self.imageView?.tintColor = .apptentiveImageSelected
             self.accessibilityTraits.insert(UIAccessibilityTraits.selected)
-            self.setExpandedConstraints()
-
-            UIView.animate(withDuration: SurveyViewController.animationDuration) {
-                self.textField.alpha = 1
-            }
         } else {
             self.imageView?.tintColor = .apptentiveImageNotSelected
             self.accessibilityTraits.remove(UIAccessibilityTraits.selected)
-            self.setCollapsedConstraints()
+        }
+    }
 
-            UIView.animate(withDuration: SurveyViewController.animationDuration) {
+    var isExpanded = false {
+        didSet {
+            if self.isExpanded {
+                self.setExpandedConstraints()
+                self.textField.alpha = 1
+            } else {
+                self.setCollapsedConstraints()
                 self.textField.alpha = 0
             }
         }
@@ -123,12 +124,12 @@ class SurveyOtherChoiceCell: UITableViewCell {
         ])
     }
 
-    func setCollapsedConstraints() {
+    private func setCollapsedConstraints() {
         self.contentViewBottomConstraint.isActive = true
         self.splitterConstraint.isActive = false
     }
 
-    func setExpandedConstraints() {
+    private func setExpandedConstraints() {
         self.contentViewBottomConstraint.isActive = false
         self.splitterConstraint.isActive = true
     }

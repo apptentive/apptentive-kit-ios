@@ -108,8 +108,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.tableView.register(SurveyMultiLineCell.self, forCellReuseIdentifier: "multiLine")
         self.tableView.register(SurveySingleLineCell.self, forCellReuseIdentifier: "singleLine")
         self.tableView.register(SurveyChoiceCell.self, forCellReuseIdentifier: "choice")
-        self.tableView.register(SurveyOtherChoiceCell.self, forCellReuseIdentifier: "otherCollapsed")
-        self.tableView.register(SurveyOtherChoiceCell.self, forCellReuseIdentifier: "otherExpanded")
+        self.tableView.register(SurveyOtherChoiceCell.self, forCellReuseIdentifier: "otherChoice")
         self.tableView.register(SurveyRangeCell.self, forCellReuseIdentifier: "rangeControl")
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "unimplemented")
 
@@ -167,10 +166,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         case let choiceQuestion as SurveyViewModel.ChoiceQuestion:
             let choice = choiceQuestion.choices[indexPath.row]
-            if choice.supportsOther && choice.isSelected == false {
-                reuseIdentifier = "otherCollapsed"
-            } else if choice.supportsOther && choice.isSelected == true {
-                reuseIdentifier = "otherExpanded"
+            if choice.supportsOther {
+                reuseIdentifier = "otherChoice"
             } else {
                 reuseIdentifier = "choice"
             }
@@ -253,8 +250,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
             otherCell.otherTextLabel.text = choice.label
+            otherCell.accessibilityLabel = choice.label
+            otherCell.isExpanded = choice.isSelected
             otherCell.textField.text = choice.value
-            otherCell.isSelected = choice.isSelected
             otherCell.textField.delegate = self
             otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
             otherCell.textField.tag = self.tag(for: indexPath)
@@ -334,20 +332,16 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             guard let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell else {
                 return assertionFailure("Expected other cell for other choice")
             }
-            otherCell.textField.becomeFirstResponder()
-            let choice = choiceQuestion.choices[indexPath.row]
-            choice.isSelected = true
-            otherCell.isSelected = true
 
-            otherCell.setExpandedConstraints()
+            otherCell.textField.becomeFirstResponder()
+
             UIView.animate(withDuration: SurveyViewController.animationDuration) {
-                otherCell.textField.alpha = 1
+                otherCell.isExpanded = true
                 otherCell.layoutIfNeeded()
             }
 
             self.tableView.beginUpdates()
             self.tableView.endUpdates()
-
         }
     }
 
@@ -370,13 +364,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             }
 
             otherCell.textField.resignFirstResponder()
-            choice.isSelected = false
-            otherCell.isSelected = false
-            otherCell.setCollapsedConstraints()
+
             UIView.animate(withDuration: SurveyViewController.animationDuration) {
-                otherCell.textField.alpha = 0
+                otherCell.isExpanded = false
                 otherCell.layoutIfNeeded()
             }
+
             self.tableView.beginUpdates()
             self.tableView.endUpdates()
         }
@@ -547,6 +540,17 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 self.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
             } else if !isSelected && cell.isSelected {
                 self.tableView.deselectRow(at: indexPath, animated: true)
+
+                if let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell {
+                    otherCell.textField.resignFirstResponder()
+
+                    UIView.animate(withDuration: Self.animationDuration) {
+                        otherCell.isExpanded = false
+                    }
+
+                    self.tableView.beginUpdates()
+                    self.tableView.endUpdates()
+                }
             }
         }
     }
@@ -604,16 +608,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     // We probably don't need this now that the Other text field is only visible when the choice is selected.
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        let indexPath = self.indexPath(forTag: textField.tag)
-
-        if let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion {
-            // Ensure that the choice corresponding to this "Other" text field is selected
-            if !question.choices[indexPath.row].isSelected {
-                question.toggleChoice(at: indexPath.row)
-            }
-        }
-
-        self.firstResponderIndexPath = indexPath
+        self.firstResponderIndexPath = self.indexPath(forTag: textField.tag)
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
