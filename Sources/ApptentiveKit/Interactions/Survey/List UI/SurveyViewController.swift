@@ -95,6 +95,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.submitView.submitButton.setTitle(self.viewModel.submitButtonText, for: .normal)
         self.submitView.submitButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
+        // Pre-set submit label to allocate space
+        self.submitView.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
+
         self.navigationItem.rightBarButtonItem = .apptentiveClose
         self.navigationItem.rightBarButtonItem?.target = self
         self.navigationItem.rightBarButtonItem?.action = #selector(closeSurvey)
