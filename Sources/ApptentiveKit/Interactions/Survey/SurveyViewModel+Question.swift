@@ -72,12 +72,11 @@ extension SurveyViewModel {
                 result.append(". \(requiredText)")
             }
 
-            return result.joined(separator: " ")
-        }
+            if let instructions = self.instructions {
+                result.append(". \(instructions)")
+            }
 
-        /// Returns the accessibility hint for the header.
-        public var accessibilityHint: String? {
-            return self.instructions
+            return result.joined(separator: " ")
         }
 
         init(question: SurveyConfiguration.Question, requiredText: String?) {
