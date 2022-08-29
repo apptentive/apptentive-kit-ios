@@ -294,7 +294,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         header.contentView.accessibilityTraits = .header
         header.contentView.accessibilityLabel = question.accessibilityLabel
-        header.contentView.accessibilityHint = question.accessibilityHint
         header.contentView.isAccessibilityElement = true
 
         return header
