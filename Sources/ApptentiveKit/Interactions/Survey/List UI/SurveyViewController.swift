@@ -249,7 +249,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             let choice = choiceQuestion.choices[indexPath.row]
 
             otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
-            otherCell.otherTextLabel.text = choice.label
+            otherCell.textLabel?.text = choice.label
             otherCell.accessibilityLabel = choice.label
             otherCell.isExpanded = choice.isSelected
             otherCell.textField.text = choice.value
