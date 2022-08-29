@@ -13,8 +13,17 @@ class InteractionsViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        self.loadInteractions()
-        self.updatePrompt()
+        if let manifestName = UserDefaults.standard.string(forKey: "OverrideManifest"),
+           let interactionsDirectoryURL = Bundle.main.url(forResource: "Manifests", withExtension: "")
+        {
+            self.apptentive.loadEngagementManifest(at: interactionsDirectoryURL.appendingPathComponent(manifestName).appendingPathExtension("json")) { _ in
+                self.loadInteractions()
+                self.updatePrompt()
+            }
+        } else {
+            self.loadInteractions()
+            self.updatePrompt()
+        }
     }
 
     // MARK: UITableViewDataSource
