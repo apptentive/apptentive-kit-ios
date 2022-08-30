@@ -674,14 +674,25 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     private func configureTermsOfService() {
-        if let termsLabel = self.viewModel.termsAndConditionsLabel {
-            self.navigationController?.setToolbarHidden(false, animated: true)
+        if let termsText = self.viewModel.termsAndConditionsLinkText, let navigationController = self.navigationController {
+            navigationController.setToolbarHidden(false, animated: true)
+
+            let horizontalInset = (navigationController.toolbar.bounds.width - navigationController.toolbar.readableContentGuide.layoutFrame.width) / 2
+
+            let button = UIButton()
+            button.setAttributedTitle(.init(string: termsText, attributes: [.underlineStyle: 1]), for: .normal)
+            button.titleLabel?.numberOfLines = 0
+            button.titleLabel?.font = .apptentiveTermsOfServiceLabel
+            button.titleLabel?.textColor = .apptentiveTermsOfServiceLabel
+            button.titleLabel?.textAlignment = .center
+            button.titleEdgeInsets = .init(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
+
+            button.addTarget(self, action: #selector(openTermsAndConditions), for: .touchUpInside)
 
             let flexible = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-            let barButtonItem = UIBarButtonItem(title: termsLabel, style: .plain, target: self, action: #selector(openTermsAndConditions))
 
-            barButtonItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.apptentiveTermsOfServiceLabel, NSAttributedString.Key.foregroundColor: UIColor.apptentiveTermsOfServiceLabel, NSAttributedString.Key.underlineStyle: 1], for: .normal)
-            barButtonItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.apptentiveTermsOfServiceLabel, NSAttributedString.Key.foregroundColor: UIColor.apptentiveTermsOfServiceLabel, NSAttributedString.Key.underlineStyle: 1], for: .selected)
+            let barButtonItem = UIBarButtonItem.init(customView: button)
+
             self.setToolbarItems([flexible, barButtonItem, flexible], animated: false)
         } else {
             self.navigationController?.setToolbarHidden((UIToolbar.apptentiveMode == .hiddenWhenEmpty), animated: true)

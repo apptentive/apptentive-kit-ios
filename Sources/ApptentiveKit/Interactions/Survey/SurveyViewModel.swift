@@ -62,7 +62,7 @@ public class SurveyViewModel {
     public weak var delegate: SurveyViewModelDelegate?
 
     /// The label for an optional link to the terms and conditions for the survey.
-    public var termsAndConditionsLabel: String?
+    public var termsAndConditionsLinkText: String?
 
     /// The number formatter used to produce choice label strings for range questions.
     public var rangeChoiceLabelNumberFormatter: NumberFormatter
@@ -80,7 +80,7 @@ public class SurveyViewModel {
         self.thankYouMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
-        self.termsAndConditionsLabel = configuration.termsAndConditions?.label
+        self.termsAndConditionsLinkText = configuration.termsAndConditions?.label
         self.termsAndConditionsURL = configuration.termsAndConditions?.link
         self.closeConfirmationAlertTitle =
             configuration.closeConfirmationTitle ?? "Close survey?"
