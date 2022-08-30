@@ -61,7 +61,7 @@ class Targeter {
         interactionIndex = Dictionary(
             self.activeManifest.interactions.map { ($0.id, $0) },
             uniquingKeysWith: { old, new in
-                assertionFailure("Invalid engagement manifest: Interaction IDs must be unique.")
+                apptentiveCriticalError("Invalid engagement manifest: Interaction IDs must be unique.")
                 return old
             })
     }

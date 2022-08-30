@@ -34,7 +34,7 @@ struct SurveyAnswersRequestPart: Codable, Equatable {
 
         try self.answers.forEach { (key: String, questionResponses: [Answer]) in
             guard let questionIDCodingKey = QuestionIDCodingKeys.init(stringValue: key) else {
-                return assertionFailure("Should always be able to create a QuestionIDCodingKeys instance with a string")
+                return apptentiveCriticalError("Should always be able to create a QuestionIDCodingKeys instance with a string")
             }
 
             var questionContainer = container.nestedUnkeyedContainer(forKey: questionIDCodingKey)

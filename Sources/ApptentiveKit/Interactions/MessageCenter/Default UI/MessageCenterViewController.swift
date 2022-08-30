@@ -208,7 +208,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
             automatedCell.messageText.text = message.body
 
         default:
-            assertionFailure("Cell type doesn't match inbound value")
+            apptentiveCriticalError("Cell type doesn't match inbound value")
         }
         return cell
     }
@@ -368,7 +368,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
                 return self.tableView
 
             default:
-                assertionFailure("Expected sent, received, or automated message cell")
+                apptentiveCriticalError("Expected sent, received, or automated message cell")
                 return self.tableView
             }
         }()
@@ -599,7 +599,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
             }
 
             guard let attachmentIndicator = subview as? AttachmentView else {
-                assertionFailure("Unknown subview in attachment stack view.")
+                apptentiveCriticalError("Unknown subview in attachment stack view.")
                 continue
             }
 
@@ -707,7 +707,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
                 subview.isHidden = false
 
                 guard let attachmentView = subview as? DraftAttachmentView else {
-                    assertionFailure("Unknown subview in attachment stack view.")
+                    apptentiveCriticalError("Unknown subview in attachment stack view.")
                     continue
                 }
 

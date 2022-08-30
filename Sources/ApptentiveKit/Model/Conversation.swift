@@ -71,12 +71,12 @@ struct Conversation: Equatable, Codable, APICredentialsProviding {
     /// - Throws: An error if the app- or conversation credentials are mismatched.
     mutating func merge(with newer: Conversation) throws {
         guard self.appCredentials == nil || newer.appCredentials == nil || self.appCredentials == newer.appCredentials else {
-            assertionFailure("Apptentive Key and Signature have changed from their previous values, which is not supported.")
+            apptentiveCriticalError("Apptentive Key and Signature have changed from their previous values, which is not supported.")
             throw ApptentiveError.internalInconsistency
         }
 
         guard self.conversationCredentials == nil || newer.conversationCredentials == nil || self.conversationCredentials == newer.conversationCredentials else {
-            assertionFailure("Both new and existing conversations have tokens, but they do not match.")
+            apptentiveCriticalError("Both new and existing conversations have tokens, but they do not match.")
             throw ApptentiveError.internalInconsistency
         }
 

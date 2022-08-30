@@ -219,9 +219,9 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
         if !self.environment.isTesting {
             if credentials.key.isEmpty || credentials.signature.isEmpty {
-                assertionFailure("App key or signature is missing.")
+                apptentiveCriticalError("App key or signature is missing.")
             } else if !credentials.key.hasPrefix("IOS-") {
-                assertionFailure("Invalid app key. Please check the dashboard for the correct app key.")
+                apptentiveCriticalError("Invalid app key. Please check the dashboard for the correct app key.")
             }
         }
 
@@ -237,7 +237,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
                         completion?(.failure(error))
                         ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
                         if !self.environment.isTesting {
-                            assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                            apptentiveCriticalError("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
                         }
                     }
                 }
@@ -327,7 +327,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     @objc(sendAttachmentImage:)
     public func sendAttachment(_ image: UIImage) {
         guard let imageData = image.jpegData(compressionQuality: 0.95) else {
-            return assertionFailure("Unable to convert image to JPEG data.")
+            return apptentiveCriticalError("Unable to convert image to JPEG data.")
         }
 
         let attachment = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "image.jpeg", storage: .inMemory(imageData))
@@ -377,8 +377,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     let containerDirectory: String
 
     init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: GlobalEnvironment? = nil) {
-        if Self.alreadyInitialized {
-            assertionFailure("Attempting to instantiate an Apptentive object but an instance already exists.")
+        if Self.alreadyInitialized && environment?.isTesting != false {
+            apptentiveCriticalError("Attempting to instantiate an Apptentive object but an instance already exists.")
         }
 
         Self.alreadyInitialized = true
@@ -431,7 +431,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
                 try self.backend.protectedDataDidBecomeAvailable(containerURL: containerURL, cachesURL: cachesURL, environment: environment)
             } catch let error {
                 ApptentiveLogger.default.error("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error).")
-                assertionFailure("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error)")
+                apptentiveCriticalError("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error)")
             }
         }
     }
@@ -482,4 +482,18 @@ public enum ApptentiveError: Error {
     case invalidCustomDataType(Any?)
     case fileExistsAtContainerDirectoryPath
     case mismatchedCredentials
+}
+
+/// The method to call when a critical error occurs.
+///
+/// This can be overriden, for example:
+/// ```
+/// apptentiveAssertionHandler = { message, file, line in
+///     print("\(file):\(line): Apptentive critical error: \(message())")
+/// }
+/// ```
+public var apptentiveAssertionHandler = assertionFailure
+
+func apptentiveCriticalError(_ message: String, file: StaticString = #file, line: UInt = #line) {
+    apptentiveAssertionHandler(message, file, line)
 }

@@ -33,7 +33,7 @@ extension Apptentive {
             let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil),
             let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil)
         else {
-            assertionFailure("Unable to locate color asset(s).")
+            apptentiveCriticalError("Unable to locate color asset(s).")
             return
         }
 

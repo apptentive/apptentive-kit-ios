@@ -100,7 +100,7 @@ public class SurveyViewModel {
         // Bail if we have non-unique question IDs.
         let questionIDs = questions.map { $0.id }
         guard questionIDs.sorted() == Array(Set(questionIDs)).sorted() else {
-            assertionFailure("Question IDs are not unique!")
+            apptentiveCriticalError("Question IDs are not unique!")
             return []
         }
 
@@ -204,7 +204,7 @@ public class SurveyViewModel {
     /// Opens the link to the terms and conditions.
     public func openTermsAndConditions() {
         guard let termsLink = self.termsAndConditionsURL else {
-            return assertionFailure("Attempting to open terms and conditions, but URL is missing.")
+            return apptentiveCriticalError("Attempting to open terms and conditions, but URL is missing.")
         }
 
         self.interactionDelegate.open(termsLink) { _ in }

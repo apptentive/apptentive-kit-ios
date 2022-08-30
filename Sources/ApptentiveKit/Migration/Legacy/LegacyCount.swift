@@ -18,7 +18,7 @@ class LegacyCount: NSObject, NSSecureCoding {
     let lastInvoked: Date?
 
     func encode(with coder: NSCoder) {
-        assertionFailure("Saving legacy count is not supported.")
+        apptentiveCriticalError("Saving legacy count is not supported.")
     }
 
     required init?(coder: NSCoder) {

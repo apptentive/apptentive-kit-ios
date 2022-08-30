@@ -212,7 +212,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             rangeChoiceCell.choiceLabels = rangeQuestion.choiceLabels
 
             guard let segmentedControl = rangeChoiceCell.segmentedControl else {
-                assertionFailure("Expected range cell to have segmented control.")
+                apptentiveCriticalError("Expected range cell to have segmented control.")
                 break
             }
 
@@ -280,7 +280,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let question = self.viewModel.questions[section]
 
         guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "question") as? SurveyQuestionHeaderView else {
-            assertionFailure("Unexpected header view registered for identifier `question`.")
+            apptentiveCriticalError("Unexpected header view registered for identifier `question`.")
             return nil
         }
 
@@ -301,7 +301,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         guard let footer = tableView.dequeueReusableHeaderFooterView(withIdentifier: "questionFooter") as? SurveyQuestionFooterView else {
-            assertionFailure("Unexpected footer view registered for identifier `question`.")
+            apptentiveCriticalError("Unexpected footer view registered for identifier `question`.")
             return nil
         }
 
@@ -332,7 +332,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         // Automatically focus text field in "Other" choice cells.
         if choiceQuestion.choices[indexPath.row].supportsOther {
             guard let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell else {
-                return assertionFailure("Expected other cell for other choice")
+                return apptentiveCriticalError("Expected other cell for other choice")
             }
 
             otherCell.textField.becomeFirstResponder()
@@ -362,7 +362,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         } else if choice.supportsOther {
             // Automatically unfocus text field in "Other" choice cells (assuming not a radio button).
             guard let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell else {
-                return assertionFailure("Expected other cell for other choice")
+                return apptentiveCriticalError("Expected other cell for other choice")
             }
 
             otherCell.textField.resignFirstResponder()
@@ -587,7 +587,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         } else if let choiceQuestion = question as? SurveyViewModel.ChoiceQuestion {
             choiceQuestion.choices[indexPath.row].value = textField.text
         } else {
-            return assertionFailure("Text field sending events to wrong question")
+            return apptentiveCriticalError("Text field sending events to wrong question")
         }
 
     }
@@ -624,7 +624,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let indexPath = self.indexPath(forTag: textView.tag)
 
         guard let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.FreeformQuestion else {
-            return assertionFailure("Text view sending delegate calls to wrong question")
+            return apptentiveCriticalError("Text view sending delegate calls to wrong question")
         }
 
         question.value = textView.text

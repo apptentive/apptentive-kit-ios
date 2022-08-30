@@ -228,7 +228,7 @@ extension Apptentive {
 
     @available(*, deprecated, message: "This method is no longer implemented and will trigger an assertion failure.")
     @objc public func openAppStore() {
-        assertionFailure("The public App Store feature is no longer supported.")
+        apptentiveCriticalError("The public App Store feature is no longer supported.")
     }
 
     @available(*, deprecated, message: "Use the 'setRemoteNotificationToken()' method instead.")
@@ -238,7 +238,7 @@ extension Apptentive {
             self.setRemoteNotificationDeviceToken(deviceToken)
 
         default:
-            assertionFailure("Alternative push providers are no longer supported.")
+            apptentiveCriticalError("Alternative push providers are no longer supported.")
         }
     }
 
@@ -315,17 +315,17 @@ extension Apptentive {
 
     @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
     @objc public func checkSDKConfiguration() {
-        assertionFailure("This method is no longer implemented.")
+        apptentiveCriticalError("This method is no longer implemented.")
     }
 
     @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
     @objc public func logIn(withToken token: String, completion: @escaping (Bool, Error) -> Void) {
-        assertionFailure("This method is no longer implemented.")
+        apptentiveCriticalError("This method is no longer implemented.")
     }
 
     @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
     @objc public func logOut() {
-        assertionFailure("This method is no longer implemented.")
+        apptentiveCriticalError("This method is no longer implemented.")
     }
 
     @available(*, deprecated, message: "Multiple users on the same device is not currently supported.")
@@ -346,7 +346,7 @@ extension Apptentive {
 
     @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
     @objc public func updateToken(_ token: String, completion: ((Bool) -> Void)? = nil) {
-        assertionFailure("This method is no longer implemented.")
+        apptentiveCriticalError("This method is no longer implemented.")
     }
 
     @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of it's static log properties.")
@@ -365,7 +365,7 @@ extension Apptentive {
         if let legacyCustomData = legacyCustomData {
             for (key, value) in legacyCustomData {
                 guard let key = key as? String else {
-                    assertionFailure("Custom data keys must be strings.")
+                    apptentiveCriticalError("Custom data keys must be strings.")
                     continue
                 }
 

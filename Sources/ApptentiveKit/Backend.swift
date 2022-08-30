@@ -139,7 +139,7 @@ class Backend {
     func register(appCredentials: Apptentive.AppCredentials, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
         guard self.conversation.appCredentials == nil || self.conversation.appCredentials == appCredentials else {
             completion(.failure(ApptentiveError.mismatchedCredentials))
-            return assertionFailure("Mismatched Credentials: Please delete and reinstall the app.")
+            return apptentiveCriticalError("Mismatched Credentials: Please delete and reinstall the app.")
         }
 
         self.conversation.appCredentials = appCredentials
@@ -281,7 +281,7 @@ class Backend {
             DispatchQueue.main.async {
                 completion?(.failure(error))
                 ApptentiveLogger.default.error("Targeting error: \(error)")
-                assertionFailure("Targeting error: \(error)")
+                apptentiveCriticalError("Targeting error: \(error)")
             }
         }
     }
@@ -308,7 +308,7 @@ class Backend {
                     completion(destinationInteraction.id)
                 case .success(false):
                     ApptentiveLogger.default.error("TextModal button had no invocations with matching criteria.")
-                    assertionFailure("TextModal button had no invocations with matching criteria.")
+                    apptentiveCriticalError("TextModal button had no invocations with matching criteria.")
                 case .failure(let error):
                     ApptentiveLogger.default.error("Failure presenting interaction based on invocations: \(error).")
                 }
@@ -319,7 +319,7 @@ class Backend {
             }
 
             ApptentiveLogger.interaction.error("TextModal button targeting error: \(error).")
-            assertionFailure("TextModal button targeting error: \(error).")
+            apptentiveCriticalError("TextModal button targeting error: \(error).")
         }
     }
 
@@ -410,7 +410,7 @@ class Backend {
             } catch let error {
                 completion?(.failure(error))
                 ApptentiveLogger.default.error("Interaction presentation error: \(error)")
-                assertionFailure("Interaction presentation error: \(error)")
+                apptentiveCriticalError("Interaction presentation error: \(error)")
             }
         }
     }
@@ -470,7 +470,7 @@ class Backend {
             try self.messageManager.saveMessagesIfNeeded()
         } catch let error {
             ApptentiveLogger.default.error("Unable to save files to persistent storage: \(error).")
-            assertionFailure("Unable to save files to persistent storage: \(error.localizedDescription)")
+            apptentiveCriticalError("Unable to save files to persistent storage: \(error.localizedDescription)")
         }
     }
 

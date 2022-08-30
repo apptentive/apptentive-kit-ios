@@ -17,7 +17,7 @@ class LegacyRandom: NSObject, NSSecureCoding {
     }
 
     func encode(with coder: NSCoder) {
-        assertionFailure("Saving legacy random is not supported")
+        apptentiveCriticalError("Saving legacy random is not supported")
     }
 
     required init?(coder: NSCoder) {

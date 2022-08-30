@@ -188,7 +188,7 @@ class Environment: GlobalEnvironment {
         }
 
         guard let versionString = Bundle.module.infoDictionary?["CFBundleShortVersionString"] as? String else {
-            assertionFailure("Unable to read SDK version from ApptentiveKit's Info.plist file")
+            apptentiveCriticalError("Unable to read SDK version from ApptentiveKit's Info.plist file")
             return "Unavailable"
         }
 
@@ -356,7 +356,7 @@ class Environment: GlobalEnvironment {
 
     func endBackgroundTask() {
         guard let backgroundTaskIdentifier = self.backgroundTaskIdentifier else {
-            return assertionFailure("Expected to have background task identifier.")
+            return apptentiveCriticalError("Expected to have background task identifier.")
         }
 
         UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)

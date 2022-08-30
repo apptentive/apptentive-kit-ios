@@ -598,7 +598,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
                 insertedIndexPaths.append(newIndexPath)
 
             case (.none, .none):
-                assertionFailure("Should not end up with nil old and new index paths.")
+                apptentiveCriticalError("Should not end up with nil old and new index paths.")
             }
         }
 

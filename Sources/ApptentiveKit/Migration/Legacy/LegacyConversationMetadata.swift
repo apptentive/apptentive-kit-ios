@@ -15,7 +15,7 @@ class LegacyConversationMetadata: NSObject, NSSecureCoding {
     let items: [LegacyConversationMetadataItem]
 
     func encode(with coder: NSCoder) {
-        assertionFailure("Saving legacy conversation metadata not supported.")
+        apptentiveCriticalError("Saving legacy conversation metadata not supported.")
     }
 
     required init?(coder: NSCoder) {
