@@ -238,7 +238,7 @@ extension Apptentive {
             self.setRemoteNotificationDeviceToken(deviceToken)
 
         default:
-            assertionFailure("Alternative push providers are no longer supported.")
+            apptentiveCriticalError("Alternative push providers are no longer supported.")
         }
     }
 

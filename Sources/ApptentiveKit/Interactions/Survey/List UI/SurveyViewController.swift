@@ -301,7 +301,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         guard let footer = tableView.dequeueReusableHeaderFooterView(withIdentifier: "questionFooter") as? SurveyQuestionFooterView else {
-            assertionFailure("Unexpected footer view registered for identifier `question`.")
+            apptentiveCriticalError("Unexpected footer view registered for identifier `question`.")
             return nil
         }
 

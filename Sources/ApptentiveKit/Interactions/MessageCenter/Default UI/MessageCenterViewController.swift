@@ -379,7 +379,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
                 return self.tableView
 
             default:
-                assertionFailure("Expected sent, received, or automated message cell")
+                apptentiveCriticalError("Expected sent, received, or automated message cell")
                 return self.tableView
             }
         }()

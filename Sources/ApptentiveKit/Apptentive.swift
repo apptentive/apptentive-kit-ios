@@ -237,7 +237,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
                         completion?(.failure(error))
                         ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
                         if !self.environment.isTesting {
-                            assertionFailure("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                            apptentiveCriticalError("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
                         }
                     }
                 }
@@ -376,7 +376,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     var environment: GlobalEnvironment
 
     init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: GlobalEnvironment? = nil) {
-        if Self.alreadyInitialized {
+        if Self.alreadyInitialized && environment?.isTesting != false {
             apptentiveCriticalError("Attempting to instantiate an Apptentive object but an instance already exists.")
         }
 
@@ -429,8 +429,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
                 try self.backend.protectedDataDidBecomeAvailable(containerURL: containerURL, cachesURL: cachesURL, environment: environment)
             } catch let error {
-                ApptentiveLogger.default.error("Unable to start Backend: \(error).")
-                apptentiveCriticalError("Unable to start Backend: \(error)")
+                ApptentiveLogger.default.error("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error).")
+                apptentiveCriticalError("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error)")
             }
         }
     }
@@ -491,9 +491,7 @@ public enum ApptentiveError: Error {
 ///     print("\(file):\(line): Apptentive critical error: \(message())")
 /// }
 /// ```
-public var apptentiveAssertionHandler = { (message: @autoclosure () -> String, file, line) in
-    assertionFailure(message(), file: file, line: line)
-}
+public var apptentiveAssertionHandler = assertionFailure
 
 func apptentiveCriticalError(_ message: String, file: StaticString = #file, line: UInt = #line) {
     apptentiveAssertionHandler(message, file, line)

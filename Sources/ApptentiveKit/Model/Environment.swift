@@ -188,10 +188,9 @@ class Environment: GlobalEnvironment {
             return "Unavailable"
         }
 
-        if let infoPListVersionString = Bundle.module.infoDictionary?["CFBundleShortVersionString"] as? String {
-            if infoPListVersionString != versionString {
-                ApptentiveLogger.default.warning("ApptentiveKit framework is damaged! Version in Info.plist (\(infoPListVersionString)) does not match SDK version (\(versionString))")
-            }
+        guard let versionString = Bundle.module.infoDictionary?["CFBundleShortVersionString"] as? String else {
+            apptentiveCriticalError("Unable to read SDK version from ApptentiveKit's Info.plist file")
+            return "Unavailable"
         }
 
         return Version(string: versionString)

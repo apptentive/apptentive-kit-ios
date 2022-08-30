@@ -159,7 +159,7 @@ class Backend {
     func register(appCredentials: Apptentive.AppCredentials, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
         guard self.conversation.appCredentials == nil || self.conversation.appCredentials == appCredentials else {
             completion(.failure(ApptentiveError.mismatchedCredentials))
-            return assertionFailure("Mismatched Credentials: Please delete and reinstall the app.")
+            return apptentiveCriticalError("Mismatched Credentials: Please delete and reinstall the app.")
         }
 
         self.conversation.appCredentials = appCredentials
