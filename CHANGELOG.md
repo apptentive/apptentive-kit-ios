@@ -1,3 +1,19 @@
+# 2022-08-31 - 6.0.4
+
+#### New & Improved
+
+- Improved VoiceOver navigation in Surveys
+- Fixed some issues with large Dynamic Type sizes in Surveys
+- Improved contrast ratios in Surveys and Message Center
+- Enabled URLs, email addresses, dates, and physical addresses to be opened in Message Center
+- Range questions in surveys now use localized numerals
+- Added `apptentiveAssertionHandler` to allow changing behavior in case of a critical error (e.g. during testing)
+
+#### Bugs Fixed
+
+- Fixed an issue with selection and deselection of choice questions in Surveys
+- Fixed an issue where the Message Center configuration could fail to decode due to missing required fields
+
 # 2022-06-16 - 6.0.3
 
 #### New & Improved
