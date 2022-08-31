@@ -6,7 +6,6 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import CryptoKit
 import UIKit
 
 class SurveyOtherChoiceCell: UITableViewCell {
