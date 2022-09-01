@@ -120,7 +120,7 @@ struct SurveyConfiguration: Decodable {
                 case id
                 case value
                 case type
-                case placeholderText = "freeform_hint"
+                case placeholderText = "hint"
             }
 
             enum ChoiceType: String, Decodable {

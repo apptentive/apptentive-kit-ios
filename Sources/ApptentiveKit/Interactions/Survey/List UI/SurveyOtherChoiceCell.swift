@@ -77,11 +77,8 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
     var isExpanded = false {
         didSet {
-            if self.isExpanded {
-                self.textField.alpha = 1
-            } else {
-                self.textField.alpha = 0
-            }
+            self.textField.isAccessibilityElement = self.isExpanded
+            self.textField.alpha = self.isExpanded ? 1 : 0
         }
     }
 
