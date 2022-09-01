@@ -150,7 +150,6 @@
 		01B91FD025CCB85500B8AFEE /* BackendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91FCF25CCB85500B8AFEE /* BackendTests.swift */; };
 		01C0218A25DC891A00547059 /* Criteria+Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C0218925DC891A00547059 /* Criteria+Logging.swift */; };
 		01C54076258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */; };
-		01C7958425C1082800FD28F1 /* PersonAndDeviceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C7958325C1082800FD28F1 /* PersonAndDeviceTests.swift */; };
 		01D19C8D266162FB00BD8CF9 /* ChoiceButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D19C8C266162FB00BD8CF9 /* ChoiceButton.swift */; };
 		01D739282405CB630000EE52 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
 		01DB26E328599E5900458B91 /* Manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 01DB26E128599E2B00458B91 /* Manifest.json */; };
@@ -1413,7 +1412,6 @@
 				01B91FBE25CCAFAA00B8AFEE /* PersonPayloadTests.swift in Sources */,
 				0130E81225D327B9004B2895 /* SpyRequestor.swift in Sources */,
 				013D8E9924F03C13005EC4D1 /* HTTPClientTests.swift in Sources */,
-				01C7958425C1082800FD28F1 /* PersonAndDeviceTests.swift in Sources */,
 				015D6BCF250AC7AD00372759 /* MockEnvironment.swift in Sources */,
 				0130E80C25D326CF004B2895 /* HTTPRequestRetrierTests.swift in Sources */,
 				01E7986B251C32F200D24A05 /* SurveyResponsePayloadTests.swift in Sources */,

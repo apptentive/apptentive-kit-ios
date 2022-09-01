@@ -38,6 +38,7 @@ class ProfileFooterView: UIView {
         let secondSpacerView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: self.emailTextField.bounds.height))
 
         self.nameTextField.translatesAutoresizingMaskIntoConstraints = false
+        self.nameTextField.adjustsFontForContentSizeCategory = true
         self.nameTextField.layer.borderWidth = 1 / self.traitCollection.displayScale
         self.nameTextField.layer.masksToBounds = false
         self.nameTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
@@ -52,6 +53,7 @@ class ProfileFooterView: UIView {
         self.nameTextField.backgroundColor = .apptentiveTextInputBackground
 
         self.emailTextField.translatesAutoresizingMaskIntoConstraints = false
+        self.emailTextField.adjustsFontForContentSizeCategory = true
         self.emailTextField.layer.borderWidth = 1 / self.traitCollection.displayScale
         self.emailTextField.layer.masksToBounds = false
         self.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
@@ -67,6 +69,7 @@ class ProfileFooterView: UIView {
         self.emailTextField.backgroundColor = .apptentiveTextInputBackground
 
         self.slaLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.slaLabel.adjustsFontForContentSizeCategory = true
         self.slaLabel.numberOfLines = 0
         self.slaLabel.lineBreakMode = .byWordWrapping
         self.slaLabel.font = .apptentiveMessageCenterStatus
@@ -82,12 +85,12 @@ class ProfileFooterView: UIView {
             self.nameTextField.topAnchor.constraint(equalToSystemSpacingBelow: self.readableContentGuide.topAnchor, multiplier: 1),
             self.nameTextField.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.readableContentGuide.trailingAnchor.constraint(equalTo: self.nameTextField.trailingAnchor),
-            self.nameTextField.heightAnchor.constraint(equalToConstant: 40),
+            self.nameTextField.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
 
             self.emailTextField.topAnchor.constraint(equalToSystemSpacingBelow: self.nameTextField.bottomAnchor, multiplier: 1),
             self.emailTextField.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.readableContentGuide.trailingAnchor.constraint(equalTo: self.emailTextField.trailingAnchor),
-            self.emailTextField.heightAnchor.constraint(equalToConstant: 40),
+            self.emailTextField.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
 
             self.slaLabel.topAnchor.constraint(equalToSystemSpacingBelow: self.emailTextField.bottomAnchor, multiplier: 4),
             self.slaLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: self.readableContentGuide.leadingAnchor, multiplier: 1),
