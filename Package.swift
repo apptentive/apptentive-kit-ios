@@ -7,7 +7,7 @@ let package = Package(
     name: "ApptentiveKit",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v12)
+        .iOS(.v11)
     ],
     products: [
         .library(
