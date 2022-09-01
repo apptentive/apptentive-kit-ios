@@ -68,7 +68,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.introductionView = SurveyIntroductionView(frame: .zero)
         self.submitView = SurveySubmitView(frame: .zero)
         super.init(style: .apptentive)
-
         viewModel.delegate = self
     }
 
@@ -80,12 +79,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         super.viewDidLoad()
         view.backgroundColor = .apptentiveGroupedBackground
         self.tableView.separatorColor = .apptentiveSeparator
-
         self.configureTermsOfService()
         self.navigationController?.presentationController?.delegate = self
 
         if let headerLogo = UIImage.apptentiveHeaderLogo {
             let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
+            headerImageView.contentMode = .scaleAspectFit
             self.navigationItem.titleView = headerImageView
         } else {
             self.navigationItem.title = self.viewModel.name
@@ -95,6 +94,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         self.submitView.submitButton.setTitle(self.viewModel.submitButtonText, for: .normal)
         self.submitView.submitButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
+
+        // Pre-set submit label to allocate space
+        self.submitView.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
 
         self.navigationItem.rightBarButtonItem = .apptentiveClose
         self.navigationItem.rightBarButtonItem?.target = self
@@ -109,12 +111,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.tableView.register(SurveyMultiLineCell.self, forCellReuseIdentifier: "multiLine")
         self.tableView.register(SurveySingleLineCell.self, forCellReuseIdentifier: "singleLine")
         self.tableView.register(SurveyChoiceCell.self, forCellReuseIdentifier: "choice")
-        self.tableView.register(SurveyOtherChoiceCell.self, forCellReuseIdentifier: "otherCollapsed")
-        self.tableView.register(SurveyOtherChoiceCell.self, forCellReuseIdentifier: "otherExpanded")
+        self.tableView.register(SurveyOtherChoiceCell.self, forCellReuseIdentifier: "otherChoice")
         self.tableView.register(SurveyRangeCell.self, forCellReuseIdentifier: "rangeControl")
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "unimplemented")
 
         self.tableView.register(SurveyQuestionHeaderView.self, forHeaderFooterViewReuseIdentifier: "question")
+        self.tableView.register(SurveyQuestionFooterView.self, forHeaderFooterViewReuseIdentifier: "questionFooter")
 
         self.tableView.sectionHeaderHeight = UITableView.automaticDimension
         self.tableView.rowHeight = UITableView.automaticDimension
@@ -167,10 +169,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         case let choiceQuestion as SurveyViewModel.ChoiceQuestion:
             let choice = choiceQuestion.choices[indexPath.row]
-            if choice.supportsOther && choice.isSelected == false {
-                reuseIdentifier = "otherCollapsed"
-            } else if choice.supportsOther && choice.isSelected == true {
-                reuseIdentifier = "otherExpanded"
+            if choice.supportsOther {
+                reuseIdentifier = "otherChoice"
             } else {
                 reuseIdentifier = "choice"
             }
@@ -187,12 +187,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         switch (question, cell) {
         case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let singleLineCell as SurveySingleLineCell):
-            singleLineCell.textField.placeholder = freeformQuestion.placeholderText
+            singleLineCell.textField.attributedPlaceholder = NSAttributedString(string: freeformQuestion.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
             singleLineCell.textField.text = freeformQuestion.value
             singleLineCell.textField.delegate = self
             singleLineCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
             singleLineCell.textField.tag = self.tag(for: indexPath)
             singleLineCell.textField.accessibilityIdentifier = String(indexPath.section)
+
             singleLineCell.tableViewStyle = tableView.style
             singleLineCell.isMarkedAsInvalid = question.isMarkedAsInvalid
 
@@ -211,7 +212,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             rangeChoiceCell.choiceLabels = rangeQuestion.choiceLabels
 
             guard let segmentedControl = rangeChoiceCell.segmentedControl else {
-                assertionFailure("Expected range cell to have segmented control.")
+                apptentiveCriticalError("Expected range cell to have segmented control.")
                 break
             }
 
@@ -233,9 +234,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             rangeChoiceCell.maxLabel.text = rangeQuestion.maxText
 
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell as SurveyChoiceCell):
-            choiceCell.textLabel?.text = choiceQuestion.choices[indexPath.row].label
+            let choice = choiceQuestion.choices[indexPath.row]
+
+            choiceCell.textLabel?.text = choice.label
             choiceCell.detailTextLabel?.text = nil
-            choiceCell.accessibilityLabel = choiceQuestion.choices[indexPath.row].label
+            choiceCell.accessibilityLabel = choice.label
             switch choiceQuestion.selectionStyle {
             case .radioButton:
                 choiceCell.imageView?.image = .apptentiveRadioButton
@@ -248,8 +251,10 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let otherCell as SurveyOtherChoiceCell):
             let choice = choiceQuestion.choices[indexPath.row]
 
-            otherCell.otherTextLabel.text = choice.label
-            otherCell.isSelected = choice.isSelected
+            otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
+            otherCell.textLabel?.text = choice.label
+            otherCell.accessibilityLabel = choice.label
+            otherCell.isExpanded = choice.isSelected
             otherCell.textField.text = choice.value
             otherCell.textField.delegate = self
             otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
@@ -275,7 +280,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let question = self.viewModel.questions[section]
 
         guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "question") as? SurveyQuestionHeaderView else {
-            assertionFailure("Unexpected header view registered for identifier `question`.")
+            apptentiveCriticalError("Unexpected header view registered for identifier `question`.")
             return nil
         }
 
@@ -286,25 +291,36 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         header.instructionsLabel.isHidden = instructionsText.isEmpty
         header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveQuestionLabel
         header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
+
+        header.contentView.accessibilityTraits = .header
         header.contentView.accessibilityLabel = question.accessibilityLabel
-        header.contentView.accessibilityHint = question.accessibilityHint
+        header.contentView.isAccessibilityElement = true
+
         return header
     }
 
-    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        guard let footer = tableView.dequeueReusableHeaderFooterView(withIdentifier: "questionFooter") as? SurveyQuestionFooterView else {
+            apptentiveCriticalError("Unexpected footer view registered for identifier `question`.")
+            return nil
+        }
+
         let question = self.viewModel.questions[section]
-        return question.isMarkedAsInvalid ? question.errorMessage : nil
+
+        footer.errorLabel.text = question.isMarkedAsInvalid ? question.errorMessage : nil
+
+        return footer
+    }
+
+    override func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
+        return 75
+    }
+
+    override func tableView(_ tableView: UITableView, estimatedHeightForFooterInSection section: Int) -> CGFloat {
+        return 35
     }
 
     // MARK: Table View Delegate
-
-    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
-            return  // Not a choice question
-        }
-
-        cell.isSelected = choiceQuestion.choices[indexPath.row].isSelected
-    }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
@@ -316,22 +332,18 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         // Automatically focus text field in "Other" choice cells.
         if choiceQuestion.choices[indexPath.row].supportsOther {
             guard let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell else {
-                return assertionFailure("Expected other cell for other choice")
+                return apptentiveCriticalError("Expected other cell for other choice")
             }
-            otherCell.textField.becomeFirstResponder()
-            let choice = choiceQuestion.choices[indexPath.row]
-            choice.isSelected = true
-            otherCell.isSelected = true
 
-            otherCell.setExpandedConstraints()
+            otherCell.textField.becomeFirstResponder()
+
             UIView.animate(withDuration: SurveyViewController.animationDuration) {
-                otherCell.textField.alpha = 1
+                otherCell.isExpanded = true
                 otherCell.layoutIfNeeded()
             }
 
             self.tableView.beginUpdates()
             self.tableView.endUpdates()
-
         }
     }
 
@@ -350,17 +362,16 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         } else if choice.supportsOther {
             // Automatically unfocus text field in "Other" choice cells (assuming not a radio button).
             guard let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell else {
-                return assertionFailure("Expected other cell for other choice")
+                return apptentiveCriticalError("Expected other cell for other choice")
             }
 
             otherCell.textField.resignFirstResponder()
-            choice.isSelected = false
-            otherCell.isSelected = false
-            otherCell.setCollapsedConstraints()
+
             UIView.animate(withDuration: SurveyViewController.animationDuration) {
-                otherCell.textField.alpha = 0
+                otherCell.isExpanded = false
                 otherCell.layoutIfNeeded()
             }
+
             self.tableView.beginUpdates()
             self.tableView.endUpdates()
         }
@@ -370,15 +381,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         guard let footerView = view as? UITableViewHeaderFooterView else {
             return
         }
-
-        footerView.textLabel?.alpha = 1  // We may have faded this out in `surveyViewModelValidationDidChange(_:)`.
-        footerView.textLabel?.textColor = .apptentiveError  // Footers always display an error in the error color.
+        footerView.textLabel?.alpha = 1
+        footerView.textLabel?.textColor = .apptentiveError
     }
 
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         if let firstIndex = self.viewModel.invalidQuestionIndexes.min() {
             if let header = self.tableView.headerView(forSection: firstIndex) as? SurveyQuestionHeaderView {
-                UIAccessibility.post(notification: UIAccessibility.Notification.layoutChanged, argument: header)
+                UIAccessibility.post(notification: .layoutChanged, argument: header)
             }
         }
     }
@@ -389,6 +399,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         if let _ = self.viewModel.thankYouMessage {
             self.footerMode = .thankYou
 
+            UIAccessibility.post(notification: .screenChanged, argument: self.submitView.submitLabel)
+
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(800)) {
                 self.dismiss()
             }
@@ -397,9 +409,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
     }
 
+    private var tableViewIsReloading = false
+
     func surveyViewModelValidationDidChange(_ viewModel: SurveyViewModel) {
         self.footerMode = viewModel.isMarkedAsInvalid ? .validationError : .submitButton
 
+        self.tableViewIsReloading = true
         self.tableView.beginUpdates()  // Animate in/out any error message footers
 
         var visibleSectionIndexes = tableView.indexPathsForVisibleRows?.map { $0.section } ?? []
@@ -414,6 +429,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             visibleSectionIndexes.append(firstVisibleSectionIndex - 1)
         }
 
+        var reloadSections = IndexSet()
         visibleSectionIndexes.forEach({ sectionIndex in
             let question = viewModel.questions[sectionIndex]
 
@@ -425,18 +441,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                     header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
                 }
                 header.contentView.accessibilityLabel = question.accessibilityLabel
-                header.contentView.accessibilityHint = question.accessibilityHint
 
             }
 
-            // The footer's position animates properly when a question is un-marked,
-            // but the text stays visible for some reason (a UIKit bug?).
-            if let footer = self.tableView.footerView(forSection: sectionIndex) {
-                UIView.animate(withDuration: Self.animationDuration) {
-                    footer.textLabel?.alpha = question.isMarkedAsInvalid ? 1 : 0
-                }
-            }
+            reloadSections.insert(sectionIndex)
         })
+
+        self.tableView.reloadSections(reloadSections, with: .fade)
 
         self.tableView.indexPathsForVisibleRows?.forEach { indexPath in
             guard let cell = self.tableView.cellForRow(at: indexPath) else {
@@ -464,6 +475,35 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
 
         self.tableView.endUpdates()
+        self.tableViewIsReloading = false
+
+        for sectionIndex in reloadSections {
+            // Reloading a section clears the table view's record of what was selected, so restore it here.
+            if let choiceQuestion = self.viewModel.questions[sectionIndex] as? SurveyViewModel.ChoiceQuestion {
+                for (choiceIndex, choice) in choiceQuestion.choices.enumerated() {
+                    if choice.isSelected {
+                        tableView.selectRow(at: IndexPath(row: choiceIndex, section: sectionIndex), animated: false, scrollPosition: .none)
+                    }
+                }
+            }
+
+            // Reloading a section calls resignFirstResponder on any responders, so restore it here.
+            if let firstResponderIndexPath = self.firstResponderIndexPath, sectionIndex == firstResponderIndexPath.section {
+                switch self.tableView.cellForRow(at: firstResponderIndexPath) {
+                case let singleLineCell as SurveySingleLineCell:
+                    singleLineCell.textField.becomeFirstResponder()
+
+                case let multiLineCell as SurveyMultiLineCell:
+                    multiLineCell.textView.becomeFirstResponder()
+
+                case let otherChoiceCell as SurveyOtherChoiceCell:
+                    otherChoiceCell.textField.becomeFirstResponder()
+
+                default:
+                    break
+                }
+            }
+        }
     }
 
     private func setIsMarkedAsInvalid(at indexPath: IndexPath, cell: UITableViewCell?) {
@@ -497,18 +537,21 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             let isSelected = choiceQuestion.choices[indexPath.row].isSelected
 
-            if let choiceCell = cell as? SurveyChoiceCell {
-                choiceCell.isSelected = isSelected
-            } else if let choiceCell = cell as? SurveyOtherChoiceCell {
+            if isSelected && !cell.isSelected {
+                self.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+            } else if !isSelected && cell.isSelected {
+                self.tableView.deselectRow(at: indexPath, animated: true)
 
-                // cell selection is out of sync with view model selection
-                if (!isSelected && choiceCell.isSelected) || (isSelected && !choiceCell.isSelected) {
-                    choiceCell.isSelected = isSelected
-                    self.tableView.reloadRows(at: [indexPath], with: .fade)
+                if let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell {
+                    otherCell.textField.resignFirstResponder()
+
+                    UIView.animate(withDuration: Self.animationDuration) {
+                        otherCell.isExpanded = false
+                    }
+
+                    self.tableView.beginUpdates()
+                    self.tableView.endUpdates()
                 }
-
-            } else {
-                return assertionFailure("Should have choice cell for choice question")
             }
         }
     }
@@ -544,7 +587,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         } else if let choiceQuestion = question as? SurveyViewModel.ChoiceQuestion {
             choiceQuestion.choices[indexPath.row].value = textField.text
         } else {
-            return assertionFailure("Text field sending events to wrong question")
+            return apptentiveCriticalError("Text field sending events to wrong question")
         }
 
     }
@@ -566,21 +609,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     // We probably don't need this now that the Other text field is only visible when the choice is selected.
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        let indexPath = self.indexPath(forTag: textField.tag)
-
-        guard let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
-            return  // Not a choice question
-        }
-
-        if !question.choices[indexPath.row].isSelected {
-            question.toggleChoice(at: indexPath.row)
-        }
-
-        self.firstResponderIndexPath = indexPath
+        self.firstResponderIndexPath = self.indexPath(forTag: textField.tag)
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        self.firstResponderIndexPath = nil
+        if !self.tableViewIsReloading {
+            self.firstResponderIndexPath = nil
+        }
     }
 
     // MARK: Text View Delegate
@@ -589,7 +624,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let indexPath = self.indexPath(forTag: textView.tag)
 
         guard let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.FreeformQuestion else {
-            return assertionFailure("Text view sending delegate calls to wrong question")
+            return apptentiveCriticalError("Text view sending delegate calls to wrong question")
         }
 
         question.value = textView.text
@@ -600,7 +635,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func textViewDidEndEditing(_ textView: UITextView) {
-        self.firstResponderIndexPath = nil
+        if !self.tableViewIsReloading {
+            self.firstResponderIndexPath = nil
+        }
     }
 
     // MARK: - Adaptive Presentation Controller Delegate
@@ -637,14 +674,25 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     private func configureTermsOfService() {
-        if let termsLabel = self.viewModel.termsAndConditionsLabel {
-            self.navigationController?.setToolbarHidden(false, animated: true)
+        if let termsText = self.viewModel.termsAndConditionsLinkText, let navigationController = self.navigationController {
+            navigationController.setToolbarHidden(false, animated: true)
+
+            let horizontalInset = (navigationController.toolbar.bounds.width - navigationController.toolbar.readableContentGuide.layoutFrame.width) / 2
+
+            let button = UIButton()
+            button.setAttributedTitle(.init(string: termsText, attributes: [.underlineStyle: 1]), for: .normal)
+            button.titleLabel?.numberOfLines = 0
+            button.titleLabel?.font = .apptentiveTermsOfServiceLabel
+            button.titleLabel?.textColor = .apptentiveTermsOfServiceLabel
+            button.titleLabel?.textAlignment = .center
+            button.titleEdgeInsets = .init(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
+
+            button.addTarget(self, action: #selector(openTermsAndConditions), for: .touchUpInside)
 
             let flexible = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-            let barButtonItem = UIBarButtonItem(title: termsLabel, style: .plain, target: self, action: #selector(openTermsAndConditions))
 
-            barButtonItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.apptentiveTermsOfServiceLabel, NSAttributedString.Key.foregroundColor: UIColor.apptentiveTermsOfServiceLabel, NSAttributedString.Key.underlineStyle: 1], for: .normal)
-            barButtonItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.apptentiveTermsOfServiceLabel, NSAttributedString.Key.foregroundColor: UIColor.apptentiveTermsOfServiceLabel, NSAttributedString.Key.underlineStyle: 1], for: .selected)
+            let barButtonItem = UIBarButtonItem.init(customView: button)
+
             self.setToolbarItems([flexible, barButtonItem, flexible], animated: false)
         } else {
             self.navigationController?.setToolbarHidden((UIToolbar.apptentiveMode == .hiddenWhenEmpty), animated: true)

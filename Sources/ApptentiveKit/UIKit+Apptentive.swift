@@ -18,6 +18,13 @@ public class ApptentiveNavigationController: UINavigationController {
     }
 }
 
+extension UITableView {
+    /// Determines height of the separator between questions.
+    public static var apptentiveQuestionSeparatorHeight: CGFloat = {
+        return 0
+    }()
+}
+
 extension UITableView.Style {
     /// The table view style to use for Apptentive UI.
     ///
@@ -140,8 +147,61 @@ extension UIImage {
 
 extension UIColor {
 
+    /// The color to use for the background in text inputs for message center.
+    @objc public static var apptentiveMessageCenterTextInputBackground: UIColor = {
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return .black
+
+                default:
+                    return .white
+
+                }
+            }
+        } else {
+            return .white
+        }
+    }()
+
+    /// The placeholder color to use for text inputs for message center.
+    @objc public static var apptentiveMessageCenterTextInputPlaceholder: UIColor = {
+        if #available(iOS 13.0, *) {
+            return .placeholderText
+        } else {
+            return UIColor(red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 67.0 / 255.0, alpha: 74.0 / 255.0)
+        }
+    }()
+
+    /// The text color to use for all text inputs in message center.
+    @objc public static var apptentiveMessageCenterTextInput: UIColor = {
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return .secondaryLabel
+
+                default:
+                    return .black
+                }
+            }
+        } else {
+            return .black
+        }
+    }()
+
+    /// The tint color for text inputs for surveys.
+    @objc public static var apptentivetextInputTint: UIColor = {
+        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
+            return tintColor
+        } else {
+            return .systemBlue
+        }
+    }()
+
     /// The border color to use for the message text view.
-    @objc public static var apptentiveMessageCenterTextViewBorder: UIColor = {
+    @objc public static var apptentiveMessageCenterTextInputBorder: UIColor = {
         return .darkGray
     }()
 
@@ -151,13 +211,8 @@ extension UIColor {
     }()
 
     /// The color to use for the text view placeholder for the compose view for message center.
-    @objc public static var apptentiveMessageTextViewPlaceholder: UIColor = {
+    @objc public static var apptentiveMessageTextInputPlaceholder: UIColor = {
         return .lightGray
-    }()
-
-    /// The color to use for the text view border for the compose view for message center.
-    @objc public static var apptentiveMessageTextViewBorder: UIColor = {
-        return .gray
     }()
 
     /// The color to use for the status message in message center.
@@ -194,7 +249,7 @@ extension UIColor {
 
     /// The color to use for the message bubble view for outbound messages.
     @objc public static var apptentiveMessageBubbleOutbound: UIColor = {
-        return .systemBlue
+        return UIColor(red: 0, green: 0.42, blue: 1, alpha: 1)
     }()
 
     /// The color to use for message labels for the inbound message body.
@@ -232,7 +287,22 @@ extension UIColor {
 
     /// The color to use for UI elements to indicate an error state.
     @objc public static var apptentiveError: UIColor = {
-        .systemRed
+        let lightModeError = UIColor(red: 0.86, green: 0.1, blue: 0, alpha: 1)
+        let darkModeError = UIColor(red: 1, green: 0.28, blue: 0.24, alpha: 1)
+
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return darkModeError
+
+                default:
+                    return lightModeError
+                }
+            }
+        } else {
+            return lightModeError
+        }
     }()
 
     /// An alternative to 'apptentiveLabel' in gray.
@@ -309,7 +379,11 @@ extension UIColor {
 
     /// The color used for min and max labels for the range survey.
     @objc public static var apptentiveMinMaxLabel: UIColor = {
-        return .gray
+        if #available(iOS 13.0, *) {
+            return .secondaryLabel
+        } else {
+            return .darkGray
+        }
     }()
 
     /// The color used for the background of the entire survey.
@@ -391,12 +465,33 @@ extension UIColor {
     public static var apptentiveSubmitButtonBorder: UIColor = {
         return .clear
     }()
+
+    /// The color to use for the space between questions.
+    public static var apptentiveQuestionSeparator: UIColor = {
+        return .clear
+    }()
 }
 
 extension UIFont {
+
+    /// The font to use for placeholder for text inputs in message center.
+    @objc public static var apptentiveMessageCenterTextInputPlaceholder: UIFont = {
+        return .preferredFont(forTextStyle: .body)
+    }()
+
+    /// The font to use for text inputs in message menter.
+    @objc public static var apptentiveMessageCenterTextInput: UIFont = {
+        return .preferredFont(forTextStyle: .body)
+    }()
+
+    /// The font to use for placeholder text for text inputs in surveys.
+    @objc public static var apptentiveTextInputPlaceholder: UIFont = {
+        return .preferredFont(forTextStyle: .body)
+    }()
+
     /// The font to use for the greeting title for message center.
     @objc public static var apptentiveMessageCenterStatus: UIFont = {
-        return .preferredFont(forTextStyle: .caption1)
+        return .preferredFont(forTextStyle: .footnote)
     }()
 
     /// The font to use for the greeting title for message center.
@@ -436,7 +531,7 @@ extension UIFont {
 
     /// The font used for the min and max labels for the range survey.
     @objc public static var apptentiveMinMaxLabel: UIFont = {
-        return .preferredFont(forTextStyle: .caption2)
+        return .preferredFont(forTextStyle: .footnote)
     }()
 
     /// The font used for the sender label in message center.
@@ -451,7 +546,7 @@ extension UIFont {
 
     /// The font used for the instructions label for surveys.
     @objc public static var apptentiveInstructionsLabel: UIFont = {
-        return .preferredFont(forTextStyle: .caption1)
+        return .preferredFont(forTextStyle: .footnote)
     }()
 
     /// The font used for the survey introduction label.

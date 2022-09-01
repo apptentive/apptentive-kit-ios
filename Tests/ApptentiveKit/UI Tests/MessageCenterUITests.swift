@@ -23,8 +23,8 @@ class MessageCenterUITests: XCTestCase {
 
         tablesQuery.staticTexts["MessageCenter"].tap()
 
-        let _ = XCUIApplication().navigationBars["Message Center"].waitForExistence(timeout: 2.0)
-        XCTAssertTrue(XCUIApplication().navigationBars["Message Center"].exists, "Name should exist")
+        let _ = XCUIApplication().navigationBars["MessageCenter"].waitForExistence(timeout: 2.0)
+        XCTAssertTrue(XCUIApplication().navigationBars["MessageCenter"].exists, "Name should exist")
 
         let sendButton = app.buttons["sendButton"]
         let attachmentButton = app.buttons["attachmentButton"]
@@ -135,15 +135,15 @@ class MessageCenterUITests: XCTestCase {
         let sendButton = XCUIApplication().buttons["sendButton"]
         sendButton.tap()
 
-        let editProfileButton = XCUIApplication().navigationBars["Message Center"].buttons["Profile"]
+        let editProfileButton = XCUIApplication().navigationBars["MessageCenterRequireEmail"].buttons["Profile"]
         editProfileButton.tap()
 
         XCTAssertTrue(XCUIApplication().navigationBars["Profile"].exists)
 
         XCUIApplication().navigationBars["Profile"].buttons["Done"].tap()
-        XCUIApplication().navigationBars["Message Center"].buttons["Close"].tap()
+        XCUIApplication().navigationBars["MessageCenterRequireEmail"].buttons["Close"].tap()
 
-        tablesQuery.staticTexts["MessageCenterRequestEmail"].tap()
+        tablesQuery.staticTexts["MessageCenterRequireEmail"].tap()
         XCTAssertFalse(XCUIApplication().textFields["Name"].exists)
         XCTAssertFalse(XCUIApplication().textFields["Email"].exists)
     }
@@ -168,13 +168,13 @@ class MessageCenterUITests: XCTestCase {
         let sendButton = XCUIApplication().buttons["sendButton"]
         sendButton.tap()
 
-        let editProfileButton = XCUIApplication().navigationBars["Message Center"].buttons["Profile"]
+        let editProfileButton = XCUIApplication().navigationBars["MessageCenterRequestEmail"].buttons["Profile"]
         editProfileButton.tap()
 
         XCTAssertTrue(XCUIApplication().navigationBars["Profile"].exists)
 
         XCUIApplication().navigationBars["Profile"].buttons["Done"].tap()
-        XCUIApplication().navigationBars["Message Center"].buttons["Close"].tap()
+        XCUIApplication().navigationBars["MessageCenterRequestEmail"].buttons["Close"].tap()
 
         tablesQuery.staticTexts["MessageCenterRequestEmail"].tap()
         XCTAssertFalse(XCUIApplication().textFields["Name"].exists)

@@ -97,11 +97,11 @@ class MessageCenterComposeView: UIView {
     }
 
     private func configureTextView() {
-        self.textView.backgroundColor = .apptentiveTextInputBackground
-        self.textView.textColor = .apptentiveTextInput
+        self.textView.backgroundColor = .apptentiveMessageCenterTextInputBackground
+        self.textView.textColor = .apptentiveMessageCenterTextInput
         self.textView.translatesAutoresizingMaskIntoConstraints = false
         self.textView.adjustsFontForContentSizeCategory = true
-        self.textView.font = .apptentiveTextInput
+        self.textView.font = .apptentiveMessageCenterTextInput
         self.textView.returnKeyType = .default
         self.textView.accessibilityIdentifier = "messageTextView"
 
@@ -115,12 +115,12 @@ class MessageCenterComposeView: UIView {
         self.placeholderLabel.isUserInteractionEnabled = false
         self.placeholderLabel.adjustsFontSizeToFitWidth = true
         self.placeholderLabel.minimumScaleFactor = 0.1
-        self.placeholderLabel.font = .apptentiveTextInput
-        self.placeholderLabel.textColor = .apptentiveTextInputPlaceholder
+        self.placeholderLabel.font = .apptentiveMessageCenterTextInputPlaceholder
+        self.placeholderLabel.textColor = .apptentiveMessageCenterTextInputPlaceholder
 
         self.textView.layer.cornerRadius = 6.0
         self.textView.layer.masksToBounds = false
-        self.textView.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
+        self.textView.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
         self.textView.clipsToBounds = true
 
         if #available(iOS 13.0, *) {

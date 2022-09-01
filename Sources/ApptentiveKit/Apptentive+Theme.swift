@@ -33,7 +33,7 @@ extension Apptentive {
             let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil),
             let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil)
         else {
-            assertionFailure("Unable to locate color asset(s).")
+            apptentiveCriticalError("Unable to locate color asset(s).")
             return
         }
 
@@ -121,7 +121,7 @@ extension Apptentive {
         UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
         UIColor.apptentiveMessageCenterAttachmentButton = buttonTintColor
-        UIColor.apptentiveMessageCenterTextViewBorder = messageTextInputBorderColor
+        UIColor.apptentiveMessageCenterTextInputBorder = messageTextInputBorderColor
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
@@ -131,9 +131,9 @@ extension Apptentive {
 
         UIColor.apptentiveTermsOfServiceLabel = termsOfServiceColor
 
-        UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .callout)
-        UIFont.apptentiveChoiceLabel = .preferredFont(forTextStyle: .callout)
-        UIFont.apptentiveTextInput = .preferredFont(forTextStyle: .callout)
+        UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .body)
+        UIFont.apptentiveChoiceLabel = .preferredFont(forTextStyle: .body)
+        UIFont.apptentiveTextInput = .preferredFont(forTextStyle: .body)
 
         UIBarButtonItem.apptentiveClose = {
             let systemClose: UIBarButtonItem = {

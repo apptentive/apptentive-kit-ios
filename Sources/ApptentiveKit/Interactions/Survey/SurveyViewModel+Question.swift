@@ -31,7 +31,7 @@ extension SurveyViewModel {
 
         /// The response object that will make up part of the survey response API request.
         var response: [Answer]? {
-            assertionFailure("Abstract method called")
+            apptentiveCriticalError("Abstract method called")
             return nil
         }
 
@@ -50,7 +50,7 @@ extension SurveyViewModel {
             didSet {
                 if isMarkedAsInvalid != oldValue {
                     guard let surveyViewModel = self.surveyViewModel else {
-                        return assertionFailure("Should have a view model set")
+                        return apptentiveCriticalError("Should have a view model set")
                     }
 
                     surveyViewModel.delegate?.surveyViewModelValidationDidChange(surveyViewModel)
@@ -72,12 +72,11 @@ extension SurveyViewModel {
                 result.append(". \(requiredText)")
             }
 
-            return result.joined(separator: " ")
-        }
+            if let instructions = self.instructions {
+                result.append(". \(instructions)")
+            }
 
-        /// Returns the accessibility hint for the header.
-        public var accessibilityHint: String? {
-            return self.instructions
+            return result.joined(separator: " ")
         }
 
         init(question: SurveyConfiguration.Question, requiredText: String?) {
@@ -93,7 +92,7 @@ extension SurveyViewModel {
             self.updateMarkedAsInvalid()
 
             guard let surveyViewModel = self.surveyViewModel else {
-                return assertionFailure("Should have a view model set")
+                return apptentiveCriticalError("Should have a view model set")
             }
 
             surveyViewModel.delegate?.surveyViewModelSelectionDidChange(surveyViewModel)

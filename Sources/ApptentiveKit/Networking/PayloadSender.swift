@@ -60,7 +60,7 @@ class PayloadSender {
                 try self.savePayloadsIfNeeded()
             } catch let error {
                 ApptentiveLogger.payload.error("Unable to save important payload: \(error).")
-                assertionFailure("Unable to save important payload: \(error).")
+                apptentiveCriticalError("Unable to save important payload: \(error).")
             }
         }
 

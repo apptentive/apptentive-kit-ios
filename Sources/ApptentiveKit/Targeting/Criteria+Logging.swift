@@ -160,7 +160,7 @@ struct CriteriaLogPrefix {
         self.indentationLevel -= 1
 
         if self.indentationLevel < 0 {
-            assertionFailure("Over out-denting criteria log.")
+            apptentiveCriticalError("Over out-denting criteria log.")
             self.reset()
         }
     }

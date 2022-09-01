@@ -17,6 +17,7 @@ import Foundation
 /// objects for the UI to display.
 struct SurveyConfiguration: Decodable {
     let name: String?
+    let title: String?
     let submitText: String?
     let validationError: String?
     let introduction: String?
@@ -39,6 +40,7 @@ struct SurveyConfiguration: Decodable {
 
     enum CodingKeys: String, CodingKey {
         case name
+        case title
         case submitText = "submit_text"
         case validationError = "validation_error"
         case introduction = "description"
@@ -118,7 +120,7 @@ struct SurveyConfiguration: Decodable {
                 case id
                 case value
                 case type
-                case placeholderText = "freeform_hint"
+                case placeholderText = "hint"
             }
 
             enum ChoiceType: String, Decodable {

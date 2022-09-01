@@ -44,7 +44,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertEqual(viewModel.isRequired, false)
         XCTAssertEqual(viewModel.questions.count, 16)
 
-        XCTAssertEqual(viewModel.termsAndConditionsLabel, "Terms and Conditions")
+        XCTAssertEqual(viewModel.termsAndConditionsLinkText, "Terms and Conditions")
 
         self.viewModel?.openTermsAndConditions()
 

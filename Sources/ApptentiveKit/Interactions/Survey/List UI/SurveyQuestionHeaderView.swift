@@ -21,9 +21,6 @@ class SurveyQuestionHeaderView: UITableViewHeaderFooterView {
         self.contentView.backgroundColor = .apptentiveGroupedBackground
         self.contentView.addSubview(self.stackView)
 
-        self.contentView.isAccessibilityElement = true
-        self.contentView.accessibilityTraits = .header
-
         self.configureLabels()
         self.configureStackView()
     }
@@ -53,7 +50,7 @@ class SurveyQuestionHeaderView: UITableViewHeaderFooterView {
         self.stackView.spacing = 8.0
 
         NSLayoutConstraint.activate([
-            self.stackView.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 1.0),
+            self.stackView.topAnchor.constraint(equalToSystemSpacingBelow: self.contentView.topAnchor, multiplier: 3.0),
             self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.stackView.bottomAnchor, multiplier: 1.0),
             self.stackView.leadingAnchor.constraint(equalToSystemSpacingAfter: self.contentView.leadingAnchor, multiplier: 2.0),
             self.contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: self.stackView.trailingAnchor, multiplier: 2.0),

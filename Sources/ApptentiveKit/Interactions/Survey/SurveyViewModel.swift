@@ -62,7 +62,10 @@ public class SurveyViewModel {
     public weak var delegate: SurveyViewModelDelegate?
 
     /// The label for an optional link to the terms and conditions for the survey.
-    public var termsAndConditionsLabel: String?
+    public var termsAndConditionsLinkText: String?
+
+    /// The number formatter used to produce choice label strings for range questions.
+    public var rangeChoiceLabelNumberFormatter: NumberFormatter
 
     required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: SurveyInteractionDelegate) {
         self.interaction = interaction
@@ -77,7 +80,7 @@ public class SurveyViewModel {
         self.thankYouMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
         self.isRequired = configuration.required ?? false
         self.questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
-        self.termsAndConditionsLabel = configuration.termsAndConditions?.label
+        self.termsAndConditionsLinkText = configuration.termsAndConditions?.label
         self.termsAndConditionsURL = configuration.termsAndConditions?.link
         self.closeConfirmationAlertTitle =
             configuration.closeConfirmationTitle ?? "Close survey?"
@@ -87,7 +90,7 @@ public class SurveyViewModel {
             configuration.closeConfirmationBackButtonText ?? "Back to Survey"
         self.closeConfirmationCloseButtonLabel =
             configuration.closeConfirmationCloseButtonText ?? "Close"
-
+        self.rangeChoiceLabelNumberFormatter = NumberFormatter()
         self.questions.forEach { (questionViewModel) in
             questionViewModel.surveyViewModel = self
         }
@@ -97,7 +100,7 @@ public class SurveyViewModel {
         // Bail if we have non-unique question IDs.
         let questionIDs = questions.map { $0.id }
         guard questionIDs.sorted() == Array(Set(questionIDs)).sorted() else {
-            assertionFailure("Question IDs are not unique!")
+            apptentiveCriticalError("Question IDs are not unique!")
             return []
         }
 
@@ -201,7 +204,7 @@ public class SurveyViewModel {
     /// Opens the link to the terms and conditions.
     public func openTermsAndConditions() {
         guard let termsLink = self.termsAndConditionsURL else {
-            return assertionFailure("Attempting to open terms and conditions, but URL is missing.")
+            return apptentiveCriticalError("Attempting to open terms and conditions, but URL is missing.")
         }
 
         self.interactionDelegate.open(termsLink) { _ in }

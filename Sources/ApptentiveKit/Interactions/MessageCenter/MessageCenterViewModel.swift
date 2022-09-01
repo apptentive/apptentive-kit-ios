@@ -84,7 +84,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     public let greetingImageURL: URL
 
     ///the message describing customer's hours, expected time until response.
-    public let statusBody: String
+    public let statusBody: String?
 
     /// The messages grouped by date, according to the current calendar, sorted with oldest messages last.
     public var groupedMessages: [[Message]]
@@ -598,7 +598,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
                 insertedIndexPaths.append(newIndexPath)
 
             case (.none, .none):
-                assertionFailure("Should not end up with nil old and new index paths.")
+                apptentiveCriticalError("Should not end up with nil old and new index paths.")
             }
         }
 

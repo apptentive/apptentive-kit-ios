@@ -16,7 +16,7 @@ class LegacyEngagement: NSObject, NSSecureCoding {
     let codePoints: [String: LegacyCount]
 
     func encode(with coder: NSCoder) {
-        assertionFailure("Saving legacy engagement is not supported.")
+        apptentiveCriticalError("Saving legacy engagement is not supported.")
     }
 
     required init?(coder: NSCoder) {

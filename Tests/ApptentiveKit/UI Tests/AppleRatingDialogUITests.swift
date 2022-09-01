@@ -20,7 +20,7 @@ class AppleRatingDialogUITests: XCTestCase {
 
         let tablesQuery = XCUIApplication().tables
 
-        tablesQuery.staticTexts["AppleRatingDialog"].tap()
+        tablesQuery.staticTexts["Apple Rating Dialog"].tap()
 
         // These checks seems to be unreliable in CI. We should revisit this when transitioning away from Travis.
         //XCTAssertTrue(XCUIApplication().otherElements["Rating"].exists)

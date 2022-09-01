@@ -15,7 +15,7 @@ struct TestRow {
 }
 
 class ViewController: UITableViewController {
-    var interactions = [(String, Interaction)]()
+    var interactions = [Apptentive.InteractionListItem]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,40 +37,28 @@ class ViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Interaction", for: indexPath)
 
-        cell.textLabel?.text = self.interactions[indexPath.row].0
+        cell.textLabel?.text = self.interactions[indexPath.row].displayName
 
         return cell
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        try? Apptentive.shared.presentInteraction(self.interactions[indexPath.row].1, from: self)
+        Apptentive.shared.presentInteraction(with: self.interactions[indexPath.row].id) { _ in }
 
         self.tableView.deselectRow(at: indexPath, animated: true)
     }
 
     private func loadInteractions() {
-        guard let interactionsDirectoryURL = Bundle.main.url(forResource: "Interactions", withExtension: "") else {
+        guard let manifestURL = Bundle.main.url(forResource: "Manifest", withExtension: "json") else {
             return assertionFailure("Can't find bundled interactions")
         }
 
-        self.interactions.removeAll()
+        Apptentive.shared.loadEngagementManifest(at: manifestURL) { _ in
+            Apptentive.shared.getInteractionList({ interactions in
+                self.interactions = interactions
 
-        do {
-            let interactionsFiles = try FileManager.default.contentsOfDirectory(at: interactionsDirectoryURL, includingPropertiesForKeys: nil, options: [])
-
-            let decoder = JSONDecoder()
-            interactionsFiles.forEach { (url) in
-                do {
-                    let interactionData = try Data(contentsOf: url)
-                    let interaction = try decoder.decode(Interaction.self, from: interactionData)
-
-                    self.interactions.append((url.deletingPathExtension().lastPathComponent, interaction))
-                } catch let error {
-                    assertionFailure("Error loading bundled interaction from \(url): \(error)")
-                }
-            }
-        } catch let error {
-            assertionFailure("Error loading bundled interactions: \(error)")
+                self.tableView.reloadData()
+            })
         }
     }
 }

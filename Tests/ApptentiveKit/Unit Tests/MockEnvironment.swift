@@ -25,6 +25,7 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
         try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true, attributes: [:])
     }
 
+    var isOverridingStyles: Bool = false
     var identifierForVendor: UUID? = UUID(uuidString: "A230943F-14C7-4C57-BEA2-39EFC51F284C")
     var osName: String = "iOS"
     var osVersion: Version = "12.0"

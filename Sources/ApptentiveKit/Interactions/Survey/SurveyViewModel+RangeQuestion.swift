@@ -33,8 +33,7 @@ extension SurveyViewModel {
 
         /// The text labels to display for each answer choice.
         public var choiceLabels: [String] {
-            // TODO: Use a number formatter for e.g. Arabic (PBI-3064)
-            Array(minValue...maxValue).map({ String($0) })
+            Array(minValue...maxValue).map({ self.surveyViewModel?.rangeChoiceLabelNumberFormatter.string(for: $0) ?? String($0) })
         }
 
         /// Used to indicate that the user has selected the choice at the given index.

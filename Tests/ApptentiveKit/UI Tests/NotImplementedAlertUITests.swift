@@ -19,11 +19,11 @@ class NotImplementedAlertUITests: XCTestCase {
     func testAlert() {
         XCUIApplication().activate()
         let tablesQuery = XCUIApplication().tables
-        tablesQuery.staticTexts["FakeInteraction"].tap()
+        tablesQuery.staticTexts["Not Implemented"].tap()
         let alertsQuery = XCUIApplication().alerts["Interaction Presenter Error"]
         XCTAssertTrue(alertsQuery.exists)
         XCTAssertTrue(alertsQuery.buttons["OK"].exists)
         alertsQuery.buttons["OK"].tap()
-        XCTAssertTrue(tablesQuery.staticTexts["FakeInteraction"].exists)
+        XCTAssertTrue(tablesQuery.staticTexts["Not Implemented"].exists)
     }
 }

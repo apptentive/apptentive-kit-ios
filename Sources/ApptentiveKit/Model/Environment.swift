@@ -46,6 +46,7 @@ protocol AppEnvironment {
     var isDebugBuild: Bool { get }
     var isTesting: Bool { get }
     var appDisplayName: String { get }
+    var isOverridingStyles: Bool { get set }
 }
 
 /// The portions of the Environment that provide information about the device.
@@ -97,6 +98,9 @@ protocol EnvironmentDelegate: AnyObject {
 ///
 /// Allows these values to be injected as a dependency to aid in testing.
 class Environment: GlobalEnvironment {
+
+    /// Whether the apptentive theme is set to `none` and is being overidden.
+    var isOverridingStyles: Bool
 
     /// The file manager that should be used when interacting with the filesystem.
     let fileManager: FileManager
@@ -184,7 +188,7 @@ class Environment: GlobalEnvironment {
         }
 
         guard let versionString = Bundle.module.infoDictionary?["CFBundleShortVersionString"] as? String else {
-            assertionFailure("Unable to read SDK version from ApptentiveKit's Info.plist file")
+            apptentiveCriticalError("Unable to read SDK version from ApptentiveKit's Info.plist file")
             return "Unavailable"
         }
 
@@ -194,7 +198,7 @@ class Environment: GlobalEnvironment {
     /// Initializes a new environment based on values captured from the operating system.
     init() {
         self.fileManager = FileManager.default
-
+        self.isOverridingStyles = false
         self.infoDictionary = Bundle.main.infoDictionary
         let localizedInfoDictionary = Bundle.main.localizedInfoDictionary
         self.appStoreReceiptURL = Bundle.main.appStoreReceiptURL
@@ -352,7 +356,7 @@ class Environment: GlobalEnvironment {
 
     func endBackgroundTask() {
         guard let backgroundTaskIdentifier = self.backgroundTaskIdentifier else {
-            return assertionFailure("Expected to have background task identifier.")
+            return apptentiveCriticalError("Expected to have background task identifier.")
         }
 
         UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)

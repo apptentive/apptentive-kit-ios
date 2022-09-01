@@ -45,7 +45,7 @@ public class TextModalViewModel: AlertViewModel {
 
                     guard let invocations = action.invocations else {
                         ApptentiveLogger.engagement.error("TextModal interaction button missing invocations.")
-                        return assertionFailure("TextModal interaction button missing invocations.")
+                        return apptentiveCriticalError("TextModal interaction button missing invocations.")
                     }
 
                     interactionDelegate.invoke(invocations) { (invokedInteractionID) in

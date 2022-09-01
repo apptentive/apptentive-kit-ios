@@ -20,7 +20,7 @@ class LegacyConversation: NSObject, NSSecureCoding {
     let random: LegacyRandom?
 
     func encode(with coder: NSCoder) {
-        assertionFailure("Saving legacy conversation is not supported")
+        apptentiveCriticalError("Saving legacy conversation is not supported")
     }
 
     required init?(coder: NSCoder) {

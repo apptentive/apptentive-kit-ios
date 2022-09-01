@@ -31,16 +31,18 @@ class SurveySubmitView: UIView {
 
         self.submitButton.translatesAutoresizingMaskIntoConstraints = false
 
+        let multiplier = UITableView.apptentiveQuestionSeparatorHeight == 0 ? 1.0 : 3.5
+
         NSLayoutConstraint.activate([
             self.submitButton.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            self.submitButton.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: self.topAnchor, multiplier: 1.0),
+            self.submitButton.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: self.topAnchor, multiplier: multiplier),
         ])
 
         self.submitLabel.font = .apptentiveSubmitStatusLabel
         self.submitLabel.adjustsFontForContentSizeCategory = true
         self.submitLabel.textAlignment = .center
         self.submitLabel.isHidden = true
-        self.submitLabel.numberOfLines = 2
+        self.submitLabel.numberOfLines = 0
         self.submitLabel.lineBreakMode = .byWordWrapping
 
         self.submitLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -50,7 +52,7 @@ class SurveySubmitView: UIView {
             self.submitLabel.topAnchor.constraint(equalTo: self.submitButton.bottomAnchor, constant: 10),
             self.submitLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             self.submitLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.submitButton.bottomAnchor, multiplier: 7.0),
+            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.submitLabel.bottomAnchor, multiplier: 1.0),
         ])
     }
 

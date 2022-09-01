@@ -68,6 +68,7 @@ class MessageReceivedCell: UITableViewCell {
         self.messageText.sizeToFit()
         self.messageText.setContentHuggingPriority(.defaultHigh, for: .vertical)
         self.messageText.adjustsFontForContentSizeCategory = true
+        self.messageText.dataDetectorTypes = UIDataDetectorTypes.all
 
         self.senderLabel.translatesAutoresizingMaskIntoConstraints = false
         self.senderLabel.numberOfLines = 0

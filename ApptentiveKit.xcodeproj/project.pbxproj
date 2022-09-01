@@ -21,7 +21,6 @@
 		011C64BC264C48D300219243 /* EngagementMetric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011C64BB264C48D300219243 /* EngagementMetric.swift */; };
 		011C64D3264D881400219243 /* Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011C64D2264D881400219243 /* Answer.swift */; };
 		011FF860252D1AF700073EBC /* InteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 011FF85F252D1AF700073EBC /* InteractionDelegate.swift */; };
-		01211C0B26810CC3009F0364 /* SurveyCardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01211C0A26810CC3009F0364 /* SurveyCardUITests.swift */; };
 		0126ECDA2739DC1B0037EEC3 /* HTTPBodyPart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0126ECD92739DC1B0037EEC3 /* HTTPBodyPart.swift */; };
 		0126ECDC273ACAE10037EEC3 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0126ECDB273ACAE10037EEC3 /* Media.xcassets */; };
 		012A1B60263A219500EBC073 /* LoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012A1B5F263A219500EBC073 /* LoaderTests.swift */; };
@@ -91,7 +90,6 @@
 		0165B80C258181CF001DF54E /* Apptentive+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0165B80B258181CF001DF54E /* Apptentive+Theme.swift */; };
 		016E6D8625F83E6900151E29 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 016E6D8525F83E6900151E29 /* Media.xcassets */; };
 		016E6DC525F8477200151E29 /* Bundle+Apptentive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016E6DC425F8477200151E29 /* Bundle+Apptentive.swift */; };
-		0170A04E24DA2D9300234BE6 /* Interactions in Resources */ = {isa = PBXBuildFile; fileRef = 0170A04D24DA2D9300234BE6 /* Interactions */; };
 		017230EB253673960095AEAA /* Criteria.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017230E6253673960095AEAA /* Criteria.swift */; };
 		017230EC253673960095AEAA /* Field.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017230E7253673960095AEAA /* Field.swift */; };
 		017230ED253673960095AEAA /* Criteria+Decodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017230E8253673960095AEAA /* Criteria+Decodable.swift */; };
@@ -152,9 +150,10 @@
 		01B91FD025CCB85500B8AFEE /* BackendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B91FCF25CCB85500B8AFEE /* BackendTests.swift */; };
 		01C0218A25DC891A00547059 /* Criteria+Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C0218925DC891A00547059 /* Criteria+Logging.swift */; };
 		01C54076258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */; };
-		01C7958425C1082800FD28F1 /* PersonAndDeviceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C7958325C1082800FD28F1 /* PersonAndDeviceTests.swift */; };
 		01D19C8D266162FB00BD8CF9 /* ChoiceButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D19C8C266162FB00BD8CF9 /* ChoiceButton.swift */; };
 		01D739282405CB630000EE52 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A0916C23FCB4A700AF187E /* ApptentiveKit.framework */; };
+		01DB26E328599E5900458B91 /* Manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 01DB26E128599E2B00458B91 /* Manifest.json */; };
+		01DB26E52859A5C800458B91 /* SurveyCardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DB26E42859A5C800458B91 /* SurveyCardUITests.swift */; };
 		01E79821251C2E9D00D24A05 /* ConversationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E79820251C2E9D00D24A05 /* ConversationRequest.swift */; };
 		01E79845251C30F800D24A05 /* Payload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E79844251C30F800D24A05 /* Payload.swift */; };
 		01E7984B251C312200D24A05 /* SurveyResponseContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E7984A251C312200D24A05 /* SurveyResponseContent.swift */; };
@@ -195,6 +194,7 @@
 		EF9F40B0271894C7005D7209 /* MessageReceivedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F40AF271894C7005D7209 /* MessageReceivedCell.swift */; };
 		EFAA223227B1895300B4FC3B /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFAA223127B1895300B4FC3B /* EditProfileViewController.swift */; };
 		EFAA226827C5520200B4FC3B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EFAA226A27C5520200B4FC3B /* Localizable.strings */; };
+		EFADFDCC2842CA0700D36DA2 /* SurveyQuestionFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFADFDCB2842CA0700D36DA2 /* SurveyQuestionFooterView.swift */; };
 		EFCE2AF027E3F553001ADB11 /* Apptentive+NotificationName.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCE2AEF27E3F553001ADB11 /* Apptentive+NotificationName.swift */; };
 		EFE8D6F027AC9E7600388AA9 /* ProfileFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE8D6EF27AC9E7500388AA9 /* ProfileFooterView.swift */; };
 /* End PBXBuildFile section */
@@ -259,7 +259,6 @@
 		011C64BB264C48D300219243 /* EngagementMetric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngagementMetric.swift; sourceTree = "<group>"; };
 		011C64D2264D881400219243 /* Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Answer.swift; sourceTree = "<group>"; };
 		011FF85F252D1AF700073EBC /* InteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionDelegate.swift; sourceTree = "<group>"; };
-		01211C0A26810CC3009F0364 /* SurveyCardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyCardUITests.swift; sourceTree = "<group>"; };
 		0126ECD92739DC1B0037EEC3 /* HTTPBodyPart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPBodyPart.swift; sourceTree = "<group>"; };
 		0126ECDB273ACAE10037EEC3 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
 		012A1B5F263A219500EBC073 /* LoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoaderTests.swift; sourceTree = "<group>"; };
@@ -332,7 +331,6 @@
 		016E6DC425F8477200151E29 /* Bundle+Apptentive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Apptentive.swift"; sourceTree = "<group>"; };
 		016E6DD825F9493300151E29 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		016E6DD925F9493300151E29 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
-		0170A04D24DA2D9300234BE6 /* Interactions */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Interactions; sourceTree = "<group>"; };
 		017230E6253673960095AEAA /* Criteria.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Criteria.swift; sourceTree = "<group>"; };
 		017230E7253673960095AEAA /* Field.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Field.swift; sourceTree = "<group>"; };
 		017230E8253673960095AEAA /* Criteria+Decodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Criteria+Decodable.swift"; sourceTree = "<group>"; };
@@ -419,6 +417,8 @@
 		01D19C8C266162FB00BD8CF9 /* ChoiceButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoiceButton.swift; sourceTree = "<group>"; };
 		01D739232405CB630000EE52 /* ApptentiveUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		01D739272405CB630000EE52 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		01DB26E128599E2B00458B91 /* Manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Manifest.json; sourceTree = "<group>"; };
+		01DB26E42859A5C800458B91 /* SurveyCardUITests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyCardUITests.swift; sourceTree = "<group>"; };
 		01E79820251C2E9D00D24A05 /* ConversationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationRequest.swift; sourceTree = "<group>"; };
 		01E79844251C30F800D24A05 /* Payload.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Payload.swift; sourceTree = "<group>"; };
 		01E7984A251C312200D24A05 /* SurveyResponseContent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyResponseContent.swift; sourceTree = "<group>"; };
@@ -463,6 +463,7 @@
 		EFAA223127B1895300B4FC3B /* EditProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
 		EFAA226927C5520200B4FC3B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		EFAA226B27C5521600B4FC3B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		EFADFDCB2842CA0700D36DA2 /* SurveyQuestionFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyQuestionFooterView.swift; sourceTree = "<group>"; };
 		EFCE2AEF27E3F553001ADB11 /* Apptentive+NotificationName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Apptentive+NotificationName.swift"; sourceTree = "<group>"; };
 		EFE8D6EF27AC9E7500388AA9 /* ProfileFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFooterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -659,12 +660,14 @@
 				015F2ACE24C8F2DD004B53E2 /* SurveyViewController.swift */,
 				EF69E0BB258962DA00FA0636 /* SurveyRangeCell.swift */,
 				01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */,
+				EFADFDCB2842CA0700D36DA2 /* SurveyQuestionFooterView.swift */,
 				015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */,
 				015A0D4025509C0A00EF077D /* SurveyChoiceCell.swift */,
 				01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */,
 				015F2ADE24C9F85D004B53E2 /* SurveySingleLineCell.swift */,
 				015F2AE024C9FEBF004B53E2 /* SurveyMultiLineCell.swift */,
 				015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */,
+				EFADFDCB2842CA0700D36DA2 /* SurveyQuestionFooterView.swift */,
 			);
 			path = "List UI";
 			sourceTree = "<group>";
@@ -968,7 +971,7 @@
 				019E791B2575B55C006BD412 /* EnjoymentDialogUITests.swift */,
 				01ED6285257B113E0023208C /* NavigateToLinkUITests.swift */,
 				1F323D44240EED3000A678BC /* SurveyUITests.swift */,
-				01211C0A26810CC3009F0364 /* SurveyCardUITests.swift */,
+				01DB26E42859A5C800458B91 /* SurveyCardUITests.swift */,
 				EF5FC3DB258013FC003E127B /* NotImplementedAlertUITests.swift */,
 				01ED6166257723D20023208C /* TextModalUITests.swift */,
 				014303FC2722259C00A07F79 /* MessageCenterUITests.swift */,
@@ -980,8 +983,8 @@
 		1F323D4F240EEE0400A678BC /* ApptentiveUITestsApp */ = {
 			isa = PBXGroup;
 			children = (
+				01DB26E128599E2B00458B91 /* Manifest.json */,
 				01EAECF62772B9B90012B8C9 /* SDK Data */,
-				0170A04D24DA2D9300234BE6 /* Interactions */,
 				1F323D50240EEE0400A678BC /* AppDelegate.swift */,
 				1F323D6A240F2F0500A678BC /* ViewController.swift */,
 				1F323D56240EEE0500A678BC /* Assets.xcassets */,
@@ -1256,12 +1259,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01DB26E328599E5900458B91 /* Manifest.json in Resources */,
 				1F323D5D240EEE0500A678BC /* LaunchScreen.storyboard in Resources */,
 				1F323D5A240EEE0500A678BC /* Preview Assets.xcassets in Resources */,
 				1F323D57240EEE0500A678BC /* Assets.xcassets in Resources */,
 				010ADF442458F8C3005D63FE /* Main.storyboard in Resources */,
 				01EAECF72772B9B90012B8C9 /* SDK Data in Resources */,
-				0170A04E24DA2D9300234BE6 /* Interactions in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1309,6 +1312,7 @@
 				0113867527DA63B10024653F /* LegacyPerson.swift in Sources */,
 				017481F127B1D27900FE020B /* DraftAttachmentView.swift in Sources */,
 				01ED6271257B0AA90023208C /* NavigateToLinkController.swift in Sources */,
+				EFADFDCC2842CA0700D36DA2 /* SurveyQuestionFooterView.swift in Sources */,
 				015F2ADF24C9F85D004B53E2 /* SurveySingleLineCell.swift in Sources */,
 				017230ED253673960095AEAA /* Criteria+Decodable.swift in Sources */,
 				013D8E8B24F038D3005EC4D1 /* ApptentiveV9API.swift in Sources */,
@@ -1408,7 +1412,6 @@
 				01B91FBE25CCAFAA00B8AFEE /* PersonPayloadTests.swift in Sources */,
 				0130E81225D327B9004B2895 /* SpyRequestor.swift in Sources */,
 				013D8E9924F03C13005EC4D1 /* HTTPClientTests.swift in Sources */,
-				01C7958425C1082800FD28F1 /* PersonAndDeviceTests.swift in Sources */,
 				015D6BCF250AC7AD00372759 /* MockEnvironment.swift in Sources */,
 				0130E80C25D326CF004B2895 /* HTTPRequestRetrierTests.swift in Sources */,
 				01E7986B251C32F200D24A05 /* SurveyResponsePayloadTests.swift in Sources */,
@@ -1452,8 +1455,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				01ED61B3257726C60023208C /* TextModalUITests.swift in Sources */,
+				01DB26E52859A5C800458B91 /* SurveyCardUITests.swift in Sources */,
 				01EAECF5277280580012B8C9 /* BackgroundTests.swift in Sources */,
-				01211C0B26810CC3009F0364 /* SurveyCardUITests.swift in Sources */,
 				1F323D45240EED3000A678BC /* SurveyUITests.swift in Sources */,
 				EF5FC3E125801734003E127B /* NotImplementedAlertUITests.swift in Sources */,
 				014303FD2722259C00A07F79 /* MessageCenterUITests.swift in Sources */,

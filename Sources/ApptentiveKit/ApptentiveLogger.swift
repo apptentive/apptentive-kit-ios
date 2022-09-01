@@ -35,7 +35,7 @@ public struct ApptentiveLogger {
         if level >= self.logLevel {
             if #available(iOS 12.0, *) {
                 guard let log = self.log else {
-                    assertionFailure("Expected log to be available in iOS 12+")
+                    apptentiveCriticalError("Expected log to be available in iOS 12+")
                     return
                 }
 

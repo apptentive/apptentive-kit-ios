@@ -19,7 +19,7 @@ class LegacyConversationMetadataItem: NSObject, NSSecureCoding {
     let jwt: String?
 
     func encode(with coder: NSCoder) {
-        assertionFailure("Saving legacy conversation metadata item not supported.")
+        apptentiveCriticalError("Saving legacy conversation metadata item not supported.")
     }
 
     required init?(coder: NSCoder) {

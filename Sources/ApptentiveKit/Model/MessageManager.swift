@@ -219,7 +219,7 @@ class MessageManager {
         }
 
         guard let messageIndex = self.messageList.messages.firstIndex(of: message) else {
-            return assertionFailure("Can't find index of message in message list")
+            return apptentiveCriticalError("Can't find index of message in message list")
         }
 
         let attachment = message.attachments[index]
@@ -401,7 +401,7 @@ class MessageManager {
 
     private func updateStatus(to status: MessageList.Message.Status, for notification: Notification) {
         guard let payload = notification.userInfo?[PayloadSender.payloadKey] as? Payload else {
-            return assertionFailure("Should be able to find payload in payload sender notification's userInfo.")
+            return apptentiveCriticalError("Should be able to find payload in payload sender notification's userInfo.")
         }
 
         if let index = self.messageList.messages.firstIndex(where: { $0.nonce == payload.jsonObject.nonce }) {

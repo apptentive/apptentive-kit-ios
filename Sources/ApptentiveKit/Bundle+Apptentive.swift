@@ -17,7 +17,7 @@ extension Bundle {
         // - The main bundle (if the Podfile does not call use_frameworks!)
         // - The framework bundle (if the Podfile calls use_frameworks!)
         // If neither is found, fall back to non-nested resources in the Apptentive framework
-        // (this will likely fail, and we'll catch it in UIKit+Apptentive with an assertionFailure).
+        // (this will likely fail, and we'll catch it in UIKit+Apptentive with an apptentiveCriticalError).
         static let module: Bundle =
             Bundle.main.url(forResource: "ApptentiveKit", withExtension: "bundle").flatMap { Bundle(url: $0) }  // resource bundle nested in main bundle.
             ?? Bundle(for: Apptentive.self).url(forResource: "ApptentiveKit", withExtension: "bundle").flatMap { Bundle(url: $0) }  // resource bundle nested in Apptentive framework.

@@ -87,7 +87,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             } else if case .inMemory(let data) = attachment.storage {
                 contents = .data(data)
             } else {
-                assertionFailure("Unexpected attachment storage type for outgoing message.")
+                apptentiveCriticalError("Unexpected attachment storage type for outgoing message.")
                 return nil
             }
 

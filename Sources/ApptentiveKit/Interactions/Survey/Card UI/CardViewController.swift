@@ -156,7 +156,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
 
     @objc func toggle(_ sender: UIButton) {
         guard let choiceQuestion = self.currentQuestion as? SurveyViewModel.ChoiceQuestion else {
-            return assertionFailure("Got a range event on a non-range question")
+            return apptentiveCriticalError("Got a range event on a non-range question")
         }
 
         let index = sender.tag - Self.choiceTagOffset
@@ -166,7 +166,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
 
     @objc func choose(_ sender: UISegmentedControl) {
         guard let rangeQuestion = self.currentQuestion as? SurveyViewModel.RangeQuestion else {
-            return assertionFailure("Got a range event on a non-range question")
+            return apptentiveCriticalError("Got a range event on a non-range question")
         }
 
         rangeQuestion.selectValue(at: sender.selectedSegmentIndex)
@@ -178,7 +178,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         } else if let choiceQuestion = self.currentQuestion as? SurveyViewModel.ChoiceQuestion {
             choiceQuestion.choices[sender.tag - Self.otherTagOffset].value = sender.text
         } else {
-            assertionFailure("Text field sending events to wrong question")
+            apptentiveCriticalError("Text field sending events to wrong question")
         }
     }
 
@@ -200,7 +200,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
 
     func textViewDidChange(_ textView: UITextView) {
         guard let question = self.currentQuestion as? SurveyViewModel.FreeformQuestion else {
-            return assertionFailure("Text view sending delegate calls to wrong question")
+            return apptentiveCriticalError("Text view sending delegate calls to wrong question")
         }
 
         question.value = textView.text
@@ -226,13 +226,13 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         case let freeformQuestion as SurveyViewModel.FreeformQuestion:
             if freeformQuestion.allowMultipleLines {
                 guard let textView = self.currentQuestionView.stackView.arrangedSubviews[2] as? UITextView else {
-                    return assertionFailure("Expected third arranged subview to be text view")
+                    return apptentiveCriticalError("Expected third arranged subview to be text view")
                 }
 
                 textView.layer.borderColor = (self.currentQuestion.isMarkedAsInvalid ? UIColor.apptentiveError : UIColor.apptentiveTextInputBorder).cgColor
             } else {
                 guard let textField = self.currentQuestionView.stackView.arrangedSubviews[2] as? UITextField else {
-                    return assertionFailure("Expected third arranged subview to be text view")
+                    return apptentiveCriticalError("Expected third arranged subview to be text view")
                 }
 
                 textField.layer.borderColor = (self.currentQuestion.isMarkedAsInvalid ? UIColor.apptentiveError : UIColor.clear).cgColor
@@ -249,7 +249,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
                     choice.updateMarkedAsInvalid()
 
                     guard let textField = self.currentQuestionView.stackView.arrangedSubviews[index + indexOffset] as? UITextField else {
-                        return assertionFailure("Expected third arranged subview to be text view")
+                        return apptentiveCriticalError("Expected third arranged subview to be text view")
                     }
 
                     textField.layer.borderColor = (choice.isMarkedAsInvalid ? UIColor.apptentiveError : UIColor.clear).cgColor
@@ -271,7 +271,7 @@ class CardViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         var startingStackViewIndex = 2
         choiceQuestion.choices.enumerated().forEach { (index, choice) in
             guard let button = self.currentQuestionView.viewWithTag(index + Self.choiceTagOffset) as? UIButton else {
-                return assertionFailure("Current question view's subview with tag \(index) should be a button.")
+                return apptentiveCriticalError("Current question view's subview with tag \(index) should be a button.")
             }
 
             button.isSelected = choice.isSelected

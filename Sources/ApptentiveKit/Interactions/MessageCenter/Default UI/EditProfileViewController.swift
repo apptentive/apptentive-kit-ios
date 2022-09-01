@@ -34,14 +34,16 @@ class EditProfileViewController: UIViewController {
         self.view.addSubview(self.profileView)
 
         self.profileView.translatesAutoresizingMaskIntoConstraints = false
-
+        self.profileView.slaLabel.text = self.viewModel.statusBody
         self.profileView.emailTextField.text = self.viewModel.emailAddress
-        self.profileView.emailTextField.placeholder = self.viewModel.editProfileEmailPlaceholder
+        self.profileView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.editProfileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
+        self.profileView.emailTextField.accessibilityLabel = self.viewModel.editProfileEmailPlaceholder
         self.profileView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
         self.profileView.emailTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
 
         self.profileView.nameTextField.text = self.viewModel.name
-        self.profileView.nameTextField.placeholder = self.viewModel.editProfileNamePlaceholder
+        self.profileView.nameTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.editProfileNamePlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
+        self.profileView.nameTextField.accessibilityLabel = self.viewModel.editProfileNamePlaceholder
         self.profileView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
 
         self.setConstraints()
@@ -72,7 +74,7 @@ class EditProfileViewController: UIViewController {
 
     private func updateProfileValidation(strict: Bool) {
         if self.viewModel.profileIsValid || !strict {
-            self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveMessageTextViewBorder.cgColor
+            self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
         } else {
             self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveError.cgColor
         }

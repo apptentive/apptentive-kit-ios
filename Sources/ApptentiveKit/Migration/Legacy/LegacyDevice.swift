@@ -17,7 +17,7 @@ class LegacyDevice: NSObject, NSSecureCoding {
     }
 
     func encode(with coder: NSCoder) {
-        assertionFailure("Saving legacy custom data is not supported")
+        apptentiveCriticalError("Saving legacy custom data is not supported")
     }
 
     required init?(coder: NSCoder) {

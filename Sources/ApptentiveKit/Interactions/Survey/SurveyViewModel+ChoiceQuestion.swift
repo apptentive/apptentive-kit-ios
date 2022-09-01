@@ -43,7 +43,7 @@ extension SurveyViewModel {
             case .checkbox:
                 return .checkbox
             case .freeform:
-                assertionFailure("toggleChoice called on freeform question type")
+                apptentiveCriticalError("toggleChoice called on freeform question type")
                 return .checkbox
             }
         }
@@ -127,7 +127,7 @@ extension SurveyViewModel {
             public internal(set) var isMarkedAsInvalid: Bool {
                 didSet {
                     guard let question = self.questionViewModel else {
-                        return assertionFailure("Should have a choice question set.")
+                        return apptentiveCriticalError("Should have a choice question set.")
                     }
 
                     question.updateMarkedAsInvalid()

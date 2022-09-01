@@ -7,17 +7,17 @@
 //
 
 /// An `Interaction` represents an interaction with the user, typically via display of view controller.
-public struct Interaction: Decodable {
+struct Interaction: Decodable {
     let id: String
     let configuration: InteractionConfiguration
 
     /// The raw value of the interaction type.
-    public let typeName: String
+    let typeName: String
 
     /// Creates a new interaction from a decoder.
     /// - Parameter decoder: The decoder from which to decode the interaction.
     /// - Throws: Any errors encountered when decoding, such as missing keys or type mismatches.
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: InteractionCodingKeys.self)
 
         self.id = try container.decode(String.self, forKey: .id)
