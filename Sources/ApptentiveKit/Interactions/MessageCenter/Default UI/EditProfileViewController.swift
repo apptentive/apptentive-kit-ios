@@ -34,7 +34,6 @@ class EditProfileViewController: UIViewController {
         self.view.addSubview(self.profileView)
 
         self.profileView.translatesAutoresizingMaskIntoConstraints = false
-        self.profileView.slaLabel.text = self.viewModel.statusBody
         self.profileView.emailTextField.text = self.viewModel.emailAddress
         self.profileView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.editProfileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
         self.profileView.emailTextField.accessibilityLabel = self.viewModel.editProfileEmailPlaceholder
