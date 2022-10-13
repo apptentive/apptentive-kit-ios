@@ -44,32 +44,15 @@ class Backend {
         }
     }
 
-    /// A Message Manager object which is initialized on launch.
-    var messageManager: MessageManager
-
     /// The object that determines whether an interaction should be presented when an event is engaged.
-    var targeter: Targeter
+    let targeter: Targeter
 
-    var messageFetchCompletionHandler: ((UIBackgroundFetchResult) -> Void)? {
-        didSet {
-            if self.messageFetchCompletionHandler != nil {
-                self.messageManager.forceMessageDownload = true
-
-                self.getMessagesIfNeeded()
-            }
-        }
-    }
-
-    /// The saver used to load and save the conversation from/to persistent storage.
-    private var conversationSaver: PropertyListSaver<Conversation>?
-
-    private var payloadSender: PayloadSender
+    /// A Message Manager object which is initialized on launch.
+    let messageManager: MessageManager
 
     private let requestRetrier: HTTPRequestRetrier
 
     private let payloadSender: PayloadSender
-
-    private let isDebugBuild: Bool
 
     var messageFetchCompletionHandler: ((UIBackgroundFetchResult) -> Void)? {
         didSet {
@@ -90,8 +73,11 @@ class Backend {
         }
     }
 
-    /// Whether the `register(completion:)` method has been called and the conversation has been created via the API.
-    private var isRegistered = false
+    /// The name of the Application Support subdirectory where Apptentive files are stored.
+    let containerName: String
+
+    /// The saver used to load and save the conversation from/to persistent storage.
+    private var conversationSaver: PropertyListSaver<Conversation>?
 
     /// Whether the conversation has changes that need to be saved to persistent storage.
     private var conversationNeedsSaving: Bool = false
@@ -104,6 +90,9 @@ class Backend {
 
     /// A flag indicating whether the persistenc timer is active.
     private var persistenceTimerActive = false
+
+    /// Whether the `register(completion:)` method has been called and the conversation has been created via the API.
+    private var isRegistered = false
 
     private var lastSyncedConversation: Conversation?
 
@@ -121,7 +110,7 @@ class Backend {
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
 
-        self.init(queue: queue, conversation: conversation, containerName: containerName, targeter: targeter, messageManager: messageManager, requestRetrier: requestRetrier, payloadSender: payloadSender, isDebugBuild: environment.isDebugBuild)
+        self.init(queue: queue, conversation: conversation, containerName: containerName, targeter: targeter, messageManager: messageManager, requestRetrier: requestRetrier, payloadSender: payloadSender)
     }
 
     /// This initializer intended for testing only.
@@ -133,8 +122,7 @@ class Backend {
     ///   - messageManager: The message manager to use to manage messages for Message Center.
     ///   - requestRetrier: The Apptentive API request retrier to use to send API requests.
     ///   - payloadSender: The payload sender to use to send updates to the API.
-    ///   - isDebugBuild: Indicates if in debug mode received from the ConversationEnvironment.
-    init(queue: DispatchQueue, conversation: Conversation, containerName: String, targeter: Targeter, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSender, isDebugBuild: Bool) {
+    init(queue: DispatchQueue, conversation: Conversation, containerName: String, targeter: Targeter, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSender) {
         self.queue = queue
         self.conversation = conversation
         self.containerName = containerName
@@ -156,42 +144,19 @@ class Backend {
     ///   - appCredentials: The App Key and App Signature to use when communicating with the Apptentive API
     ///   - environment: An object implementing the `GlobalEnvironment` protocol.
     ///   - completion: A completion handler to be called when conversation credentials are loaded/retrieved, or when loading/retrieving fails.
-    func register(appCredentials: Apptentive.AppCredentials, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
-        guard self.conversation.appCredentials == nil || self.conversation.appCredentials == appCredentials else {
-            completion(.failure(ApptentiveError.mismatchedCredentials))
-            return apptentiveCriticalError("Mismatched Credentials: Please delete and reinstall the app.")
-        }
-
+    func register(appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
         self.conversation.appCredentials = appCredentials
+        self.registerCompletion = completion
 
-        if self.conversation.conversationCredentials != nil {
-            self.isRegistered = true
-
-            completion(.success(.cached))
-        } else {
-            let postedConversation = self.conversation
-
-            self.postConversation { result in
-                switch result {
-                case .success(let conversationCredentials):
-                    self.conversation.conversationCredentials = conversationCredentials
-                    self.payloadSender.credentialsProvider = self.conversation
-                    self.isRegistered = true
-
-                    self.lastSyncedConversation = postedConversation
-                    self.syncConversationWithAPI()
-
-                    do {
-                        try self.saveConversationIfNeeded()
-                        completion(.success(.new))
-                    } catch let error {
-                        completion(.failure(error))
-                    }
-
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+        if environment.isProtectedDataAvailable {
+            do {
+                try self.start(appCredentials: appCredentials, environment: environment)
+            } catch let error {
+                completion(.failure(error))
+                self.registerCompletion = nil
             }
+        } else {
+            ApptentiveLogger.default.debug("Deferring start until protected data is available.")
         }
     }
 
@@ -200,23 +165,10 @@ class Backend {
     /// This method may be called multiple times if the device is locked with the app in the foreground and then unlocked.
     /// - Parameter environment: An object implementing the `GlobalEnvironment` protocol.
     /// - Throws: An error if the conversation file exists but can't be read, or if the saved conversation can't be merged with the in-memory conversation.
-    func protectedDataDidBecomeAvailable(containerURL: URL, cachesURL: URL, environment: GlobalEnvironment) throws {
-        try self.createContainerDirectoryIfNeeded(containerURL: containerURL, fileManager: environment.fileManager)
-        try self.createContainerDirectoryIfNeeded(containerURL: cachesURL, fileManager: environment.fileManager)
-
-        self.conversationSaver = PropertyListSaver<Conversation>(containerURL: containerURL, filename: CurrentLoader.conversationFilename, fileManager: environment.fileManager)
-        self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename, fileManager: environment.fileManager)
-        self.messageManager.saver = MessageManager.createSaver(containerURL: containerURL, filename: CurrentLoader.messagesFilename, fileManager: environment.fileManager)
-        self.messageManager.attachmentManager = AttachmentManager(fileManager: environment.fileManager, requestor: URLSession.shared, cacheContainerURL: cachesURL, savedContainerURL: containerURL)
-
-        if self.conversationNeedsLoading {
-            CurrentLoader.loadLatestVersion(containerURL: containerURL, environment: environment) { loader in
-                try self.loadConversation(from: loader)
-                try self.payloadSender.load(from: loader)
-                try self.messageManager.load(from: loader)
-            }
-        } else {
-            ApptentiveLogger.default.info("In-memory conversation already contains data from any saved conversation.")
+    func protectedDataDidBecomeAvailable(environment: GlobalEnvironment) throws {
+        guard let appCredentials = self.conversation.appCredentials else {
+            ApptentiveLogger.default.debug("Deferring start until `register` is called.")
+            return
         }
 
         try self.start(appCredentials: appCredentials, environment: environment)

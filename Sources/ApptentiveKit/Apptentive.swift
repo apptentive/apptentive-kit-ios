@@ -226,7 +226,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
 
         self.backendQueue.async {
-            self.backend.register(appCredentials: credentials) { result in
+            self.backend.register(appCredentials: credentials, environment: self.environment) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let connectionType):
@@ -376,7 +376,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     var environment: GlobalEnvironment
 
     init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: GlobalEnvironment? = nil) {
-        if Self.alreadyInitialized && environment?.isTesting != false {
+        if Self.alreadyInitialized {
             apptentiveCriticalError("Attempting to instantiate an Apptentive object but an instance already exists.")
         }
 
@@ -424,13 +424,10 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     func protectedDataDidBecomeAvailable(_ environment: GlobalEnvironment) {
         self.backendQueue.async {
             do {
-                let containerURL = try environment.applicationSupportURL().appendingPathComponent(self.containerDirectory)
-                let cachesURL = try environment.cachesURL().appendingPathComponent(self.containerDirectory)
-
-                try self.backend.protectedDataDidBecomeAvailable(containerURL: containerURL, cachesURL: cachesURL, environment: environment)
+                try self.backend.protectedDataDidBecomeAvailable(environment: environment)
             } catch let error {
-                ApptentiveLogger.default.error("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error).")
-                apptentiveCriticalError("Unable to access container (\(self.containerDirectory)) in Application Support directory: \(error)")
+                ApptentiveLogger.default.error("Unable to start Backend: \(error).")
+                apptentiveCriticalError("Unable to start Backend: \(error)")
             }
         }
     }
@@ -491,7 +488,9 @@ public enum ApptentiveError: Error {
 ///     print("\(file):\(line): Apptentive critical error: \(message())")
 /// }
 /// ```
-public var apptentiveAssertionHandler = assertionFailure
+public var apptentiveAssertionHandler = { (message: @autoclosure () -> String, file, line) in
+    assertionFailure(message(), file: file, line: line)
+}
 
 func apptentiveCriticalError(_ message: String, file: StaticString = #file, line: UInt = #line) {
     apptentiveAssertionHandler(message, file, line)

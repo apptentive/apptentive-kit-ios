@@ -35,20 +35,28 @@ class BackendTests: XCTestCase {
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
 
         self.backend = Backend(
-            queue: queue, conversation: conversation, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: self.messageManager, requestRetrier: requestRetrier,
+            queue: queue, conversation: conversation, containerName: containerURL.lastPathComponent, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: self.messageManager, requestRetrier: requestRetrier,
             payloadSender: payloadSender)
+
+        let expectation = self.expectation(description: "Backend configured")
 
         queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(containerURL: self.containerURL, cachesURL: self.containerURL, environment: environment)
+                try self.backend.protectedDataDidBecomeAvailable(environment: environment)
 
                 self.requestor.responseData = try JSONEncoder().encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456"))
 
-                self.backend.register(appCredentials: conversation.appCredentials!, completion: { _ in })
+                self.backend.register(
+                    appCredentials: conversation.appCredentials!, environment: environment,
+                    completion: { _ in
+                        expectation.fulfill()
+                    })
             } catch let error {
                 XCTFail(error.localizedDescription)
             }
         }
+
+        self.wait(for: [expectation], timeout: 5)
     }
 
     override func tearDownWithError() throws {
