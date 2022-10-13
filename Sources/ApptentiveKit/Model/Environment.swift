@@ -188,9 +188,10 @@ class Environment: GlobalEnvironment {
             return "Unavailable"
         }
 
-        guard let versionString = Bundle.module.infoDictionary?["CFBundleShortVersionString"] as? String else {
-            apptentiveCriticalError("Unable to read SDK version from ApptentiveKit's Info.plist file")
-            return "Unavailable"
+        if let infoPListVersionString = Bundle.module.infoDictionary?["CFBundleShortVersionString"] as? String {
+            if infoPListVersionString != versionString {
+                ApptentiveLogger.default.warning("ApptentiveKit framework is damaged! Version in Info.plist (\(infoPListVersionString)) does not match SDK version (\(versionString))")
+            }
         }
 
         return Version(string: versionString)
@@ -272,14 +273,17 @@ class Environment: GlobalEnvironment {
         #if COCOAPODS
             self.distributionName = "CocoaPods"
         #else
-            if let _ = Bundle.module.url(forResource: "Version", withExtension: "plist") {
-                self.distributionName = "SPM"
-            } else if let carthage = Bundle.module.infoDictionary?["Carthage"] as? String, carthage == "YES" {
-                self.distributionName = "Carthage"
-            } else if let distributionName = Bundle.module.infoDictionary?["ApptentiveDistributionName"] as? String, !distributionName.isEmpty {
+            if let _ = Bundle.module.url(forResource: "SwiftPM", withExtension: "txt") {
+                self.distributionName = "SwiftPM"
+            } else if let url = Bundle.module.url(forResource: "Distribution", withExtension: "plist"),
+                let data = try? Data(contentsOf: url),
+                let infoDictionary = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
+                let distributionName = infoDictionary["ApptentiveDistributionName"] as? String
+            {
                 self.distributionName = distributionName
             } else {
-                self.distributionName = "Source"
+                ApptentiveLogger.default.warning("ApptentiveKit framework is damaged! Missing ApptentiveDistributionName in Distribution.plist.")
+                self.distributionName = "Unknown"
             }
         #endif
 

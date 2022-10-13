@@ -662,7 +662,6 @@
 				015F2ACE24C8F2DD004B53E2 /* SurveyViewController.swift */,
 				EF69E0BB258962DA00FA0636 /* SurveyRangeCell.swift */,
 				01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */,
-				EFADFDCB2842CA0700D36DA2 /* SurveyQuestionFooterView.swift */,
 				015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */,
 				015A0D4025509C0A00EF077D /* SurveyChoiceCell.swift */,
 				01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */,

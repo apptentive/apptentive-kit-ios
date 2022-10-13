@@ -6,5 +6,7 @@
 	<string>Source</string>
 	<key>CFBundleShortVersionString</key>
 	<string>6.0.4</string>
+	<key>CFBundleVersion</key>
+	<string>100</string>
 </dict>
 </plist>
