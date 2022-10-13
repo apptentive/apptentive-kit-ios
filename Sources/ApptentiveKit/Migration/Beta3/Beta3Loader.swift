@@ -21,6 +21,14 @@ struct Beta3Loader: Loader {
         return self.environment.fileManager.fileExists(atPath: self.conversationFileURL.path)
     }
 
+    var payloadsFileExists: Bool {
+        return self.environment.fileManager.fileExists(atPath: self.payloadsFileURL.path)
+    }
+
+    var messagesFileExists: Bool {
+        return self.environment.fileManager.fileExists(atPath: self.messagesFileURL.path)
+    }
+
     func loadConversation() throws -> Conversation {
         throw LoaderError.brokenVersion
     }
@@ -34,9 +42,17 @@ struct Beta3Loader: Loader {
     }
 
     func cleanUp() throws {
-        try self.environment.fileManager.removeItem(at: self.conversationFileURL)
-        try self.environment.fileManager.removeItem(at: self.payloadsFileURL)
-        try self.environment.fileManager.removeItem(at: self.messagesFileURL)
+        if self.conversationFileExists {
+            try self.environment.fileManager.removeItem(at: self.conversationFileURL)
+        }
+
+        if self.payloadsFileExists {
+            try self.environment.fileManager.removeItem(at: self.payloadsFileURL)
+        }
+
+        if self.messagesFileExists {
+            try self.environment.fileManager.removeItem(at: self.messagesFileURL)
+        }
     }
 
     private var conversationFileURL: URL {
