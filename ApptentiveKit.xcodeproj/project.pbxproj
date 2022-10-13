@@ -169,6 +169,7 @@
 		01ED6271257B0AA90023208C /* NavigateToLinkController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ED6270257B0AA90023208C /* NavigateToLinkController.swift */; };
 		01ED6280257B0F200023208C /* NavigateToLinkControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ED6276257B0F0E0023208C /* NavigateToLinkControllerTests.swift */; };
 		01ED6286257B113E0023208C /* NavigateToLinkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01ED6285257B113E0023208C /* NavigateToLinkUITests.swift */; };
+		01F2D81428F0CE4F0097E35D /* Distribution.plist in Resources */ = {isa = PBXBuildFile; fileRef = 01BA40B0260BEC4900C555E8 /* Distribution.plist */; };
 		1F323D45240EED3000A678BC /* SurveyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D44240EED3000A678BC /* SurveyUITests.swift */; };
 		1F323D51240EEE0400A678BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F323D50240EEE0400A678BC /* AppDelegate.swift */; };
 		1F323D57240EEE0500A678BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F323D56240EEE0500A678BC /* Assets.xcassets */; };
@@ -409,7 +410,7 @@
 		01B91FC325CCAFB800B8AFEE /* DevicePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevicePayloadTests.swift; sourceTree = "<group>"; };
 		01B91FC925CCAFC600B8AFEE /* AppReleasePayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReleasePayloadTests.swift; sourceTree = "<group>"; };
 		01B91FCF25CCB85500B8AFEE /* BackendTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendTests.swift; sourceTree = "<group>"; };
-		01BA40B0260BEC4900C555E8 /* Version.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Version.plist; sourceTree = "<group>"; };
+		01BA40B0260BEC4900C555E8 /* Distribution.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Distribution.plist; sourceTree = "<group>"; };
 		01C0218925DC891A00547059 /* Criteria+Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Criteria+Logging.swift"; sourceTree = "<group>"; };
 		01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyOtherChoiceCell.swift; sourceTree = "<group>"; };
 		01C7958325C1082800FD28F1 /* PersonAndDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonAndDeviceTests.swift; sourceTree = "<group>"; };
@@ -434,6 +435,7 @@
 		01ED6270257B0AA90023208C /* NavigateToLinkController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigateToLinkController.swift; sourceTree = "<group>"; };
 		01ED6276257B0F0E0023208C /* NavigateToLinkControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigateToLinkControllerTests.swift; sourceTree = "<group>"; };
 		01ED6285257B113E0023208C /* NavigateToLinkUITests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NavigateToLinkUITests.swift; path = "Tests/ApptentiveKit/UI Tests/NavigateToLinkUITests.swift"; sourceTree = SOURCE_ROOT; };
+		01F2D81728F0F3020097E35D /* SwiftPM.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftPM.txt; sourceTree = "<group>"; };
 		1F323D42240EED3000A678BC /* ApptentiveUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApptentiveUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F323D44240EED3000A678BC /* SurveyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyUITests.swift; sourceTree = "<group>"; };
 		1F323D46240EED3000A678BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -660,7 +662,6 @@
 				015F2ACE24C8F2DD004B53E2 /* SurveyViewController.swift */,
 				EF69E0BB258962DA00FA0636 /* SurveyRangeCell.swift */,
 				01822BB92565727D006ADB3B /* SurveyQuestionHeaderView.swift */,
-				EFADFDCB2842CA0700D36DA2 /* SurveyQuestionFooterView.swift */,
 				015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */,
 				015A0D4025509C0A00EF077D /* SurveyChoiceCell.swift */,
 				01C54075258A8FC0003F3ADD /* SurveyOtherChoiceCell.swift */,
@@ -719,8 +720,9 @@
 			isa = PBXGroup;
 			children = (
 				016E6D8525F83E6900151E29 /* Media.xcassets */,
-				01BA40B0260BEC4900C555E8 /* Version.plist */,
+				01BA40B0260BEC4900C555E8 /* Distribution.plist */,
 				EFAA226A27C5520200B4FC3B /* Localizable.strings */,
+				01F2D81728F0F3020097E35D /* SwiftPM.txt */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1059,6 +1061,7 @@
 			buildConfigurationList = 01A0917423FCB4A700AF187E /* Build configuration list for PBXNativeTarget "ApptentiveKit" */;
 			buildPhases = (
 				01A0916723FCB4A700AF187E /* Headers */,
+				01F2D81528F0D91B0097E35D /* Update Distribution */,
 				01A0916823FCB4A700AF187E /* Sources */,
 				01A0916923FCB4A700AF187E /* Frameworks */,
 				01A0916A23FCB4A700AF187E /* Resources */,
@@ -1221,6 +1224,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				016E6D8625F83E6900151E29 /* Media.xcassets in Resources */,
+				01F2D81428F0CE4F0097E35D /* Distribution.plist in Resources */,
 				EFAA226827C5520200B4FC3B /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1269,6 +1273,30 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		01F2D81528F0D91B0097E35D /* Update Distribution */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Version.xcconfig",
+			);
+			name = "Update Distribution";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Sources/ApptentiveKit/Resources/Distribution.plist",
+				"$(SRCROOT)/ApptentiveKit.podspec",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\nplutil -replace CFBundleShortVersionString -string ${APPTENTIVE_VERSION} ${SCRIPT_OUTPUT_FILE_0}\nplutil -replace CFBundleVersion -string ${APPTENTIVE_BUILD} ${SCRIPT_OUTPUT_FILE_0}\n\nif [ ${CARTHAGE} = YES ]; then\n    plutil -replace ApptentiveDistributionName -string Carthage ${SCRIPT_OUTPUT_FILE_0}\n    plutil -insert Carthage -string YES ${SCRIPT_OUTPUT_FILE_0}\nelif [ -z \"${APPTENTIVE_DISTRIBUTION}\" ]; then\n    plutil -replace ApptentiveDistributionName -string Source ${SCRIPT_OUTPUT_FILE_0}\nelse\n    plutil -replace ApptentiveDistributionName -string ${APPTENTIVE_DISTRIBUTION} ${SCRIPT_OUTPUT_FILE_0}      \nfi\n\nsed -i ''  \"s/\\(spec.version *= *\\)\\\"[^\\\"]*\\\"/\\1\\\"${APPTENTIVE_VERSION}\\\"/\" ${SCRIPT_OUTPUT_FILE_1}\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		01A0916823FCB4A700AF187E /* Sources */ = {

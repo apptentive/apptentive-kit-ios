@@ -179,17 +179,19 @@ class Environment: GlobalEnvironment {
     /// The version of the SDK (read from the SDK framework's Info.plist).
     lazy var sdkVersion: Version = {
         // First look for Version.plist, which is a workaround for Swift Package Manager.
-        if let url = Bundle.module.url(forResource: "Version", withExtension: "plist"),
+        guard let url = Bundle.module.url(forResource: "Distribution", withExtension: "plist"),
             let data = try? Data(contentsOf: url),
             let infoDictionary = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
             let versionString = infoDictionary["CFBundleShortVersionString"] as? String
-        {
-            return Version(string: versionString)
-        }
-
-        guard let versionString = Bundle.module.infoDictionary?["CFBundleShortVersionString"] as? String else {
+        else {
             apptentiveCriticalError("Unable to read SDK version from ApptentiveKit's Info.plist file")
             return "Unavailable"
+        }
+
+        if let infoPListVersionString = Bundle.module.infoDictionary?["CFBundleShortVersionString"] as? String {
+            if infoPListVersionString != versionString {
+                ApptentiveLogger.default.warning("ApptentiveKit framework is damaged! Version in Info.plist (\(infoPListVersionString)) does not match SDK version (\(versionString))")
+            }
         }
 
         return Version(string: versionString)
@@ -267,17 +269,21 @@ class Environment: GlobalEnvironment {
             NotificationCenter.default.addObserver(self, selector: #selector(applicationWillTerminate(notification:)), name: UIApplication.willTerminateNotification, object: nil)
         #endif
 
+        // Set the distribution name for non-plugin environments. Plugin environments will override this value later.
         #if COCOAPODS
             self.distributionName = "CocoaPods"
         #else
-            if let _ = Bundle.module.url(forResource: "Version", withExtension: "plist") {
-                self.distributionName = "SPM"
-            } else if let carthage = Bundle.module.infoDictionary?["Carthage"] as? String, carthage == "YES" {
-                self.distributionName = "Carthage"
-            } else if let distributionName = Bundle.module.infoDictionary?["ApptentiveDistributionName"] as? String, !distributionName.isEmpty {
+            if let _ = Bundle.module.url(forResource: "SwiftPM", withExtension: "txt") {
+                self.distributionName = "SwiftPM"
+            } else if let url = Bundle.module.url(forResource: "Distribution", withExtension: "plist"),
+                let data = try? Data(contentsOf: url),
+                let infoDictionary = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
+                let distributionName = infoDictionary["ApptentiveDistributionName"] as? String
+            {
                 self.distributionName = distributionName
             } else {
-                self.distributionName = "Source"
+                ApptentiveLogger.default.warning("ApptentiveKit framework is damaged! Missing ApptentiveDistributionName in Distribution.plist.")
+                self.distributionName = "Unknown"
             }
         #endif
 
