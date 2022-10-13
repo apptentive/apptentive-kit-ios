@@ -56,7 +56,10 @@ class ApptentiveFeatureTests: XCTestCase {
             return XCTFail("Base URL is invalid")
         }
 
-        Apptentive(baseURL: baseURL).register(with: credentials) { result in
+        let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: nil, environment: Environment())
+        (apptentive.environment as! Environment).protectedDataDidBecomeAvailable(notification: Notification(name: Notification.Name(rawValue: "foo")))
+
+        apptentive.register(with: credentials) { result in
             switch result {
             case .success:
                 asserts(true)
@@ -69,7 +72,7 @@ class ApptentiveFeatureTests: XCTestCase {
             expectation.fulfill()
         }
 
-        self.waitForExpectations(timeout: 5) { error in
+        self.waitForExpectations(timeout: 1) { error in
             if let error = error {
                 XCTFail("Authentication request timed out: \(error.localizedDescription)")
             }

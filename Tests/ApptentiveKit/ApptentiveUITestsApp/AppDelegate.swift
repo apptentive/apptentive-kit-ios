@@ -29,16 +29,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("Error copying conversation files: \(error)")
         }
 
+        apptentiveAssertionHandler = { (message, file, line) in
+            print("Hit assertion (\(message()) at line \(line) in \(file).")
+        }
+
         return true
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
         UIApplication.shared.keyWindow?.layer.speed = UserDefaults.standard.float(forKey: "layerSpeed")
+
+        Apptentive.shared.register(with: .init(key: "IOS-IOS-AUTOMATED-TEST", signature: "bogus"), completion: nil)
 
         return true
     }
 
     func applicationSupportURL() throws -> URL {
         return try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    }
+
+    func cachesURL() throws -> URL {
+        return try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     }
 }

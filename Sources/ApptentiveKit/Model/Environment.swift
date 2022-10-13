@@ -371,12 +371,12 @@ class Environment: GlobalEnvironment {
 
     #if canImport(UIKit)
         @objc func protectedDataDidBecomeAvailable(notification: Notification) {
-            self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
+            self.isProtectedDataAvailable = true
             delegate?.protectedDataDidBecomeAvailable(self)
         }
 
         @objc func protectedDataWillBecomeUnavailable(notification: Notification) {
-            self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
+            self.isProtectedDataAvailable = false
             delegate?.protectedDataWillBecomeUnavailable(self)
         }
 

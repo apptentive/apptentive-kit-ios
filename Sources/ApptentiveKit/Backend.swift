@@ -44,11 +44,15 @@ class Backend {
         }
     }
 
-    /// A Message Manager object which is initialized on launch.
-    var messageManager: MessageManager
-
     /// The object that determines whether an interaction should be presented when an event is engaged.
-    var targeter: Targeter
+    let targeter: Targeter
+
+    /// A Message Manager object which is initialized on launch.
+    let messageManager: MessageManager
+
+    private let requestRetrier: HTTPRequestRetrier
+
+    private let payloadSender: PayloadSender
 
     var messageFetchCompletionHandler: ((UIBackgroundFetchResult) -> Void)? {
         didSet {
@@ -60,13 +64,6 @@ class Backend {
         }
     }
 
-    /// The saver used to load and save the conversation from/to persistent storage.
-    private var conversationSaver: PropertyListSaver<Conversation>?
-
-    private var payloadSender: PayloadSender
-
-    private var requestRetrier: HTTPRequestRetrier
-
     private var configuration: Configuration? {
         didSet {
             if let configuration = self.configuration {
@@ -76,8 +73,11 @@ class Backend {
         }
     }
 
-    /// Whether the `register(completion:)` method has been called and the conversation has been created via the API.
-    private var isRegistered = false
+    /// The name of the Application Support subdirectory where Apptentive files are stored.
+    let containerName: String
+
+    /// The saver used to load and save the conversation from/to persistent storage.
+    private var conversationSaver: PropertyListSaver<Conversation>?
 
     /// Whether the conversation has changes that need to be saved to persistent storage.
     private var conversationNeedsSaving: Bool = false
@@ -91,6 +91,9 @@ class Backend {
     /// A flag indicating whether the persistenc timer is active.
     private var persistenceTimerActive = false
 
+    /// Whether the `register(completion:)` method has been called and the conversation has been created via the API.
+    private var isRegistered = false
+
     private var lastSyncedConversation: Conversation?
 
     /// Initializes a new backend instance.
@@ -98,7 +101,8 @@ class Backend {
     ///   - queue: The dispatch queue on which the backend instance should run.
     ///   - environment: The environment object used to initialize the conversation.
     ///   - baseURL: The URL where the Apptentive API is based.
-    convenience init(queue: DispatchQueue, environment: ConversationEnvironment, baseURL: URL) {
+    ///   - containerName: The name of the container directory in Application Support and Caches.
+    convenience init(queue: DispatchQueue, environment: ConversationEnvironment, baseURL: URL, containerName: String) {
         let conversation = Conversation(environment: environment)
         let targeter = Targeter(engagementManifest: EngagementManifest.placeholder)
         let messageManager = MessageManager(notificationCenter: NotificationCenter.default)
@@ -106,20 +110,22 @@ class Backend {
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
 
-        self.init(queue: queue, conversation: conversation, targeter: targeter, messageManager: messageManager, requestRetrier: requestRetrier, payloadSender: payloadSender)
+        self.init(queue: queue, conversation: conversation, containerName: containerName, targeter: targeter, messageManager: messageManager, requestRetrier: requestRetrier, payloadSender: payloadSender)
     }
 
     /// This initializer intended for testing only.
     /// - Parameters:
     ///   - queue: The dispatch queue on which the backend instance should run.
     ///   - conversation: The conversation that the backend should start with.
+    ///   - containerName: The name of the container directory in Application Support and Caches.
     ///   - targeter: The targeter to use to determine if events should show an interaction.
     ///   - messageManager: The message manager to use to manage messages for Message Center.
     ///   - requestRetrier: The Apptentive API request retrier to use to send API requests.
     ///   - payloadSender: The payload sender to use to send updates to the API.
-    init(queue: DispatchQueue, conversation: Conversation, targeter: Targeter, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSender) {
+    init(queue: DispatchQueue, conversation: Conversation, containerName: String, targeter: Targeter, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSender) {
         self.queue = queue
         self.conversation = conversation
+        self.containerName = containerName
         self.targeter = targeter
         self.messageManager = messageManager
         self.requestRetrier = requestRetrier
@@ -135,78 +141,36 @@ class Backend {
     /// Connects the backend to the Apptentive API.
     /// - Parameters:
     ///   - appCredentials: The App Key and App Signature to use when communicating with the Apptentive API
+    ///   - environment: An object implementing the `GlobalEnvironment` protocol.
     ///   - completion: A completion handler to be called when conversation credentials are loaded/retrieved, or when loading/retrieving fails.
-    func register(appCredentials: Apptentive.AppCredentials, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
-        guard self.conversation.appCredentials == nil || self.conversation.appCredentials == appCredentials else {
-            completion(.failure(ApptentiveError.mismatchedCredentials))
-            return apptentiveCriticalError("Mismatched Credentials: Please delete and reinstall the app.")
-        }
-
+    func register(appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
         self.conversation.appCredentials = appCredentials
+        self.registerCompletion = completion
 
-        if self.conversation.conversationCredentials != nil {
-            self.isRegistered = true
-
-            completion(.success(.cached))
-        } else {
-            let postedConversation = self.conversation
-
-            self.postConversation { result in
-                switch result {
-                case .success(let conversationCredentials):
-                    self.conversation.conversationCredentials = conversationCredentials
-                    self.payloadSender.credentialsProvider = self.conversation
-                    self.isRegistered = true
-
-                    self.lastSyncedConversation = postedConversation
-                    self.syncConversationWithAPI()
-
-                    do {
-                        try self.saveConversationIfNeeded()
-                        completion(.success(.new))
-                    } catch let error {
-                        completion(.failure(error))
-                    }
-
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+        if environment.isProtectedDataAvailable {
+            do {
+                try self.start(appCredentials: appCredentials, environment: environment)
+            } catch let error {
+                completion(.failure(error))
+                self.registerCompletion = nil
             }
+        } else {
+            ApptentiveLogger.default.debug("Deferring start until protected data is available.")
         }
     }
 
     /// Sets up access to persistent storage and loads any previously-saved conversation data if needed.
     ///
     /// This method may be called multiple times if the device is locked with the app in the foreground and then unlocked.
-    /// - Parameters:
-    ///   - containerURL: A file URL corresponding to the container directory for Apptentive files.
-    ///   - cachesURL: A file URL corresponding to the caches directory used for storing message attachments.
-    ///   - environment: An object implementing the `GlobalEnvironment` protocol.
+    /// - Parameter environment: An object implementing the `GlobalEnvironment` protocol.
     /// - Throws: An error if the conversation file exists but can't be read, or if the saved conversation can't be merged with the in-memory conversation.
-    func protectedDataDidBecomeAvailable(containerURL: URL, cachesURL: URL, environment: GlobalEnvironment) throws {
-        try self.createContainerDirectoryIfNeeded(containerURL: containerURL, fileManager: environment.fileManager)
-        try self.createContainerDirectoryIfNeeded(containerURL: cachesURL, fileManager: environment.fileManager)
-
-        self.conversationSaver = PropertyListSaver<Conversation>(containerURL: containerURL, filename: CurrentLoader.conversationFilename, fileManager: environment.fileManager)
-        self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename, fileManager: environment.fileManager)
-        self.messageManager.saver = MessageManager.createSaver(containerURL: containerURL, filename: CurrentLoader.messagesFilename, fileManager: environment.fileManager)
-        self.messageManager.attachmentManager = AttachmentManager(fileManager: environment.fileManager, requestor: URLSession.shared, cacheContainerURL: cachesURL, savedContainerURL: containerURL)
-
-        if self.conversationNeedsLoading {
-            CurrentLoader.loadLatestVersion(containerURL: containerURL, environment: environment) { loader in
-                try self.loadConversation(from: loader)
-                try self.payloadSender.load(from: loader)
-                try self.messageManager.load(from: loader)
-            }
-        } else {
-            ApptentiveLogger.default.info("In-memory conversation already contains data from any saved conversation.")
+    func protectedDataDidBecomeAvailable(environment: GlobalEnvironment) throws {
+        guard let appCredentials = self.conversation.appCredentials else {
+            ApptentiveLogger.default.debug("Deferring start until `register` is called.")
+            return
         }
 
-        // Because of potentially unbalanced calls to `load(containerURL:environment)` and `unload()`,
-        // we suspend (but don't discard) the persistence timer. Therefore it should only be created once.
-        if self.persistenceTimer == nil {
-            self.startPersistenceTimer()
-        }
+        try self.start(appCredentials: appCredentials, environment: environment)
     }
 
     /// Reliquishes access to persistent storage.
@@ -372,6 +336,83 @@ class Backend {
     }
 
     // MARK: - Private
+
+    private var registerCompletion: ((Result<ConnectionType, Error>) -> Void)?
+
+    private func registerNewConversationIfNeeded(completion: @escaping (Result<ConnectionType, Error>) -> Void) {
+        if self.conversation.conversationCredentials != nil {
+            self.isRegistered = true
+
+            completion(.success(.cached))
+        } else {
+            let postedConversation = self.conversation
+
+            self.postConversation { result in
+                switch result {
+                case .success(let conversationCredentials):
+                    self.conversation.conversationCredentials = conversationCredentials
+                    self.payloadSender.credentialsProvider = self.conversation
+                    self.isRegistered = true
+
+                    self.lastSyncedConversation = postedConversation
+                    self.syncConversationWithAPI()
+
+                    do {
+                        try self.saveConversationIfNeeded()
+                        completion(.success(.new))
+                    } catch let error {
+                        completion(.failure(error))
+                    }
+
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+
+    private func start(appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) throws {
+        try self.startFilesAccess(containerName: self.containerName, appCredentials: appCredentials, environment: environment)
+
+        if let completion = self.registerCompletion {
+            self.registerNewConversationIfNeeded(completion: completion)
+
+            self.registerCompletion = nil
+        }
+    }
+
+    private func startFilesAccess(containerName: String, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) throws {
+        let containerURL = try Self.containerDirectoryURL(with: containerName, environment: environment)
+        let cacheURL = try Self.cacheDirectoryURL(with: containerName, environment: environment)
+
+        try self.createDirectoryIfNeeded(containerURL: containerURL, fileManager: environment.fileManager)
+        try self.createDirectoryIfNeeded(containerURL: cacheURL, fileManager: environment.fileManager)
+
+        self.conversationSaver = PropertyListSaver<Conversation>(containerURL: containerURL, filename: CurrentLoader.conversationFilename, fileManager: environment.fileManager)
+        self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename, fileManager: environment.fileManager)
+        self.messageManager.saver = MessageManager.createSaver(containerURL: containerURL, filename: CurrentLoader.messagesFilename, fileManager: environment.fileManager)
+        self.messageManager.attachmentManager = AttachmentManager(fileManager: environment.fileManager, requestor: URLSession.shared, cacheContainerURL: cacheURL, savedContainerURL: containerURL)
+
+        if self.conversationNeedsLoading {
+            CurrentLoader.loadLatestVersion(containerURL: containerURL, environment: environment) { loader in
+                try self.loadConversation(from: loader)
+                try self.payloadSender.load(from: loader)
+                try self.messageManager.load(from: loader)
+            }
+
+            if let registerCompletion = self.registerCompletion {
+                self.registerNewConversationIfNeeded(completion: registerCompletion)
+            }
+        } else {
+            ApptentiveLogger.default.info("In-memory conversation already contains data from any saved conversation.")
+        }
+
+        // Because of potentially unbalanced calls to `load(containerURL:environment)` and `unload()`,
+        // we suspend (but don't discard) the persistence timer. Therefore it should only be created once.
+        if self.persistenceTimer == nil {
+            self.startPersistenceTimer()
+        }
+    }
 
     /// Loads the conversation using the specified loader.
     /// - Parameter loader: The loader that translates the stored conversation to the current format, if needed.
@@ -589,12 +630,20 @@ class Backend {
         }
     }
 
+    private static func containerDirectoryURL(with containerName: String, environment: GlobalEnvironment) throws -> URL {
+        return try environment.applicationSupportURL().appendingPathComponent(containerName)
+    }
+
+    private static func cacheDirectoryURL(with containerName: String, environment: GlobalEnvironment) throws -> URL {
+        return try environment.cachesURL().appendingPathComponent(containerName)
+    }
+
     /// Creates a container directory if does not already exist.
     /// - Parameters:
     ///   - containerURL: The URL at which the directory should reside.
     ///   - fileManager: The `FileManager` object used to create the directory.
     /// - Throws: An error if the directory can't be created, or if an existing file is in the way of the directory.
-    private func createContainerDirectoryIfNeeded(containerURL: URL, fileManager: FileManager) throws {
+    private func createDirectoryIfNeeded(containerURL: URL, fileManager: FileManager) throws {
         var isDirectory: ObjCBool = false
 
         if !fileManager.fileExists(atPath: containerURL.path, isDirectory: &isDirectory) {
