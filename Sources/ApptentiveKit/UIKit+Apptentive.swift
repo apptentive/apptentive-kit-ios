@@ -174,6 +174,17 @@ extension UIColor {
         }
     }()
 
+    /// The placeholder color to use for text inputs for message center.
+    @available(*, deprecated, message: "This property has been renamed to 'apptentiveMessageTextInputPlaceholder'.")
+    @objc public static var apptentiveMessageTextViewPlaceholder: UIColor {
+        get {
+            return self.apptentiveMessageTextInputPlaceholder
+        }
+        set {
+            self.apptentiveMessageTextInputPlaceholder = newValue
+        }
+    }
+
     /// The text color to use for all text inputs in message center.
     @objc public static var apptentiveMessageCenterTextInput: UIColor = {
         if #available(iOS 13.0, *) {
@@ -204,6 +215,17 @@ extension UIColor {
     @objc public static var apptentiveMessageCenterTextInputBorder: UIColor = {
         return .darkGray
     }()
+
+    /// The border color to use for the message text view.
+    @available(*, deprecated, message: "This property has been renamed to 'apptentiveMessageCenterTextInputBorder'.")
+    @objc public static var apptentiveMessageCenterTextViewBorder: UIColor {
+        get {
+            return self.apptentiveMessageCenterTextInputBorder
+        }
+        set {
+            self.apptentiveMessageCenterTextInputBorder = newValue
+        }
+    }
 
     /// The color to use for the attachment button for the compose view for message center.
     @objc public static var apptentiveMessageCenterAttachmentButton: UIColor = {
