@@ -174,6 +174,17 @@ extension UIColor {
         }
     }()
 
+    /// The placeholder color to use for text inputs for message center.
+    @available(*, deprecated, message: "This property has been renamed to 'apptentiveMessageTextInputPlaceholder'.")
+    @objc public static var apptentiveMessageTextViewPlaceholder: UIColor {
+        get {
+            return self.apptentiveMessageTextInputPlaceholder
+        }
+        set {
+            self.apptentiveMessageTextInputPlaceholder = newValue
+        }
+    }
+
     /// The text color to use for all text inputs in message center.
     @objc public static var apptentiveMessageCenterTextInput: UIColor = {
         if #available(iOS 13.0, *) {
