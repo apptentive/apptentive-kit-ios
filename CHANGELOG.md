@@ -1,3 +1,16 @@
+# 2022-10-17 - 6.0.5
+
+#### New & Improved
+
+- Removed the status label from the Edit Profile view in Message Center
+
+#### Bugs Fixed
+
+- Fixed an issue where encountering an assertion failure in a release build causes a crash
+- Fixed an issue where calling register before protected data is available could cause an error
+- Fixed an issue where the SDK version could be reported incorrectly
+- Fixed a spurious error message on first app launch
+
 # 2022-09-01 - 6.0.4
 
 #### New & Improved

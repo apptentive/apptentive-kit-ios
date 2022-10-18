@@ -21,7 +21,7 @@ let package = Package(
             name: "ApptentiveKit",
             dependencies: [],
             exclude: ["Info.plist", "Bundle+Apptentive.swift"],
-            resources: [.copy("Resources/Version.plist")]
+            resources: [.copy("Resources/SwiftPM.txt"), .copy("Resources/Distribution.plist")]
         )
     ]
 )
