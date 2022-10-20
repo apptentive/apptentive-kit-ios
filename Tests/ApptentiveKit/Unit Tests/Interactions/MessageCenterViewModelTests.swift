@@ -1,5 +1,5 @@
 //
-//  MessageCenter.swift
+//  MessageCenterViewModelTests.swift
 //  ApptentiveUnitTests
 //
 //  Created by Luqmaan Khan on 9/14/21.

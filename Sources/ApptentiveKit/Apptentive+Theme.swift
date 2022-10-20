@@ -1,5 +1,5 @@
 //
-//  Apptentive+DefaultAppearance.swift
+//  Apptentive+Theme.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 12/9/20.

@@ -1,5 +1,5 @@
 //
-//  SpySender.swift
+//  SpyInteractionDelegate.swift
 //  ApptentiveUnitTests
 //
 //  Created by Frank Schmitt on 11/30/20.

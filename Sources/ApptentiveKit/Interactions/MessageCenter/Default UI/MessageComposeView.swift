@@ -1,5 +1,5 @@
 //
-//  MessageCenterComposeView.swift
+//  MessageComposeView.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 10/13/21.

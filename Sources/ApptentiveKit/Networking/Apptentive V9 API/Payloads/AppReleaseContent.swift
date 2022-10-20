@@ -1,5 +1,5 @@
 //
-//  AppReleaseContents.swift
+//  AppReleaseContent.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 2/3/21.
