@@ -1,3 +1,11 @@
+# 2022-10-20 - 6.0.6
+
+*Note:* v6.0.5 contains a bug that only affects those using CocoaPods or a framework that uses CocoaPods internally (React Native, Flutter, and mParticle). There is no need for those not affected to update from v6.0.5 to v6.0.6. 
+
+#### Bugs Fixed
+
+- Added a missing file to the resource bundle for CocoaPods integrations that was causing an assertion failure.
+
 # 2022-10-17 - 6.0.5
 
 #### New & Improved
