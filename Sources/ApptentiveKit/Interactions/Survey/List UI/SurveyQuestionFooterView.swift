@@ -1,5 +1,5 @@
 //
-//  SurveyQuestionFooter.swift
+//  SurveyQuestionFooterView.swift
 //  ApptentiveKit
 //
 //  Created by Luqmaan Khan on 5/28/22.
