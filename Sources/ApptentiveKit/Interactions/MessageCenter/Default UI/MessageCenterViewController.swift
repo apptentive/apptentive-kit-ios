@@ -48,7 +48,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         super.viewDidLoad()
 
         self.navigationItem.title = self.viewModel.headingTitle
-
+        self.tableView.backgroundColor = .apptentiveMessageCenterBackground
         self.navigationItem.rightBarButtonItem = .apptentiveClose
         self.navigationItem.rightBarButtonItem?.target = self
         self.navigationItem.rightBarButtonItem?.action = #selector(closeMessageCenter)

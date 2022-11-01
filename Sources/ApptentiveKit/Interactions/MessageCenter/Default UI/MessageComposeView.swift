@@ -19,7 +19,7 @@ class MessageCenterComposeContainerView: UIView {
 
         self.addSubview(self.composeView)
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = .apptentiveGroupedBackground
+        self.backgroundColor = .apptentiveMessageCenterComposeBoxBackground
 
         self.setUpConstraints()
     }
@@ -106,7 +106,7 @@ class MessageCenterComposeView: UIView {
         self.textView.accessibilityIdentifier = "messageTextView"
 
         self.separatorView.translatesAutoresizingMaskIntoConstraints = false
-        self.separatorView.backgroundColor = .apptentiveTextInputBorder
+        self.separatorView.backgroundColor = .apptentiveMessageCenterComposeBoxSeparator
 
         self.textView.addSubview(self.placeholderLabel)
         self.placeholderLabel.isAccessibilityElement = false
