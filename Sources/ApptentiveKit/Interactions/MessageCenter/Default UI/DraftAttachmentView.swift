@@ -43,7 +43,7 @@ extension MessageCenterViewController {
             self.closeButton.translatesAutoresizingMaskIntoConstraints = false
             self.closeButton.setImage(.apptentiveAttachmentRemoveButton, for: .normal)
             self.closeButton.tintColor = .apptentiveMessageCenterAttachmentDeleteButton
-            self.closeButton.imageView?.backgroundColor = .apptentiveMessageCenterComposeBoxBackground
+            self.closeButton.imageView?.backgroundColor = .white
             self.closeButton.imageView?.layer.cornerRadius = 11
             self.closeButton.accessibilityIdentifier = "delete"
 

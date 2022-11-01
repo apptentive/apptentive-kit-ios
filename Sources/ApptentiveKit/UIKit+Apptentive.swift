@@ -484,13 +484,48 @@ extension UIColor {
     }()
 
     /// The color to use for submit button border.
-    public static var apptentiveSubmitButtonBorder: UIColor = {
+    @objc public static var apptentiveSubmitButtonBorder: UIColor = {
         return .clear
     }()
 
     /// The color to use for the space between questions.
-    public static var apptentiveQuestionSeparator: UIColor = {
+    @objc public static var apptentiveQuestionSeparator: UIColor = {
         return .clear
+    }()
+
+    /// The color to use for the background of Message Center.
+    @objc public static var apptentiveMessageCenterBackground: UIColor = {
+        return .white
+    }()
+
+    /// The color to use for the button that deletes the attachment from the draft message.
+    @objc public static var apptentiveMessageCenterAttachmentDeleteButton: UIColor = {
+        let lightModeError = UIColor(red: 0.86, green: 0.1, blue: 0, alpha: 1)
+        let darkModeError = UIColor(red: 1, green: 0.28, blue: 0.24, alpha: 1)
+
+        if #available(iOS 13.0, *) {
+            return UIColor { traitCollection in
+                switch traitCollection.userInterfaceStyle {
+                case .dark:
+                    return darkModeError
+
+                default:
+                    return lightModeError
+                }
+            }
+        } else {
+            return lightModeError
+        }
+    }()
+
+    /// The color to use for the compose box for Message Center.
+    @objc public static var apptentiveMessageCenterComposeBoxBackground: UIColor = {
+        return .white
+    }()
+
+    /// The color to use for the compose box separator.
+    @objc public static var apptentiveMessageCenterComposeBoxSeparator: UIColor = {
+        return .lightGray
     }()
 }
 

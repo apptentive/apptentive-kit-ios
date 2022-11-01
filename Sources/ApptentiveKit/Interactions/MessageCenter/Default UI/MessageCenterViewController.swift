@@ -47,14 +47,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let headerLogo = UIImage.apptentiveHeaderLogo {
-            let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
-            headerImageView.contentMode = .scaleAspectFit
-            self.navigationItem.titleView = headerImageView
-        } else {
-            self.navigationItem.title = self.viewModel.headingTitle
-        }
-
+        self.navigationItem.title = self.viewModel.headingTitle
         self.tableView.backgroundColor = .apptentiveMessageCenterBackground
         self.navigationItem.rightBarButtonItem = .apptentiveClose
         self.navigationItem.rightBarButtonItem?.target = self
