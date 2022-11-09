@@ -1,3 +1,34 @@
+# 2022-11-09 - 6.0.7
+
+#### New & Improved
+
+- Added finer-grained customization options for Message Center
+
+#### Bugs Fixed
+
+- Fixed the data migration from version 5 or earlier of the SDK to version 6.0.5 or 6.0.6
+
+# 2022-10-20 - 6.0.6
+
+*Note:* v6.0.5 contains a bug that only affects those using CocoaPods or a framework that uses CocoaPods internally (React Native, Flutter, and mParticle). There is no need for those not affected to update from v6.0.5 to v6.0.6. 
+
+#### Bugs Fixed
+
+- Added a missing file to the resource bundle for CocoaPods integrations that was causing an assertion failure.
+
+# 2022-10-17 - 6.0.5
+
+#### New & Improved
+
+- Removed the status label from the Edit Profile view in Message Center
+
+#### Bugs Fixed
+
+- Fixed an issue where encountering an assertion failure in a release build causes a crash
+- Fixed an issue where calling register before protected data is available could cause an error
+- Fixed an issue where the SDK version could be reported incorrectly
+- Fixed a spurious error message on first app launch
+
 # 2022-09-01 - 6.0.4
 
 #### New & Improved
