@@ -1,5 +1,5 @@
 //
-//  EventContents.swift
+//  EventContent.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 10/19/20.

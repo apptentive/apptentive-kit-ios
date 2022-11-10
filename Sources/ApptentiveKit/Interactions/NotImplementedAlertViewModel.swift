@@ -1,5 +1,5 @@
 //
-//  NotImplementedAlert.swift
+//  NotImplementedAlertViewModel.swift
 //  ApptentiveKit
 //
 //  Created by Luqmaan Khan on 12/8/20.

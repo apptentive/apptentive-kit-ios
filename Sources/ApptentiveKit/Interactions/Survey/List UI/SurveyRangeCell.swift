@@ -1,5 +1,5 @@
 //
-//  RangeChoiceCell.swift
+//  SurveyRangeCell.swift
 //  ApptentiveKit
 //
 //  Created by Luqmaan Khan on 12/15/20.

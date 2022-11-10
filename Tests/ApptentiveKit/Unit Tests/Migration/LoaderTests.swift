@@ -1,5 +1,5 @@
 //
-//  LegacyLoaderTests.swift
+//  LoaderTests.swift
 //  ApptentiveUnitTests
 //
 //  Created by Frank Schmitt on 4/28/21.

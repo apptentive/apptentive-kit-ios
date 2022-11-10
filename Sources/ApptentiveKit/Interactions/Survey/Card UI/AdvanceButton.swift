@@ -1,5 +1,5 @@
 //
-//  SurveyButton.swift
+//  AdvanceButton.swift
 //  SurveyCard
 //
 //  Created by Frank Schmitt on 5/4/21.

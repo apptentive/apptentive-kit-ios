@@ -1,5 +1,5 @@
 //
-//  AttachmentIndicator.swift
+//  AttachmentView.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 1/31/22.

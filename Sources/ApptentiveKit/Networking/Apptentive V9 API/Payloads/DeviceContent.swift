@@ -1,5 +1,5 @@
 //
-//  DeviceContents.swift
+//  DeviceContent.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 2/3/21.

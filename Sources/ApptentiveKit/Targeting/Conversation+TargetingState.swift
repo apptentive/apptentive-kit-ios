@@ -1,5 +1,5 @@
 //
-//  TargetingState.swift
+//  Conversation+TargetingState.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 8/18/20.

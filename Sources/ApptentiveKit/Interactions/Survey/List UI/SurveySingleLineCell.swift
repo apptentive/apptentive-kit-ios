@@ -1,5 +1,5 @@
 //
-//  SurveyFreeformShortCell.swift
+//  SurveySingleLineCell.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 7/23/20.

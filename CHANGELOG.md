@@ -1,3 +1,13 @@
+# 2022-11-09 - 6.0.7
+
+#### New & Improved
+
+- Added finer-grained customization options for Message Center
+
+#### Bugs Fixed
+
+- Fixed the data migration from version 5 or earlier of the SDK to version 6.0.5 or 6.0.6
+
 # 2022-10-20 - 6.0.6
 
 *Note:* v6.0.5 contains a bug that only affects those using CocoaPods or a framework that uses CocoaPods internally (React Native, Flutter, and mParticle). There is no need for those not affected to update from v6.0.5 to v6.0.6. 

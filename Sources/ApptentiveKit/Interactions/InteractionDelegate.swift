@@ -1,5 +1,5 @@
 //
-//  ResponseSending.swift
+//  InteractionDelegate.swift
 //  ApptentiveKit
 //
 //  Created by Frank Schmitt on 10/6/20.
