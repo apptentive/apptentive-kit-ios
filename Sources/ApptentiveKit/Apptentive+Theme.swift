@@ -31,7 +31,10 @@ extension Apptentive {
             let messageBubbleInboundColor = UIColor(named: "messageBubbleInbound", in: bundle, compatibleWith: nil),
             let messageLabelInboundColor = UIColor(named: "messageLabelInbound", in: bundle, compatibleWith: nil),
             let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil),
-            let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil)
+            let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil),
+            let surveyGreeting = UIColor(named: "surveyGreetingText", in: bundle, compatibleWith: nil),
+            let surveyImageChoice = UIColor(named: "surveyImageChoice", in: bundle, compatibleWith: nil),
+            let attachmentDeleteButton = UIColor(named: "attachmentDeleteButton", in: bundle, compatibleWith: nil)
         else {
             apptentiveCriticalError("Unable to locate color asset(s).")
             return
@@ -45,7 +48,7 @@ extension Apptentive {
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesOnLoad, for: .normal)
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesWhenSelected, for: .selected)
             segmentedControlAppearance.setBackgroundImage(image(with: .white), for: .normal, barMetrics: .default)
-            segmentedControlAppearance.setBackgroundImage(image(with: buttonTintColor), for: .selected, barMetrics: .default)
+            segmentedControlAppearance.setBackgroundImage(image(with: surveyImageChoice), for: .selected, barMetrics: .default)
         }
 
         let barTitleTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .title2)]
@@ -113,15 +116,24 @@ extension Apptentive {
         UIColor.apptentiveSecondaryGroupedBackground = apptentiveGroupSecondaryColor
         UIColor.apptentiveSeparator = apptentiveGroupPrimaryColor
         UIColor.apptentiveTextInputBackground = textInputBackgroundColor
-        UIColor.apptentiveImageSelected = buttonTintColor
         UIColor.apptentiveSubmitButton = buttonTintColor
         UIColor.apptentiveQuestionLabel = question
         UIColor.apptentiveMessageBubbleInbound = messageBubbleInboundColor
         UIColor.apptentiveMessageBubbleOutbound = messageBubbleOutboundColor
         UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
-        UIColor.apptentiveMessageCenterAttachmentButton = buttonTintColor
         UIColor.apptentiveMessageCenterTextInputBorder = messageTextInputBorderColor
+        UIColor.apptentiveSurveyIntroduction = surveyGreeting
+        UIColor.apptentiveImageSelected = surveyImageChoice
+        UIColor.apptentiveMessageCenterBackground = apptentiveGroupPrimaryColor
+        UIColor.apptentiveMessageCenterComposeBoxBackground = apptentiveGroupPrimaryColor
+        UIColor.apptentiveMessageCenterGreetingTitle = surveyGreeting
+        UIColor.apptentiveMessageCenterGreetingBody = question
+        UIColor.apptentiveMessageCenterStatus = textInputColor
+        UIColor.apptentiveMessageCenterTextInputBorder = textInputBorderColor
+        UIColor.apptentiveMessageCenterTextInputBackground = textInputBackgroundColor
+        UIColor.apptentiveMessageCenterTextInput = textInputColor
+        UIColor.apptentiveMessageCenterAttachmentDeleteButton = attachmentDeleteButton
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
