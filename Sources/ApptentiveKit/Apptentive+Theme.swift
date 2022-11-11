@@ -34,11 +34,7 @@ extension Apptentive {
             let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil),
             let surveyGreeting = UIColor(named: "surveyGreetingText", in: bundle, compatibleWith: nil),
             let surveyImageChoice = UIColor(named: "surveyImageChoice", in: bundle, compatibleWith: nil),
-            let attachmentDeleteButton = UIColor(named: "attachmentDeleteButton", in: bundle, compatibleWith: nil),
-            let error = UIColor(named: "apptentiveError", in: bundle, compatibleWith: nil),
-            let textInputPlaceholder = UIColor(named: "textInputPlaceholder", in: bundle, compatibleWith: nil),
-            let textInputBorderSelected = UIColor(named: "textInputBorderSelected", in: bundle, compatibleWith: nil),
-            let rangeNotSelectedSegmentBackground = UIColor(named: "rangeNotSelectedSegmentBackground", in: bundle, compatibleWith: nil)
+            let attachmentDeleteButton = UIColor(named: "attachmentDeleteButton", in: bundle, compatibleWith: nil)
         else {
             apptentiveCriticalError("Unable to locate color asset(s).")
             return
@@ -51,9 +47,8 @@ extension Apptentive {
             let segmentedControlAppearance = UISegmentedControl.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesOnLoad, for: .normal)
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesWhenSelected, for: .selected)
-            segmentedControlAppearance.setBackgroundImage(image(with: rangeNotSelectedSegmentBackground), for: .normal, barMetrics: .default)
+            segmentedControlAppearance.setBackgroundImage(image(with: .white), for: .normal, barMetrics: .default)
             segmentedControlAppearance.setBackgroundImage(image(with: surveyImageChoice), for: .selected, barMetrics: .default)
-            segmentedControlAppearance.setDividerImage(image(with: apptentiveRangeControlBorder), forLeftSegmentState: .normal, rightSegmentState: .normal, barMetrics: .default)
         }
 
         let barTitleTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .title2)]
@@ -127,8 +122,18 @@ extension Apptentive {
         UIColor.apptentiveMessageBubbleOutbound = messageBubbleOutboundColor
         UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
-        UIColor.apptentiveMessageCenterAttachmentButton = buttonTintColor
         UIColor.apptentiveMessageCenterTextInputBorder = messageTextInputBorderColor
+        UIColor.apptentiveSurveyIntroduction = surveyGreeting
+        UIColor.apptentiveImageSelected = surveyImageChoice
+        UIColor.apptentiveMessageCenterBackground = apptentiveGroupPrimaryColor
+        UIColor.apptentiveMessageCenterComposeBoxBackground = apptentiveGroupPrimaryColor
+        UIColor.apptentiveMessageCenterGreetingTitle = surveyGreeting
+        UIColor.apptentiveMessageCenterGreetingBody = question
+        UIColor.apptentiveMessageCenterStatus = textInputColor
+        UIColor.apptentiveMessageCenterTextInputBorder = textInputBorderColor
+        UIColor.apptentiveMessageCenterTextInputBackground = textInputBackgroundColor
+        UIColor.apptentiveMessageCenterTextInput = textInputColor
+        UIColor.apptentiveMessageCenterAttachmentDeleteButton = attachmentDeleteButton
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
