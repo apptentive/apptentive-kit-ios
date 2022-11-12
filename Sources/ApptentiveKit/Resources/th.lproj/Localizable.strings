@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "ยกเลิก";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "ไฟล์";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "ภาพ";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "เลือกประเภทการแนบไฟล์";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "แตะสองครั้งเพื่อดาวน์โหลด";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "แนบรูปภาพหรือไฟล์";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "แนบ";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "ปิดศูนย์ข้อความ";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "ปิด";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "แสดงชื่อและผู้แก้ไขอีเมล";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "โปรไฟล์";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "ส่งข้อความ";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "ส่ง";
+
+/* Accessibility label for messages with no text */
+"No Text" = "ไม่มีข้อความตัวอักษร";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "แตะสองครั้งเพื่อเปิด";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "ตกลง";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "ตรวจสอบให้แน่ใจว่าอุปกรณ์ของคุณสามารถเข้าถึงอินเทอร์เน็ตได้และลองอีกครั้ง";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "ไม่สามารถใช้ศูนย์ข้อความได้";
+

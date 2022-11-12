@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "Batal";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "File";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "Gambar";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "Pilih jenis lampiran.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "Ketuk dua kali untuk mengunduh.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "Melampirkan foto atau file.";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "Lampirkan";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "Menutup Pusat Pesan.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "Tutup";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "Menampilkan editor nama dan email.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "Profil";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "Mengirim pesan.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "Kirim";
+
+/* Accessibility label for messages with no text */
+"No Text" = "Tidak ada Teks";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "Ketuk dua kali untuk membuka.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "OKE";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "Pastikan perangkat Anda dapat mengakses internet dan coba lagi.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "Pusat Pesan tidak Tersedia";
+
