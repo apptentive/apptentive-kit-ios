@@ -54,6 +54,8 @@ class Backend {
 
     private let payloadSender: PayloadSender
 
+    private let isDebugBuild: Bool
+
     var messageFetchCompletionHandler: ((UIBackgroundFetchResult) -> Void)? {
         didSet {
             if self.messageFetchCompletionHandler != nil {
@@ -110,7 +112,7 @@ class Backend {
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
 
-        self.init(queue: queue, conversation: conversation, containerName: containerName, targeter: targeter, messageManager: messageManager, requestRetrier: requestRetrier, payloadSender: payloadSender)
+        self.init(queue: queue, conversation: conversation, containerName: containerName, targeter: targeter, messageManager: messageManager, requestRetrier: requestRetrier, payloadSender: payloadSender, isDebugBuild: environment.isDebugBuild)
     }
 
     /// This initializer intended for testing only.
@@ -122,7 +124,8 @@ class Backend {
     ///   - messageManager: The message manager to use to manage messages for Message Center.
     ///   - requestRetrier: The Apptentive API request retrier to use to send API requests.
     ///   - payloadSender: The payload sender to use to send updates to the API.
-    init(queue: DispatchQueue, conversation: Conversation, containerName: String, targeter: Targeter, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSender) {
+    ///   - isDebugBuild: Indicates if in debug mode received from the ConversationEnvironment.
+    init(queue: DispatchQueue, conversation: Conversation, containerName: String, targeter: Targeter, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSender, isDebugBuild: Bool) {
         self.queue = queue
         self.conversation = conversation
         self.containerName = containerName
@@ -573,7 +576,8 @@ class Backend {
     /// Retrieves a message list from the Apptentive API.
     internal func getMessagesIfNeeded() {
         if self.messageManager.messagesNeedDownloading {
-            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation, afterMessageWithID: self.messageManager.lastDownloadedMessageID), identifier: "get messages") { (result: Result<MessagesResponse, Error>) in
+            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation, afterMessageWithID: self.messageManager.lastDownloadedMessageID, pageSize: self.isDebugBuild ? "5" : nil), identifier: "get messages") {
+                (result: Result<MessagesResponse, Error>) in
                 switch result {
                 case .success(let messagesResponse):
                     ApptentiveLogger.default.debug("Message List received.")
