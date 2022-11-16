@@ -34,7 +34,10 @@ extension Apptentive {
             let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil),
             let surveyGreeting = UIColor(named: "surveyGreetingText", in: bundle, compatibleWith: nil),
             let surveyImageChoice = UIColor(named: "surveyImageChoice", in: bundle, compatibleWith: nil),
-            let attachmentDeleteButton = UIColor(named: "attachmentDeleteButton", in: bundle, compatibleWith: nil)
+            let attachmentDeleteButton = UIColor(named: "attachmentDeleteButton", in: bundle, compatibleWith: nil),
+            let error = UIColor(named: "apptentiveError", in: bundle, compatibleWith: nil),
+            let textInputPlaceholder = UIColor(named: "textInputPlaceholder", in: bundle, compatibleWith: nil),
+            let textInputBorderSelected = UIColor(named: "textInputBorderSelected", in: bundle, compatibleWith: nil)
         else {
             apptentiveCriticalError("Unable to locate color asset(s).")
             return
@@ -134,6 +137,10 @@ extension Apptentive {
         UIColor.apptentiveMessageCenterTextInputBackground = textInputBackgroundColor
         UIColor.apptentiveMessageCenterTextInput = textInputColor
         UIColor.apptentiveMessageCenterAttachmentDeleteButton = attachmentDeleteButton
+        UIColor.apptentiveError = error
+        UIColor.apptentiveTextInputPlaceholder = textInputPlaceholder
+        UIColor.apptentiveMessageCenterTextInputPlaceholder = textInputPlaceholder
+        UIColor.apptentiveTextInputBorderSelected = textInputBorderSelected
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
