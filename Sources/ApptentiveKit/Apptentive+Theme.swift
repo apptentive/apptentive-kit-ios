@@ -37,21 +37,23 @@ extension Apptentive {
             let attachmentDeleteButton = UIColor(named: "attachmentDeleteButton", in: bundle, compatibleWith: nil),
             let error = UIColor(named: "apptentiveError", in: bundle, compatibleWith: nil),
             let textInputPlaceholder = UIColor(named: "textInputPlaceholder", in: bundle, compatibleWith: nil),
-            let textInputBorderSelected = UIColor(named: "textInputBorderSelected", in: bundle, compatibleWith: nil)
+            let textInputBorderSelected = UIColor(named: "textInputBorderSelected", in: bundle, compatibleWith: nil),
+            let rangeNotSelectedSegmentBackground = UIColor(named: "rangeNotSelectedSegmentBackground", in: bundle, compatibleWith: nil)
         else {
             apptentiveCriticalError("Unable to locate color asset(s).")
             return
         }
 
         if #available(iOS 13.0, *) {
-            let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: UIColor.darkGray, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0, weight: .medium)] as [NSAttributedString.Key: Any]
-            let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0, weight: .medium)] as [NSAttributedString.Key: Any]
+            let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: question, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0, weight: .medium)] as [NSAttributedString.Key: Any]
+            let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: apptentiveGroupPrimaryColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0, weight: .medium)] as [NSAttributedString.Key: Any]
 
             let segmentedControlAppearance = UISegmentedControl.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesOnLoad, for: .normal)
             segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesWhenSelected, for: .selected)
-            segmentedControlAppearance.setBackgroundImage(image(with: .white), for: .normal, barMetrics: .default)
+            segmentedControlAppearance.setBackgroundImage(image(with: rangeNotSelectedSegmentBackground), for: .normal, barMetrics: .default)
             segmentedControlAppearance.setBackgroundImage(image(with: surveyImageChoice), for: .selected, barMetrics: .default)
+            segmentedControlAppearance.setDividerImage(image(with: apptentiveRangeControlBorder), forLeftSegmentState: .normal, rightSegmentState: .normal, barMetrics: .default)
         }
 
         let barTitleTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .title2)]
