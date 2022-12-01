@@ -62,7 +62,7 @@ struct SurveyConfiguration: Decodable {
         let link: URL
     }
 
-    struct Question: Decodable, Identifiable {
+    struct Question: Decodable {
         let id: String
         let text: String
         let type: QuestionType
@@ -109,7 +109,7 @@ struct SurveyConfiguration: Decodable {
             case range
         }
 
-        struct Choice: Decodable, Identifiable {
+        struct Choice: Decodable {
             let id: String
             let value: String
             let type: ChoiceType?
