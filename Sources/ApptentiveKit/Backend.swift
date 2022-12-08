@@ -480,19 +480,19 @@ class Backend {
 
         self.getMessagesIfNeeded()
 
-        if lastSyncedConversation.appRelease != conversation.appRelease {
+        if AppReleaseContent(with: lastSyncedConversation.appRelease) != AppReleaseContent(with: conversation.appRelease) {
             ApptentiveLogger.network.debug("App release data changed. Enqueueing update.")
             self.payloadSender.send(Payload(wrapping: self.conversation.appRelease))
             self.lastSyncedConversation?.appRelease = conversation.appRelease
         }
 
-        if lastSyncedConversation.person != conversation.person {
+        if PersonContent(with: lastSyncedConversation.person) != PersonContent(with: conversation.person) {
             ApptentiveLogger.network.debug("Person data changed. Enqueueing update.")
             self.payloadSender.send(Payload(wrapping: self.conversation.person))
             self.lastSyncedConversation?.person = conversation.person
         }
 
-        if lastSyncedConversation.device != conversation.device {
+        if DeviceContent(with: lastSyncedConversation.device) != DeviceContent(with: conversation.device) {
             ApptentiveLogger.network.debug("Device data changed. Enqueueing update.")
             self.payloadSender.send(Payload(wrapping: self.conversation.device))
 
