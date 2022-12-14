@@ -1,3 +1,14 @@
+# 2022-12-13 - 6.0.8
+
+### New & Improved
+
+- Add support for Malay, Thai, and Indonesian localizations
+- A dark mode update across interactions for our out of box theme 
+
+### Bugs Fixed
+
+- Fixed an issue causing some react native builds to fail
+
 # 2022-11-09 - 6.0.7
 
 #### New & Improved

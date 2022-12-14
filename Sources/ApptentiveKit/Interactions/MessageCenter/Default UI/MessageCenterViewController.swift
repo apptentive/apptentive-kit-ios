@@ -12,7 +12,7 @@ import UIKit
 
 class MessageCenterViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate,
     PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate,
-    QLPreviewControllerDelegate, QLPreviewControllerDataSource
+    QLPreviewControllerDelegate, QLPreviewControllerDataSource, UITextFieldDelegate
 {
     let viewModel: MessageCenterViewModel
     let headerView: GreetingHeaderView
@@ -47,7 +47,14 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationItem.title = self.viewModel.headingTitle
+        if let headerLogo = UIImage.apptentiveHeaderLogo {
+            let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
+            headerImageView.contentMode = .scaleAspectFit
+            self.navigationItem.titleView = headerImageView
+        } else {
+            self.navigationItem.title = self.viewModel.headingTitle
+        }
+
         self.tableView.backgroundColor = .apptentiveMessageCenterBackground
         self.navigationItem.rightBarButtonItem = .apptentiveClose
         self.navigationItem.rightBarButtonItem?.target = self
@@ -108,12 +115,14 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.profileFooterView.nameTextField.accessibilityLabel = self.viewModel.editProfileNamePlaceholder
         self.profileFooterView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
         self.profileFooterView.nameTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
+        self.profileFooterView.nameTextField.delegate = self
 
         self.profileFooterView.emailTextField.text = self.viewModel.emailAddress
         self.profileFooterView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
         self.profileFooterView.emailTextField.accessibilityLabel = self.viewModel.editProfileEmailPlaceholder
         self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
         self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
+        self.profileFooterView.emailTextField.delegate = self
 
         self.updateProfileValidation(strict: self.viewModel.emailAddress?.isEmpty == false)
         self.tableView.separatorColor = .clear
@@ -221,6 +230,17 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.viewModel.markMessageAsRead(at: indexPath)
     }
 
+    // MARK: - Text Field Delegate
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        self.composeContainerView.composeView.textView.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+        textField.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+    }
+
     // MARK: - Text View Delegate
 
     func textViewDidChange(_ textView: UITextView) {
@@ -228,6 +248,10 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.viewModel.draftMessageBody = textView.text
         self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+    }
+
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        textView.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
     }
 
     // MARK: - UIImagePickerControllerDelegate

@@ -36,7 +36,7 @@ class BackendTests: XCTestCase {
 
         self.backend = Backend(
             queue: queue, conversation: conversation, containerName: containerURL.lastPathComponent, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: self.messageManager, requestRetrier: requestRetrier,
-            payloadSender: payloadSender)
+            payloadSender: payloadSender, isDebugBuild: true)
 
         let expectation = self.expectation(description: "Backend configured")
 

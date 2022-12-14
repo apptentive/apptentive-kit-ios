@@ -40,42 +40,26 @@ struct Version: Equatable, Comparable, ExpressibleByStringLiteral, ExpressibleBy
         var patch: Int?
 
         endOfSemanticVersion: do {
-            if #available(iOS 13, macOS 10.15, *) {
-                major = scanner.scanInt(representation: .decimal)
+            var integer: Int = 0
 
-                if scanner.scanString(".") == nil {
-                    break endOfSemanticVersion
-                }
+            if scanner.scanInt(&integer) {
+                major = integer
+            }
 
-                minor = scanner.scanInt(representation: .decimal)
+            if !scanner.scanString(".", into: nil) {
+                break endOfSemanticVersion
+            }
 
-                if scanner.scanString(".") == nil {
-                    break endOfSemanticVersion
-                }
+            if scanner.scanInt(&integer) {
+                minor = integer
+            }
 
-                patch = scanner.scanInt(representation: .decimal)
-            } else {
-                var integer: Int = 0
+            if !scanner.scanString(".", into: nil) {
+                break endOfSemanticVersion
+            }
 
-                if scanner.scanInt(&integer) {
-                    major = integer
-                }
-
-                if !scanner.scanString(".", into: nil) {
-                    break endOfSemanticVersion
-                }
-
-                if scanner.scanInt(&integer) {
-                    minor = integer
-                }
-
-                if !scanner.scanString(".", into: nil) {
-                    break endOfSemanticVersion
-                }
-
-                if scanner.scanInt(&integer) {
-                    patch = integer
-                }
+            if scanner.scanInt(&integer) {
+                patch = integer
             }
         }
 

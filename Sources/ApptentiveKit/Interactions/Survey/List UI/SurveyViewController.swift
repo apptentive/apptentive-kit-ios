@@ -604,19 +604,20 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-
         return false
     }
 
     // We probably don't need this now that the Other text field is only visible when the choice is selected.
     func textFieldDidBeginEditing(_ textField: UITextField) {
         self.firstResponderIndexPath = self.indexPath(forTag: textField.tag)
+        textField.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
         if !self.tableViewIsReloading {
             self.firstResponderIndexPath = nil
         }
+        textField.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
     }
 
     // MARK: Text View Delegate
@@ -633,12 +634,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     func textViewDidBeginEditing(_ textView: UITextView) {
         self.firstResponderIndexPath = self.indexPath(forTag: textView.tag)
+        textView.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
     }
 
     func textViewDidEndEditing(_ textView: UITextView) {
         if !self.tableViewIsReloading {
             self.firstResponderIndexPath = nil
         }
+        textView.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
     }
 
     // MARK: - Adaptive Presentation Controller Delegate

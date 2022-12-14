@@ -106,6 +106,13 @@ extension UIImage {
 
     /// The image to use for the attachment delete button.
     @objc public static var apptentiveAttachmentRemoveButton: UIImage? = {
+        if #available(iOS 13.0, *) {
+            if let minusImage = UIImage.init(systemName: "minus.circle.fill") {
+                return minusImage
+            }
+        } else {
+            return .apptentiveImage(named: "minus.circle.fill")
+        }
         return .apptentiveImage(named: "minus.circle.fill")
     }()
 
@@ -526,6 +533,11 @@ extension UIColor {
     /// The color to use for the compose box separator.
     @objc public static var apptentiveMessageCenterComposeBoxSeparator: UIColor = {
         return .lightGray
+    }()
+
+    /// The color to use for text input borders when selected.
+    @objc public static var apptentiveTextInputBorderSelected: UIColor = {
+        return .blue
     }()
 }
 

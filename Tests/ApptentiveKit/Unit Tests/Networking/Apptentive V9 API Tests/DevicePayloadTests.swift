@@ -42,7 +42,7 @@ class DevicePayloadTests: XCTestCase {
     }
 
     func testEncoding() throws {
-        let actualEncodedContent = try jsonEncoder.encode(self.testPayload.jsonObject)
+        let actualEncodedContent = try jsonEncoder.encode(self.testPayload?.jsonObject)
         let actualDecodedContent = try jsonDecoder.decode(Payload.JSONObject.self, from: actualEncodedContent)
 
         let expectedEncodedContent = """
@@ -65,7 +65,6 @@ class DevicePayloadTests: XCTestCase {
                 "locale_country_code": "US",
                 "os_build": "1",
                 "client_created_at_utc_offset": -28800,
-                "utc_offset": -25200,
                 "locale_raw": "en_US",
                 "os_version": "12.0",
                 "hardware": "iPhone0,0",

@@ -1,0 +1,120 @@
+
+/* Class = "UITextField"; placeholder = "String"; ObjectID = "0He-BM-PK1"; */
+"0He-BM-PK1.placeholder" = "String";
+
+/* Class = "UILabel"; text = "Value"; ObjectID = "1ei-mE-E3c"; */
+"1ei-mE-E3c.text" = "Value";
+
+/* Class = "UITabBarItem"; title = "Custom Data"; ObjectID = "2VO-DL-LDs"; */
+"2VO-DL-LDs.title" = "Custom Data";
+
+/* Class = "UITextField"; placeholder = "Key"; ObjectID = "2et-8h-Ez6"; */
+"2et-8h-Ez6.placeholder" = "Key";
+
+/* Class = "UINavigationItem"; title = "Manifest Override"; ObjectID = "3bx-ZV-B0f"; */
+"3bx-ZV-B0f.title" = "Manifest Override";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "40y-w3-ZgR"; */
+"40y-w3-ZgR.text" = "Title";
+
+/* Class = "UITextField"; placeholder = "Key"; ObjectID = "65c-UI-VuH"; */
+"65c-UI-VuH.placeholder" = "Key";
+
+/* Class = "UITextField"; placeholder = "String"; ObjectID = "AQ3-NR-DuV"; */
+"AQ3-NR-DuV.placeholder" = "String";
+
+/* Class = "UILabel"; text = "Key"; ObjectID = "BTT-TE-4gc"; */
+"BTT-TE-4gc.text" = "Key";
+
+/* Class = "UILabel"; text = "No Custom Data Set"; ObjectID = "E9d-kb-etZ"; */
+"E9d-kb-etZ.text" = "No Custom Data Set";
+
+/* Class = "UILabel"; text = "Send Attachment Image"; ObjectID = "EnL-cF-Zgq"; */
+"EnL-cF-Zgq.text" = "Send Attachment Image";
+
+/* Class = "UILabel"; text = "Value"; ObjectID = "F5e-JP-bog"; */
+"F5e-JP-bog.text" = "Value";
+
+/* Class = "UINavigationItem"; title = "Messages"; ObjectID = "IdO-ww-w5h"; */
+"IdO-ww-w5h.title" = "Messages";
+
+/* Class = "UITextField"; placeholder = "Name/Email"; ObjectID = "ItW-kM-Rps"; */
+"ItW-kM-Rps.placeholder" = "Name/Email";
+
+/* Class = "UINavigationItem"; title = "Attachment Text"; ObjectID = "JiE-vq-rOA"; */
+"JiE-vq-rOA.title" = "Attachment Text";
+
+/* Class = "UITextField"; placeholder = "Key"; ObjectID = "JuZ-pw-E6g"; */
+"JuZ-pw-E6g.placeholder" = "Key";
+
+/* Class = "UILabel"; text = "No Custom Data Set"; ObjectID = "NXu-I1-YPD"; */
+"NXu-I1-YPD.text" = "No Custom Data Set";
+
+/* Class = "UITextField"; placeholder = "Key"; ObjectID = "P8i-xy-ZKC"; */
+"P8i-xy-ZKC.placeholder" = "Key";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "PCE-Qc-SqV"; */
+"PCE-Qc-SqV.text" = "Title";
+
+/* Class = "UILabel"; text = "Send Attachment File"; ObjectID = "QHT-CB-wtU"; */
+"QHT-CB-wtU.text" = "Send Attachment File";
+
+/* Class = "UISegmentedControl"; Vl7-qn-Dmf.segmentTitles[0] = "Person"; ObjectID = "Vl7-qn-Dmf"; */
+"Vl7-qn-Dmf.segmentTitles[0]" = "Person";
+
+/* Class = "UISegmentedControl"; Vl7-qn-Dmf.segmentTitles[1] = "Device"; ObjectID = "Vl7-qn-Dmf"; */
+"Vl7-qn-Dmf.segmentTitles[1]" = "Device";
+
+/* Class = "UINavigationItem"; title = "Custom Data"; ObjectID = "WCO-7F-6xt"; */
+"WCO-7F-6xt.title" = "Custom Data";
+
+/* Class = "UILabel"; text = "Key"; ObjectID = "Wcu-Li-1SH"; */
+"Wcu-Li-1SH.text" = "Key";
+
+/* Class = "UILabel"; text = "Send Attachment Text"; ObjectID = "Wpf-So-UKm"; */
+"Wpf-So-UKm.text" = "Send Attachment Text";
+
+/* Class = "UITextField"; placeholder = "Key"; ObjectID = "XbC-dh-xfs"; */
+"XbC-dh-xfs.placeholder" = "Key";
+
+/* Class = "UITextField"; placeholder = "new_event_name"; ObjectID = "YQZ-9j-aig"; */
+"YQZ-9j-aig.placeholder" = "new_event_name";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "ZZH-TX-t7k"; */
+"ZZH-TX-t7k.text" = "0";
+
+/* Class = "UITextField"; placeholder = "Number"; ObjectID = "bn0-Uz-va2"; */
+"bn0-Uz-va2.placeholder" = "Number";
+
+/* Class = "UITextField"; placeholder = "Key"; ObjectID = "c4t-Xy-KQX"; */
+"c4t-Xy-KQX.placeholder" = "Key";
+
+/* Class = "UITabBarItem"; title = "Interactions"; ObjectID = "c8Q-tA-SlT"; */
+"c8Q-tA-SlT.title" = "Interactions";
+
+/* Class = "UIBarButtonItem"; title = "Item"; ObjectID = "gNF-Pu-z4t"; */
+"gNF-Pu-z4t.title" = "Item";
+
+/* Class = "UIBarButtonItem"; title = "Item"; ObjectID = "jib-cq-iFd"; */
+"jib-cq-iFd.title" = "Item";
+
+/* Class = "UITextField"; placeholder = "Name/Email"; ObjectID = "k90-dw-9CW"; */
+"k90-dw-9CW.placeholder" = "Name/Email";
+
+/* Class = "UILabel"; text = "Open Message Center"; ObjectID = "lpO-w4-XfH"; */
+"lpO-w4-XfH.text" = "Open Message Center";
+
+/* Class = "UITextField"; placeholder = "Number"; ObjectID = "mTz-fa-ikR"; */
+"mTz-fa-ikR.placeholder" = "Number";
+
+/* Class = "UITabBarItem"; title = "Messages"; ObjectID = "mZX-F9-GyW"; */
+"mZX-F9-GyW.title" = "Messages";
+
+/* Class = "UINavigationItem"; title = "Events"; ObjectID = "uyN-Rt-eY3"; */
+"uyN-Rt-eY3.title" = "Events";
+
+/* Class = "UITabBarItem"; title = "Events"; ObjectID = "vWy-Z6-mVC"; */
+"vWy-Z6-mVC.title" = "Events";
+
+/* Class = "UINavigationItem"; title = "Interactions"; ObjectID = "wYm-fi-Xuz"; */
+"wYm-fi-Xuz.title" = "Interactions";
