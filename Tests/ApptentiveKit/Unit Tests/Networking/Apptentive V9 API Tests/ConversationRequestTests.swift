@@ -32,7 +32,6 @@ class ConversationRequestTests: XCTestCase {
                 "os_build": "1",
                 "custom_data": {},
                 "locale_country_code": "US",
-                "utc_offset": -25200,
                 "os_version": "12.0",
                 "locale_raw": "en_US",
                 "hardware": "iPhone0,0",

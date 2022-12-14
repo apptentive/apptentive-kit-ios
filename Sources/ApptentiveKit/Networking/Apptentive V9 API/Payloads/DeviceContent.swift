@@ -19,7 +19,6 @@ struct DeviceContent: Equatable, Codable, PayloadEncodable {
     let localeRaw: String?
     let localeCountryCode: String?
     let localeLanguageCode: String?
-    let utcOffset: Int?
     let integrationConfiguration: [String: [String: String]]?
     let advertisingIdentifier: UUID?
     let customData: CustomData
@@ -35,7 +34,6 @@ struct DeviceContent: Equatable, Codable, PayloadEncodable {
         self.localeRaw = device.localeRaw
         self.localeCountryCode = device.localeCountryCode
         self.localeLanguageCode = device.localeLanguageCode
-        self.utcOffset = device.utcOffset
         self.integrationConfiguration = device.integrationConfiguration
         self.advertisingIdentifier = device.advertisingIdentifier
         self.customData = device.customData
@@ -52,7 +50,6 @@ struct DeviceContent: Equatable, Codable, PayloadEncodable {
         try container.encode(self.localeRaw, forKey: .localeRaw)
         try container.encode(self.localeCountryCode, forKey: .localeCountryCode)
         try container.encode(self.localeLanguageCode, forKey: .localeLanguageCode)
-        try container.encode(self.utcOffset, forKey: .utcOffset)
         try container.encode(self.integrationConfiguration, forKey: .integrationConfiguration)
         try container.encode(self.advertisingIdentifier, forKey: .advertisingIdentifier)
         try container.encode(self.customData, forKey: .customData)
@@ -69,7 +66,6 @@ struct DeviceContent: Equatable, Codable, PayloadEncodable {
         case localeRaw = "locale_raw"
         case localeCountryCode = "locale_country_code"
         case localeLanguageCode = "locale_language_code"
-        case utcOffset = "utc_offset"
         case integrationConfiguration = "integration_config"
         case advertisingIdentifier = "advertiser_id"
         case customData = "custom_data"

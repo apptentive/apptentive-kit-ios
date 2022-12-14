@@ -76,7 +76,7 @@ class MessageCenterComposeView: UIView {
         self.addSubview(self.attachmentButton)
         self.addSubview(self.attachmentStackView)
 
-        self.tintColor = .apptentiveSubmitButton
+        self.tintColor = .apptentiveImageSelected
 
         self.setUpConstraints()
 

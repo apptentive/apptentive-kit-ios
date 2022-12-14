@@ -53,7 +53,7 @@ struct MessageCenterConfiguration: Codable {
     }
 
     struct ErrorMessages: Codable {
-        let httpErrorBody, networkErrorBody: String
+        let httpErrorBody, networkErrorBody: String?
 
         enum CodingKeys: String, CodingKey {
             case httpErrorBody = "http_error_body"

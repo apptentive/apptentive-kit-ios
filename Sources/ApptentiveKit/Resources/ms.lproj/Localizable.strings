@@ -1,0 +1,54 @@
+/* The button label for dismissing the attachment options alert. */
+"Attachment Options Cancel Button" = "Batal";
+
+/* The button label for the images attachment option. */
+"Attachment Options Files Button" = "Fail";
+
+/* The button label for the files attachment option. */
+"Attachment Options Images Button" = "Imej";
+
+/* The title for the attachment options alert. */
+"Attachment Options Title" = "Pilih jenis lampiran.";
+
+/* The accessibility hint for downloading attachments. */
+"Download Attachment Accessibility Hint" = "Ketik dua kali untuk memuat turun.";
+
+/* The accessibility hint for the attach button. */
+"MC Attach Button Accessibility Hint" = "Melampirkan foto atau fail.";
+
+/* The accessibility label for the attach button. */
+"MC Attach Button Accessibility Label" = "Lampir";
+
+/* The accessibility hint for the close button. */
+"MC Close Button Accessibility Hint" = "Tutup Pusat Mesej.";
+
+/* The accessibility label for the close button. */
+"MC Close Button Accessibility Label" = "Tutup";
+
+/* The accessibility hint for the profile button. */
+"MC Profile Button Accessibility Hint" = "Memaparkan nama dan editor e-mel.";
+
+/* The accessibility label for the profile button. */
+"MC Profile Button Accessibility Label" = "Profail";
+
+/* The accessibility hint for the send button. */
+"MC Send Button Accessibility Hint" = "Menghantar mesej.";
+
+/* The accessibility label for the send button. */
+"MC Send Button Accessibility Label" = "Hantar";
+
+/* Accessibility label for messages with no text */
+"No Text" = "Tiada Teks";
+
+/* The accessibility hint for viewing attachments. */
+"Show Attachment Accessibility Hint" = "Ketik dua kali untuk membuka.";
+
+/* Dismiss button title for note saying MC is unavailable */
+"MC Unavailable Dismiss Button" = "OK";
+
+/* Message for note saying MC is unavailable */
+"MC Unavailable Message" = "Pastikan peranti anda boleh mengakses Internet dan cuba lagi.";
+
+/* Title for note saying MC is unavailable */
+"MC Unavailable Title" = "Pusat Mesej tidak tersedia";
+
