@@ -72,7 +72,7 @@ extension SurveyViewModel {
             self.type = question.type
 
             if question.type == .radio || question.type == .range {
-                self.minSelections = question.required ? 1 : 0
+                self.minSelections = question.required ?? false ? 1 : 0
                 self.maxSelections = 1
             } else {
                 self.minSelections = question.minSelections ?? 0
@@ -97,10 +97,10 @@ extension SurveyViewModel {
             return doesNotExceedMaxCount && choicesAreValid && (meetsMinCount || isOptional)
         }
 
-        override var response: [Answer]? {
-            let result = self.choices.compactMap { $0.responsePart }
+        override var response: QuestionResponse {
+            let answers = self.choices.compactMap { $0.responsePart }
 
-            return result.isEmpty ? nil : result
+            return answers.isEmpty ? .empty : .answered(answers)
         }
 
         /// Describes a choice that can be selected for a choice question type.

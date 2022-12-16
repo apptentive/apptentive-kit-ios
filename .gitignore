@@ -76,4 +76,4 @@ iossimulator*.xcarchive/
 iphoneos/
 
 # Credential-type files
-Defaults.plist
+Credentials.xcconfig

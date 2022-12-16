@@ -72,8 +72,9 @@ class InteractionPresenterTests: XCTestCase {
     class FakeInteractionPresenter: InteractionPresenter {
         var viewModel: AnyObject?
 
-        override func presentSurvey(with viewModel: SurveyViewModel) throws {
-            self.viewModel = viewModel
+        override func presentSurvey(with surveyViewModel: SurveyViewModel) throws {
+
+            self.viewModel = surveyViewModel
 
             let fakeSurveyViewController = FakePresentedViewController()
             fakeSurveyViewController.view.tag = 333

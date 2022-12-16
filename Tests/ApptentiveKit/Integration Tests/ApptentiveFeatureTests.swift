@@ -16,12 +16,12 @@ class ApptentiveFeatureTests: XCTestCase {
     var validSignature: String?
 
     override func setUp() {
-        if let defaultDefaultsURL = Bundle(for: type(of: self)).url(forResource: "Defaults", withExtension: "plist"), let defaultDefaults = NSDictionary(contentsOf: defaultDefaultsURL) as? [String: AnyObject] {
-            UserDefaults.standard.register(defaults: defaultDefaults)
-        }
-
-        guard let key = UserDefaults.standard.string(forKey: "Key"), let signature = UserDefaults.standard.string(forKey: "Signature"), let urlString = UserDefaults.standard.string(forKey: "ServerURL"), let url = URL(string: urlString) else {
-            return XCTFail("Unable to read URL/credentials from Defaults.plist")
+        let bundle = Bundle(for: Self.self)
+        guard let key = bundle.object(forInfoDictionaryKey: "APPTENTIVE_API_KEY") as? String,
+              let signature = bundle.object(forInfoDictionaryKey: "APPTENTIVE_API_SIGNATURE") as? String,
+              let urlString = bundle.object(forInfoDictionaryKey: "APPTENTIVE_API_BASE_URL") as? String,
+              let url = URL(string: urlString) else {
+            return
         }
 
         self.baseURL = url
@@ -66,8 +66,6 @@ class ApptentiveFeatureTests: XCTestCase {
             case .failure(_):
                 asserts(false)
             }
-
-            // asserts(success)
 
             expectation.fulfill()
         }

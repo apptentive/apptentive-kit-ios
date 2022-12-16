@@ -32,6 +32,7 @@ extension Apptentive {
             let messageLabelInboundColor = UIColor(named: "messageLabelInbound", in: bundle, compatibleWith: nil),
             let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil),
             let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil),
+            let unselectedSurveyIndicatorColor = UIColor(named: "unselectedSurveyIndicator", in: bundle, compatibleWith: nil),
             let surveyGreeting = UIColor(named: "surveyGreetingText", in: bundle, compatibleWith: nil),
             let surveyImageChoice = UIColor(named: "surveyImageChoice", in: bundle, compatibleWith: nil),
             let attachmentDeleteButton = UIColor(named: "attachmentDeleteButton", in: bundle, compatibleWith: nil),
@@ -128,6 +129,9 @@ extension Apptentive {
         UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
         UIColor.apptentiveMessageCenterTextInputBorder = messageTextInputBorderColor
+        UIColor.apptentiveSelectedSurveyIndicatorSegment = buttonTintColor
+        UIColor.apptentiveUnselectedSurveyIndicatorSegment = unselectedSurveyIndicatorColor
+        UIColor.apptentiveBranchedSurveyFooter = barTintColor
         UIColor.apptentiveSurveyIntroduction = surveyGreeting
         UIColor.apptentiveImageSelected = surveyImageChoice
         UIColor.apptentiveMessageCenterBackground = apptentiveGroupPrimaryColor

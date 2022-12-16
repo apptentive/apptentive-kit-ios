@@ -39,11 +39,11 @@ extension SurveyViewModel {
             }
         }
 
-        override var response: [Answer]? {
+        override var response: QuestionResponse {
             if let trimmedAnswer = self.trimmedAnswerText {
-                return [.freeform(trimmedAnswer)]
+                return .answered([.freeform(trimmedAnswer)])
             } else {
-                return nil
+                return .empty
             }
         }
     }

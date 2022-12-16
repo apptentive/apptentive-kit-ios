@@ -62,13 +62,14 @@ public class TextModalViewModel: AlertViewModel {
     static func recordResponse(textModalAction: TextModalAction, delegate: ResponseRecording, interaction: Interaction) {
         let id = interaction.id
         let actionID = textModalAction.actionID
-        let answer = Answer.choice(actionID)
-        delegate.recordResponse([answer], for: id)
+        let response = QuestionResponse.answered([Answer.choice(actionID)])
+        delegate.recordResponse(response, for: id)
     }
 
     /// Engages a launch event for the interaction.
     public func launch() {
         self.interactionDelegate.engage(event: .launch(from: self.interaction))
+        self.interactionDelegate.resetCurrentResponse(for: self.interaction.id)
     }
 
     /// Engages a cancel event for the interaction (not used by the default implementation).

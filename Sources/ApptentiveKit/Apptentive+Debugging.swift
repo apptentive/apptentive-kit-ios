@@ -145,13 +145,16 @@ extension Interaction {
         case .navigateToLink(let configuration):
             return configuration.url.absoluteString
 
-        case .survey(let configuration):
+        case .surveyV11(let configuration):
             return configuration.title ?? configuration.name ?? "Untitled"
 
         case .textModal(let configuration):
             return configuration.name ?? configuration.title ?? configuration.body ?? "Untitled"
 
         case .messageCenter(let configuration):
+            return configuration.title
+
+        case .surveyV12(let configuration):
             return configuration.title
 
         case .notImplemented:

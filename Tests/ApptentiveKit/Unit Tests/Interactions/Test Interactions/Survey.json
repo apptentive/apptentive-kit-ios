@@ -318,6 +318,10 @@
     "terms_and_conditions": {
       "label": "Terms and Conditions",
       "link": "https://apptentive.com/privacy"
-    }
+    },
+    "close_confirm_title": "Close",
+    "close_confirm_message": "Are you sure you want to discard this message?",
+    "close_confirm_close_text": "Discard",
+    "close_confirm_back_text": "Cancel"
   }
 }
