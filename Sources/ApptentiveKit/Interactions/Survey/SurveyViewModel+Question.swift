@@ -30,19 +30,19 @@ extension SurveyViewModel {
         public let instructions: String?
 
         /// The response object that will make up part of the survey response API request.
-        var response: [Answer]? {
+        var response: QuestionResponse {
             apptentiveCriticalError("Abstract method called")
-            return nil
+            return .empty
         }
 
         /// The actual valididty of the answer(s).
         var isValid: Bool {
-            return !(self.isRequired && self.response == nil)
+            return !(self.isRequired && self.response == .empty)
         }
 
         /// Whether a response has been entered.
         var hasAnswer: Bool {
-            return self.response != nil
+            return self.response != .empty
         }
 
         /// Whether the UI should show the question as invalid.
@@ -82,8 +82,8 @@ extension SurveyViewModel {
         init(question: SurveyConfiguration.Question, requiredText: String?) {
             self.questionID = question.id
             self.text = question.text
-            self.isRequired = question.required
-            self.requiredText = question.required ? (requiredText ?? NSLocalizedString("SurveyRequiredText", tableName: "Localizable", bundle: .module, value: "Required", comment: "Text indicating survey is required")) : nil
+            self.isRequired = question.required ?? false
+            self.requiredText = question.required ?? false ? (requiredText ?? NSLocalizedString("SurveyRequiredText", tableName: "Localizable", bundle: .module, value: "Required", comment: "Text indicating survey is required")) : nil
             self.errorMessage = question.errorMessage
             self.instructions = question.instructions
         }

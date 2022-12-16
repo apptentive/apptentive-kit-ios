@@ -15,13 +15,19 @@ let package = Package(
             targets: ["ApptentiveKit"]
         )
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/iwill/generic-json-swift.git")
+    ],
     targets: [
         .target(
             name: "ApptentiveKit",
             dependencies: [],
             exclude: ["Info.plist", "Bundle+Apptentive.swift"],
             resources: [.copy("Resources/SwiftPM.txt"), .copy("Resources/Distribution.plist")]
+        ),
+        .testTarget(
+            name: "ApptentiveKit Tests",
+            dependencies: ["GenericJSON"]),
         )
     ]
 )

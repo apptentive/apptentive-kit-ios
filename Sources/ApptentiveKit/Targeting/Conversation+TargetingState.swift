@@ -141,6 +141,20 @@ extension EngagementMetric: TargetingState {
                 throw TargetingError.unrecognizedField(field.fullPath)
             }
 
+        case "current_answer":
+            let subfield = try field.nextComponent()
+
+            switch subfield.keys.first {
+            case "value":
+                return self.currentAnswers.flatMap { Set($0.compactMap { $0.value }) }
+
+            case "id":
+                return self.currentAnswers.flatMap { Set($0.compactMap { $0.id }) }
+
+            default:
+                throw TargetingError.unrecognizedField(field.fullPath)
+            }
+
         default:
             throw TargetingError.unrecognizedField(field.fullPath)
         }

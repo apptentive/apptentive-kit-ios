@@ -49,11 +49,25 @@ class Targeter {
     /// - Throws: An error if criteria evaluation fails.
     /// - Returns: The interaction to present, or nil if no interaction should be presented.
     func interactionData(for event: Event, state: TargetingState) throws -> Interaction? {
-        return try self.interactionIdentifier(for: event, state: state).flatMap { self.interactionIndex[$0] }
+        return try self.interactionID(for: event, state: state).flatMap { self.interactionIndex[$0] }
     }
 
     func interactionData(for invocations: [EngagementManifest.Invocation], state: TargetingState) throws -> Interaction? {
-        return try self.interactionIdentifier(for: invocations, state: state).flatMap { self.interactionIndex[$0] }
+        return try self.interactionID(for: invocations, state: state).flatMap { self.interactionIndex[$0] }
+    }
+
+    func interactionID(for invocations: [EngagementManifest.Invocation], state: TargetingState) throws -> String? {
+        let invocation = try invocations.first(where: { invocation in
+            invocation.preLog()
+
+            let result = try invocation.criteria.isSatisfied(for: state)
+
+            invocation.postLog(result)
+
+            return result
+        })
+
+        return invocation?.interactionID
     }
 
     /// Builds a dictionary of interactions indexed by interaction ID.
@@ -72,9 +86,9 @@ class Targeter {
     ///   - state: The source of field values when evaluating criteria.
     /// - Throws: An error if criteria evaluation fails.
     /// - Returns: The interaction to present, if any.
-    private func interactionIdentifier(for event: Event, state: TargetingState) throws -> String? {
+    private func interactionID(for event: Event, state: TargetingState) throws -> String? {
         if let invocations = self.activeManifest.targets[event.codePointName] {
-            if let interactionID = try self.interactionIdentifier(for: invocations, state: state) {
+            if let interactionID = try self.interactionID(for: invocations, state: state) {
                 return interactionID
             } else {
                 ApptentiveLogger.engagement.info("No interactions targeting event \(event) have criteria met by active conversation.")
@@ -84,20 +98,5 @@ class Targeter {
             ApptentiveLogger.engagement.info("No interactions target the event \(event).")
             return nil
         }
-    }
-
-    private func interactionIdentifier(for invocations: [EngagementManifest.Invocation], state: TargetingState) throws -> String? {
-
-        let invocation = try invocations.first(where: { invocation in
-            invocation.preLog()
-
-            let result = try invocation.criteria.isSatisfied(for: state)
-
-            invocation.postLog(result)
-
-            return result
-        })
-
-        return invocation?.interactionID
     }
 }

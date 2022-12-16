@@ -40,6 +40,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         UIApplication.shared.keyWindow?.layer.speed = UserDefaults.standard.float(forKey: "layerSpeed")
 
+        Apptentive.shared.theme = .none
+        UIColor.apptentiveTermsOfServiceLabel = .white
+
         Apptentive.shared.register(with: .init(key: "IOS-IOS-AUTOMATED-TEST", signature: "bogus"), completion: nil)
 
         return true

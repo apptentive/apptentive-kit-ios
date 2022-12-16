@@ -126,7 +126,16 @@ class TargetingStateTests: XCTestCase {
 
     func testExistingInteraction() throws {
         self.conversation.interactions.record(
-            [.choice("abc123"), .freeform("hey"), .other("def456", "you"), .range(-2)],
+            .answered([.choice("abc123"), .freeform("hey"), .other("def456", "you"), .range(-2)]),
+            for: "abc123")
+
+        self.conversation.interactions.resetCurrentResponse(for: "abc123")
+
+        XCTAssertNil(try self.conversation.value(for: "interactions/abc123/current_answer/value"))
+        XCTAssertNil(try self.conversation.value(for: "interactions/abc123/current_answer/id"))
+
+        self.conversation.interactions.record(
+            .answered([.choice("abc123"), .freeform("hey"), .other("def456", "you"), .range(-2)]),
             for: "abc123")
 
         XCTAssertEqual(try self.conversation.value(for: "interactions/abc123/invokes/total") as? Int, 0)
@@ -157,6 +166,8 @@ class TargetingStateTests: XCTestCase {
         XCTAssertNil(try self.conversation.value(for: "interactions/unseen123/last_invoked_at"))
         XCTAssertNil(try self.conversation.value(for: "interactions/unseen123/answers/value"))
         XCTAssertNil(try self.conversation.value(for: "interactions/unseen123/answers/id"))
+        XCTAssertNil(try self.conversation.value(for: "interactions/unseen123/current_answer/value"))
+        XCTAssertNil(try self.conversation.value(for: "interactions/unseen123/current_answer/id"))
     }
 
     func testPersonName() throws {

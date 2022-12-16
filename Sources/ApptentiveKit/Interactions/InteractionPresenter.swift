@@ -47,7 +47,7 @@ open class InteractionPresenter {
             let controller = NavigateToLinkController(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             controller.navigateToLink()
 
-        case .survey(let configuration):
+        case .surveyV11(let configuration):
             let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             try self.presentSurvey(with: viewModel)
 
@@ -58,6 +58,10 @@ open class InteractionPresenter {
         case .messageCenter(let configuration):
             let viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             try self.presentMessageCenter(with: viewModel)
+
+        case .surveyV12(let configuration):
+            let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
+            try self.presentSurvey(with: viewModel)
 
         case .notImplemented:
             let viewModel = NotImplementedAlertViewModel(interactionTypeName: interaction.typeName)
@@ -110,7 +114,7 @@ open class InteractionPresenter {
     /// - Parameter viewModel: the survey view model that represents the survey and handles submissions.
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
     open func presentSurvey(with viewModel: SurveyViewModel) throws {
-        let viewController = viewModel.presentationStyle == .card ? CardViewController(viewModel: viewModel) : SurveyViewController(viewModel: viewModel)
+        let viewController = SurveyViewController(viewModel: viewModel)
 
         let navigationController = ApptentiveNavigationController(rootViewController: viewController)
 

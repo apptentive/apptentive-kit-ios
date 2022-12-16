@@ -461,6 +461,15 @@ extension UIColor {
         }
     }()
 
+    /// The background color to use for the footer which contains the terms and conditions for branched surveys.
+    @objc public static var apptentiveBranchedSurveyFooter: UIColor = {
+        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
+            return tintColor
+        } else {
+            return .systemBlue
+        }
+    }()
+
     /// The color to use for the survey footer label (Thank You text).
     @available(*, deprecated, message: "This property has been renamed to 'apptentiveSubmitStatusLabel'.")
     public static var apptentiveSubmitLabel: UIColor = {
@@ -498,6 +507,20 @@ extension UIColor {
     /// The color to use for the space between questions.
     @objc public static var apptentiveQuestionSeparator: UIColor = {
         return .clear
+    }()
+
+    /// The color to use for the unselected segments for branched surveys.
+    public static var apptentiveUnselectedSurveyIndicatorSegment: UIColor = {
+        return .gray
+    }()
+
+    /// The color to use for the selected segments for branched surveys.
+    public static var apptentiveSelectedSurveyIndicatorSegment: UIColor = {
+        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
+            return tintColor
+        } else {
+            return .systemBlue
+        }
     }()
 
     /// The color to use for the background of Message Center.
@@ -643,6 +666,16 @@ extension UIFont {
     @objc public static var apptentiveTextInput: UIFont = {
         return .preferredFont(forTextStyle: .body)
     }()
+
+    /// Repairs the scalability of ``UIFont.apptentiveTextInput`` for `UITextView` and `UITextField` use.
+    internal func apptentiveRepairedFont() -> UIFont {
+        guard let textStyleString = self.fontDescriptor.object(forKey: UIFontDescriptor.AttributeName.textStyle) as? String else {
+            ApptentiveLogger.default.warning("Font \(self.debugDescription) has a missing or invalid textStyle and will not work with Dynamic Type.")
+            return self
+        }
+
+        return UIFontMetrics(forTextStyle: UIFont.TextStyle(rawValue: textStyleString)).scaledFont(for: self)
+    }
 }
 
 extension UIToolbar {

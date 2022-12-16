@@ -73,7 +73,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     fileprivate func connect(_ completion: @escaping ((Result<Void, Error>)) -> Void) {
-        guard let key = UserDefaults.standard.string(forKey: "Key"), let signature = UserDefaults.standard.string(forKey: "Signature"), let urlString = UserDefaults.standard.string(forKey: "ServerURL"), let url = URL(string: urlString) else {
+
+
+        guard let key = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_KEY") as? String,
+              let signature = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_SIGNATURE") as? String,
+              let urlString = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_BASE_URL") as? String,
+              let url = URL(string: urlString) else {
             completion(.failure(AppError.credentialsError))
             return
         }
