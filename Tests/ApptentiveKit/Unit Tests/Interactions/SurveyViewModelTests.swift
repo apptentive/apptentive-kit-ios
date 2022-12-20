@@ -23,7 +23,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
     override func setUpWithError() throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "Survey")
 
-        guard case let Interaction.InteractionConfiguration.surveyV11(surveyConfiguration) = interaction.configuration else {
+        guard case let Interaction.InteractionConfiguration.surveyV12(surveyConfiguration) = interaction.configuration else {
             return XCTFail("Unable to create view model")
         }
 
@@ -46,11 +46,11 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertEqual(viewModel.isRequired, false)
         XCTAssertEqual(viewModel.questions.count, 16)
 
-        XCTAssertEqual(viewModel.termsAndConditions?.linkLabel, "Terms and Conditions")
+        XCTAssertEqual(viewModel.termsAndConditions?.linkLabel, "Terms & Conditions")
 
         self.viewModel.openTermsAndConditions()
 
-        XCTAssertEqual(self.spyInteractionDelegate.openedURL, URL(string: "https://apptentive.com/privacy"))
+        XCTAssertEqual(self.spyInteractionDelegate.openedURL, URL(string: "https://www.example.com/"))
     }
 
     func testSurveyQuestionBasics() {
@@ -472,7 +472,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
     }
 
     func testBranchedSurvey() throws {
-        let interaction = try InteractionTestHelpers.loadInteraction(named: "SurveyV12")
+        let interaction = try InteractionTestHelpers.loadInteraction(named: "SurveyBranched")
 
         guard case let Interaction.InteractionConfiguration.surveyV12(surveyConfiguration) = interaction.configuration else {
             return XCTFail("Unable to create view model")
