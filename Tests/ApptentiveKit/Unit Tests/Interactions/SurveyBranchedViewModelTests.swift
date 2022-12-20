@@ -17,7 +17,7 @@ class SurveyBranchedViewModelTests: XCTestCase {
     var viewModelDelegate: SpySurveyViewModelDelegate!
 
     override func setUpWithError() throws {
-        self.interaction = try InteractionTestHelpers.loadInteraction(named: "SurveyV12")
+        self.interaction = try InteractionTestHelpers.loadInteraction(named: "SurveyBranched")
         self.interactionDelegate = SpyInteractionDelegate()
         self.viewModelDelegate = SpySurveyViewModelDelegate()
     }

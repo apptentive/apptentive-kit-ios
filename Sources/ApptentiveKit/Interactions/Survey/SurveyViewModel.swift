@@ -89,7 +89,7 @@ public class SurveyViewModel {
 
     /// The view model for the current page of the survey to display.
     public var currentPage: Page {
-        guard let result = self.pages[currentPageID] else {
+        guard let result = self.pages[self.currentPageID] else {
             apptentiveCriticalError("Current page ID not found in pages.")
             return Page.invalid
         }
@@ -278,7 +278,10 @@ public class SurveyViewModel {
 
         switch configuration.renderAs {
         case .list:
-            self.pageIndicatorSegmentCount = 1
+            self.pageIndicatorSegmentCount = 0
+
+            self.successMessage = configuration.shouldShowSuccessMessage ? configuration.successMessage : nil
+
             let questions = Self.buildQuestionViewModels(questions: configuration.questionSets.flatMap { $0.questions }, requiredText: configuration.requiredText)
             let submitButtonText = configuration.questionSets.last?.buttonTitle ?? "Submit"
 
@@ -289,6 +292,9 @@ public class SurveyViewModel {
 
         case .paged:
             self.pageIndicatorSegmentCount = configuration.questionSets.count
+
+            // Success message (if any) will be shown on its own page.
+            self.successMessage = nil
 
             guard let firstQuestionSetID = configuration.questionSets.first?.id, let lastQuestionSetID = configuration.questionSets.last?.id else {
                 apptentiveCriticalError("Expected at least one question set in the survey.")
@@ -345,7 +351,6 @@ public class SurveyViewModel {
         self.rangeChoiceLabelNumberFormatter = NumberFormatter()
         self.isRequired = false
         self.validationErrorMessage = configuration.validationError
-        self.successMessage = nil
 
         self.visitedQuestionIDs = Set<String>()
         self.currentPage.questions.forEach { self.visitedQuestionIDs.insert($0.questionID) }
