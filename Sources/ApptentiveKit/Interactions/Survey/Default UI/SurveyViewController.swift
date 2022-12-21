@@ -159,7 +159,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         self.navigationItem.rightBarButtonItem = .apptentiveClose
         self.navigationItem.rightBarButtonItem?.target = self
-        self.navigationItem.rightBarButtonItem?.action = #selector(closeSurvey)
+        self.navigationItem.rightBarButtonItem?.action = #selector(cancelSurvey)
 
         self.tableView.backgroundColor = .apptentiveGroupedBackground
         self.tableView.backgroundView = self.backgroundView
@@ -498,7 +498,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.backgroundView?.label.text = viewModel.introduction
         self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(viewModel.advanceButtonText, for: .normal)
 
-        if self.viewModel.surveyIsAtEnd {
+        if self.viewModel.surveyDidSendAnswers {
             self.navigationItem.rightBarButtonItem = .none
             self.surveyBranchedBottomView?.bottomView.surveyIndicator.updateSurveyIndicatorForThankYouScreen()
         } else if let selectedSegmentIndex = self.viewModel.currentSelectedSegmentIndex {
@@ -700,15 +700,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
     }
 
-    @objc func closeSurvey() {
-        if self.viewModel.surveyIsAtEnd == true {
-            self.cancel()
+    @objc func cancelSurvey() {
+        if self.viewModel.shouldConfirmCancel {
+            self.confirmCancel()
         } else {
-            if self.viewModel.hasAnswer {
-                self.confirmCancel()
-            } else {
-                self.cancel()
-            }
+            self.cancel()
         }
     }
 

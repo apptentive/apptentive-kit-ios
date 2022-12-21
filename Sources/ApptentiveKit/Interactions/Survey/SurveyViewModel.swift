@@ -156,20 +156,22 @@ public class SurveyViewModel {
     /// Submits the users answers to the survey.
     ///
     /// If one or more answers are invalid, the delegate's `surveyViewModelValidationDidChange(_:)` will be called.
-    /// If the answers are valid and there are more pages, the delegate's `surveyViewModelPageDidChange(_:)` will be called.
+    /// If the answers are valid and there are more pages, the delegate's `surveyViewModelPageDidChange(_:)` will be called (via the `advanceToNextPage` method).
     /// If the answers are valid and there are no more pages, the delegate's `surveyViewModelDidSubmit(_:)` will be called.
     public func advance() {
         if self.isValid {
-            if self.currentPageID == self.finalQuestionPageID {
+            if self.surveyIsOnLastQuestionPage {
                 self.response.questionResponses.forEach { questionID, responses in
                     self.interactionDelegate.recordResponse(responses, for: questionID)
                 }
 
                 self.interactionDelegate.engage(event: .submit(from: self.interaction))
                 self.interactionDelegate.send(surveyResponse: self.response)
+
+                self.surveyDidSendAnswers = true
             }
 
-            if self.surveyIsAtEnd {
+            if self.surveyIsOnLastPage {
                 self.delegate?.surveyViewModelDidSubmit(self)
             } else {
                 for question in self.currentPage.questions {
@@ -206,9 +208,18 @@ public class SurveyViewModel {
         return self.pages.count == 1 ? .list : .paged
     }
 
-    /// Whether there are no question remaining that haven't been answered or skipped.
-    public var surveyIsAtEnd: Bool {
-        return self.currentPage.advanceLogic.count == 0
+    /// Whether the survey answers have been sent to the API.
+    public var surveyDidSendAnswers: Bool = false
+
+    /// Whether an attempt to close the survey should warn about discarding answers.
+    public var shouldConfirmCancel: Bool {
+        switch self.displayMode {
+        case .list:
+            return self.hasAnswer
+
+        case .paged:
+            return self.hasAnswer && !self.surveyDidSendAnswers
+        }
     }
 
     /// The value to indicate in the page indicator.
@@ -414,6 +425,14 @@ public class SurveyViewModel {
 
     internal var allQuestions: [SurveyViewModel.Question] {
         return self.pages.values.flatMap { $0.questions }
+    }
+
+    internal var surveyIsOnLastQuestionPage: Bool {
+        return self.currentPageID == self.finalQuestionPageID
+    }
+
+    internal var surveyIsOnLastPage: Bool {
+        return self.currentPage.advanceLogic.count == 0
     }
 
     /// Sets the current question set and the question list with the new ones based on the selected answer.
