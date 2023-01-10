@@ -139,15 +139,21 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         case .paged:
             self.footerMode = .next
-
             if let termsText = self.viewModel.termsAndConditions?.linkLabel {
                 let attributedTermsAndConditions = NSMutableAttributedString(string: termsText)
                 attributedTermsAndConditions.addAttribute(NSAttributedString.Key.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 0, length: termsText.count))
                 self.surveyBranchedBottomView?.bottomView.termsAndConditions.setAttributedTitle(attributedTermsAndConditions, for: .normal)
                 self.configureTermsOfService()
             } else {
-                self.surveyBranchedBottomView?.bottomView.backgroundColor = .apptentiveGroupedBackground
-                self.surveyBranchedBottomView?.backgroundColor = .apptentiveGroupedBackground
+                switch UIToolbar.apptentiveMode {
+                case .alwaysShown:
+                    self.surveyBranchedBottomView?.bottomView.backgroundColor = .apptentiveSubmitButton
+                    self.surveyBranchedBottomView?.backgroundColor = .apptentiveSubmitButton
+                case .hiddenWhenEmpty:
+                    self.surveyBranchedBottomView?.bottomView.backgroundColor = .apptentiveGroupedBackground
+                    self.surveyBranchedBottomView?.backgroundColor = .apptentiveGroupedBackground
+                }
+
             }
             self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(self.viewModel.advanceButtonText, for: .normal)
             self.surveyBranchedBottomView?.bottomView.nextButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
