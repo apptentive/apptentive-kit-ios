@@ -49,6 +49,9 @@ public class SurveyViewModel {
     /// A message shown to the user after trying to advance or submit when one or more questions have invalid answers.
     public let validationErrorMessage: String
 
+    /// An optional legal disclaimer to show users.
+    public let disclaimerText: String?
+
     /// An object describing the terms and conditions to be shown in the survey.
     public struct TermsAndConditions {
 
@@ -264,7 +267,7 @@ public class SurveyViewModel {
     internal var currentPageID: String
     internal var pages: [String: Page]
     internal var visitedQuestionIDs: Set<String>
-    internal let successMessage: String?
+    internal var successMessage: String?
     internal let finalQuestionPageID: String
     internal let title: String?
 
@@ -286,6 +289,7 @@ public class SurveyViewModel {
             closeButtonTitle: configuration.closeConfirmationCloseButtonTitle)
 
         var pages = [String: Page]()
+        self.successMessage = nil
 
         switch configuration.renderAs {
         case .list:
@@ -362,6 +366,7 @@ public class SurveyViewModel {
         self.rangeChoiceLabelNumberFormatter = NumberFormatter()
         self.isRequired = false
         self.validationErrorMessage = configuration.validationError
+        self.disclaimerText = configuration.disclaimerText
 
         self.visitedQuestionIDs = Set<String>()
         self.currentPage.questions.forEach { self.visitedQuestionIDs.insert($0.questionID) }
@@ -399,6 +404,7 @@ public class SurveyViewModel {
         self.validationErrorMessage = configuration.validationError
         self.successMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
         self.isRequired = configuration.required ?? false
+        self.disclaimerText = nil
 
         self.rangeChoiceLabelNumberFormatter = NumberFormatter()
 

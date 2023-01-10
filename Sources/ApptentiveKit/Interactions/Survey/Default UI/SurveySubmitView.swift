@@ -11,15 +11,18 @@ import UIKit
 class SurveySubmitView: UIView {
     let submitButton: UIButton
     let submitLabel: UILabel
+    let disclaimerLabel: UILabel
 
     override init(frame: CGRect) {
         self.submitButton = UIButton(frame: .zero)
         self.submitLabel = UILabel(frame: .zero)
-
+        self.disclaimerLabel = UILabel(frame: .zero)
         super.init(frame: frame)
 
         self.addSubview(self.submitButton)
+
         self.addSubview(self.submitLabel)
+        self.addSubview(self.disclaimerLabel)
 
         self.submitButton.backgroundColor = UIColor.apptentiveSubmitButton
         self.submitButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
@@ -41,18 +44,32 @@ class SurveySubmitView: UIView {
         self.submitLabel.font = .apptentiveSubmitStatusLabel
         self.submitLabel.adjustsFontForContentSizeCategory = true
         self.submitLabel.textAlignment = .center
-        self.submitLabel.isHidden = true
         self.submitLabel.numberOfLines = 0
+        self.submitLabel.isHidden = true
         self.submitLabel.lineBreakMode = .byWordWrapping
 
         self.submitLabel.translatesAutoresizingMaskIntoConstraints = false
 
+        self.disclaimerLabel.font = .apptentiveDisclaimerLabel
+        self.disclaimerLabel.textColor = .apptentiveDisclaimerLabel
+        self.disclaimerLabel.adjustsFontForContentSizeCategory = true
+        self.disclaimerLabel.textAlignment = .center
+        self.disclaimerLabel.numberOfLines = 0
+        self.disclaimerLabel.lineBreakMode = .byWordWrapping
+
+        self.disclaimerLabel.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
+
             self.submitLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             self.submitLabel.topAnchor.constraint(equalTo: self.submitButton.bottomAnchor, constant: 10),
             self.submitLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             self.submitLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.submitLabel.bottomAnchor, multiplier: 1.0),
+            self.disclaimerLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            self.disclaimerLabel.topAnchor.constraint(equalTo: self.submitLabel.bottomAnchor, constant: 10),
+            self.disclaimerLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
+            self.disclaimerLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5),
+            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.disclaimerLabel.bottomAnchor, multiplier: 5.0),
         ])
     }
 

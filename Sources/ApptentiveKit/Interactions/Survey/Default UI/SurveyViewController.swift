@@ -130,6 +130,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         case .list:
             self.submitView?.submitButton.setTitle(self.viewModel.advanceButtonText, for: .normal)
 
+            self.submitView?.disclaimerLabel.text = self.viewModel.disclaimerText
+
             self.submitView?.submitButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
             // Pre-set submit label to allocate space
@@ -155,6 +157,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.surveyBranchedBottomView?.bottomView.nextButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
             self.backgroundView?.label.text = self.viewModel.introduction
+
+            self.backgroundView?.disclaimerLabel.text = self.viewModel.disclaimerText
+
         }
 
         self.navigationController?.presentationController?.delegate = self
@@ -481,6 +486,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func surveyViewModelPageDidChange(_ viewModel: SurveyViewModel) {
+        self.backgroundView?.disclaimerLabel.isHidden = true
         let oldSectionCount = self.tableView.numberOfSections
         let newSectionCount = viewModel.questions.count
 
@@ -505,6 +511,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         if self.viewModel.surveyDidSendAnswers {
             self.navigationItem.rightBarButtonItem = .none
             self.surveyBranchedBottomView?.bottomView.surveyIndicator.updateSurveyIndicatorForThankYouScreen()
+            self.backgroundView?.disclaimerLabel.isHidden = false
         } else if let selectedSegmentIndex = self.viewModel.currentSelectedSegmentIndex {
             self.surveyBranchedBottomView?.bottomView.surveyIndicator.currentSelectedSetIndex = selectedSegmentIndex
 

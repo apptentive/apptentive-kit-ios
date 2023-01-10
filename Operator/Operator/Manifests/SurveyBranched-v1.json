@@ -19,6 +19,7 @@
         "validation_error": "Error: Please fix your response to continue",
         "required_text": "Required",
         "description": "Please tell us about your experience with our survey builder.",
+        "disclaimer_text": "The following questions will be used for general analytical use only. In addition, you will not be added to any mailing lists as a result of taking this survey. Proceeding to the survey implies that you understand and agree to provisions in this disclaimer.",
         "question_sets": [
           {
             "id": "question_set_1",

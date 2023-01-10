@@ -578,6 +578,11 @@ extension UIColor {
     @objc public static var apptentiveTextInputBorderSelected: UIColor = {
         return .blue
     }()
+
+    /// The text color used for the disclaimer text.
+    @objc public static var apptentiveDisclaimerLabel: UIColor = {
+        return .lightGray
+    }()
 }
 
 extension UIFont {
@@ -671,6 +676,11 @@ extension UIFont {
     /// The font used for the survey footer label (Thank You text).
     @objc public static var apptentiveSubmitStatusLabel: UIFont = {
         return .preferredFont(forTextStyle: .headline)
+    }()
+
+    /// The font used for the disclaimer text.
+    @objc public static var apptentiveDisclaimerLabel: UIFont = {
+        return .preferredFont(forTextStyle: .caption1)
     }()
 
     /// The font used for the submit button at the end of surveys.
