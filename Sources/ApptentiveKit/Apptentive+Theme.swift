@@ -182,6 +182,7 @@ extension Apptentive {
         }()
 
         UIButton.apptentiveStyle = .radius(8.0)
+        UIButton.apptentiveClose?.tintColor = .white
     }
 
     private func image(with color: UIColor?) -> UIImage? {

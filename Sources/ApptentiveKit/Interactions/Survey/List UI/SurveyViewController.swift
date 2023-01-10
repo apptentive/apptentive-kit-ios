@@ -12,10 +12,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     static let animationDuration = 0.30
 
     let viewModel: SurveyViewModel
-    let introductionView: SurveyIntroductionView?
-    let submitView: SurveySubmitView?
-    let surveyBranchedBottomView: SurveyBranchedContainerBottomView?
-    let backgroundView: SurveyBackgroundView?
+    let introductionView: SurveyIntroductionView
+    let submitView: SurveySubmitView
 
     var firstResponderIndexPath: IndexPath? {
         didSet {
@@ -26,28 +24,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             }
         }
     }
-
-    override var inputAccessoryView: UIView? {
-        switch self.viewModel.displayMode {
-        case .list:
-            return nil
-
-        case .paged:
-            return self.surveyBranchedBottomView
-        }
-    }
-
-    override var canBecomeFirstResponder: Bool {
-        return true
-    }
-
     var firstResponderCell: UITableViewCell?
 
     enum FooterMode {
         case submitButton
         case thankYou
         case validationError
-        case next
     }
 
     var footerMode: FooterMode = .submitButton {
@@ -57,56 +39,36 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             switch self.footerMode {
             case .submitButton:
-                viewToShow = self.submitView?.submitButton
-                viewToHide = self.submitView?.submitLabel
+                viewToShow = self.submitView.submitButton
+                viewToHide = self.submitView.submitLabel
 
             case .thankYou:
-                self.submitView?.submitLabel.text = self.viewModel.thankYouMessage
-                self.submitView?.submitLabel.textColor = .apptentiveSubmitStatusLabel
-                viewToShow = self.submitView?.submitLabel
+                self.submitView.submitLabel.text = self.viewModel.thankYouMessage
+                self.submitView.submitLabel.textColor = .apptentiveSubmitStatusLabel
+                viewToShow = self.submitView.submitLabel
 
             case .validationError:
 
-                self.submitView?.submitLabel.text = self.viewModel.validationErrorMessage
-                self.submitView?.submitLabel.textColor = .apptentiveError
-                viewToShow = self.submitView?.submitLabel
-
-            case .next:
-                viewToShow = self.submitView?.submitButton
-                viewToHide = self.submitView?.submitLabel
+                self.submitView.submitLabel.text = self.viewModel.validationErrorMessage
+                self.submitView.submitLabel.textColor = .apptentiveError
+                viewToShow = self.submitView.submitLabel
             }
 
-            if let submitView = submitView {
-                UIView.transition(
-
-                    with: submitView, duration: 0.33, options: .transitionCrossDissolve
-                ) {
-                    viewToHide?.isHidden = true
-                    viewToShow?.isHidden = false
-                }
+            UIView.transition(
+                with: self.submitView, duration: 0.33, options: .transitionCrossDissolve
+            ) {
+                viewToHide?.isHidden = true
+                viewToShow?.isHidden = false
             }
         }
     }
 
     init(viewModel: SurveyViewModel) {
         self.viewModel = viewModel
-        self.backgroundView = SurveyBackgroundView(frame: .zero)
-
-        switch viewModel.displayMode {
-        case .list:
-            self.introductionView = SurveyIntroductionView(frame: .zero)
-            self.submitView = SurveySubmitView(frame: .zero)
-            self.surveyBranchedBottomView = nil
-
-        case .paged:
-            self.introductionView = nil
-            self.submitView = nil
-            self.surveyBranchedBottomView = SurveyBranchedContainerBottomView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 160)), numberOfSegments: viewModel.pageIndicatorSegmentCount)
-        }
-
+        self.introductionView = SurveyIntroductionView(frame: .zero)
+        self.submitView = SurveySubmitView(frame: .zero)
         super.init(style: .apptentive)
-
-        self.viewModel.delegate = self
+        viewModel.delegate = self
     }
 
     required init?(coder: NSCoder) {
@@ -115,53 +77,18 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.introductionView?.textLabel.text = self.viewModel.introduction
-
-        if let headerLogo = UIImage.apptentiveHeaderLogo {
-            let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
-            headerImageView.contentMode = .scaleAspectFit
-            self.navigationItem.titleView = headerImageView
-        } else {
-            self.navigationItem.title = self.viewModel.name
-        }
-
-        switch self.viewModel.displayMode {
-        case .list:
-            self.submitView?.submitButton.setTitle(self.viewModel.advanceButtonText, for: .normal)
-
-            self.submitView?.submitButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
-
-            // Pre-set submit label to allocate space
-            self.submitView?.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
-
-            self.introductionView?.textLabel.text = self.viewModel.introduction
-
-            self.configureTermsOfService()
-
-        case .paged:
-            self.footerMode = .next
-
-            if let termsText = self.viewModel.termsAndConditions?.linkLabel {
-                let attributedTermsAndConditions = NSMutableAttributedString(string: termsText)
-                attributedTermsAndConditions.addAttribute(NSAttributedString.Key.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 0, length: termsText.count))
-                self.surveyBranchedBottomView?.bottomView.termsAndConditions.setAttributedTitle(attributedTermsAndConditions, for: .normal)
-                self.configureTermsOfService()
-            } else {
-                self.surveyBranchedBottomView?.bottomView.backgroundColor = .apptentiveGroupedBackground
-                self.surveyBranchedBottomView?.backgroundColor = .apptentiveGroupedBackground
-            }
-            self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(self.viewModel.advanceButtonText, for: .normal)
-            self.surveyBranchedBottomView?.bottomView.nextButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
-
-            self.backgroundView?.label.text = self.viewModel.introduction
-        }
-
+        view.backgroundColor = .apptentiveGroupedBackground
+        self.tableView.separatorColor = .apptentiveSeparator
+        self.configureTermsOfService()
         self.navigationController?.presentationController?.delegate = self
 
-        self.tableView.backgroundColor = .apptentiveGroupedBackground
-        self.tableView.backgroundView = self.backgroundView
-        self.tableView.separatorColor = .apptentiveSeparator
+        self.introductionView.textLabel.text = self.viewModel.introduction
+
+        self.submitView.submitButton.setTitle(self.viewModel.submitButtonText, for: .normal)
+        self.submitView.submitButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
+
+        // Pre-set submit label to allocate space
+        self.submitView.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
 
         self.tableView.allowsMultipleSelection = true
         self.tableView.keyboardDismissMode = .interactive
@@ -376,7 +303,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let question = self.viewModel.questions[section]
 
         footer.errorLabel.text = question.isMarkedAsInvalid ? question.errorMessage : nil
-        footer.errorLabel.textColor = .apptentiveError
 
         return footer
     }
@@ -446,79 +372,29 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
     }
 
+    override func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+        guard let footerView = view as? UITableViewHeaderFooterView else {
+            return
+        }
+        footerView.textLabel?.alpha = 1
+        footerView.textLabel?.textColor = .apptentiveError
+    }
+
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        if let firstInvalidQuestionIndex = self.viewModel.invalidQuestionIndexes.min() {
-            UIAccessibility.post(notification: .layoutChanged, argument: self.tableView.headerView(forSection: firstInvalidQuestionIndex))
-        }
-    }
-
-    // MARK: - Survey View Model Delegate
-
-    func surveyViewModelPageWillChange(_ viewModel: SurveyViewModel) {
-        let firstResponder: UIResponder? = {
-            switch self.firstResponderCell {
-            case let singleLineCell as SurveySingleLineCell:
-                return singleLineCell.textField
-
-            case let multiLineCell as SurveyMultiLineCell:
-                return multiLineCell.textView
-
-            case let otherChoiceCell as SurveyOtherChoiceCell:
-                return otherChoiceCell.textField
-
-            case .none:
-                return nil
-
-            default:
-                apptentiveCriticalError("Non-null first responder cell was of unknown type.")
-                return nil
+        if let firstIndex = self.viewModel.invalidQuestionIndexes.min() {
+            if let header = self.tableView.headerView(forSection: firstIndex) as? SurveyQuestionHeaderView {
+                UIAccessibility.post(notification: .layoutChanged, argument: header)
             }
-        }()
-
-        firstResponder?.resignFirstResponder()
-        self.firstResponderCell = nil
-        self.firstResponderIndexPath = nil
-    }
-
-    func surveyViewModelPageDidChange(_ viewModel: SurveyViewModel) {
-        let oldSectionCount = self.tableView.numberOfSections
-        let newSectionCount = viewModel.questions.count
-
-        // Reload sections that are populated in both old and new page
-        if oldSectionCount > 0 && newSectionCount > 0 {
-            let sectionsToReload = IndexSet(0..<min(oldSectionCount, newSectionCount))
-            self.tableView.reloadSections(sectionsToReload, with: .left)
-        }
-
-        // Adjust number of sections if needed
-        if newSectionCount > oldSectionCount {
-            let sectionsToInsert = IndexSet(oldSectionCount..<newSectionCount)
-            self.tableView.insertSections(sectionsToInsert, with: .right)
-        } else if newSectionCount < oldSectionCount {
-            let sectionsToDelete = IndexSet(newSectionCount..<oldSectionCount)
-            self.tableView.deleteSections(sectionsToDelete, with: .left)
-        }
-
-        self.backgroundView?.label.text = viewModel.introduction
-        self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(viewModel.advanceButtonText, for: .normal)
-
-        if self.viewModel.surveyDidSendAnswers {
-            self.navigationItem.rightBarButtonItem = .none
-            self.surveyBranchedBottomView?.bottomView.surveyIndicator.updateSurveyIndicatorForThankYouScreen()
-        } else if let selectedSegmentIndex = self.viewModel.currentSelectedSegmentIndex {
-            self.surveyBranchedBottomView?.bottomView.surveyIndicator.currentSelectedSetIndex = selectedSegmentIndex
-
-            UIAccessibility.post(notification: .screenChanged, argument: self.tableView.headerView(forSection: 0))
         }
     }
+
+    // MARK: - Survey View Model delgate
 
     func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {
         if let _ = self.viewModel.thankYouMessage {
             self.footerMode = .thankYou
 
-            if let submitView = self.submitView {
-                UIAccessibility.post(notification: .screenChanged, argument: submitView.submitLabel)
-            }
+            UIAccessibility.post(notification: .screenChanged, argument: self.submitView.submitLabel)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(800)) {
                 self.dismiss()
@@ -644,6 +520,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel) {
+
         self.tableView.indexPathsForVisibleRows?.forEach { indexPath in
             guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
                 return  // Not a choice question
@@ -676,36 +553,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     // MARK: - Targets
 
-    @objc func keyboardWillAppear() {
-        if let bottomView = surveyBranchedBottomView {
-            bottomView.bottomView.stackViewHeightConstraint.constant = 80
-            bottomView.bottomView.backgroundColor = .white
-            UIView.transition(
-
-                with: bottomView, duration: 0.10, options: .transitionCrossDissolve
-            ) {
-                bottomView.bottomView.termsAndConditions.isHidden = true
-                bottomView.bottomView.setNeedsLayout()
-            }
-        }
-    }
-
-    @objc func keyboardWillDisappear() {
-        if let bottomView = surveyBranchedBottomView {
-            bottomView.bottomView.stackViewHeightConstraint.constant = 160
-            bottomView.bottomView.backgroundColor = .apptentiveSubmitButton
-            UIView.transition(
-
-                with: bottomView, duration: 0.10, options: .transitionCrossDissolve
-            ) {
-                bottomView.bottomView.termsAndConditions.isHidden = false
-                bottomView.bottomView.setNeedsLayout()
-            }
-        }
-    }
-
-    @objc func cancelSurvey() {
-        if self.viewModel.shouldConfirmCancel {
+    @objc func closeSurvey() {
+        if self.viewModel.hasAnswer {
             self.confirmCancel()
         } else {
             self.cancel()
@@ -717,7 +566,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     @objc func submitSurvey() {
-        self.viewModel.advance()
+        self.viewModel.submit()
 
         if !self.viewModel.isValid {
             self.scrollToFirstInvalidQuestion()
@@ -754,19 +603,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     // We probably don't need this now that the Other text field is only visible when the choice is selected.
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        if self.viewModel.displayMode == .paged {
-            self.keyboardWillAppear()
-        }
-
         self.firstResponderIndexPath = self.indexPath(forTag: textField.tag)
         textField.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if self.viewModel.displayMode == .paged {
-            self.keyboardWillDisappear()
-        }
-
         if !self.tableViewIsReloading {
             self.firstResponderIndexPath = nil
         }
@@ -779,7 +620,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let indexPath = self.indexPath(forTag: textView.tag)
 
         guard let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.FreeformQuestion else {
-            return assertionFailure("Text view sending delegate calls to wrong question")
+            return apptentiveCriticalError("Text view sending delegate calls to wrong question")
         }
 
         question.value = textView.text
@@ -800,7 +641,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     // MARK: - Adaptive Presentation Controller Delegate
 
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        self.viewModel.cancel(partial: false)
+        self.viewModel.cancel()
     }
 
     func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
@@ -817,17 +658,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     // MARK: - Private
 
     private func updateHeaderFooterSize() {
-        if let introductionView = self.introductionView {
-            let introductionSize = introductionView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 0), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
+        let introductionSize = self.introductionView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 0), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
 
-            introductionView.bounds = CGRect(origin: .zero, size: introductionSize)
-        }
+        self.introductionView.bounds = CGRect(origin: .zero, size: introductionSize)
 
-        if let submitView = self.submitView {
-            let submitSize = submitView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 0), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
+        let submitSize = self.submitView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 0), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
 
-            submitView.bounds = CGRect(origin: .zero, size: submitSize)
-        }
+        self.submitView.bounds = CGRect(origin: .zero, size: submitSize)
     }
 
     private func indexPath(forTag tag: Int) -> IndexPath {
@@ -835,30 +672,26 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     private func configureTermsOfService() {
-        if let termsText = self.viewModel.termsAndConditions?.linkLabel {
-            if let bottomView = self.surveyBranchedBottomView, self.viewModel.displayMode == .paged {
-                bottomView.bottomView.termsAndConditions.addTarget(self, action: #selector(openTermsAndConditions), for: .touchUpInside)
-            } else if let navigationController = self.navigationController {
-                navigationController.setToolbarHidden(false, animated: true)
+        if let termsText = self.viewModel.termsAndConditionsLinkText, let navigationController = self.navigationController {
+            navigationController.setToolbarHidden(false, animated: true)
 
-                let horizontalInset = (navigationController.toolbar.bounds.width - navigationController.toolbar.readableContentGuide.layoutFrame.width) / 2
+            let horizontalInset = (navigationController.toolbar.bounds.width - navigationController.toolbar.readableContentGuide.layoutFrame.width) / 2
 
-                let button = UIButton()
-                button.setAttributedTitle(.init(string: termsText, attributes: [.underlineStyle: 1]), for: .normal)
-                button.titleLabel?.numberOfLines = 0
-                button.titleLabel?.font = .apptentiveTermsOfServiceLabel
-                button.titleLabel?.textColor = .apptentiveTermsOfServiceLabel
-                button.titleLabel?.textAlignment = .center
-                button.titleEdgeInsets = .init(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
+            let button = UIButton()
+            button.setAttributedTitle(.init(string: termsText, attributes: [.underlineStyle: 1]), for: .normal)
+            button.titleLabel?.numberOfLines = 0
+            button.titleLabel?.font = .apptentiveTermsOfServiceLabel
+            button.titleLabel?.textColor = .apptentiveTermsOfServiceLabel
+            button.titleLabel?.textAlignment = .center
+            button.titleEdgeInsets = .init(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
 
-                button.addTarget(self, action: #selector(openTermsAndConditions), for: .touchUpInside)
+            button.addTarget(self, action: #selector(openTermsAndConditions), for: .touchUpInside)
 
-                let flexible = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+            let flexible = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
 
-                let barButtonItem = UIBarButtonItem.init(customView: button)
+            let barButtonItem = UIBarButtonItem.init(customView: button)
 
-                self.setToolbarItems([flexible, barButtonItem, flexible], animated: false)
-            }
+            self.setToolbarItems([flexible, barButtonItem, flexible], animated: false)
         } else {
             self.navigationController?.setToolbarHidden((UIToolbar.apptentiveMode == .hiddenWhenEmpty), animated: true)
         }
@@ -869,17 +702,17 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     private func confirmCancel() {
-        let alertController = UIAlertController(title: self.viewModel.closeConfirmation.title, message: self.viewModel.closeConfirmation.message, preferredStyle: .actionSheet)
+        let alertController = UIAlertController(title: self.viewModel.closeConfirmationAlertTitle, message: self.viewModel.closeConfirmationAlertMessage, preferredStyle: .actionSheet)
         alertController.addAction(
             UIAlertAction(
-                title: self.viewModel.closeConfirmation.closeButtonTitle, style: .destructive,
+                title: self.viewModel.closeConfirmationCloseButtonLabel, style: .destructive,
                 handler: { _ in
                     self.cancel(partial: true)
 
                 }))
         alertController.addAction(
             UIAlertAction(
-                title: self.viewModel.closeConfirmation.continueButtonTitle, style: .cancel,
+                title: self.viewModel.closeConfirmationBackButtonLabel, style: .cancel,
                 handler: { _ in
                     self.viewModel.continuePartial()
                 }))
@@ -923,7 +756,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 UIButton.apptentiveClose?.setPreferredSymbolConfiguration(.init(pointSize: 20.0), forImageIn: .normal)
             }
             if let closeButton = UIButton.apptentiveClose, let navigationControllerView = self.navigationController?.view {
-                closeButton.addTarget(self, action: #selector(cancelSurvey), for: .touchUpInside)
+                closeButton.addTarget(self, action: #selector(closeSurvey), for: .touchUpInside)
                 closeButton.translatesAutoresizingMaskIntoConstraints = false
                 navigationControllerView.addSubview(closeButton)
 
@@ -940,7 +773,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     private func configureNavigationBar() {
         self.navigationItem.rightBarButtonItem = .apptentiveClose
         self.navigationItem.rightBarButtonItem?.target = self
-        self.navigationItem.rightBarButtonItem?.action = #selector(cancelSurvey)
+        self.navigationItem.rightBarButtonItem?.action = #selector(closeSurvey)
         if let headerLogo = UIImage.apptentiveHeaderLogo {
             let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
             headerImageView.contentMode = .scaleAspectFit
@@ -961,14 +794,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     private func scrollToFirstInvalidQuestion() {
-        if let firstInvalidQuestionIndex = self.viewModel.invalidQuestionIndexes.min() {
-            let visibleRect = CGRect(origin: self.tableView.contentOffset, size: self.tableView.bounds.size).inset(by: self.tableView.contentInset)
-
-            if visibleRect.contains(self.tableView.rectForHeader(inSection: firstInvalidQuestionIndex)) {
-                UIAccessibility.post(notification: .layoutChanged, argument: self.tableView.headerView(forSection: firstInvalidQuestionIndex))
-            } else {
-                self.tableView.scrollToRow(at: IndexPath(row: 0, section: firstInvalidQuestionIndex), at: .middle, animated: true)
-            }
+        if let firstInvalidQuestionIndex = self.viewModel.invalidQuestionIndexes.first {
+            self.tableView.scrollToRow(at: IndexPath(row: 0, section: firstInvalidQuestionIndex), at: .middle, animated: true)
         }
     }
 }

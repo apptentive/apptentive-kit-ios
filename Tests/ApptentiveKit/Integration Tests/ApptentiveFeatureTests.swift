@@ -18,9 +18,10 @@ class ApptentiveFeatureTests: XCTestCase {
     override func setUp() {
         let bundle = Bundle(for: Self.self)
         guard let key = bundle.object(forInfoDictionaryKey: "APPTENTIVE_API_KEY") as? String,
-              let signature = bundle.object(forInfoDictionaryKey: "APPTENTIVE_API_SIGNATURE") as? String,
-              let urlString = bundle.object(forInfoDictionaryKey: "APPTENTIVE_API_BASE_URL") as? String,
-              let url = URL(string: urlString) else {
+            let signature = bundle.object(forInfoDictionaryKey: "APPTENTIVE_API_SIGNATURE") as? String,
+            let urlString = bundle.object(forInfoDictionaryKey: "APPTENTIVE_API_BASE_URL") as? String,
+            let url = URL(string: urlString)
+        else {
             return
         }
 

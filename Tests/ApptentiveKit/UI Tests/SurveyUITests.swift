@@ -18,6 +18,8 @@ class SurveyUITests: XCTestCase {
     }
 
     func testHappyPath() {
+        ApptentiveNavigationController.prefersLargeHeader = false
+
         XCUIApplication().activate()
 
         let tablesQuery = XCUIApplication().tables
@@ -25,7 +27,7 @@ class SurveyUITests: XCTestCase {
         tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["Survey"] /*[[".cells.staticTexts[\"Survey\"]",".staticTexts[\"Survey\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
 
         let _ = XCUIApplication().navigationBars["Every Question Type"].waitForExistence(timeout: 2.0)
-        XCTAssertTrue(XCUIApplication().navigationBars["Every Question Type"].exists, "Name should exist")
+        XCTAssertTrue(XCUIApplication().navigationBars["Every Question Type"].firstMatch.exists, "Name should exist")
         XCTAssertTrue(XCUIApplication().staticTexts["Please help us see how each question is formatted when returning a survey response to the server."].exists, "Introduction should exist")
 
         XCTAssertTrue(tablesQuery.otherElements["Multichoice Optional . select one"].exists, "First questions title should exist")
@@ -136,7 +138,8 @@ class SurveyUITests: XCTestCase {
 
         //TODO: Remove this comment in order to test failed validation based on error message
         //XCTAssertTrue(XCUIApplication().otherElements["Error - There was a problem with your multi-select answer."].exists, "Error message should exist.")
-        XCTAssertTrue(XCUIApplication().navigationBars["Every Question Type"].exists, "Survey doesn't dismiss if it's not valid")
+        XCTAssertTrue(XCUIApplication().navigationBars["Every Question Type"].firstMatch.exists, "Survey doesn't dismiss if it's not valid")
+
     }
 
     func testOtherQuestion() {
@@ -169,14 +172,4 @@ class SurveyUITests: XCTestCase {
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
         XCTAssertTrue(safari.wait(for: .runningForeground, timeout: 5))
     }
-
-    ///TODO: Figure out how to test the header and the navigation title at the same time.
-    //   func testHeaderLogo() {
-    //    XCUIApplication().activate()
-    //        let tablesQuery = XCUIApplication().tables
-    //        tablesQuery.staticTexts["Survey"].tap()
-    //        let headerImage = XCUIApplication().navigationBars.children(matching: .image).firstMatch
-    //        XCTAssertTrue(headerImage.exists)
-    //
-    //   }
 }
