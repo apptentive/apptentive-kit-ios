@@ -61,9 +61,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 viewToHide = self.submitView?.submitLabel
 
             case .thankYou:
-                self.submitView.submitLabel.text = self.viewModel.thankYouMessage
-                self.submitView.submitLabel.textColor = .apptentiveSubmitStatusLabel
-                viewToShow = self.submitView.submitLabel
+                self.submitView?.submitLabel.text = self.viewModel.thankYouMessage
+                self.submitView?.submitLabel.textColor = .apptentiveSubmitStatusLabel
+                viewToShow = self.submitView?.submitLabel
 
             case .validationError:
 
@@ -176,7 +176,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.tableView.separatorColor = .apptentiveSeparator
 
         // Pre-set submit label to allocate space
-        self.submitView.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
+        self.submitView?.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
         self.tableView.backgroundColor = .apptentiveGroupedBackground
         self.tableView.backgroundView = self.backgroundView
         self.tableView.separatorColor = .apptentiveSeparator

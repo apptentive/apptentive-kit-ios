@@ -28,13 +28,6 @@ extension UITableView {
     }()
 }
 
-extension UITableView {
-    /// Determines height of the separator between questions.
-    public static var apptentiveQuestionSeparatorHeight: CGFloat = {
-        return 0
-    }()
-}
-
 extension UITableView.Style {
     /// The table view style to use for Apptentive UI.
     ///
