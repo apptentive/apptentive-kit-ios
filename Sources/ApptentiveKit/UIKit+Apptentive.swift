@@ -16,6 +16,16 @@ public class ApptentiveNavigationController: UINavigationController {
     public override var preferredStatusBarStyle: UIStatusBarStyle {
         return Self.preferredStatusBarStyle
     }
+    /// Increases the header height for surveys.
+    @objc public static var prefersLargeHeader: Bool = false
+
+}
+
+extension UITableView {
+    /// Determines height of the separator between questions.
+    public static var apptentiveQuestionSeparatorHeight: CGFloat = {
+        return 0
+    }()
 }
 
 extension UITableView {
@@ -53,6 +63,7 @@ extension UIBarButtonItem {
         } else {
             return UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
         }
+
     }()
 
     /// The bar button item to use for editing the profile in message center.
@@ -65,6 +76,18 @@ extension UIBarButtonItem {
 }
 
 extension UIButton {
+
+    /// The close button used to replicate the bar button item when large headers are used in surveys.
+    public static var apptentiveClose: UIButton? = {
+        if #available(iOS 13.0, *) {
+            let button = UIButton()
+            button.setImage(UIImage.init(systemName: "xmark"), for: .normal)
+            button.tintColor = .gray
+            return button
+        }
+        return nil
+    }()
+
     /// The style for call-to-action buttons in Apptentive UI.
     public enum ApptentiveButtonStyle {
         /// The corner radius is half of the height.
@@ -562,6 +585,11 @@ extension UIColor {
     @objc public static var apptentiveTextInputBorderSelected: UIColor = {
         return .blue
     }()
+
+    /// The text color used for the disclaimer text.
+    @objc public static var apptentiveDisclaimerLabel: UIColor = {
+        return .lightGray
+    }()
 }
 
 extension UIFont {
@@ -655,6 +683,11 @@ extension UIFont {
     /// The font used for the survey footer label (Thank You text).
     @objc public static var apptentiveSubmitStatusLabel: UIFont = {
         return .preferredFont(forTextStyle: .headline)
+    }()
+
+    /// The font used for the disclaimer text.
+    @objc public static var apptentiveDisclaimerLabel: UIFont = {
+        return .preferredFont(forTextStyle: .caption1)
     }()
 
     /// The font used for the submit button at the end of surveys.

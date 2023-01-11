@@ -337,6 +337,7 @@
         "close_confirm_back_text": "Back to Survey",
         "required_text": "Required",
         "validation_error": "There are issues with your response.",
+        "disclaimer_text": "The following questions will be used for general analytical use only. In addition, you will not be added to any mailing lists as a result of taking this survey. Proceeding to the survey implies that you understand and agree to provisions in this disclaimer.",
         "question_sets": [
           {
             "id": "63598216a925980483000000",
@@ -538,6 +539,7 @@
         "close_confirm_back_text": "Back to Survey",
         "required_text": "Required",
         "validation_error": "There are issues with your response.",
+        "disclaimer_text": "The following questions will be used for general analytical use only. In addition, you will not be added to any mailing lists as a result of taking this survey. Proceeding to the survey implies that you understand and agree to provisions in this disclaimer.",
         "question_sets": [
           {
             "id": "6324a4c13c12740030000004",
@@ -844,6 +846,111 @@
         "intro_button_text": "Next",
         "success_message": "Thank you so much for the feedback! We really hope you enjoy survey branching.",
         "success_button_text": "Done"
+      }
+    },
+    {
+      "id": "63045653375e4f205c000006",
+      "display_type": null,
+      "type": "Survey",
+      "version": 1,
+      "api_version": 12,
+      "configuration": {
+        "close_confirm_title": "Close survey?",
+        "close_confirm_message": "You will lose your progress if you close this survey.",
+        "close_confirm_close_text": "Close",
+        "close_confirm_back_text": "Back to Survey",
+        "required_text": "Required",
+        "validation_error": "There are issues with your response.",
+        "disclaimer_text": "The following questions will be used for general analytical use only. In addition, you will not be added to any mailing lists as a result of taking this survey. Proceeding to the survey implies that you understand and agree to provisions in this disclaimer.",
+        "question_sets": [
+          {
+            "id": "63045653375e4f205c000004",
+            "button_text": "Submit",
+            "questions": [
+              {
+                "id": "63045653375e4f205c000005",
+                "type": "multichoice",
+                "required": true,
+                "instructions": "select one",
+                "value": "How do you think this demo is going?",
+                "error_message": "Error - There was a problem with your single-select answer.",
+                "answer_choices": [
+                  {
+                    "id": "63045653375e4f205c000001",
+                    "value": "Amazing",
+                    "type": "select_option"
+                  },
+                  {
+                    "id": "63045653375e4f205c000002",
+                    "value": "Awesome",
+                    "type": "select_option"
+                  },
+                  {
+                    "id": "63045653375e4f205c000003",
+                    "value": "Super",
+                    "type": "select_option"
+                  },
+                  {
+                    "id": "63045653375e4f205c000007",
+                    "value": "Other:",
+                    "type": "select_other",
+                    "hint": "Please specify"
+                  }
+                ]
+              },
+              {
+                "id": "63045693375e4f205c000005",
+                "type": "multichoice",
+                "required": true,
+                "instructions": "select one",
+                "value": "Give an answer?",
+                "error_message": "Error - There was a problem with your single-select answer.",
+                "answer_choices": [
+                  {
+                    "id": "63045653375e4f205c000001",
+                    "value": "Amazing",
+                    "type": "select_option"
+                  },
+                  {
+                    "id": "63045653375e4f205c000002",
+                    "value": "Awesome",
+                    "type": "select_option"
+                  },
+                  {
+                    "id": "63045653375e4f205c000003",
+                    "value": "Super",
+                    "type": "select_option"
+                  },
+                  {
+                    "id": "63045653375e4f205c000007",
+                    "value": "Other:",
+                    "type": "select_other",
+                    "hint": "Please specify"
+                  }
+                ]
+              }
+            ],
+            "invokes": [
+              {
+                "id": "6328b281375e4f0ae0000004",
+                "behavior": "end",
+                "criteria": {
+                  "_version": 4
+                }
+              }
+            ]
+          }
+        ],
+        "title": "v12 List Survey",
+        "name": "All the things",
+        "render_as": "list",
+        "from_template": "",
+        "template_locked": false,
+        "multiple_responses": true,
+        "show_success_message": true,
+        "required": true,
+        "intro_button_text": "Next",
+        "success_message": "Thank you!"
       }
     }
   ],

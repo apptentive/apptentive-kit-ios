@@ -10,20 +10,21 @@ import UIKit
 
 class SurveyBackgroundView: UIView {
     let label: UILabel
+    let disclaimerLabel: UILabel
 
     override init(frame: CGRect) {
         self.label = UILabel(frame: frame)
-
+        self.disclaimerLabel = UILabel(frame: frame)
         super.init(frame: frame)
 
-        self.configureLabel()
+        self.configureLabels()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configureLabel() {
+    func configureLabels() {
         self.label.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(self.label)
 
@@ -31,10 +32,23 @@ class SurveyBackgroundView: UIView {
         self.label.font = .apptentiveQuestionLabel
         self.label.numberOfLines = 0
 
+        self.disclaimerLabel.font = .apptentiveDisclaimerLabel
+        self.disclaimerLabel.textColor = .apptentiveDisclaimerLabel
+        self.disclaimerLabel.adjustsFontForContentSizeCategory = true
+        self.disclaimerLabel.textAlignment = .center
+        self.disclaimerLabel.numberOfLines = 0
+        self.disclaimerLabel.lineBreakMode = .byWordWrapping
+
+        self.disclaimerLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(self.disclaimerLabel)
+
         NSLayoutConstraint.activate([
             self.label.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.label.trailingAnchor.constraint(equalTo: self.readableContentGuide.trailingAnchor),
             self.label.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            self.disclaimerLabel.topAnchor.constraint(equalTo: self.label.bottomAnchor, constant: 10),
+            self.disclaimerLabel.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
+            self.disclaimerLabel.trailingAnchor.constraint(equalTo: self.readableContentGuide.trailingAnchor),
         ])
     }
 }

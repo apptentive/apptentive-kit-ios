@@ -61,9 +61,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 viewToHide = self.submitView?.submitLabel
 
             case .thankYou:
-                self.submitView?.submitLabel.text = self.viewModel.thankYouMessage
-                self.submitView?.submitLabel.textColor = .apptentiveSubmitStatusLabel
-                viewToShow = self.submitView?.submitLabel
+                self.submitView.submitLabel.text = self.viewModel.thankYouMessage
+                self.submitView.submitLabel.textColor = .apptentiveSubmitStatusLabel
+                viewToShow = self.submitView.submitLabel
 
             case .validationError:
 
@@ -116,6 +116,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.introductionView?.textLabel.text = self.viewModel.introduction
+
         if let headerLogo = UIImage.apptentiveHeaderLogo {
             let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
             headerImageView.contentMode = .scaleAspectFit
@@ -127,6 +129,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         switch self.viewModel.displayMode {
         case .list:
             self.submitView?.submitButton.setTitle(self.viewModel.advanceButtonText, for: .normal)
+            self.submitView?.disclaimerLabel.text = self.viewModel.disclaimerText
 
             self.submitView?.submitButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
@@ -139,6 +142,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         case .paged:
             self.footerMode = .next
+
             if let termsText = self.viewModel.termsAndConditions?.linkLabel {
                 let attributedTermsAndConditions = NSMutableAttributedString(string: termsText)
                 attributedTermsAndConditions.addAttribute(NSAttributedString.Key.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 0, length: termsText.count))
@@ -153,12 +157,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                     self.surveyBranchedBottomView?.bottomView.backgroundColor = .apptentiveGroupedBackground
                     self.surveyBranchedBottomView?.backgroundColor = .apptentiveGroupedBackground
                 }
-
             }
             self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(self.viewModel.advanceButtonText, for: .normal)
             self.surveyBranchedBottomView?.bottomView.nextButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
             self.backgroundView?.label.text = self.viewModel.introduction
+            self.backgroundView?.disclaimerLabel.text = self.viewModel.disclaimerText
         }
 
         self.navigationController?.presentationController?.delegate = self
@@ -167,6 +171,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.navigationItem.rightBarButtonItem?.target = self
         self.navigationItem.rightBarButtonItem?.action = #selector(cancelSurvey)
 
+        self.tableView.backgroundColor = .apptentiveGroupedBackground
+        self.tableView.backgroundView = self.backgroundView
+        self.tableView.separatorColor = .apptentiveSeparator
+
+        // Pre-set submit label to allocate space
+        self.submitView.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
         self.tableView.backgroundColor = .apptentiveGroupedBackground
         self.tableView.backgroundView = self.backgroundView
         self.tableView.separatorColor = .apptentiveSeparator
@@ -196,6 +206,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.updateHeaderFooterSize()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        //We can't capture the view's window in the viewDidLoad, which is needed when sizing the larger header.
+        ApptentiveNavigationController.prefersLargeHeader ? self.configureNavigationBarForLargeHeader() : self.configureNavigationBar()
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -483,6 +499,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func surveyViewModelPageDidChange(_ viewModel: SurveyViewModel) {
+        self.backgroundView?.disclaimerLabel.isHidden = true
         let oldSectionCount = self.tableView.numberOfSections
         let newSectionCount = viewModel.questions.count
 
@@ -507,6 +524,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         if self.viewModel.surveyDidSendAnswers {
             self.navigationItem.rightBarButtonItem = .none
             self.surveyBranchedBottomView?.bottomView.surveyIndicator.updateSurveyIndicatorForThankYouScreen()
+            self.backgroundView?.disclaimerLabel.isHidden = false
         } else if let selectedSegmentIndex = self.viewModel.currentSelectedSegmentIndex {
             self.surveyBranchedBottomView?.bottomView.surveyIndicator.currentSelectedSetIndex = selectedSegmentIndex
 
@@ -781,7 +799,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let indexPath = self.indexPath(forTag: textView.tag)
 
         guard let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.FreeformQuestion else {
-            return assertionFailure("Text view sending delegate calls to wrong question")
+            return apptentiveCriticalError("Text view sending delegate calls to wrong question")
         }
 
         question.value = textView.text
@@ -889,7 +907,67 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         alertController.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
 
         self.present(alertController, animated: true, completion: nil)
+    }
 
+    private func configureNavigationBarForLargeHeader() {
+        if let navigationControllerView = self.navigationController?.view {
+            //Increase top bar height.
+            var topBarHeight: CGFloat = 0
+            if #available(iOS 13.0, *) {
+                if let windowScene = self.view.window?.windowScene {
+                    topBarHeight = windowScene.screen.bounds.width / 3
+                }
+            } else {
+                topBarHeight = UIScreen.main.bounds.width / 3
+            }
+
+            self.navigationController?.additionalSafeAreaInsets.top = topBarHeight
+
+            //Place the header logo if added and center it.
+            if let headerLogo = UIImage.apptentiveHeaderLogo {
+                let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
+                headerImageView.contentMode = .scaleAspectFit
+                navigationControllerView.addSubview(headerImageView)
+                headerImageView.translatesAutoresizingMaskIntoConstraints = false
+
+                NSLayoutConstraint.activate([
+                    headerImageView.topAnchor.constraint(equalTo: navigationControllerView.topAnchor, constant: topBarHeight / 1.5),
+                    headerImageView.leadingAnchor.constraint(equalTo: navigationControllerView.leadingAnchor, constant: 100),
+                    headerImageView.trailingAnchor.constraint(equalTo: navigationControllerView.trailingAnchor, constant: -100),
+                ])
+            }
+
+            //Configure the close button.
+            if #available(iOS 13.0, *) {
+                UIButton.apptentiveClose?.setPreferredSymbolConfiguration(.init(pointSize: 20.0), forImageIn: .normal)
+            }
+            if let closeButton = UIButton.apptentiveClose, let navigationControllerView = self.navigationController?.view {
+                closeButton.addTarget(self, action: #selector(cancelSurvey), for: .touchUpInside)
+                closeButton.translatesAutoresizingMaskIntoConstraints = false
+                navigationControllerView.addSubview(closeButton)
+
+                NSLayoutConstraint.activate([
+                    closeButton.topAnchor.constraint(equalTo: navigationControllerView.topAnchor, constant: 47),
+                    closeButton.trailingAnchor.constraint(equalTo: navigationControllerView.trailingAnchor, constant: -12),
+                    closeButton.heightAnchor.constraint(equalToConstant: 34),
+                    closeButton.widthAnchor.constraint(equalToConstant: 34),
+                ])
+            }
+        }
+    }
+
+    private func configureNavigationBar() {
+        self.navigationItem.rightBarButtonItem = .apptentiveClose
+        self.navigationItem.rightBarButtonItem?.target = self
+        self.navigationItem.rightBarButtonItem?.action = #selector(cancelSurvey)
+        if let headerLogo = UIImage.apptentiveHeaderLogo {
+            let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
+            headerImageView.contentMode = .scaleAspectFit
+            self.navigationItem.titleView = headerImageView
+
+        } else {
+            self.navigationItem.title = self.viewModel.name
+        }
     }
 
     private func cancel(partial: Bool = false) {

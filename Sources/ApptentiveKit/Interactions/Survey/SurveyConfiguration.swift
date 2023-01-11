@@ -31,6 +31,7 @@ struct SurveyConfiguration: Decodable {
     let renderAs: RenderAs
     let introButtonTitle: String?
     let successButtonTitle: String?
+    let disclaimerText: String?
 
     enum CodingKeys: String, CodingKey {
         case title
@@ -51,6 +52,7 @@ struct SurveyConfiguration: Decodable {
         case renderAs = "render_as"
         case introButtonTitle = "intro_button_text"
         case successButtonTitle = "success_button_text"
+        case disclaimerText = "disclaimer_text"
     }
 
     struct TermsAndConditions: Decodable {
