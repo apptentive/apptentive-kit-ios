@@ -55,9 +55,6 @@ public class SurveyViewModel {
     /// An object describing the terms and conditions to be shown in the survey.
     public struct TermsAndConditions {
 
-        /// Non-linked text to be shown before the link text.
-        let preamble: String?
-
         /// The text that should open the link to the terms and conditions document when tapped.
         let linkLabel: String
 
@@ -279,7 +276,7 @@ public class SurveyViewModel {
         self.name = configuration.name
 
         self.termsAndConditions = configuration.termsAndConditions.flatMap {
-            TermsAndConditions(preamble: nil, linkLabel: $0.label, linkURL: $0.link)
+            TermsAndConditions(linkLabel: $0.label, linkURL: $0.link)
         }
 
         self.closeConfirmation = CloseConfirmation(
@@ -383,7 +380,7 @@ public class SurveyViewModel {
         self.name = configuration.name
 
         self.termsAndConditions = configuration.termsAndConditions.flatMap {
-            TermsAndConditions(preamble: nil, linkLabel: $0.label, linkURL: $0.link)
+            TermsAndConditions(linkLabel: $0.label, linkURL: $0.link)
         }
 
         self.closeConfirmation = CloseConfirmation(
