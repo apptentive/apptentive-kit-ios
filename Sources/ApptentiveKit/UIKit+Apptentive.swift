@@ -261,31 +261,13 @@ extension UIColor {
     }()
 
     /// The color to use for the status message in message center.
-    @objc public static var apptentiveMessageCenterStatus: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .darkGray
-        }
-    }()
+    @objc public static var apptentiveMessageCenterStatus: UIColor = .apptentiveSecondaryLabel
 
     /// The color to use for the greeting body on the greeting header view for message center.
-    @objc public static var apptentiveMessageCenterGreetingBody: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .darkGray
-        }
-    }()
+    @objc public static var apptentiveMessageCenterGreetingBody: UIColor = .apptentiveSecondaryLabel
 
     /// The color to use for the greeting title on the greeting header view for message center.
-    @objc public static var apptentiveMessageCenterGreetingTitle: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .darkGray
-        }
-    }()
+    @objc public static var apptentiveMessageCenterGreetingTitle: UIColor = .apptentiveSecondaryLabel
 
     /// The color to use for the message bubble view for inbound messages.
     @objc public static var apptentiveMessageBubbleInbound: UIColor = {
@@ -308,27 +290,13 @@ extension UIColor {
     }()
 
     /// The color to use for labels in a non-error state.
-    @objc public static var apptentiveQuestionLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .label
-        } else {
-            return .black
-        }
-    }()
+    @objc public static var apptentiveQuestionLabel: UIColor = .apptentiveLabel
 
     /// The color to use for instruction labels.
-    @objc public static var apptentiveInstructionsLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .lightGray
-        }
-    }()
+    @objc public static var apptentiveInstructionsLabel: UIColor = .apptentiveSecondaryLabel
 
     /// The color to use for choice labels.
-    @objc public static var apptentiveChoiceLabel: UIColor = {
-        return .darkGray
-    }()
+    @objc public static var apptentiveChoiceLabel: UIColor = .apptentiveLabel
 
     /// The color to use for UI elements to indicate an error state.
     @objc public static var apptentiveError: UIColor = {
@@ -350,12 +318,21 @@ extension UIColor {
         }
     }()
 
-    /// An alternative to 'apptentiveLabel' in gray.
+    /// The color to use for labels of primary prominance.
+    internal static var apptentiveLabel: UIColor = {
+        if #available(iOS 13.0, *) {
+            return .label
+        } else {
+            return .black
+        }
+    }()
+
+    /// The color to use for labels of secondary prominence.
     @objc public static var apptentiveSecondaryLabel: UIColor = {
         if #available(iOS 13.0, *) {
             return .secondaryLabel
         } else {
-            return .gray
+            return .darkGray
         }
     }()
 
@@ -365,13 +342,7 @@ extension UIColor {
     }()
 
     /// The color to use for the survey introduction text.
-    @objc public static var apptentiveSurveyIntroduction: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .label
-        } else {
-            return .black
-        }
-    }()
+    @objc public static var apptentiveSurveyIntroduction: UIColor = .apptentiveLabel
 
     /// The color to use for the borders of text fields and text views.
     @objc public static var apptentiveTextInputBorder: UIColor = {
@@ -423,13 +394,7 @@ extension UIColor {
     }()
 
     /// The color used for min and max labels for the range survey.
-    @objc public static var apptentiveMinMaxLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .darkGray
-        }
-    }()
+    @objc public static var apptentiveMinMaxLabel: UIColor = .apptentiveSecondaryLabel
 
     /// The color used for the background of the entire survey.
     @objc public static var apptentiveGroupedBackground: UIColor = {
@@ -493,13 +458,7 @@ extension UIColor {
     }()
 
     /// The color to use for the survey footer label (Thank You text).
-    @objc public static var apptentiveSubmitStatusLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .label
-        } else {
-            return .black
-        }
-    }()
+    @objc public static var apptentiveSubmitStatusLabel: UIColor = .apptentiveLabel
 
     /// The color to use for the terms of service label.
     @objc public static var apptentiveTermsOfServiceLabel: UIColor = {
@@ -720,7 +679,7 @@ extension UIToolbar {
 }
 
 extension CGFloat {
-    /// The width of the layer border for Apptentive buttons.
+    /// The width of the layer border for Apptentive buttons for surveys.
     public static var apptentiveButtonBorderWidth: CGFloat = {
         return 2
     }()

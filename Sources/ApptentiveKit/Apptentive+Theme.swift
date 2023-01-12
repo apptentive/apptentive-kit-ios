@@ -32,6 +32,9 @@ extension Apptentive {
             let messageLabelInboundColor = UIColor(named: "messageLabelInbound", in: bundle, compatibleWith: nil),
             let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil),
             let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil),
+            let dialogSeparator = UIColor(named: "dialogSeparator", in: bundle, compatibleWith: nil),
+            let dialogText = UIColor(named: "dialogText", in: bundle, compatibleWith: nil),
+            let dialogButtonText = UIColor(named: "dialogButtonText", in: bundle, compatibleWith: nil),
             let unselectedSurveyIndicatorColor = UIColor(named: "unselectedSurveyIndicator", in: bundle, compatibleWith: nil),
             let surveyGreeting = UIColor(named: "surveyGreetingText", in: bundle, compatibleWith: nil),
             let surveyImageChoice = UIColor(named: "surveyImageChoice", in: bundle, compatibleWith: nil),
@@ -159,6 +162,11 @@ extension Apptentive {
         UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .body)
         UIFont.apptentiveChoiceLabel = .preferredFont(forTextStyle: .body)
         UIFont.apptentiveTextInput = .preferredFont(forTextStyle: .body)
+
+        DialogView.appearance().titleTextColor = dialogText
+        DialogView.appearance().separatorColor = dialogSeparator
+        DialogButton.appearance().tintColor = dialogButtonText
+        DialogView.appearance().backgroundColor = apptentiveGroupPrimaryColor
 
         UIBarButtonItem.apptentiveClose = {
             let systemClose: UIBarButtonItem = {

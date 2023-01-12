@@ -82,7 +82,7 @@ class InteractionPresenterTests: XCTestCase {
             try self.presentViewController(fakeSurveyViewController)
         }
 
-        override func presentEnjoymentDialog(with viewModel: EnjoymentDialogViewModel) throws {
+        override func presentEnjoymentDialog(with viewModel: DialogViewModel) throws {
             self.viewModel = viewModel
 
             let fakeAlertController = FakePresentedViewController()
@@ -91,7 +91,7 @@ class InteractionPresenterTests: XCTestCase {
             try self.presentViewController(fakeAlertController)
         }
 
-        override func presentTextModal(with viewModel: TextModalViewModel) throws {
+        override func presentTextModal(with viewModel: DialogViewModel) throws {
             self.viewModel = viewModel
 
             let fakeAlertController = FakePresentedViewController()

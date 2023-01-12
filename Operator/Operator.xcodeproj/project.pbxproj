@@ -11,6 +11,8 @@
 		0116CEA127EA8A0600186CC1 /* CustomDataDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0116CEA027EA8A0600186CC1 /* CustomDataDataSource.swift */; };
 		0118DD7126FBEDED00037E0E /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD7026FBEDED00037E0E /* MessagesViewController.swift */; };
 		0118DD8326FBF1C200037E0E /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD8226FBF1C200037E0E /* TextViewController.swift */; };
+		015D3CC6296F7B1400D666CE /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; };
+		015D3CC7296F7B1400D666CE /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */; };
 		0176156925D1D48700BB85C6 /* DataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0176156825D1D48700BB85C6 /* DataTableViewController.swift */; };
 		018B099A24577B15007450EA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018B099924577B15007450EA /* AppDelegate.swift */; };
@@ -26,8 +28,6 @@
 		01C060B4251E48EC006B4B30 /* AddEventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C060B3251E48EC006B4B30 /* AddEventCell.swift */; };
 		01CBA936282B2E7500614A24 /* Manifests in Resources */ = {isa = PBXBuildFile; fileRef = 01CBA930282B2E7500614A24 /* Manifests */; };
 		01CBA938282B34AB00614A24 /* ManifestsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CBA937282B34AB00614A24 /* ManifestsViewController.swift */; };
-		01D762A3246358FD007A5AD5 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; };
-		01D762A4246358FD007A5AD5 /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EF5F380D25C3725D007F823E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EF5F380F25C3725D007F823E /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
@@ -70,13 +70,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		01D762A5246358FD007A5AD5 /* Embed Frameworks */ = {
+		015D3CC8296F7B1400D666CE /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				01D762A4246358FD007A5AD5 /* ApptentiveKit.framework in Embed Frameworks */,
+				015D3CC7296F7B1400D666CE /* ApptentiveKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -180,7 +180,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01D762A3246358FD007A5AD5 /* ApptentiveKit.framework in Frameworks */,
+				015D3CC6296F7B1400D666CE /* ApptentiveKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,7 +281,7 @@
 				018B099224577B15007450EA /* Sources */,
 				018B099324577B15007450EA /* Frameworks */,
 				018B099424577B15007450EA /* Resources */,
-				01D762A5246358FD007A5AD5 /* Embed Frameworks */,
+				015D3CC8296F7B1400D666CE /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

@@ -11,7 +11,7 @@ import XCTest
 @testable import ApptentiveKit
 
 class EnjoymentDialogViewModelTests: XCTestCase {
-    var viewModel: EnjoymentDialogViewModel?
+    var viewModel: DialogViewModel?
     var spySender: SpyInteractionDelegate?
 
     var gotDidSubmit: Bool = false
@@ -26,7 +26,7 @@ class EnjoymentDialogViewModelTests: XCTestCase {
         }
 
         self.spySender = SpyInteractionDelegate()
-        self.viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender!)
+        self.viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender!)
     }
 
     func testEnjoymentDialog() {
@@ -36,19 +36,21 @@ class EnjoymentDialogViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.title, "Do you love this app?")
         XCTAssertNil(viewModel.message)
-        XCTAssertEqual(viewModel.buttons[0].title, "No")
-        XCTAssertEqual(viewModel.buttons[1].title, "Yes")
+        let yesButtonText = viewModel.actions[1].label
+        let noButtonText = viewModel.actions[0].label
+        XCTAssertEqual(noButtonText, "No")
+        XCTAssertEqual(yesButtonText, "Yes")
     }
 
     func testYesButton() {
-        viewModel?.buttons[0].action?()
+        viewModel?.buttonSelected(at: 1)
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#no")
+        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#yes")
     }
 
     func testNoButton() {
-        viewModel?.buttons[1].action?()
+        viewModel?.buttonSelected(at: 0)
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#yes")
+        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#no")
     }
 }

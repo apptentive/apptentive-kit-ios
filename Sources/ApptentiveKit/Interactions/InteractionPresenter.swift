@@ -40,7 +40,7 @@ open class InteractionPresenter {
             AppleRatingDialogController(interaction: interaction, delegate: delegate).requestReview()
 
         case .enjoymentDialog(let configuration):
-            let viewModel = EnjoymentDialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
+            let viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             try self.presentEnjoymentDialog(with: viewModel)
 
         case .navigateToLink(let configuration):
@@ -52,7 +52,7 @@ open class InteractionPresenter {
             try self.presentSurvey(with: viewModel)
 
         case .textModal(let configuration):
-            let viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
+            let viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             try self.presentTextModal(with: viewModel)
 
         case .messageCenter(let configuration):
@@ -64,8 +64,6 @@ open class InteractionPresenter {
             try self.presentSurvey(with: viewModel)
 
         case .notImplemented:
-            let viewModel = NotImplementedAlertViewModel(interactionTypeName: interaction.typeName)
-            try self.presentViewController(UIAlertController(viewModel: viewModel))
             throw InteractionPresenterError.notImplemented(interaction.typeName, interaction.id)
 
         case .failedDecoding:
@@ -73,21 +71,6 @@ open class InteractionPresenter {
         }
 
         self.presentedInteraction = interaction
-    }
-
-    /// Presents an EnjoymentDialog ("Love Dialog") interaction.
-    ///
-    /// Override this method to change the way that love dialogs are presented, such as to use a custom view controller.
-    /// - Parameter viewModel: the love dialog view model that represents the love dialog and handles button taps.
-    /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
-    open func presentEnjoymentDialog(with viewModel: EnjoymentDialogViewModel) throws {
-        let viewController = UIAlertController(viewModel: viewModel)
-
-        try self.presentViewController(
-            viewController,
-            completion: {
-                viewModel.launch()
-            })
     }
 
     /// Presents a Message Center Interaction.
@@ -125,14 +108,27 @@ open class InteractionPresenter {
             })
     }
 
+    /// Presents an EnjoymentDialog ("Love Dialog") interaction.
+    ///
+    /// Override this method to change the way that love dialogs are presented, such as to use a custom view controller.
+    /// - Parameter viewModel: the dialog view model that represents the love dialog and handles button taps.
+    /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
+    open func presentEnjoymentDialog(with viewModel: DialogViewModel) throws {
+        let viewController = DialogViewController(viewModel: viewModel)
+        try self.presentViewController(
+            viewController,
+            completion: {
+                viewModel.launch()
+            })
+    }
+
     /// Presents a TextModal ("Note") interaction.
     ///
     /// Override this method to change the way that notes are presented, such as to use a custom view controller.
-    /// - Parameter viewModel: the love dialog view model that represents the love dialog and handles button taps.
+    /// - Parameter viewModel: the dialog view model that represents the note and handles button taps.
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
-    open func presentTextModal(with viewModel: TextModalViewModel) throws {
-        let viewController = UIAlertController(viewModel: viewModel)
-
+    open func presentTextModal(with viewModel: DialogViewModel) throws {
+        let viewController = DialogViewController(viewModel: viewModel)
         try self.presentViewController(
             viewController,
             completion: {
@@ -153,8 +149,12 @@ open class InteractionPresenter {
             throw InteractionPresenterError.noPresentingViewController
         }
 
-        viewControllerToPresent.modalPresentationStyle = .apptentive
-
+        if viewControllerToPresent is DialogViewController {
+            viewControllerToPresent.modalPresentationStyle = .overFullScreen
+            viewControllerToPresent.modalTransitionStyle = .crossDissolve
+        } else {
+            viewControllerToPresent.modalPresentationStyle = .apptentive
+        }
         presentingViewController.present(viewControllerToPresent, animated: true, completion: completion)
 
         self.presentedViewController = viewControllerToPresent
