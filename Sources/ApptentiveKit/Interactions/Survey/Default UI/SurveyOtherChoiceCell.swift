@@ -8,54 +8,26 @@
 
 import UIKit
 
-class SurveyOtherChoiceCell: UITableViewCell {
+class SurveyOtherChoiceCell: SurveyChoiceCell {
     let textField: UITextField
-    var skipLayoutAdjustment = true
-    var textLabelFrame: CGRect?
-    var imageViewFrame: CGRect?
+    var textFieldSpacerConstraint = NSLayoutConstraint()
 
     var isMarkedAsInvalid: Bool {
         didSet {
             if self.isMarkedAsInvalid {
                 self.textField.layer.borderColor = UIColor.apptentiveError.cgColor
             } else {
-                self.textField.layer.borderColor = UIColor.clear.cgColor
+                self.textField.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
             }
         }
     }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.textField = UITextField(frame: .zero)
+
         self.isMarkedAsInvalid = false
-        super.init(style: .default, reuseIdentifier: reuseIdentifier)
-        self.contentView.backgroundColor = .apptentiveSecondaryGroupedBackground
-        self.textField.isHidden = false
-        self.textField.alpha = 0.0
-        self.contentView.addSubview(self.textField)
-        self.setupViews()
 
-        NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: .main) { [weak self] notification in
-            self?.skipLayoutAdjustment = true
-            self?.layoutSubviews()
-        }
-    }
-
-    override func prepareForReuse() {
-        super.prepareForReuse()
-
-        self.textLabelFrame = nil
-        self.imageViewFrame = nil
-
-        self.sizeToFit()
-        self.skipLayoutAdjustment = true
-    }
-
-    func setMarkedAsInvalid(_ markedAsInvalid: Bool, animated: Bool) {
-        let animationDuration = animated ? SurveyViewController.animationDuration : 0
-
-        UIView.animate(withDuration: animationDuration) {
-            self.isMarkedAsInvalid = markedAsInvalid
-        }
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
 
     required init?(coder: NSCoder) {
@@ -79,6 +51,7 @@ class SurveyOtherChoiceCell: UITableViewCell {
         didSet {
             self.textField.isAccessibilityElement = self.isExpanded
             self.textField.alpha = self.isExpanded ? 1 : 0
+            self.textFieldSpacerConstraint.isActive = self.isExpanded
         }
     }
 
@@ -88,12 +61,11 @@ class SurveyOtherChoiceCell: UITableViewCell {
         self.imageView?.isHighlighted = highlighted || self.isSelected
     }
 
-    private func setupViews() {
-        self.textLabel?.numberOfLines = 0
-        self.textLabel?.lineBreakMode = .byWordWrapping
-        self.textLabel?.font = .apptentiveChoiceLabel
-        self.textLabel?.textColor = .apptentiveChoiceLabel
-        self.textLabel?.adjustsFontForContentSizeCategory = true
+    override func configureViews() {
+        super.configureViews()
+
+        self.textField.translatesAutoresizingMaskIntoConstraints = false
+        self.contentView.insertSubview(self.textField, at: 0)
 
         self.textField.setContentHuggingPriority(.defaultHigh, for: .vertical)
         self.textField.borderStyle = .roundedRect
@@ -107,53 +79,16 @@ class SurveyOtherChoiceCell: UITableViewCell {
 
         // Set up additional border to display validation state
         self.textField.layer.borderWidth = 1.0 / self.traitCollection.displayScale
-        self.textField.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
         self.textField.layer.cornerRadius = 6.0
-    }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+        self.textFieldSpacerConstraint = self.textField.topAnchor.constraint(equalToSystemSpacingBelow: self.choiceLabel.bottomAnchor, multiplier: 1)
 
-        if self.skipLayoutAdjustment {
-            self.skipLayoutAdjustment = false
-            return
-        }
+        NSLayoutConstraint.activate([
+            self.textField.leadingAnchor.constraint(equalTo: self.choiceLabel.leadingAnchor, constant: -7),
+            self.contentView.trailingAnchor.constraint(equalTo: self.textField.trailingAnchor, constant: 20),
+            self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textField.bottomAnchor, multiplier: 1),
+        ])
 
-        if let textLabel = self.textLabel, let imageView = self.imageView, let textLabelFrame = self.textLabelFrame, let imageViewFrame = self.imageViewFrame {
-
-            if textLabelFrame != .zero {
-                textLabel.frame = textLabelFrame
-            }
-
-            if imageViewFrame != .zero {
-                imageView.frame = imageViewFrame
-            }
-
-            self.textField.frame = CGRect(
-                x: textLabel.frame.minX - 7.5,
-                y: textLabel.frame.maxY - 1,
-                width: self.contentView.bounds.width - textLabel.frame.minX - 8.5,
-                height: self.textField.intrinsicContentSize.height)
-        }
-    }
-
-    override func sizeThatFits(_ size: CGSize) -> CGSize {
-        let additionalTextFieldHeight = self.textField.intrinsicContentSize.height * 1.5
-        var fitSize = size
-
-        if self.isExpanded {
-            fitSize = CGSize(width: size.width, height: size.height - additionalTextFieldHeight)
-        }
-
-        let superSize = super.sizeThatFits(fitSize)
-
-        self.textLabelFrame = self.textLabel?.frame
-        self.imageViewFrame = self.imageView?.frame
-
-        if self.isExpanded {
-            return CGSize(width: superSize.width, height: superSize.height + additionalTextFieldHeight)
-        } else {
-            return superSize
-        }
+        self.isExpanded = false
     }
 }

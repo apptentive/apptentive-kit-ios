@@ -171,10 +171,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.navigationItem.rightBarButtonItem?.target = self
         self.navigationItem.rightBarButtonItem?.action = #selector(cancelSurvey)
 
-        self.tableView.backgroundColor = .apptentiveGroupedBackground
-        self.tableView.backgroundView = self.backgroundView
-        self.tableView.separatorColor = .apptentiveSeparator
-
         // Pre-set submit label to allocate space
         self.submitView?.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
         self.tableView.backgroundColor = .apptentiveGroupedBackground
@@ -199,8 +195,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         self.tableView.sectionHeaderHeight = UITableView.automaticDimension
         self.tableView.rowHeight = UITableView.automaticDimension
-        self.tableView.estimatedSectionHeaderHeight = 66.0
-        self.tableView.estimatedRowHeight = UITableView.automaticDimension
+        self.tableView.estimatedSectionHeaderHeight = 75.0
+        self.tableView.estimatedSectionFooterHeight = 35.0
+        self.tableView.estimatedRowHeight = 44.0
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -322,37 +319,25 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell as SurveyChoiceCell):
             let choice = choiceQuestion.choices[indexPath.row]
 
-            choiceCell.textLabel?.text = choice.label
-            choiceCell.detailTextLabel?.text = nil
+            choiceCell.choiceLabel.text = choice.label
             choiceCell.accessibilityLabel = choice.label
             switch choiceQuestion.selectionStyle {
             case .radioButton:
-                choiceCell.imageView?.image = .apptentiveRadioButton
-                choiceCell.imageView?.highlightedImage = .apptentiveRadioButtonSelected
+                choiceCell.buttonImageView.image = .apptentiveRadioButton
+                choiceCell.buttonImageView.highlightedImage = .apptentiveRadioButtonSelected
             case .checkbox:
-                choiceCell.imageView?.image = .apptentiveCheckbox
-                choiceCell.imageView?.highlightedImage = .apptentiveCheckboxSelected
+                choiceCell.buttonImageView.image = .apptentiveCheckbox
+                choiceCell.buttonImageView.highlightedImage = .apptentiveCheckboxSelected
             }
 
-        case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let otherCell as SurveyOtherChoiceCell):
-            let choice = choiceQuestion.choices[indexPath.row]
-
-            otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
-            otherCell.textLabel?.text = choice.label
-            otherCell.accessibilityLabel = choice.label
-            otherCell.isExpanded = choice.isSelected
-            otherCell.textField.text = choice.value
-            otherCell.textField.delegate = self
-            otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
-            otherCell.textField.tag = self.tag(for: indexPath)
-            otherCell.isMarkedAsInvalid = choice.isMarkedAsInvalid
-            switch choiceQuestion.selectionStyle {
-            case .radioButton:
-                otherCell.imageView?.image = .apptentiveRadioButton
-                otherCell.imageView?.highlightedImage = .apptentiveRadioButtonSelected
-            case .checkbox:
-                otherCell.imageView?.image = .apptentiveCheckbox
-                otherCell.imageView?.highlightedImage = .apptentiveCheckboxSelected
+            if let otherCell = choiceCell as? SurveyOtherChoiceCell {
+                otherCell.isExpanded = choice.isSelected
+                otherCell.isMarkedAsInvalid = choice.isMarkedAsInvalid
+                otherCell.textField.text = choice.value
+                otherCell.textField.delegate = self
+                otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
+                otherCell.textField.tag = self.tag(for: indexPath)
+                otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
             }
 
         default:
@@ -397,14 +382,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         footer.errorLabel.textColor = .apptentiveError
 
         return footer
-    }
-
-    override func tableView(_ tableView: UITableView, estimatedHeightForHeaderInSection section: Int) -> CGFloat {
-        return 75
-    }
-
-    override func tableView(_ tableView: UITableView, estimatedHeightForFooterInSection section: Int) -> CGFloat {
-        return 35
     }
 
     // MARK: Table View Delegate
