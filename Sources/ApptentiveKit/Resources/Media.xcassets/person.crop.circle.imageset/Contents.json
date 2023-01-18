@@ -1,11 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "person.crop.circle.pdf",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "person.crop.circle.pdf",
       "idiom" : "universal",
       "scale" : "2x"
     },

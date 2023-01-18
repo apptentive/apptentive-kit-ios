@@ -126,10 +126,9 @@ extension UIImage {
             if let minusImage = UIImage.init(systemName: "minus.circle.fill") {
                 return minusImage
             }
-        } else {
-            return .apptentiveImage(named: "minus.circle.fill")
         }
-        return .apptentiveImage(named: "minus.circle.fill")
+
+        return .apptentiveImage(named: "minus.circle.fill")?.withRenderingMode(.alwaysOriginal)
     }()
 
     /// The image to use for the top navigation bar for surveys.

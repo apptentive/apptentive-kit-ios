@@ -77,6 +77,14 @@ class SurveyChoiceCell: UITableViewCell {
         let textIndentingConstraint = self.choiceLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 60)
         textIndentingConstraint.priority = .defaultHigh
 
+        let imageYConstraint: NSLayoutConstraint = {
+            if #available(iOS 13.0, *) {
+                return self.buttonImageView.firstBaselineAnchor.constraint(equalTo: self.choiceLabel.firstBaselineAnchor)
+            } else {
+                return self.buttonImageView.centerYAnchor.constraint(equalTo: self.choiceLabel.centerYAnchor)
+            }
+        }()
+
         NSLayoutConstraint.activate([
             self.choiceLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 12),
             textIndentingConstraint,
@@ -85,7 +93,7 @@ class SurveyChoiceCell: UITableViewCell {
 
             self.buttonImageView.leadingAnchor.constraint(greaterThanOrEqualToSystemSpacingAfter: self.contentView.leadingAnchor, multiplier: 1),
             self.choiceLabel.leadingAnchor.constraint(greaterThanOrEqualToSystemSpacingAfter: self.buttonImageView.trailingAnchor, multiplier: 1),
-            self.buttonImageView.firstBaselineAnchor.constraint(equalTo: self.choiceLabel.firstBaselineAnchor),
+            imageYConstraint,
             imageCenteringConstraint,
         ])
     }
