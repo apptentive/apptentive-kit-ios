@@ -498,7 +498,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.backgroundView?.label.text = viewModel.introduction
         self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(viewModel.advanceButtonText, for: .normal)
 
-        if self.viewModel.surveyDidSendAnswers {
+        if self.viewModel.surveyDidSendResponse {
             self.navigationItem.rightBarButtonItem = .none
             self.surveyBranchedBottomView?.bottomView.surveyIndicator.updateSurveyIndicatorForThankYouScreen()
             self.backgroundView?.disclaimerLabel.isHidden = false
@@ -509,7 +509,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
     }
 
-    func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {
+    func surveyViewModelDidFinish(_ viewModel: SurveyViewModel) {
         if let _ = self.viewModel.thankYouMessage {
             self.footerMode = .thankYou
 
@@ -801,7 +801,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
-        if self.viewModel.hasAnswer {
+        if self.viewModel.shouldConfirmCancel {
             DispatchQueue.main.async {
                 self.confirmCancel()
             }

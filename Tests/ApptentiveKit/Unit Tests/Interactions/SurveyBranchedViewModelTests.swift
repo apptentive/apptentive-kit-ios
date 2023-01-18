@@ -153,7 +153,7 @@ class SurveyBranchedViewModelTests: XCTestCase {
         var didSubmit = false
         var validationDidChange = false
 
-        func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {
+        func surveyViewModelDidFinish(_ viewModel: SurveyViewModel) {
             self.didSubmit = true
         }
 

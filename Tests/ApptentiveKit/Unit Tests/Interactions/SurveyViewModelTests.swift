@@ -14,7 +14,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
     var viewModel: SurveyViewModel!
     var spyInteractionDelegate: SpyInteractionDelegate!
 
-    var gotDidSubmit: Bool = false
+    var gotDidFinish: Bool = false
     var gotValidationDidChange: Bool = false
     var gotSelectionDidChange: Bool = false
     var gotPageWillChange: Bool = false
@@ -282,7 +282,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 
         // Force "sticky" validation
         viewModel.advance()
-        XCTAssertFalse(self.gotDidSubmit)
+        XCTAssertFalse(self.gotDidFinish)
 
         XCTAssertFalse(multichoiceOptional.isMarkedAsInvalid)
         XCTAssertFalse(multiselectOptional.isMarkedAsInvalid)
@@ -404,8 +404,9 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         rangeMissingMinMax.selectValue(at: 5)
 
         viewModel.advance()
+        self.waitForSurveyLogic()
 
-        XCTAssertTrue(self.gotDidSubmit)
+        XCTAssertTrue(self.gotDidFinish)
 
         XCTAssertEqual(
             self.spyInteractionDelegate.sentSurveyResponse?.questionResponses,
@@ -585,8 +586,9 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertEqual(self.viewModel.advanceButtonText, "Done")
 
         self.viewModel.advance()
+        self.waitForSurveyLogic()
 
-        XCTAssertTrue(self.gotDidSubmit)
+        XCTAssertTrue(self.gotDidFinish)
     }
 
     func waitForSurveyLogic() {
@@ -600,8 +602,8 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         self.wait(for: [expectation], timeout: 1)
     }
 
-    func surveyViewModelDidSubmit(_ viewModel: SurveyViewModel) {
-        self.gotDidSubmit = true
+    func surveyViewModelDidFinish(_ viewModel: SurveyViewModel) {
+        self.gotDidFinish = true
     }
 
     func surveyViewModelValidationDidChange(_ viewModel: SurveyViewModel) {
