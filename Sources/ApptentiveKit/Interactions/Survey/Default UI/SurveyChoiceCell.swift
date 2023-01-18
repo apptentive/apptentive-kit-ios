@@ -87,6 +87,7 @@ class SurveyChoiceCell: UITableViewCell {
 
         NSLayoutConstraint.activate([
             self.choiceLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 12),
+            self.choiceLabel.leadingAnchor.constraint(greaterThanOrEqualTo: self.contentView.leadingAnchor, constant: 60),
             textIndentingConstraint,
             self.contentView.trailingAnchor.constraint(greaterThanOrEqualTo: self.choiceLabel.trailingAnchor, constant: 20),
             self.contentView.bottomAnchor.constraint(greaterThanOrEqualTo: self.choiceLabel.bottomAnchor, constant: 12),
