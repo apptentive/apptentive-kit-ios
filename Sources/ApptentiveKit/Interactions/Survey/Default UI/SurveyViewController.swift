@@ -88,6 +88,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
     }
 
+    var pagedSurveyBottomScaledHeight: CGFloat {
+        let fontMetrics: UIFontMetrics = UIFontMetrics(forTextStyle: .headline)
+        return fontMetrics.scaledValue(for: 160)
+    }
+
     init(viewModel: SurveyViewModel) {
         self.viewModel = viewModel
         self.backgroundView = SurveyBackgroundView(frame: .zero)
@@ -101,11 +106,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         case .paged:
             self.introductionView = nil
             self.submitView = nil
-            self.surveyBranchedBottomView = SurveyBranchedContainerBottomView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 160)), numberOfSegments: viewModel.pageIndicatorSegmentCount)
+
+            self.surveyBranchedBottomView = SurveyBranchedContainerBottomView(frame: .zero, numberOfSegments: viewModel.pageIndicatorSegmentCount)
         }
 
         super.init(style: .apptentive)
-
+        self.surveyBranchedBottomView?.frame = CGRect(x: 0, y: 0, width: 320, height: self.pagedSurveyBottomScaledHeight)
         self.viewModel.delegate = self
     }
 
@@ -209,6 +215,10 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         super.viewDidLayoutSubviews()
         //We can't capture the view's window in the viewDidLoad, which is needed when sizing the larger header.
         ApptentiveNavigationController.prefersLargeHeader ? self.configureNavigationBarForLargeHeader() : self.configureNavigationBar()
+        // Need to increase the inset becuase when large dynamic type is set, the bottom input accessory view gets a larger height which covers the view.
+        if self.traitCollection.preferredContentSizeCategory >= .extraLarge && self.viewModel.displayMode == .paged {
+            self.navigationController?.additionalSafeAreaInsets.bottom = self.pagedSurveyBottomScaledHeight
+        }
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
