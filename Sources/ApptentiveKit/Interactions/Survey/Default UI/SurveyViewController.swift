@@ -11,6 +11,22 @@ import UIKit
 class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextViewDelegate, SurveyViewModelDelegate, UIAdaptivePresentationControllerDelegate {
     static let animationDuration = 0.30
 
+    static let minLabelAttrbutes: [NSAttributedString.Key: Any] = {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.hyphenationFactor = 1
+        paragraphStyle.alignment = .left
+
+        return [.paragraphStyle: paragraphStyle]
+    }()
+
+    static let maxLabelAttrbutes: [NSAttributedString.Key: Any] = {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.hyphenationFactor = 1
+        paragraphStyle.alignment = .right
+
+        return [.paragraphStyle: paragraphStyle]
+    }()
+
     let viewModel: SurveyViewModel
     let introductionView: SurveyIntroductionView?
     let submitView: SurveySubmitView?
@@ -323,8 +339,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             } else {
                 segmentedControl.selectedSegmentIndex = UISegmentedControl.noSegment
             }
-            rangeChoiceCell.minLabel.text = rangeQuestion.minText
-            rangeChoiceCell.maxLabel.text = rangeQuestion.maxText
+
+            rangeChoiceCell.minLabel.attributedText = rangeQuestion.minText.flatMap { NSAttributedString(string: $0, attributes: Self.minLabelAttrbutes) }
+            rangeChoiceCell.maxLabel.attributedText = rangeQuestion.maxText.flatMap { NSAttributedString(string: $0, attributes: Self.maxLabelAttrbutes) }
 
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell as SurveyChoiceCell):
             let choice = choiceQuestion.choices[indexPath.row]

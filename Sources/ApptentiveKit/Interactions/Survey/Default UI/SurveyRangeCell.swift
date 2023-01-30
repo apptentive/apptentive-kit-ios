@@ -18,16 +18,9 @@ class SurveyRangeCell: UITableViewCell {
     var segmentedControl: UISegmentedControl?
     let minLabel = UILabel()
     let maxLabel = UILabel()
-    var stackviewLeadingConstraintConstant: CGFloat = 15
-    var stackviewTrailingConstraintConstant: CGFloat = 15
-    var stackviewHeightConstraint: NSLayoutConstraint?
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        self.stackviewHeightConstraint = nil
-        self.stackviewLeadingConstraintConstant = 15
-        self.stackviewTrailingConstraintConstant = 15
-        self.stackviewHeightConstraint?.isActive = false
         self.segmentedControl?.removeFromSuperview()
     }
 
@@ -66,7 +59,6 @@ class SurveyRangeCell: UITableViewCell {
             self.minLabel.adjustsFontForContentSizeCategory = true
             self.minLabel.textAlignment = .left
             self.minLabel.isAccessibilityElement = false
-            self.minLabel.preferredMaxLayoutWidth = self.bounds.size.width
 
             self.maxLabel.textColor = .apptentiveMinMaxLabel
             self.maxLabel.font = .apptentiveMinMaxLabel
@@ -75,31 +67,26 @@ class SurveyRangeCell: UITableViewCell {
             self.maxLabel.adjustsFontForContentSizeCategory = true
             self.maxLabel.textAlignment = .right
             self.maxLabel.isAccessibilityElement = false
-            self.maxLabel.preferredMaxLayoutWidth = self.bounds.size.width
+
+            if #available(iOS 15.0, *) {
+                self.minLabel.maximumContentSizeCategory = .accessibilityLarge
+                self.maxLabel.maximumContentSizeCategory = .accessibilityLarge
+            }
 
             let stackView = UIStackView(arrangedSubviews: [self.minLabel, self.maxLabel])
             stackView.axis = .horizontal
-            stackView.distribution = .fill
+            stackView.alignment = .top
+            stackView.distribution = .fillProportionally
+            stackView.spacing = 16
 
             self.contentView.addSubview(stackView)
             stackView.translatesAutoresizingMaskIntoConstraints = false
 
-            //Adjust min/max labels for very large text (accessibility).
-            if self.traitCollection.preferredContentSizeCategory >= .accessibilityLarge {
-                stackView.alignment = .fill
-                stackView.distribution = .fillProportionally
-                self.stackviewLeadingConstraintConstant = 5
-                self.stackviewTrailingConstraintConstant = 5
-                self.stackviewHeightConstraint = stackView.heightAnchor.constraint(equalToConstant: 150)
-                self.stackviewHeightConstraint?.isActive = true
-            }
-
-            //Adjust the height of the stackview very large text (accessibility).
             NSLayoutConstraint.activate([
-                stackView.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 10),
-                stackView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: self.stackviewLeadingConstraintConstant),
-                self.contentView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: self.stackviewTrailingConstraintConstant),
-                self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: stackView.bottomAnchor, multiplier: 1.0),
+                stackView.topAnchor.constraint(equalToSystemSpacingBelow: segmentedControl.bottomAnchor, multiplier: 1),
+                stackView.leadingAnchor.constraint(equalToSystemSpacingAfter: self.contentView.leadingAnchor, multiplier: 2),
+                self.contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: stackView.trailingAnchor, multiplier: 2),
+                self.contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: stackView.bottomAnchor, multiplier: 1),
             ])
         }
     }
