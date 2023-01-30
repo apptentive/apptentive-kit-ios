@@ -582,7 +582,7 @@ extension UIFont {
 
     /// The font used for all survey question labels.
     @objc public static var apptentiveQuestionLabel: UIFont = {
-        return .preferredFont(forTextStyle: .body)
+        return .preferredFont(forTextStyle: .headline)
     }()
 
     /// The font used for the terms of service.
@@ -638,7 +638,7 @@ extension UIFont {
 
     /// The font used for the disclaimer text.
     @objc public static var apptentiveDisclaimerLabel: UIFont = {
-        return .preferredFont(forTextStyle: .caption1)
+        return .preferredFont(forTextStyle: .callout)
     }()
 
     /// The font used for the submit button at the end of surveys.

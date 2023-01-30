@@ -451,7 +451,8 @@
         ],
         "success_message": "Thank you for your valuable time. Your feedback will be used to help us improve our features for you!",
         "show_success_message": true,
-        "intro_button_text": "Start"
+        "intro_button_text": "Start",
+        "success_button_text": "Close"
       }
     }
   ],

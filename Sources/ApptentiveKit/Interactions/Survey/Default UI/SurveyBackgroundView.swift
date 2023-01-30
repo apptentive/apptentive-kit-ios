@@ -46,7 +46,7 @@ class SurveyBackgroundView: UIView {
             self.label.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.label.trailingAnchor.constraint(equalTo: self.readableContentGuide.trailingAnchor),
             self.label.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            self.disclaimerLabel.topAnchor.constraint(equalTo: self.label.bottomAnchor, constant: 10),
+            self.disclaimerLabel.topAnchor.constraint(equalTo: self.label.bottomAnchor, constant: 15),
             self.disclaimerLabel.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.disclaimerLabel.trailingAnchor.constraint(equalTo: self.readableContentGuide.trailingAnchor),
         ])

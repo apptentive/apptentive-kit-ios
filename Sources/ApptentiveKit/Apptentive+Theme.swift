@@ -42,7 +42,8 @@ extension Apptentive {
             let error = UIColor(named: "apptentiveError", in: bundle, compatibleWith: nil),
             let textInputPlaceholder = UIColor(named: "textInputPlaceholder", in: bundle, compatibleWith: nil),
             let textInputBorderSelected = UIColor(named: "textInputBorderSelected", in: bundle, compatibleWith: nil),
-            let rangeNotSelectedSegmentBackground = UIColor(named: "rangeNotSelectedSegmentBackground", in: bundle, compatibleWith: nil)
+            let rangeNotSelectedSegmentBackground = UIColor(named: "rangeNotSelectedSegmentBackground", in: bundle, compatibleWith: nil),
+            let disclaimerColor = UIColor(named: "disclaimer", in: bundle, compatibleWith: nil)
         else {
             apptentiveCriticalError("Unable to locate color asset(s).")
             return
@@ -150,6 +151,7 @@ extension Apptentive {
         UIColor.apptentiveTextInputPlaceholder = textInputPlaceholder
         UIColor.apptentiveMessageCenterTextInputPlaceholder = textInputPlaceholder
         UIColor.apptentiveTextInputBorderSelected = textInputBorderSelected
+        UIColor.apptentiveDisclaimerLabel = disclaimerColor
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
