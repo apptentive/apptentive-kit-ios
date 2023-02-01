@@ -89,12 +89,10 @@ extension SurveyViewModel {
         override var isValid: Bool {
             let selectedChoiceCount = self.choices.filter({ $0.isSelected }).count
 
-            let doesNotExceedMaxCount = selectedChoiceCount <= self.maxSelections
-            let meetsMinCount = selectedChoiceCount >= self.minSelections
-            let choicesAreValid = self.choices.allSatisfy { $0.isValid }
-            let isOptional = !self.isRequired
+            let isOptionalAndNothingSelected = !self.isRequired && selectedChoiceCount == 0
+            let choicesValidAndWithinLimits = self.choices.allSatisfy { $0.isValid } && (self.minSelections...self.maxSelections).contains(selectedChoiceCount)
 
-            return doesNotExceedMaxCount && choicesAreValid && (meetsMinCount || isOptional)
+            return isOptionalAndNothingSelected || choicesValidAndWithinLimits
         }
 
         override var response: QuestionResponse {

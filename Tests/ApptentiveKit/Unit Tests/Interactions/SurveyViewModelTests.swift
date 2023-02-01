@@ -154,11 +154,15 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 
         XCTAssertTrue(multiselectOptionalWithLimits.isValid, "Multiselect optional limits only enforced if something is selected")
         multiselectOptionalWithLimits.toggleChoice(at: 0)
-        XCTAssertTrue(multiselectOptionalWithLimits.isValid)
+        XCTAssertFalse(multiselectOptionalWithLimits.isValid, "Multiselect optional lower limit enforced when something is selected")
         multiselectOptionalWithLimits.toggleChoice(at: 1)
+        XCTAssertTrue(multiselectOptionalWithLimits.isValid)
         multiselectOptionalWithLimits.toggleChoice(at: 2)
+        XCTAssertFalse(multiselectOptionalWithLimits.isValid, "Multiselect optional other choice should enforce non-null value")
+        multiselectOptionalWithLimits.choices[2].value = "Test"
+        XCTAssertTrue(multiselectOptionalWithLimits.isValid)
         multiselectOptionalWithLimits.toggleChoice(at: 3)
-        XCTAssertFalse(multiselectOptionalWithLimits.isValid, "Multiselect optional limits enforced when something is selected")
+        XCTAssertFalse(multiselectOptionalWithLimits.isValid, "Multiselect optional upper limit enforced when something is selected")
 
         XCTAssertFalse(multiselectRequiredWithLimits.isValid, "Multiselect required limits enforced even when nothing is selected")
         multiselectRequiredWithLimits.toggleChoice(at: 0)
@@ -387,6 +391,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         multiselectRequired.toggleChoice(at: 0)
         multiselectRequired.choices[0].value = "Bar"
         multiselectOptionalWithLimits.toggleChoice(at: 0)
+        multiselectOptionalWithLimits.toggleChoice(at: 1)
         multiselectRequiredWithLimits.toggleChoice(at: 0)
         multiselectRequiredWithLimits.toggleChoice(at: 2)
         multiselectRequiredWithLimits.choices[2].value = "Foo"
@@ -417,7 +422,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
                 "6": .answered([Answer.choice("8")]),
                 "11": .answered([Answer.choice("12"), Answer.choice("14")]),
                 "15": .answered([Answer.other("16", "Bar")]),
-                "18": .answered([Answer.choice("19")]),
+                "18": .answered([Answer.choice("19"), Answer.choice("20")]),
                 "25": .answered([Answer.choice("26"), Answer.other("28", "Foo")]),
                 "56e0b5d9c7199274f700001b": .answered([Answer.freeform("Foo")]),
                 "56e0b5d9c7199274f700001d": .answered([Answer.freeform("Bar")]),
@@ -436,7 +441,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
                 "6": [Answer.choice("8")],
                 "11": [Answer.choice("12"), Answer.choice("14")],
                 "15": [Answer.other("16", "Bar")],
-                "18": [Answer.choice("19")],
+                "18": [Answer.choice("19"), Answer.choice("20")],
                 "25": [Answer.choice("26"), Answer.other("28", "Foo")],
                 "56e0b5d9c7199274f700001b": [Answer.freeform("Foo")],
                 "56e0b5d9c7199274f700001d": [Answer.freeform("Bar")],
@@ -455,7 +460,7 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
                 "6": [Answer.choice("8")],
                 "11": [Answer.choice("12"), Answer.choice("14")],
                 "15": [Answer.other("16", "Bar")],
-                "18": [Answer.choice("19")],
+                "18": [Answer.choice("19"), Answer.choice("20")],
                 "25": [Answer.choice("26"), Answer.other("28", "Foo")],
                 "56e0b5d9c7199274f700001b": [Answer.freeform("Foo")],
                 "56e0b5d9c7199274f700001d": [Answer.freeform("Bar")],

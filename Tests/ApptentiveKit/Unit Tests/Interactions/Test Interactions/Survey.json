@@ -157,13 +157,13 @@
                 "type": "select_option"
               }
             ],
-            "instructions": "select between 1 and 3",
+            "instructions": "select between 2 and 3",
             "randomize": true,
             "value": "Multiselect Optional With Limits",
             "type": "multiselect",
             "error_message": "Error - There was a problem with your multi-select answer.",
             "required": false,
-            "min_selections": 1,
+            "min_selections": 2,
             "max_selections": 3
           },
           {
