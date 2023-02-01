@@ -343,11 +343,7 @@ public class SurveyViewModel {
                 let advanceLogic = questionSet.invokes.compactMap { (invocation) -> AdvanceLogic? in
                     switch invocation.behavior {
                     case .end:
-                        if let successPageID = successPageID {
-                            return AdvanceLogic(criteria: .true, pageID: successPageID)
-                        } else {
-                            return nil
-                        }
+                        return AdvanceLogic(criteria: invocation.criteria ?? .true, pageID: successPageID)
 
                     case .continue(let nextQuestionSetID):
                         return AdvanceLogic(criteria: invocation.criteria ?? .true, pageID: nextQuestionSetID)
@@ -531,7 +527,7 @@ public class SurveyViewModel {
 
 struct AdvanceLogic {
     let criteria: Criteria
-    let pageID: String
+    let pageID: String?
 }
 
 extension Criteria {
