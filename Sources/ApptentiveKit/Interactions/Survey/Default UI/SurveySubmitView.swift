@@ -67,8 +67,8 @@ class SurveySubmitView: UIView {
             self.submitLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             self.disclaimerLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             self.disclaimerLabel.topAnchor.constraint(equalTo: self.submitLabel.bottomAnchor, constant: 10),
-            self.disclaimerLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
-            self.disclaimerLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5),
+            self.disclaimerLabel.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
+            self.disclaimerLabel.trailingAnchor.constraint(equalTo: self.readableContentGuide.trailingAnchor),
             self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.disclaimerLabel.bottomAnchor, multiplier: 5.0),
         ])
     }
