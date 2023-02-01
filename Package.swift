@@ -16,7 +16,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/iwill/generic-json-swift.git")
+        .package(url: "https://github.com/iwill/generic-json-swift.git", from: "2.0.0")
     ],
     targets: [
         .target(
@@ -28,6 +28,5 @@ let package = Package(
         .testTarget(
             name: "ApptentiveKit Tests",
             dependencies: ["GenericJSON"]),
-        )
     ]
 )
