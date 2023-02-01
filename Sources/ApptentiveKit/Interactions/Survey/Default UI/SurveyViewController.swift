@@ -428,6 +428,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             otherCell.textField.becomeFirstResponder()
 
+            // Animation seems to be needed to avoid choiceLabel jumping when expanding.
             UIView.animate(withDuration: SurveyViewController.animationDuration) {
                 otherCell.isExpanded = true
                 otherCell.layoutIfNeeded()
@@ -552,76 +553,22 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
     }
 
-    private var tableViewIsReloading = false
-
     func surveyViewModelValidationDidChange(_ viewModel: SurveyViewModel) {
         self.footerMode = viewModel.isMarkedAsInvalid ? .validationError : .submitButton
 
-        self.tableViewIsReloading = true
-        self.tableView.beginUpdates()  // Animate in/out any error message footers
+        // Disregard first responder changes for the duration of the update.
+        self.isUpdatingValidation = true
 
-        var visibleSectionIndexes = tableView.indexPathsForVisibleRows?.map { $0.section } ?? []
+        self.tableView.beginUpdates()
 
-        // There might be a header view for a subsequent section whose top row isn't visible.
-        if let lastVisibleSectionIndex = visibleSectionIndexes.last, lastVisibleSectionIndex < self.tableView.numberOfSections - 1 {
-            visibleSectionIndexes.append(lastVisibleSectionIndex + 1)
-        }
-
-        // There might be a footer view for a previous section whose bottom row isn't visible.
-        if let firstVisibleSectionIndex = visibleSectionIndexes.first, firstVisibleSectionIndex >= 1 {
-            visibleSectionIndexes.append(firstVisibleSectionIndex - 1)
-        }
-
-        var reloadSections = IndexSet()
-        visibleSectionIndexes.forEach({ sectionIndex in
-            let question = viewModel.questions[sectionIndex]
-
-            if let header = self.tableView.headerView(forSection: sectionIndex) as? SurveyQuestionHeaderView {
-                UIView.transition(
-                    with: header, duration: Self.animationDuration, options: .transitionCrossDissolve
-                ) {
-                    header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveQuestionLabel
-                    header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveSecondaryLabel
-                }
-                header.contentView.accessibilityLabel = question.accessibilityLabel
-
-            }
-
-            reloadSections.insert(sectionIndex)
-        })
-
-        self.tableView.reloadSections(reloadSections, with: .fade)
-
-        self.tableView.indexPathsForVisibleRows?.forEach { indexPath in
-            guard let cell = self.tableView.cellForRow(at: indexPath) else {
-                return  // Cell may already be offscreen
-            }
-
-            let question = self.viewModel.questions[indexPath.section]
-            if let choiceQuestion = question as? SurveyViewModel.ChoiceQuestion, let choiceCell = cell as? SurveyOtherChoiceCell {
-                choiceCell.isMarkedAsInvalid = choiceQuestion.choices[indexPath.row].isMarkedAsInvalid
-            } else if let freeformQuestion = question as? SurveyViewModel.FreeformQuestion {
-                if let singleLineCell = cell as? SurveySingleLineCell {
-                    singleLineCell.isMarkedAsInvalid = freeformQuestion.isMarkedAsInvalid
-                } else if let multiLineCell = cell as? SurveyMultiLineCell {
-                    multiLineCell.isMarkedAsInvalid = freeformQuestion.isMarkedAsInvalid
-                }
-            }
-        }
-
-        if let firstResponderIndexPath = self.firstResponderIndexPath, let firstResponderCell = self.firstResponderCell {
-            if let otherChoiceCell = firstResponderCell as? SurveyOtherChoiceCell,
-                let choiceQuestion = self.viewModel.questions[firstResponderIndexPath.section] as? SurveyViewModel.ChoiceQuestion
-            {
-                otherChoiceCell.isMarkedAsInvalid = choiceQuestion.choices[firstResponderIndexPath.row].isMarkedAsInvalid
-            }
-        }
+        // Reload sections whose headers or footers might be visible.
+        let sectionsBeingReloaded = self.sectionIndexesWithPotentiallyVisibleHeadersOrFooters
+        self.tableView.reloadSections(sectionsBeingReloaded, with: .fade)
 
         self.tableView.endUpdates()
-        self.tableViewIsReloading = false
 
-        for sectionIndex in reloadSections {
-            // Reloading a section clears the table view's record of what was selected, so restore it here.
+        // Restore selection and first responder status for reloaded rows.
+        for sectionIndex in sectionsBeingReloaded {
             if let choiceQuestion = self.viewModel.questions[sectionIndex] as? SurveyViewModel.ChoiceQuestion {
                 for (choiceIndex, choice) in choiceQuestion.choices.enumerated() {
                     if choice.isSelected {
@@ -630,7 +577,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 }
             }
 
-            // Reloading a section calls resignFirstResponder on any responders, so restore it here.
             if let firstResponderIndexPath = self.firstResponderIndexPath, sectionIndex == firstResponderIndexPath.section {
                 switch self.tableView.cellForRow(at: firstResponderIndexPath) {
                 case let singleLineCell as SurveySingleLineCell:
@@ -647,34 +593,18 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 }
             }
         }
-    }
 
-    private func setIsMarkedAsInvalid(at indexPath: IndexPath, cell: UITableViewCell?) {
-        let question = self.viewModel.questions[indexPath.section]
-
-        switch (question, cell) {
-        case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let otherCell as SurveyOtherChoiceCell):
-            otherCell.isMarkedAsInvalid = choiceQuestion.choices[indexPath.row].isMarkedAsInvalid
-
-        case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let singleLineCell as SurveySingleLineCell):
-            singleLineCell.isMarkedAsInvalid = freeformQuestion.isMarkedAsInvalid
-
-        case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let multiLineCell as SurveyMultiLineCell):
-            multiLineCell.isMarkedAsInvalid = freeformQuestion.isMarkedAsInvalid
-
-        default:
-            break
-        }
+        self.isUpdatingValidation = false
     }
 
     func surveyViewModelSelectionDidChange(_ viewModel: SurveyViewModel) {
-        self.tableView.indexPathsForVisibleRows?.forEach { indexPath in
+        for indexPath in self.tableView.indexPathsForVisibleRows ?? [] {
             guard let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion else {
-                return  // Not a choice question
+                continue  // Not a choice question
             }
 
             guard let cell = self.tableView.cellForRow(at: indexPath) else {
-                return  // Cell may already be offscreen
+                continue  // Cell may already be offscreen
             }
 
             let isSelected = choiceQuestion.choices[indexPath.row].isSelected
@@ -687,11 +617,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 if let otherCell = tableView.cellForRow(at: indexPath) as? SurveyOtherChoiceCell {
                     otherCell.textField.resignFirstResponder()
 
-                    UIView.animate(withDuration: Self.animationDuration) {
-                        otherCell.isExpanded = false
-                    }
-
                     self.tableView.beginUpdates()
+                    otherCell.isExpanded = false
                     self.tableView.endUpdates()
                 }
             }
@@ -749,24 +676,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     @objc func textFieldChanged(_ textField: UITextField) {
-        let indexPath = self.indexPath(forTag: textField.tag)
-        let question = self.viewModel.questions[indexPath.section]
-
-        if let freeformQuestion = question as? SurveyViewModel.FreeformQuestion {
-            freeformQuestion.value = textField.text
-        } else if let choiceQuestion = question as? SurveyViewModel.ChoiceQuestion {
-            choiceQuestion.choices[indexPath.row].value = textField.text
-        } else {
-            return apptentiveCriticalError("Text field sending events to wrong question")
-        }
-
+        self.viewModel.setValue(textField.text, for: self.indexPath(forTag: textField.tag))
     }
 
     @objc func rangeControlValueDidChange(_ segmentedControl: UISegmentedControl) {
-        let indexPath = self.indexPath(forTag: segmentedControl.tag)
-        let question = self.viewModel.questions[indexPath.section]
-        let rangeQuestion = question as? SurveyViewModel.RangeQuestion
-        rangeQuestion?.selectValue(at: segmentedControl.selectedSegmentIndex)
+        var indexPath = self.indexPath(forTag: segmentedControl.tag)
+        indexPath.row = segmentedControl.selectedSegmentIndex
+
+        self.viewModel.selectValueFromRange(at: indexPath)
     }
 
     // MARK: - Text Field Delegate
@@ -776,8 +693,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         return false
     }
 
-    // We probably don't need this now that the Other text field is only visible when the choice is selected.
     func textFieldDidBeginEditing(_ textField: UITextField) {
+        guard !self.isUpdatingValidation else {
+            return
+        }
+
         if self.viewModel.displayMode == .paged {
             self.keyboardWillAppear()
         }
@@ -787,37 +707,39 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
+        guard !self.isUpdatingValidation else {
+            return
+        }
+
         if self.viewModel.displayMode == .paged {
             self.keyboardWillDisappear()
         }
 
-        if !self.tableViewIsReloading {
-            self.firstResponderIndexPath = nil
-        }
+        self.firstResponderIndexPath = nil
         textField.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
     }
 
     // MARK: Text View Delegate
 
     func textViewDidChange(_ textView: UITextView) {
-        let indexPath = self.indexPath(forTag: textView.tag)
-
-        guard let question = self.viewModel.questions[indexPath.section] as? SurveyViewModel.FreeformQuestion else {
-            return apptentiveCriticalError("Text view sending delegate calls to wrong question")
-        }
-
-        question.value = textView.text
+        self.viewModel.setValue(textView.text, for: self.indexPath(forTag: textView.tag))
     }
 
     func textViewDidBeginEditing(_ textView: UITextView) {
+        guard !self.isUpdatingValidation else {
+            return
+        }
+
         self.firstResponderIndexPath = self.indexPath(forTag: textView.tag)
         textView.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
     }
 
     func textViewDidEndEditing(_ textView: UITextView) {
-        if !self.tableViewIsReloading {
-            self.firstResponderIndexPath = nil
+        guard !self.isUpdatingValidation else {
+            return
         }
+
+        self.firstResponderIndexPath = nil
         textView.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
     }
 
@@ -840,6 +762,24 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     // MARK: - Private
 
+    private var isUpdatingValidation = false
+
+    private var sectionIndexesWithPotentiallyVisibleHeadersOrFooters: IndexSet {
+        var result = tableView.indexPathsForVisibleRows?.map { $0.section } ?? []
+
+        // There might be a header view for a subsequent section whose top row isn't visible.
+        if let lastVisibleSectionIndex = result.last, lastVisibleSectionIndex < self.tableView.numberOfSections - 1 {
+            result.append(lastVisibleSectionIndex + 1)
+        }
+
+        // There might be a footer view for a previous section whose bottom row isn't visible.
+        if let firstVisibleSectionIndex = result.first, firstVisibleSectionIndex >= 1 {
+            result.append(firstVisibleSectionIndex - 1)
+        }
+
+        return IndexSet(result)
+    }
+
     private func updateHeaderFooterSize() {
         if let introductionView = self.introductionView {
             let introductionSize = introductionView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 0), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
@@ -856,6 +796,10 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     private func indexPath(forTag tag: Int) -> IndexPath {
         return IndexPath(row: tag & 0xFFFF, section: tag >> 16)
+    }
+
+    private func tag(for indexPath: IndexPath) -> Int {
+        return (indexPath.section << 16) | (indexPath.item & 0xFFFF)
     }
 
     private func configureTermsOfService() {
@@ -886,10 +830,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         } else {
             self.navigationController?.setToolbarHidden((UIToolbar.apptentiveMode == .hiddenWhenEmpty), animated: true)
         }
-    }
-
-    private func tag(for indexPath: IndexPath) -> Int {
-        return (indexPath.section << 16) | (indexPath.item & 0xFFFF)
     }
 
     private func confirmCancel() {

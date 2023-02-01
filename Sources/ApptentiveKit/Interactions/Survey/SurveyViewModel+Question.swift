@@ -53,7 +53,7 @@ extension SurveyViewModel {
                         return apptentiveCriticalError("Should have a view model set")
                     }
 
-                    surveyViewModel.delegate?.surveyViewModelValidationDidChange(surveyViewModel)
+                    surveyViewModel.setNeedsUpdateValidation()
                 }
             }
         }
@@ -89,13 +89,17 @@ extension SurveyViewModel {
         }
 
         func updateSelection() {
-            self.updateMarkedAsInvalid()
+            self.checkIfFixed()
 
             guard let surveyViewModel = self.surveyViewModel else {
                 return apptentiveCriticalError("Should have a view model set")
             }
 
             surveyViewModel.delegate?.surveyViewModelSelectionDidChange(surveyViewModel)
+        }
+
+        func validate() {
+            self.isMarkedAsInvalid = !self.isValid
         }
     }
 }
@@ -104,11 +108,12 @@ protocol Validating: AnyObject {
     var isMarkedAsInvalid: Bool { get set }
     var isValid: Bool { get }
 
-    func updateMarkedAsInvalid()
+    func validate()
+    func checkIfFixed()
 }
 
 extension Validating {
-    func updateMarkedAsInvalid() {
+    func checkIfFixed() {
         if self.isValid {
             self.isMarkedAsInvalid = false
         }

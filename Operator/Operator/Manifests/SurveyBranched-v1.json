@@ -246,7 +246,7 @@
                 "id": "question_5",
                 "value": "We are testing our new Survey Logic capabilities in this survey! Did you love this new survey experience?",
                 "type": "multichoice",
-                "required": false,
+                "required": true,
                 "error_message": "Error - There was a problem with your single-select answer.",
                 "answer_choices": [
                   {

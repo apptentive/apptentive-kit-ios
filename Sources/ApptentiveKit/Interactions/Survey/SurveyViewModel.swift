@@ -130,6 +130,38 @@ public class SurveyViewModel {
     /// Whether the survey answers have been sent to the API.
     public var surveyDidSendResponse: Bool = false
 
+    /// Sets the text response value for the question/choice at the specified index path.
+    /// - Parameters:
+    ///   - value: The text value to set.
+    ///   - indexPath: An index path with the index of the question and (if applicable) choice.
+    public func setValue(_ value: String?, for indexPath: IndexPath) {
+        switch self.questions[indexPath.section] {
+        case let choiceQuestion as ChoiceQuestion:
+            choiceQuestion.choices[indexPath.row].value = value
+
+        case let freeformQuestion as FreeformQuestion:
+            guard indexPath.row == 0 else {
+                apptentiveCriticalError("Attempting to set text for a freeform question with nonzero row index")
+                break
+            }
+
+            freeformQuestion.value = value
+
+        default:
+            apptentiveCriticalError("Attempting to set text for question/choice with no freeform value")
+        }
+    }
+
+    /// Selects the value for the question at the index path's first index corresponding to the index path's second index.
+    /// - Parameter indexPath: The index path specifying the question and value.
+    public func selectValueFromRange(at indexPath: IndexPath) {
+        guard let rangeQuestion = self.questions[indexPath.section] as? RangeQuestion else {
+            return apptentiveCriticalError("Attempting to select value for non-range question")
+        }
+
+        rangeQuestion.selectValue(at: indexPath.row)
+    }
+
     /// Method that should be called in response to the user tapping the terms and conditions link.
     public func openTermsAndConditions() {
         guard let termsLink = self.termsAndConditions?.linkURL else {
@@ -137,18 +169,6 @@ public class SurveyViewModel {
         }
 
         self.interactionDelegate.open(termsLink) { _ in }
-    }
-
-    /// Update the `isMarkedAsInvalid` flag based on the whether the number of choices matches the requirements.
-    /// - Parameter question: the question whose answers should be validate.
-    public func validateQuestion(_ question: SurveyViewModel.Question) {
-        if let choiceQuestion = question as? SurveyViewModel.ChoiceQuestion {
-            choiceQuestion.choices.forEach { choice in
-                choice.isMarkedAsInvalid = !choice.isValid
-            }
-        }
-
-        question.isMarkedAsInvalid = !question.isValid
     }
 
     /// Submits the users answers to the survey.
@@ -164,10 +184,15 @@ public class SurveyViewModel {
 
             self.advanceToNextPage()
         } else {
-            self.questions.forEach { question in
-                self.validateQuestion(question)
+            self.coalesceValidationChanges {
+                for question in self.questions {
+                    question.validate()
+                }
             }
-            self.delegate?.surveyViewModelValidationDidChange(self)
+
+            if self.validationChanged {
+                self.delegate?.surveyViewModelValidationDidChange(self)
+            }
         }
     }
 
@@ -191,9 +216,6 @@ public class SurveyViewModel {
         return self.pages.count == 1 ? .list : .paged
     }
 
-    /// Whether the survey answers have been sent to the API.
-    public var surveyDidSendAnswers: Bool = false
-
     /// Whether an attempt to close the survey should warn about discarding answers.
     public var shouldConfirmCancel: Bool {
         switch self.displayMode {
@@ -201,7 +223,7 @@ public class SurveyViewModel {
             return self.hasAnswer
 
         case .paged:
-            return self.hasAnswer && !self.surveyDidSendAnswers
+            return self.hasAnswer && !self.surveyDidSendResponse
         }
     }
 
@@ -409,12 +431,12 @@ public class SurveyViewModel {
         return self.pages.values.flatMap { $0.questions }
     }
 
-    internal var surveyIsOnLastPage: Bool {
-        return self.currentPage.advanceLogic.count == 0
-    }
-
     internal var hasAnswer: Bool {
         return self.allQuestions.contains(where: { $0.hasAnswer })
+    }
+
+    internal var surveyIsOnLastPage: Bool {
+        return self.currentPage.advanceLogic.count == 0
     }
 
     /// Sets the current question set and the question list with the new ones based on the selected answer.
@@ -453,7 +475,29 @@ public class SurveyViewModel {
         }
     }
 
-    internal func sendResponse() {
+    internal func setNeedsUpdateValidation() {
+        if self.shouldCoalesceValidationChanges {
+            self.validationChanged = true
+        } else {
+            self.delegate?.surveyViewModelValidationDidChange(self)
+        }
+    }
+
+    // MARK: - Private
+
+    private var validationChanged = false
+    private var shouldCoalesceValidationChanges = false
+
+    private func coalesceValidationChanges(_ updateBlock: () -> Void) {
+        self.validationChanged = false
+        self.shouldCoalesceValidationChanges = true
+
+        updateBlock()
+
+        self.shouldCoalesceValidationChanges = false
+    }
+
+    private func sendResponse() {
         self.response.questionResponses.forEach { questionID, responses in
             self.interactionDelegate.recordResponse(responses, for: questionID)
         }
@@ -464,7 +508,7 @@ public class SurveyViewModel {
         self.surveyDidSendResponse = true
     }
 
-    internal static func buildQuestionViewModels(questions: [SurveyConfiguration.Question], requiredText: String?) -> [SurveyViewModel.Question] {
+    private static func buildQuestionViewModels(questions: [SurveyConfiguration.Question], requiredText: String?) -> [SurveyViewModel.Question] {
         // Bail if we have non-unique question IDs.
         let questionIDs = questions.map { $0.id }
         guard questionIDs.sorted() == Array(Set(questionIDs)).sorted() else {
