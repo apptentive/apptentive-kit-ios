@@ -454,7 +454,7 @@ public class SurveyViewModel {
 
             DispatchQueue.main.async {
                 // Send response if there are no further question pages.
-                if nextPageID == nil || nextPageID == self.successPageID && !self.surveyDidSendResponse {
+                if !self.surveyDidSendResponse && (nextPageID == nil || nextPageID == self.successPageID) {
                     self.sendResponse()
                 }
 
