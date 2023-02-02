@@ -1,3 +1,9 @@
+# 2023-02-02 - 6.0.9
+
+### Bugs Fixed
+
+- Fixed an issue where the completion handler passed to `register(with:completion:)` could be called twice, resulting in an error in React Native apps.
+
 # 2022-12-13 - 6.0.8
 
 ### New & Improved
