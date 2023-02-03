@@ -434,6 +434,8 @@ class Backend {
 
             if let registerCompletion = self.registerCompletion {
                 self.registerNewConversationIfNeeded(completion: registerCompletion)
+
+                self.registerCompletion = nil
             }
         } else {
             ApptentiveLogger.default.info("In-memory conversation already contains data from any saved conversation.")
