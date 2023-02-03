@@ -70,9 +70,19 @@ struct ApptentiveAPI: HTTPEndpoint {
     /// - Parameters:
     ///   - credentials: The conversation for which to retrieve the message list.
     ///   - lastMessageID: The message ID from the `after_id` field of the previous response, if any.
+    ///   - pageSize: The value to use for the query item when in debug mode.
     /// - Returns: A struct describing the HTTP request to be performed.
-    static func getMessages(with credentials: APICredentialsProviding, afterMessageWithID lastMessageID: String?) -> Self {
-        let queryItems = lastMessageID.flatMap { [URLQueryItem(name: "starts_after", value: $0)] }
+    static func getMessages(with credentials: APICredentialsProviding, afterMessageWithID lastMessageID: String?, pageSize: String?) -> Self {
+
+        var queryItems: [URLQueryItem] = []
+
+        if let lastMessageID = lastMessageID {
+            queryItems.append(URLQueryItem(name: "starts_after", value: lastMessageID))
+        }
+
+        if let pageSizeValue = pageSize {
+            queryItems.append(URLQueryItem(name: "page_size", value: pageSizeValue))
+        }
 
         return Self(credentials: credentials, path: "messages", queryItems: queryItems, method: .get)
     }

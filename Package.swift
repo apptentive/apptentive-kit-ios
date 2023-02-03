@@ -27,6 +27,10 @@ let package = Package(
         ),
         .testTarget(
             name: "ApptentiveKit Tests",
-            dependencies: ["GenericJSON"]),
+            dependencies: [
+                .product(name: "GenericJSON", package: "generic-json-swift")
+            ],
+            exclude: ["UI Tests", "Integration Tests"]
+        )
     ]
 )
