@@ -1,3 +1,15 @@
+# 2023-02-06 - 6.1.0
+
+### New & Improved
+
+- Love Dialog and Notes interaction UI can now be customized
+- Surveys can now include skip logic with a new paged survey UI
+
+### Bugs Fixed
+
+- The lower limit on selection count for checkbox questions is now enforced even when a response is not required
+- The minimum and maximum labels for range and NPS questions will now hyphenate words to fit the available space with large Dynamic Type sizes
+
 # 2023-02-02 - 6.0.9
 
 ### Bugs Fixed

@@ -30,6 +30,7 @@ let package = Package(
             dependencies: [
                 .product(name: "GenericJSON", package: "generic-json-swift")
             ],
+            path: "Tests/ApptentiveKit",
             exclude: ["UI Tests", "Integration Tests"]
         )
     ]
