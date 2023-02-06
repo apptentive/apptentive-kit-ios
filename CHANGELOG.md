@@ -1,9 +1,9 @@
-# 2023-02-06 - 6.1.0
+# 2023-02-07 - 6.1.0
 
 ### New & Improved
 
 - Surveys can now include skip logic with a new paged survey UI 
-- Love Dialog and Notes interaction UI can now be customized ([see documentation on customization here](https://learn.apptentive.com/knowledge-base/apptentive-kit-ios-customization/#dialogview-appearance-settings))
+- Love Dialog and Notes interaction UI can now be customized
 
 ### Bugs Fixed
 
