@@ -2,8 +2,8 @@
 
 ### New & Improved
 
-- Love Dialog and Notes interaction UI can now be customized
-- Surveys can now include skip logic with a new paged survey UI
+- Surveys can now include skip logic with a new paged survey UI 
+- Love Dialog and Notes interaction UI can now be customized ([see documentation on customization here](https://learn.apptentive.com/knowledge-base/apptentive-kit-ios-customization/#dialogview-appearance-settings))
 
 ### Bugs Fixed
 
