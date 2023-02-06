@@ -185,6 +185,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             self.backgroundView?.label.text = self.viewModel.introduction
             self.backgroundView?.disclaimerLabel.text = self.viewModel.disclaimerText
+            if self.viewModel.highlightFirstQuestionSegment {
+                self.surveyBranchedBottomView?.bottomView.surveyIndicator.updateSelectedSegmentAppearance()
+            }
         }
 
         self.navigationController?.presentationController?.delegate = self

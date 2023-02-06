@@ -130,6 +130,9 @@ public class SurveyViewModel {
     /// Whether the survey answers have been sent to the API.
     public var surveyDidSendResponse: Bool = false
 
+    /// Indicates whether to highlight the first indicator segment when there is no intro screen.
+    public var highlightFirstQuestionSegment: Bool = false
+
     /// Sets the text response value for the question/choice at the specified index path.
     /// - Parameters:
     ///   - value: The text value to set.
@@ -326,6 +329,7 @@ public class SurveyViewModel {
                 pages[introPage.id] = introPage
                 self.currentPageID = introPage.id
             } else {
+                self.highlightFirstQuestionSegment = true
                 self.currentPageID = firstQuestionSetID
             }
 
