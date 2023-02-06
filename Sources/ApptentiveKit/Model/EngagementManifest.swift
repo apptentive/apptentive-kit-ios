@@ -15,7 +15,7 @@ protocol Expiring {
 }
 
 /// An object that represents the response to a request to the `interactions` endpoint of the Apptentive API.
-public struct EngagementManifest: Expiring, Decodable {
+struct EngagementManifest: Expiring, Decodable {
 
     /// An array of `Interaction` objects.
     let interactions: [Interaction]
@@ -27,7 +27,7 @@ public struct EngagementManifest: Expiring, Decodable {
     var expiry: Date?
 
     /// A structure combines an interaction identifier with criteria.
-    public struct Invocation: Decodable {
+    struct Invocation: Decodable {
         /// The ID of the interaction that should be presented if the criteria evaluate to true.
         let interactionID: String
         let criteria: Criteria
