@@ -192,9 +192,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         self.navigationController?.presentationController?.delegate = self
 
-        self.navigationItem.rightBarButtonItem = .apptentiveClose
-        self.navigationItem.rightBarButtonItem?.target = self
-        self.navigationItem.rightBarButtonItem?.action = #selector(cancelSurvey)
+        if !ApptentiveNavigationController.prefersLargeHeader {
+            self.navigationItem.rightBarButtonItem = .apptentiveClose
+            self.navigationItem.rightBarButtonItem?.target = self
+            self.navigationItem.rightBarButtonItem?.action = #selector(cancelSurvey)
+        }
 
         // Pre-set submit label to allocate space
         self.submitView?.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
@@ -892,21 +894,20 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 closeButton.addTarget(self, action: #selector(cancelSurvey), for: .touchUpInside)
                 closeButton.translatesAutoresizingMaskIntoConstraints = false
                 navigationControllerView.addSubview(closeButton)
-
                 NSLayoutConstraint.activate([
                     closeButton.topAnchor.constraint(equalTo: navigationControllerView.topAnchor, constant: 47),
                     closeButton.trailingAnchor.constraint(equalTo: navigationControllerView.trailingAnchor, constant: -12),
                     closeButton.heightAnchor.constraint(equalToConstant: 34),
                     closeButton.widthAnchor.constraint(equalToConstant: 34),
                 ])
+                if self.viewModel.surveyDidSendResponse && self.viewModel.displayMode == .paged {
+                    closeButton.removeFromSuperview()
+                }
             }
         }
     }
 
     private func configureNavigationBar() {
-        self.navigationItem.rightBarButtonItem = .apptentiveClose
-        self.navigationItem.rightBarButtonItem?.target = self
-        self.navigationItem.rightBarButtonItem?.action = #selector(cancelSurvey)
         if let headerLogo = UIImage.apptentiveHeaderLogo {
             let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
             headerImageView.contentMode = .scaleAspectFit
