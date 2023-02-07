@@ -169,7 +169,7 @@ class PayloadSender {
 
         ApptentiveLogger.payload.debug("Sending \(firstPayload).")
 
-        let apiRequest = ApptentiveV9API(credentials: credentials, path: firstPayload.path, method: firstPayload.method, bodyParts: firstPayload.bodyParts)
+        let apiRequest = ApptentiveAPI(credentials: credentials, path: firstPayload.path, method: firstPayload.method, bodyParts: firstPayload.bodyParts)
 
         let identifier = UUID().uuidString
         self.currentPayloadIdentifier = identifier

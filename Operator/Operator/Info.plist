@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>APPTENTIVE_API_BASE_URL</key>
+	<string>https://$(APPTENTIVE_API_HOST)</string>
+	<key>APPTENTIVE_API_KEY</key>
+	<string>$(APPTENTIVE_API_KEY)</string>
+	<key>APPTENTIVE_API_SIGNATURE</key>
+	<string>$(APPTENTIVE_API_SIGNATURE)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -24,7 +30,6 @@
 	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

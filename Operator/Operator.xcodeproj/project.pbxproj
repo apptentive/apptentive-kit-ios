@@ -11,9 +11,10 @@
 		0116CEA127EA8A0600186CC1 /* CustomDataDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0116CEA027EA8A0600186CC1 /* CustomDataDataSource.swift */; };
 		0118DD7126FBEDED00037E0E /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD7026FBEDED00037E0E /* MessagesViewController.swift */; };
 		0118DD8326FBF1C200037E0E /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD8226FBF1C200037E0E /* TextViewController.swift */; };
+		015D3CC6296F7B1400D666CE /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; };
+		015D3CC7296F7B1400D666CE /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */; };
 		0176156925D1D48700BB85C6 /* DataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0176156825D1D48700BB85C6 /* DataTableViewController.swift */; };
-		0188E39028130D4500C8B7D0 /* Version.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 0188E38F28130D4500C8B7D0 /* Version.xcconfig */; };
 		018B099A24577B15007450EA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018B099924577B15007450EA /* AppDelegate.swift */; };
 		018B09A324577B15007450EA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 018B09A124577B15007450EA /* Main.storyboard */; };
 		018B09A524577B17007450EA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 018B09A424577B17007450EA /* Assets.xcassets */; };
@@ -27,8 +28,6 @@
 		01C060B4251E48EC006B4B30 /* AddEventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C060B3251E48EC006B4B30 /* AddEventCell.swift */; };
 		01CBA936282B2E7500614A24 /* Manifests in Resources */ = {isa = PBXBuildFile; fileRef = 01CBA930282B2E7500614A24 /* Manifests */; };
 		01CBA938282B34AB00614A24 /* ManifestsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CBA937282B34AB00614A24 /* ManifestsViewController.swift */; };
-		01D762A3246358FD007A5AD5 /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; };
-		01D762A4246358FD007A5AD5 /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		EF5F380D25C3725D007F823E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EF5F380F25C3725D007F823E /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
@@ -71,13 +70,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		01D762A5246358FD007A5AD5 /* Embed Frameworks */ = {
+		015D3CC8296F7B1400D666CE /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				01D762A4246358FD007A5AD5 /* ApptentiveKit.framework in Embed Frameworks */,
+				015D3CC7296F7B1400D666CE /* ApptentiveKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -129,9 +128,9 @@
 		0122AB4A265D7E13009C30AB /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Main.strings"; sourceTree = "<group>"; };
 		0122AB4B265D7E13009C30AB /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		0122AB4C265D7E13009C30AB /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		0133E52F293FE7FF008BF351 /* Credentials.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Credentials.xcconfig; path = ../Credentials.xcconfig; sourceTree = "<group>"; };
 		015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionsViewController.swift; sourceTree = "<group>"; };
 		0176156825D1D48700BB85C6 /* DataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTableViewController.swift; sourceTree = "<group>"; };
-		0188E38F28130D4500C8B7D0 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		018B099624577B15007450EA /* Operator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Operator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		018B099924577B15007450EA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		018B09A224577B15007450EA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -181,7 +180,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01D762A3246358FD007A5AD5 /* ApptentiveKit.framework in Frameworks */,
+				015D3CC6296F7B1400D666CE /* ApptentiveKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,7 +226,7 @@
 				018B09A624577B17007450EA /* LaunchScreen.storyboard */,
 				018B09A924577B17007450EA /* Info.plist */,
 				018B09C52457AEF7007450EA /* Defaults.plist */,
-				0188E38F28130D4500C8B7D0 /* Version.xcconfig */,
+				0133E52F293FE7FF008BF351 /* Credentials.xcconfig */,
 				01D76280246358E4007A5AD5 /* ApptentiveKit.xcodeproj */,
 			);
 			path = Operator;
@@ -282,7 +281,7 @@
 				018B099224577B15007450EA /* Sources */,
 				018B099324577B15007450EA /* Frameworks */,
 				018B099424577B15007450EA /* Resources */,
-				01D762A5246358FD007A5AD5 /* Embed Frameworks */,
+				015D3CC8296F7B1400D666CE /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -397,7 +396,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0188E39028130D4500C8B7D0 /* Version.xcconfig in Resources */,
 				018B09C62457AEF7007450EA /* Defaults.plist in Resources */,
 				EF5F380D25C3725D007F823E /* Localizable.strings in Resources */,
 				01CBA936282B2E7500614A24 /* Manifests in Resources */,
@@ -524,9 +522,98 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		0133E530294055D8008BF351 /* Staging */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Staging;
+		};
+		0133E531294055D8008BF351 /* Staging */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0133E52F293FE7FF008BF351 /* Credentials.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Staging";
+				CODE_SIGN_ENTITLEMENTS = Operator/Operator.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = "$(APPTENTIVE_BUILD)";
+				DEVELOPMENT_TEAM = 86WML2UN43;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 86WML2UN43;
+				INFOPLIST_FILE = Operator/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Operator ⎈";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = "$(APPTENTIVE_VERSION)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.apptentive.shared-dev.k8s.Operator";
+				PRODUCT_NAME = "Operator ⎈";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.apptentive.Operator";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore com.apptentive.Operator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Staging;
+		};
 		018B09AA24577B17007450EA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0188E38F28130D4500C8B7D0 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -589,7 +676,6 @@
 		};
 		018B09AB24577B17007450EA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0188E38F28130D4500C8B7D0 /* Version.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -646,23 +732,27 @@
 		};
 		018B09AD24577B17007450EA /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0133E52F293FE7FF008BF351 /* Credentials.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Operator/Operator.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 100;
+				CURRENT_PROJECT_VERSION = "$(APPTENTIVE_BUILD)";
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 86WML2UN43;
 				INFOPLIST_FILE = Operator/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(TARGET_NAME)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = "$(APPTENTIVE_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apptentive.Operator;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development com.apptentive.Operator";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.apptentive.Operator";
+				PRODUCT_NAME = Operator;
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.apptentive.Operator";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore com.apptentive.Operator 1675707339";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -671,20 +761,24 @@
 		};
 		018B09AE24577B17007450EA /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0133E52F293FE7FF008BF351 /* Credentials.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Operator/Operator.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 100;
+				CURRENT_PROJECT_VERSION = "$(APPTENTIVE_BUILD)";
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				INFOPLIST_FILE = Operator/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Operator;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = "$(APPTENTIVE_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.apptentive.Operator;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Operator;
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.apptentive.Operator";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -699,6 +793,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				018B09AA24577B17007450EA /* Debug */,
+				0133E530294055D8008BF351 /* Staging */,
 				018B09AB24577B17007450EA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -708,6 +803,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				018B09AD24577B17007450EA /* Debug */,
+				0133E531294055D8008BF351 /* Staging */,
 				018B09AE24577B17007450EA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;

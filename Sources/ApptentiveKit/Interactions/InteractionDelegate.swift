@@ -9,7 +9,7 @@
 import UIKit
 
 typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & MessageSending & MessageProviding & AttachmentManaging & ProfileEditing
-    & UnreadMessageUpdating
+    & UnreadMessageUpdating & SurveyBranching
 
 /// Describes an object that can manage attachments to a draft message and load attachments from an arbitrary message.
 protocol AttachmentManaging: AnyObject {
@@ -66,6 +66,11 @@ protocol InvocationInvoking: AnyObject {
     func invoke(_ invocations: [EngagementManifest.Invocation], completion: @escaping (String?) -> Void)
 }
 
+/// Describes an object that can evaluate criteria for survey branching.
+protocol SurveyBranching: AnyObject {
+    func getNextPageID(for advanceLogic: [AdvanceLogic], completion: @escaping (Result<String?, Error>) -> Void)
+}
+
 /// Describes an object that can request an App Store review.
 protocol ReviewRequesting: AnyObject {
     /// Requests an App Store review from the system
@@ -86,7 +91,17 @@ protocol URLOpening: AnyObject {
 protocol ResponseRecording: AnyObject {
     /// Records the specified response for later querying in the targeter.
     /// - Parameters:
-    ///   - answers: The answers included in the interaction response.
+    ///   - response: The response to the question.
     ///   - questionID: The identifier for the question.
-    func recordResponse(_ answers: [Answer], for questionID: String)
+    func recordResponse(_ response: QuestionResponse, for questionID: String)
+
+    /// Sets the specified response for immediate querying in the targeter (cleared if interaction canceled).
+    /// - Parameters:
+    ///   - response: The response to the question.
+    ///   - questionID: The identifier for the question.
+    func setCurrentResponse(_ response: QuestionResponse, for questionID: String)
+
+    /// Resets the current response to the specified question.
+    /// - Parameter questionID: The identifier for the question.
+    func resetCurrentResponse(for questionID: String)
 }

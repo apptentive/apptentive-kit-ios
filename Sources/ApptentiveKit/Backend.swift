@@ -108,7 +108,7 @@ class Backend {
         let conversation = Conversation(environment: environment)
         let targeter = Targeter(engagementManifest: EngagementManifest.placeholder)
         let messageManager = MessageManager(notificationCenter: NotificationCenter.default)
-        let client = HTTPClient(requestor: URLSession(configuration: Self.urlSessionConfiguration), baseURL: baseURL, userAgent: ApptentiveV9API.userAgent(sdkVersion: environment.sdkVersion))
+        let client = HTTPClient(requestor: URLSession(configuration: Self.urlSessionConfiguration), baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: environment.sdkVersion))
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
 
@@ -291,12 +291,40 @@ class Backend {
         }
     }
 
+    func getNextPageID(for advanceLogic: [AdvanceLogic], completion: @escaping (Result<String?, Error>) -> Void) {
+        completion(
+            Result(catching: {
+                for item in advanceLogic {
+                    if try item.criteria.isSatisfied(for: self.conversation) {
+                        return item.pageID
+                    }
+                }
+
+                return nil
+            })
+        )
+    }
+
     /// Records a response to an interaction for use later in targeting.
     /// - Parameters:
-    ///   - answers: The answers that make up the response.
+    ///   - response: The response to the question.
     ///   - questionID: The identifier associated with the question or note.
-    func recordResponse(_ answers: [Answer], for questionID: String) {
-        self.conversation.interactions.record(answers, for: questionID)
+    func recordResponse(_ response: QuestionResponse, for questionID: String) {
+        self.conversation.interactions.record(response, for: questionID)
+    }
+
+    /// Records a response to an interaction for use in immediate branching.
+    /// - Parameters:
+    ///   - response: The response to the question.
+    ///   - questionID: The identifier associated with the question or note.
+    func setCurrentResponse(_ response: QuestionResponse, for questionID: String) {
+        self.conversation.interactions.setLastResponse(response, for: questionID)
+    }
+
+    /// Records the that interaction with the specified ID requested a response.
+    /// - Parameter questionID: The identifier associated with the question or note.
+    func resetCurrentResponse(for questionID: String) {
+        self.conversation.interactions.resetCurrentResponse(for: questionID)
     }
 
     /// Queues the specified message to be sent by the payload sender.
@@ -564,7 +592,7 @@ class Backend {
     private func postConversation(completion: @escaping (Result<Conversation.ConversationCredentials, Error>) -> Void) {
         ApptentiveLogger.default.info("Creating a new conversation via Apptentive API.")
 
-        self.requestRetrier.startUnlessUnderway(ApptentiveV9API.createConversation(self.conversation), identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
+        self.requestRetrier.startUnlessUnderway(ApptentiveAPI.createConversation(self.conversation), identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
             switch result {
             case .success(let conversationResponse):
                 completion(.success(Conversation.ConversationCredentials(token: conversationResponse.token, id: conversationResponse.id)))
@@ -578,7 +606,7 @@ class Backend {
     /// Retrieves a message list from the Apptentive API.
     internal func getMessagesIfNeeded() {
         if self.messageManager.messagesNeedDownloading {
-            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getMessages(with: self.conversation, afterMessageWithID: self.messageManager.lastDownloadedMessageID, pageSize: self.isDebugBuild ? "5" : nil), identifier: "get messages") {
+            self.requestRetrier.startUnlessUnderway(ApptentiveAPI.getMessages(with: self.conversation, afterMessageWithID: self.messageManager.lastDownloadedMessageID, pageSize: self.isDebugBuild ? "5" : nil), identifier: "get messages") {
                 (result: Result<MessagesResponse, Error>) in
                 switch result {
                 case .success(let messagesResponse):
@@ -603,7 +631,7 @@ class Backend {
         if (self.targeter.engagementManifest.expiry ?? Date.distantPast) < Date() {
             ApptentiveLogger.default.info("Requesting new engagement manifest via Apptentive API (current one is absent or stale).")
 
-            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getInteractions(with: self.conversation), identifier: "get interactions") { (result: Result<EngagementManifest, Error>) in
+            self.requestRetrier.startUnlessUnderway(ApptentiveAPI.getInteractions(with: self.conversation), identifier: "get interactions") { (result: Result<EngagementManifest, Error>) in
                 switch result {
                 case .success(let engagementManifest):
                     ApptentiveLogger.default.debug("New engagement manifest received.")
@@ -623,7 +651,7 @@ class Backend {
         if (self.configuration?.expiry ?? Date.distantPast) < Date() {
             ApptentiveLogger.default.info("Requesting new app configuration via Apptentive API (current one is absent or stale).")
 
-            self.requestRetrier.startUnlessUnderway(ApptentiveV9API.getConfiguration(with: self.conversation), identifier: "get configuration") { (result: Result<Configuration, Error>) in
+            self.requestRetrier.startUnlessUnderway(ApptentiveAPI.getConfiguration(with: self.conversation), identifier: "get configuration") { (result: Result<Configuration, Error>) in
                 switch result {
                 case .success(let configuration):
                     ApptentiveLogger.default.debug("New app configuration received.")

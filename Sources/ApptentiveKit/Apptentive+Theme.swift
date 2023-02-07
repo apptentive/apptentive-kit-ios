@@ -32,13 +32,18 @@ extension Apptentive {
             let messageLabelInboundColor = UIColor(named: "messageLabelInbound", in: bundle, compatibleWith: nil),
             let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil),
             let messageTextInputBorderColor = UIColor(named: "messageTextInputBorder", in: bundle, compatibleWith: nil),
+            let dialogSeparator = UIColor(named: "dialogSeparator", in: bundle, compatibleWith: nil),
+            let dialogText = UIColor(named: "dialogText", in: bundle, compatibleWith: nil),
+            let dialogButtonText = UIColor(named: "dialogButtonText", in: bundle, compatibleWith: nil),
+            let unselectedSurveyIndicatorColor = UIColor(named: "unselectedSurveyIndicator", in: bundle, compatibleWith: nil),
             let surveyGreeting = UIColor(named: "surveyGreetingText", in: bundle, compatibleWith: nil),
             let surveyImageChoice = UIColor(named: "surveyImageChoice", in: bundle, compatibleWith: nil),
             let attachmentDeleteButton = UIColor(named: "attachmentDeleteButton", in: bundle, compatibleWith: nil),
             let error = UIColor(named: "apptentiveError", in: bundle, compatibleWith: nil),
             let textInputPlaceholder = UIColor(named: "textInputPlaceholder", in: bundle, compatibleWith: nil),
             let textInputBorderSelected = UIColor(named: "textInputBorderSelected", in: bundle, compatibleWith: nil),
-            let rangeNotSelectedSegmentBackground = UIColor(named: "rangeNotSelectedSegmentBackground", in: bundle, compatibleWith: nil)
+            let rangeNotSelectedSegmentBackground = UIColor(named: "rangeNotSelectedSegmentBackground", in: bundle, compatibleWith: nil),
+            let disclaimerColor = UIColor(named: "disclaimer", in: bundle, compatibleWith: nil)
         else {
             apptentiveCriticalError("Unable to locate color asset(s).")
             return
@@ -128,6 +133,9 @@ extension Apptentive {
         UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
         UIColor.apptentiveMessageCenterTextInputBorder = messageTextInputBorderColor
+        UIColor.apptentiveSelectedSurveyIndicatorSegment = buttonTintColor
+        UIColor.apptentiveUnselectedSurveyIndicatorSegment = unselectedSurveyIndicatorColor
+        UIColor.apptentiveBranchedSurveyFooter = barTintColor
         UIColor.apptentiveSurveyIntroduction = surveyGreeting
         UIColor.apptentiveImageSelected = surveyImageChoice
         UIColor.apptentiveMessageCenterBackground = apptentiveGroupPrimaryColor
@@ -143,6 +151,7 @@ extension Apptentive {
         UIColor.apptentiveTextInputPlaceholder = textInputPlaceholder
         UIColor.apptentiveMessageCenterTextInputPlaceholder = textInputPlaceholder
         UIColor.apptentiveTextInputBorderSelected = textInputBorderSelected
+        UIColor.apptentiveDisclaimerLabel = disclaimerColor
 
         if #available(iOS 13.0, *) {
             UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
@@ -155,6 +164,11 @@ extension Apptentive {
         UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .body)
         UIFont.apptentiveChoiceLabel = .preferredFont(forTextStyle: .body)
         UIFont.apptentiveTextInput = .preferredFont(forTextStyle: .body)
+
+        DialogView.appearance().titleTextColor = dialogText
+        DialogView.appearance().separatorColor = dialogSeparator
+        DialogButton.appearance().tintColor = dialogButtonText
+        DialogView.appearance().backgroundColor = apptentiveGroupPrimaryColor
 
         UIBarButtonItem.apptentiveClose = {
             let systemClose: UIBarButtonItem = {
@@ -178,6 +192,7 @@ extension Apptentive {
         }()
 
         UIButton.apptentiveStyle = .radius(8.0)
+        UIButton.apptentiveClose?.tintColor = .white
     }
 
     private func image(with color: UIColor?) -> UIImage? {

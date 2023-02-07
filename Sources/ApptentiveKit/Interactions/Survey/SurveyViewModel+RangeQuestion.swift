@@ -52,8 +52,14 @@ extension SurveyViewModel {
             super.init(question: question, requiredText: requiredText)
         }
 
-        override var response: [Answer]? {
-            self.value.flatMap { [Answer.range($0)] }
+        override var response: QuestionResponse {
+            switch self.value {
+            case .none:
+                return .empty
+
+            case .some(let value):
+                return .answered([.range(value)])
+            }
         }
 
         /// The text to use for the accessibility hint for the specified segment.

@@ -29,7 +29,7 @@ extension SurveyViewModel {
             }
 
             self.choices.forEach { (choice) in
-                choice.updateMarkedAsInvalid()
+                choice.checkIfFixed()
             }
 
             self.updateSelection()
@@ -72,7 +72,7 @@ extension SurveyViewModel {
             self.type = question.type
 
             if question.type == .radio || question.type == .range {
-                self.minSelections = question.required ? 1 : 0
+                self.minSelections = question.required ?? false ? 1 : 0
                 self.maxSelections = 1
             } else {
                 self.minSelections = question.minSelections ?? 0
@@ -89,18 +89,24 @@ extension SurveyViewModel {
         override var isValid: Bool {
             let selectedChoiceCount = self.choices.filter({ $0.isSelected }).count
 
-            let doesNotExceedMaxCount = selectedChoiceCount <= self.maxSelections
-            let meetsMinCount = selectedChoiceCount >= self.minSelections
-            let choicesAreValid = self.choices.allSatisfy { $0.isValid }
-            let isOptional = !self.isRequired
+            let isOptionalAndNothingSelected = !self.isRequired && selectedChoiceCount == 0
+            let choicesValidAndWithinLimits = self.choices.allSatisfy { $0.isValid } && (self.minSelections...self.maxSelections).contains(selectedChoiceCount)
 
-            return doesNotExceedMaxCount && choicesAreValid && (meetsMinCount || isOptional)
+            return isOptionalAndNothingSelected || choicesValidAndWithinLimits
         }
 
-        override var response: [Answer]? {
-            let result = self.choices.compactMap { $0.responsePart }
+        override var response: QuestionResponse {
+            let answers = self.choices.compactMap { $0.responsePart }
 
-            return result.isEmpty ? nil : result
+            return answers.isEmpty ? .empty : .answered(answers)
+        }
+
+        override func validate() {
+            super.validate()
+
+            for choice in self.choices {
+                choice.validate()
+            }
         }
 
         /// Describes a choice that can be selected for a choice question type.
@@ -126,18 +132,26 @@ extension SurveyViewModel {
             /// This should not be modified by the view controller.
             public internal(set) var isMarkedAsInvalid: Bool {
                 didSet {
-                    guard let question = self.questionViewModel else {
-                        return apptentiveCriticalError("Should have a choice question set.")
-                    }
+                    if isMarkedAsInvalid != oldValue {
+                        guard let question = self.questionViewModel, let surveyViewModel = question.surveyViewModel else {
+                            return apptentiveCriticalError("Should have a view model set")
+                        }
 
-                    question.updateMarkedAsInvalid()
+                        surveyViewModel.setNeedsUpdateValidation()
+                    }
                 }
             }
 
             /// The freeform "Other" text entered by the user for this choice.
             public var value: String? {
                 didSet {
-                    self.updateMarkedAsInvalid()
+                    self.checkIfFixed()
+
+                    guard let question = self.questionViewModel else {
+                        return apptentiveCriticalError("Should have a choice question set.")
+                    }
+
+                    question.checkIfFixed()
                 }
             }
 
@@ -181,6 +195,10 @@ extension SurveyViewModel {
                 } else {
                     return nil
                 }
+            }
+
+            func validate() {
+                self.isMarkedAsInvalid = !self.isValid
             }
 
             private let id: String

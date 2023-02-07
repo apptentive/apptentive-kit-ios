@@ -1,60 +1,58 @@
 //
-//  SurveyConfiguration.swift
+//  SurveyV12Configuration.swift
 //  ApptentiveKit
 //
-//  Created by Frank Schmitt on 5/27/20.
-//  Copyright © 2020 Apptentive, Inc. All rights reserved.
+//  Created by Luqmaan Khan on 7/8/22.
+//  Copyright © 2022 Apptentive, Inc. All rights reserved.
 //
 
 import Foundation
 
-/// An object corresponding to the `configuration` object in an interaction of type `Survey`.
+/// An object corresponding to the `configuration` object in an interaction of type `Survey` when the API version is 12.
 ///
-/// This object is intended to faithfully represent the data retrieved as part
-/// of the engagement manfiest. In cases where a question has type-specific
-/// parameters, all possible parameters are available for all question types.
-/// The view model should massage these values into per-question-type
-/// objects for the UI to display.
+/// This object is intended to faithfully represent the data retrieved as part of the engagement manfiest.
+/// The SurveyBranchedViewModel receives this object in its initializer  to display in its UI.
 struct SurveyConfiguration: Decodable {
+    let title: String
     let name: String?
-    let title: String?
-    let submitText: String?
-    let validationError: String?
     let introduction: String?
-    let thankYouMessage: String?
-    let shouldShowThankYou: Bool
-    let requiredText: String?
-    let required: Bool?
-    let closeConfirmationTitle: String?
-    let closeConfirmationMessage: String?
-    let closeConfirmationCloseButtonText: String?
-    let closeConfirmationBackButtonText: String?
-    let questions: [Question]
-    let presentationStyle: PresentationStyle?
+    let successMessage: String?
+    let shouldShowSuccessMessage: Bool
+    let submitText: String?
+    let nextText: String?
+    let validationError: String
+    let requiredText: String
+    let closeConfirmationTitle: String
+    let closeConfirmationMessage: String
+    let closeConfirmationCloseButtonTitle: String
+    let closeConfirmationBackButtonTitle: String
+    let questionSets: [QuestionSet]
     let termsAndConditions: TermsAndConditions?
-
-    enum PresentationStyle: String, Decodable {
-        case list
-        case card
-    }
+    let renderAs: RenderAs
+    let introButtonTitle: String?
+    let successButtonTitle: String?
+    let disclaimerText: String?
 
     enum CodingKeys: String, CodingKey {
-        case name
         case title
-        case submitText = "submit_text"
-        case validationError = "validation_error"
+        case name
         case introduction = "description"
-        case thankYouMessage = "success_message"
-        case shouldShowThankYou = "show_success_message"
+        case successMessage = "success_message"
+        case shouldShowSuccessMessage = "show_success_message"
+        case submitText = "submit_text"
+        case nextText = "next_text"
+        case validationError = "validation_error"
         case requiredText = "required_text"
-        case required
         case closeConfirmationTitle = "close_confirm_title"
         case closeConfirmationMessage = "close_confirm_message"
-        case closeConfirmationCloseButtonText = "close_confirm_close_text"
-        case closeConfirmationBackButtonText = "close_confirm_back_text"
-        case presentationStyle = "presentation_style"
+        case closeConfirmationCloseButtonTitle = "close_confirm_close_text"
+        case closeConfirmationBackButtonTitle = "close_confirm_back_text"
         case termsAndConditions = "terms_and_conditions"
-        case questions
+        case questionSets = "question_sets"
+        case renderAs = "render_as"
+        case introButtonTitle = "intro_button_text"
+        case successButtonTitle = "success_button_text"
+        case disclaimerText = "disclaimer_text"
     }
 
     struct TermsAndConditions: Decodable {
@@ -67,7 +65,7 @@ struct SurveyConfiguration: Decodable {
         let text: String
         let type: QuestionType
         let errorMessage: String
-        let required: Bool
+        let required: Bool?
 
         let instructions: String?
         let answerChoices: [Choice]?
@@ -128,5 +126,67 @@ struct SurveyConfiguration: Decodable {
                 case other = "select_other"
             }
         }
+    }
+
+    struct QuestionSet: Decodable {
+        let id: String
+        let order: Int?
+        let invokes: [Invocation]
+        let questions: [SurveyConfiguration.Question]
+        let buttonTitle: String
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case order
+            case invokes
+            case questions
+            case buttonTitle = "button_text"
+        }
+
+        struct Invocation: Decodable {
+            let behavior: Behavior
+            let criteria: Criteria?
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+
+                let nextQuestionSetID = try container.decodeIfPresent(String.self, forKey: .nextQuestionSetID)
+                let behavior = try container.decode(RawBehavior.self, forKey: .behavior)
+
+                switch (behavior, nextQuestionSetID) {
+                case (.end, .none):
+                    self.behavior = .end
+
+                case (.continue, .some(let nextQuestionSetID)):
+                    self.behavior = .continue(nextQuestionSetID: nextQuestionSetID)
+
+                default:
+                    throw ApptentiveError.internalInconsistency
+                }
+
+                self.criteria = try container.decodeIfPresent(Criteria.self, forKey: .criteria)
+            }
+
+            enum CodingKeys: String, CodingKey {
+                case behavior
+                case nextQuestionSetID = "next_question_set_id"
+                case criteria
+            }
+
+            enum RawBehavior: String, Decodable {
+                case `continue`
+                case end
+            }
+
+            enum Behavior {
+                case `continue`(nextQuestionSetID: String)
+                case end
+            }
+        }
+    }
+
+    enum RenderAs: String, Decodable {
+        case paged
+        case list
     }
 }

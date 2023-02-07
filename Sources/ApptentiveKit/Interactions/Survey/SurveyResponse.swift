@@ -18,5 +18,5 @@ struct SurveyResponse: Equatable {
     ///
     /// The keys are the identifiers for the question, and the values are an array of question response objects.
     /// Freeform, single-choice, and range responses will have one element in the array.
-    let answers: [String: [Answer]]
+    let questionResponses: [String: QuestionResponse]
 }

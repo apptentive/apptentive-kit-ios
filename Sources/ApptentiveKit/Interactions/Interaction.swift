@@ -6,6 +6,8 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import Foundation
+
 /// An `Interaction` represents an interaction with the user, typically via display of view controller.
 struct Interaction: Decodable {
     let id: String
@@ -22,6 +24,7 @@ struct Interaction: Decodable {
 
         self.id = try container.decode(String.self, forKey: .id)
         self.typeName = try container.decode(String.self, forKey: .type)
+        let apiVersion = try container.decodeIfPresent(Int.self, forKey: .apiVersion)
 
         do {
             switch self.typeName {
@@ -35,7 +38,11 @@ struct Interaction: Decodable {
                 self.configuration = .navigateToLink(try container.decode(NavigateToLinkConfiguration.self, forKey: .configuration))
 
             case "Survey":
-                self.configuration = .survey(try container.decode(SurveyConfiguration.self, forKey: .configuration))
+                if apiVersion == 12 {
+                    self.configuration = .surveyV12(try container.decode(SurveyConfiguration.self, forKey: .configuration))
+                } else {
+                    self.configuration = .surveyV11(try container.decode(SurveyV11Configuration.self, forKey: .configuration))
+                }
 
             case "TextModal":
                 self.configuration = .textModal(try container.decode(TextModalConfiguration.self, forKey: .configuration))
@@ -51,7 +58,7 @@ struct Interaction: Decodable {
         } catch let error {
             let id = self.id
             let typeName = self.typeName
-            ApptentiveLogger.interaction.error("Failure decoding configuration for interaction id \(id) of type \(typeName): \(error).")
+            ApptentiveLogger.interaction.error("Failure decoding configuration for interaction id \(id) of type \(typeName): \(String(describing: error)).")
 
             self.configuration = .failedDecoding
         }
@@ -60,6 +67,7 @@ struct Interaction: Decodable {
     enum InteractionCodingKeys: String, CodingKey {
         case id
         case type
+        case apiVersion = "api_version"
         case configuration
     }
 
@@ -67,9 +75,10 @@ struct Interaction: Decodable {
         case appleRatingDialog
         case enjoymentDialog(EnjoymentDialogConfiguration)
         case navigateToLink(NavigateToLinkConfiguration)
-        case survey(SurveyConfiguration)
+        case surveyV11(SurveyV11Configuration)
         case textModal(TextModalConfiguration)
         case messageCenter(MessageCenterConfiguration)
+        case surveyV12(SurveyConfiguration)
         case notImplemented
         case failedDecoding
     }
