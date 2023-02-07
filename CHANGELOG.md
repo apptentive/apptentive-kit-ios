@@ -2,7 +2,6 @@
 
 ### New & Improved
 
-- Surveys can now include skip logic with a new paged survey UI 
 - Love Dialog and Notes interaction UI can now be customized
 
 ### Bugs Fixed
