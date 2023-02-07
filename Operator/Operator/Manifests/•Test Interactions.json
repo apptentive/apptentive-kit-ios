@@ -44,6 +44,10 @@
             "from_template": "",
             "multiple_responses": 1,
             "name": "Freeform Survey",
+            "close_confirm_title": "Close",
+            "close_confirm_message": "Are you sure you want to discard this message?",
+            "close_confirm_close_text": "Discard",
+            "close_confirm_back_text": "Cancel",
             "questions": [
                 {
                     "error_message": "Error - There was a problem with your text answer.",
@@ -350,7 +354,11 @@
         "show_success_message": true,
         "view_period": 86400,
         "required": false,
-        "success_message": "Thank you!"
+        "success_message": "Thank you!",
+        "close_confirm_title": "Close",
+        "close_confirm_message": "Are you sure you want to discard this message?",
+        "close_confirm_close_text": "Discard",
+        "close_confirm_back_text": "Cancel"
       }
     },
     {
@@ -609,7 +617,11 @@
         "show_success_message": true,
         "view_period": 86400,
         "required": false,
-        "success_message": "Thank you!"
+        "success_message": "Thank you!",
+        "close_confirm_title": "Close",
+        "close_confirm_message": "Are you sure you want to discard this message?",
+        "close_confirm_close_text": "Discard",
+        "close_confirm_back_text": "Cancel"
       }
     },
     {
@@ -687,7 +699,11 @@
         "show_success_message": true,
         "view_period": 86400,
         "required": false,
-        "success_message": "Thank you!"
+        "success_message": "Thank you!",
+        "close_confirm_title": "Close",
+        "close_confirm_message": "Are you sure you want to discard this message?",
+        "close_confirm_close_text": "Discard",
+        "close_confirm_back_text": "Cancel"
       }
     },
     {
@@ -732,13 +748,11 @@
         "show_success_message": true,
         "success_message": "Thank you for your input.",
         "description": "Please help us figure this out!",
-        "app_id": "517884df584ef064fc00000e",
-        "active": true,
-        "date": "2014-01-19T04:51:14Z",
-        "device_attrs": {
-          "os_name": "Android",
-          "os_version": "4.4.2"
-        }
+        "close_confirm_title": "Close",
+        "close_confirm_message": "Are you sure you want to discard this message?",
+        "close_confirm_close_text": "Discard",
+        "close_confirm_back_text": "Cancel",
+        "submit_text": "Submit"
       }
     },
     {

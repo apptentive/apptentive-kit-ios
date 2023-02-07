@@ -50,11 +50,31 @@ extension Apptentive {
         }
     }
 
+    // MARK: SurveyBranching
+
+    func getNextPageID(for advanceLogic: [AdvanceLogic], completion: @escaping (Result<String?, Error>) -> Void) {
+        self.backendQueue.async {
+            self.backend.getNextPageID(for: advanceLogic, completion: completion)
+        }
+    }
+
     // MARK: ResponseRecording
 
-    func recordResponse(_ answers: [Answer], for questionID: String) {
+    func recordResponse(_ response: QuestionResponse, for questionID: String) {
         self.backendQueue.async {
-            self.backend.recordResponse(answers, for: questionID)
+            self.backend.recordResponse(response, for: questionID)
+        }
+    }
+
+    func setCurrentResponse(_ response: QuestionResponse, for questionID: String) {
+        self.backendQueue.async {
+            self.backend.setCurrentResponse(response, for: questionID)
+        }
+    }
+
+    func resetCurrentResponse(for questionID: String) {
+        self.backendQueue.async {
+            self.backend.resetCurrentResponse(for: questionID)
         }
     }
 

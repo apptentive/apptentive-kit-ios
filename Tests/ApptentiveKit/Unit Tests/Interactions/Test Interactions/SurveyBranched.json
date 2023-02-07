@@ -1,0 +1,351 @@
+{
+  "id": "survey_branched_1",
+  "type": "Survey",
+  "api_version": 12,
+  "configuration": {
+    "title": "Survey-Building Experience",
+    "name": "How was your experience?",
+    "render_as": "paged",
+    "terms_and_conditions": {
+      "label": "Terms & Conditions",
+      "link": "https://www.example.com/"
+    },
+    "close_confirm_title": "Close Survey?",
+    "close_confirm_message": "You will lose your progress if you close this survey.",
+    "close_confirm_close_text": "Close",
+    "close_confirm_back_text": "Back to Survey",
+    "validation_error": "Error: Please fix your response to continue",
+    "required_text": "Required",
+    "description": "Please tell us about your experience with our survey builder.",
+    "question_sets": [
+      {
+        "id": "question_set_1",
+        "order": 0,
+        "button_text": "Next",
+        "invokes": [
+          {
+            "next_question_set_id": "question_set_2",
+            "behavior": "continue",
+            "criteria": {
+              "interactions/question_1/current_answer/id": "question_1_answer_1"
+            }
+          },
+          {
+            "next_question_set_id": "question_set_3",
+            "behavior": "continue",
+            "criteria": {
+              "interactions/question_1/current_answer/id": "question_1_answer_2"
+            }
+          }
+        ],
+        "questions": [
+          {
+            "id": "question_1",
+            "value": "Do you love our current survey building and management experience?",
+            "type": "multichoice",
+            "required": true,
+            "instructions": "select one",
+            "error_message": "Error - There was a problem with your single-select answer.",
+            "answer_choices": [
+              {
+                "id": "question_1_answer_1",
+                "value": "Yes",
+                "type": "select_option"
+              },
+              {
+                "id": "question_1_answer_2",
+                "value": "No",
+                "type": "select_option"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "question_set_2",
+        "order": 1,
+        "button_text": "Next",
+        "invokes": [
+          {
+            "next_question_set_id": "question_set_4",
+            "behavior": "continue",
+            "criteria": {}
+          }
+        ],
+        "questions": [
+          {
+            "id": "question_2",
+            "value": "Happy to hear! What do you love most about our survey experience?",
+            "type": "multiselect",
+            "required": false,
+            "instructions": "select all that apply",
+            "error_message": "Error - There was a problem with your multi-select answer.",
+            "answer_choices": [
+              {
+                "id": "question_2_answer_1",
+                "value": "Easy to build a survey",
+                "type": "select_option"
+              },
+              {
+                "id": "question_2_answer_2",
+                "value": "Easy to launch and target a survey",
+                "type": "select_option"
+              },
+              {
+                "id": "question_2_answer_3",
+                "value": "Survey results and analytics",
+                "type": "select_option"
+              },
+              {
+                "id": "question_2_answer_4",
+                "value": "Management of active and inactive surveys",
+                "type": "select_option"
+              },
+              {
+                "id": "question_2_answer_5",
+                "value": "Other",
+                "type": "select_other"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "question_set_3",
+        "order": 2,
+        "button_text": "Next",
+        "invokes": [
+          {
+            "next_question_set_id": "question_set_4",
+            "behavior": "continue",
+            "criteria": {}
+          }
+        ],
+        "questions": [
+          {
+            "id": "question_3",
+            "value": "We're sorry to hear that! What would you like to see us improve about our survey experience?",
+            "type": "multiselect",
+            "required": false,
+            "instructions": "select all that apply",
+            "error_message": "Error - There was a problem with your multi-select answer.",
+            "answer_choices": [
+              {
+                "id": "question_3_answer_1",
+                "value": "Survey builder",
+                "type": "select_option"
+              },
+              {
+                "id": "question_3_answer_2",
+                "value": "Survey launching and targeting",
+                "type": "select_option"
+              },
+              {
+                "id": "question_3_answer_3",
+                "value": "Results and analytics",
+                "type": "select_option"
+              },
+              {
+                "id": "question_3_answer_4",
+                "value": "Management of active and inactive surveys",
+                "type": "select_option"
+              },
+              {
+                "id": "question_3_answer_5",
+                "value": "Survey templates",
+                "type": "select_option"
+              },
+              {
+                "id": "question_3_answer_6",
+                "value": "Other",
+                "type": "select_other"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "question_set_4",
+        "order": 3,
+        "button_text": "Next",
+        "invokes": [
+          {
+            "next_question_set_id": "question_set_5",
+            "behavior": "continue",
+            "criteria": {}
+          }
+        ],
+        "questions": [
+          {
+            "id": "question_4",
+            "value": "Which two survey features are the most important to you?",
+            "type": "multiselect",
+            "required": true,
+            "instructions": "select between 1 and 2",
+            "min_selections": 1,
+            "max_selections": 2,
+            "error_message": "Error - There was a problem with your multi-select answer.",
+            "answer_choices": [
+              {
+                "id": "question_3_answer_1",
+                "value": "Quickly build and launch a survey",
+                "type": "select_option"
+              },
+              {
+                "id": "question_3_answer_2",
+                "value": "Ability to follow up with my customer based on specific responses",
+                "type": "select_option"
+              },
+              {
+                "id": "question_3_answer_3",
+                "value": "Survey reporting and analytics",
+                "type": "select_option"
+              },
+              {
+                "id": "question_3_answer_4",
+                "value": "Guidance on survey best practices and effective question sets",
+                "type": "select_option"
+              },
+              {
+                "id": "question_3_answer_5",
+                "value": "Other",
+                "type": "select_other"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "question_set_5",
+        "order": 4,
+        "button_text": "Next",
+        "invokes": [
+          {
+            "next_question_set_id": "question_set_6",
+            "behavior": "continue",
+            "criteria": {
+              "interactions/question_1/current_answer/id": "question_5_answer_1"
+            }
+          },
+          {
+            "next_question_set_id": "question_set_7",
+            "behavior": "continue",
+            "criteria": {
+              "interactions/question_1/current_answer/id": "question_5_answer_2"
+            }
+          }
+        ],
+        "questions": [
+          {
+            "id": "question_5",
+            "value": "We are testing our new Survey Logic capabilities in this survey! Did you love this new survey experience?",
+            "type": "multichoice",
+            "required": true,
+            "error_message": "Error - There was a problem with your single-select answer.",
+            "answer_choices": [
+              {
+                "id": "question_5_answer_1",
+                "value": "Yes",
+                "type": "select_option"
+              },
+              {
+                "id": "question_5_answer_2",
+                "value": "No",
+                "type": "select_option"
+              }
+            ]
+
+          }
+        ]
+      },
+      {
+        "id": "question_set_6",
+        "order": 5,
+        "button_text": "Next",
+        "invokes": [
+          {
+            "next_question_set_id": "question_set_8",
+            "behavior": "continue",
+            "criteria": {}
+          }
+        ],
+        "questions": [
+          {
+            "id": "question_6",
+            "value": "What did you love most about this new survey experience with logic?",
+            "type": "singleline",
+            "multiline": true,
+            "required": false,
+            "error_message": "Error - There was a problem with your text answer.",
+            "freeform_hint": "Please provide a response"
+          }
+        ]
+      },
+      {
+        "id": "question_set_7",
+        "order": 6,
+        "button_text": "Next",
+        "invokes": [
+          {
+            "next_question_set_id": "question_set_8",
+            "behavior": "continue",
+            "criteria": {}
+          }
+        ],
+        "questions": [
+          {
+            "id": "question_7",
+            "value": "What would you improve in this new survey experience with logic?",
+            "type": "singleline",
+            "multiline": true,
+            "required": false,
+            "error_message": "Error - There was a problem with your text answer.",
+            "freeform_hint": "Please provide a response"
+          }
+        ]
+      },
+      {
+        "id": "question_set_8",
+        "order": 7,
+        "button_text": "Next",
+        "invokes": [
+          {
+            "behavior": "end",
+            "criteria": {}
+          }
+        ],
+        "questions": [
+          {
+            "id": "question_8",
+            "value": "Can we contact you for additional feedback or testing to help us improve our Survey Logic features?",
+            "type": "multichoice",
+            "instructions": "select one",
+            "required": true,
+            "error_message": "Error - There was a problem with your single-select answer.",
+            "answer_choices": [
+              {
+                "id": "question_8_answer_1",
+                "value": "Yes, I would be happy to share feedback",
+                "type": "select_option"
+              },
+              {
+                "id": "question_8_answer_2",
+                "value": "Maybe later",
+                "type": "select_option"
+              },
+              {
+                "id": "question_8_answer_3",
+                "value": "No",
+                "type": "select_option"
+              }
+            ]
+          }
+        ]
+      },
+    ],
+    "success_message": "Thank you for your valuable time. Your feedback will be used to help us improve our features for you!",
+    "show_success_message": true,
+    "intro_button_text": "Start",
+    "success_button_text": "Done"
+  }
+}

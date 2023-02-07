@@ -20,13 +20,11 @@
 @implementation ObjectiveCTests
 
 - (void)setUp {
-    NSURL *defaultDefaultsURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"Defaults" withExtension:@"plist"];
-    NSDictionary *defaultDefaults = [NSDictionary dictionaryWithContentsOfURL: defaultDefaultsURL];
-    [NSUserDefaults.standardUserDefaults registerDefaults:defaultDefaults];
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
 
-    self.key = [NSUserDefaults.standardUserDefaults stringForKey:@"Key"];
-    self.signature = [NSUserDefaults.standardUserDefaults stringForKey:@"Signature"];
-    self.serverURL = [NSUserDefaults.standardUserDefaults URLForKey:@"ServerURL"];
+    self.key = [bundle objectForInfoDictionaryKey:@"APPTENTIVE_API_KEY"];
+    self.signature = [bundle objectForInfoDictionaryKey:@"APPTENTIVE_API_SIGNATURE"];
+    self.serverURL = [NSURL URLWithString:[bundle objectForInfoDictionaryKey:@"APPTENTIVE_API_BASE_URL"]];
 }
 
 - (void)testRegisterWithConfiguration {

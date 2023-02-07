@@ -27,14 +27,14 @@ class HTTPRequestRetrierTests: XCTestCase {
         self.requestor = SpyRequestor(responseData: responseString.data(using: .utf8)!)
 
         let retryPolicy = HTTPRetryPolicy(initialDelay: 1.0, multiplier: 1.0, useJitter: false)
-        let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://www.example.com")!, userAgent: ApptentiveV9API.userAgent(sdkVersion: "1.2.3"))
+        let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://www.example.com")!, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"))
         self.requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
     }
 
     func testStart() {
         var conversation = Conversation(environment: MockEnvironment())
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc123", signature: "def456")
-        let endpoint: ApptentiveV9API = .createConversation(conversation)
+        let endpoint: ApptentiveAPI = .createConversation(conversation)
 
         let expect = self.expectation(description: "create conversation")
 
@@ -58,7 +58,7 @@ class HTTPRequestRetrierTests: XCTestCase {
 
         var conversation = Conversation(environment: MockEnvironment())
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc123", signature: "def456")
-        let endpoint: ApptentiveV9API = .createConversation(conversation)
+        let endpoint: ApptentiveAPI = .createConversation(conversation)
 
         let expect = self.expectation(description: "create conversation")
 
@@ -84,7 +84,7 @@ class HTTPRequestRetrierTests: XCTestCase {
     func testRetryOnConnectionError() {
         var conversation = Conversation(environment: MockEnvironment())
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc123", signature: "def456")
-        let endpoint: ApptentiveV9API = .createConversation(conversation)
+        let endpoint: ApptentiveAPI = .createConversation(conversation)
 
         let expect1 = self.expectation(description: "create conversation")
         let expect2 = self.expectation(description: "retry once")
@@ -115,7 +115,7 @@ class HTTPRequestRetrierTests: XCTestCase {
     func testNoRetryOnClientError() {
         var conversation = Conversation(environment: MockEnvironment())
         conversation.appCredentials = Apptentive.AppCredentials(key: "abc123", signature: "def456")
-        let endpoint: ApptentiveV9API = .createConversation(conversation)
+        let endpoint: ApptentiveAPI = .createConversation(conversation)
 
         let expect1 = self.expectation(description: "create conversation")
         let expect2 = self.expectation(description: "retry once")

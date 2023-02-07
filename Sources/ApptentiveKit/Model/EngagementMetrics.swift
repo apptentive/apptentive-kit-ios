@@ -33,12 +33,30 @@ struct EngagementMetrics: Equatable, Codable {
     ///
     /// If no engagement metric exists for the specified key, one will be created.
     /// - Parameters:
-    ///   - answers: The interaction responses (answers) to be recorded.
-    ///   - key: The key corresponding to the engagement metric for which to record answers.
-    mutating func record(_ answers: [Answer], for key: String) {
+    ///   - response: The response to the question.
+    ///   - key: The key corresponding to the engagement metric for which to record the response.
+    mutating func record(_ response: QuestionResponse, for key: String) {
         var metric = metrics[key] ?? EngagementMetric()
-        metric.record(answers)
+        metric.record(response)
         self.metrics[key] = metric
+    }
+
+    /// Calls `setLastResponse` on the specified engagement metric.
+    ///
+    /// If no engagement metric exists for the specified key, one will be created.
+    /// - Parameters:
+    ///   - response: The response to the question.
+    ///   - key: The key corresponding to the engagement metric for which to record response.
+    mutating func setLastResponse(_ response: QuestionResponse, for key: String) {
+        var metric = metrics[key] ?? EngagementMetric()
+        metric.setCurrentResponse(response)
+        self.metrics[key] = metric
+    }
+
+    /// Calls `ask` on the engagement metric if one exists for the specified key.
+    /// - Parameter key: The key corresponding to the engagement metric for which to record having requested an answer.
+    mutating func resetCurrentResponse(for key: String) {
+        self.metrics[key]?.resetCurrentResponse()
     }
 
     /// Resets the version count for all metrics.

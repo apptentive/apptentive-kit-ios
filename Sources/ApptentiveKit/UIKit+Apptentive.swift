@@ -16,6 +16,9 @@ public class ApptentiveNavigationController: UINavigationController {
     public override var preferredStatusBarStyle: UIStatusBarStyle {
         return Self.preferredStatusBarStyle
     }
+    /// Increases the header height for surveys.
+    @objc public static var prefersLargeHeader: Bool = false
+
 }
 
 extension UITableView {
@@ -53,6 +56,7 @@ extension UIBarButtonItem {
         } else {
             return UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
         }
+
     }()
 
     /// The bar button item to use for editing the profile in message center.
@@ -65,6 +69,18 @@ extension UIBarButtonItem {
 }
 
 extension UIButton {
+
+    /// The close button used to replicate the bar button item when large headers are used in surveys.
+    public static var apptentiveClose: UIButton? = {
+        if #available(iOS 13.0, *) {
+            let button = UIButton()
+            button.setImage(UIImage.init(systemName: "xmark"), for: .normal)
+            button.tintColor = .gray
+            return button
+        }
+        return nil
+    }()
+
     /// The style for call-to-action buttons in Apptentive UI.
     public enum ApptentiveButtonStyle {
         /// The corner radius is half of the height.
@@ -110,10 +126,9 @@ extension UIImage {
             if let minusImage = UIImage.init(systemName: "minus.circle.fill") {
                 return minusImage
             }
-        } else {
-            return .apptentiveImage(named: "minus.circle.fill")
         }
-        return .apptentiveImage(named: "minus.circle.fill")
+
+        return .apptentiveImage(named: "minus.circle.fill")?.withRenderingMode(.alwaysOriginal)
     }()
 
     /// The image to use for the top navigation bar for surveys.
@@ -245,31 +260,13 @@ extension UIColor {
     }()
 
     /// The color to use for the status message in message center.
-    @objc public static var apptentiveMessageCenterStatus: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .darkGray
-        }
-    }()
+    @objc public static var apptentiveMessageCenterStatus: UIColor = .apptentiveSecondaryLabel
 
     /// The color to use for the greeting body on the greeting header view for message center.
-    @objc public static var apptentiveMessageCenterGreetingBody: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .darkGray
-        }
-    }()
+    @objc public static var apptentiveMessageCenterGreetingBody: UIColor = .apptentiveSecondaryLabel
 
     /// The color to use for the greeting title on the greeting header view for message center.
-    @objc public static var apptentiveMessageCenterGreetingTitle: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .darkGray
-        }
-    }()
+    @objc public static var apptentiveMessageCenterGreetingTitle: UIColor = .apptentiveSecondaryLabel
 
     /// The color to use for the message bubble view for inbound messages.
     @objc public static var apptentiveMessageBubbleInbound: UIColor = {
@@ -292,27 +289,13 @@ extension UIColor {
     }()
 
     /// The color to use for labels in a non-error state.
-    @objc public static var apptentiveQuestionLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .label
-        } else {
-            return .black
-        }
-    }()
+    @objc public static var apptentiveQuestionLabel: UIColor = .apptentiveLabel
 
     /// The color to use for instruction labels.
-    @objc public static var apptentiveInstructionsLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .lightGray
-        }
-    }()
+    @objc public static var apptentiveInstructionsLabel: UIColor = .apptentiveSecondaryLabel
 
     /// The color to use for choice labels.
-    @objc public static var apptentiveChoiceLabel: UIColor = {
-        return .darkGray
-    }()
+    @objc public static var apptentiveChoiceLabel: UIColor = .apptentiveLabel
 
     /// The color to use for UI elements to indicate an error state.
     @objc public static var apptentiveError: UIColor = {
@@ -334,12 +317,21 @@ extension UIColor {
         }
     }()
 
-    /// An alternative to 'apptentiveLabel' in gray.
+    /// The color to use for labels of primary prominance.
+    internal static var apptentiveLabel: UIColor = {
+        if #available(iOS 13.0, *) {
+            return .label
+        } else {
+            return .black
+        }
+    }()
+
+    /// The color to use for labels of secondary prominence.
     @objc public static var apptentiveSecondaryLabel: UIColor = {
         if #available(iOS 13.0, *) {
             return .secondaryLabel
         } else {
-            return .gray
+            return .darkGray
         }
     }()
 
@@ -349,13 +341,7 @@ extension UIColor {
     }()
 
     /// The color to use for the survey introduction text.
-    @objc public static var apptentiveSurveyIntroduction: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .label
-        } else {
-            return .black
-        }
-    }()
+    @objc public static var apptentiveSurveyIntroduction: UIColor = .apptentiveLabel
 
     /// The color to use for the borders of text fields and text views.
     @objc public static var apptentiveTextInputBorder: UIColor = {
@@ -407,13 +393,7 @@ extension UIColor {
     }()
 
     /// The color used for min and max labels for the range survey.
-    @objc public static var apptentiveMinMaxLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .darkGray
-        }
-    }()
+    @objc public static var apptentiveMinMaxLabel: UIColor = .apptentiveSecondaryLabel
 
     /// The color used for the background of the entire survey.
     @objc public static var apptentiveGroupedBackground: UIColor = {
@@ -461,6 +441,15 @@ extension UIColor {
         }
     }()
 
+    /// The background color to use for the footer which contains the terms and conditions for branched surveys.
+    @objc public static var apptentiveBranchedSurveyFooter: UIColor = {
+        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
+            return tintColor
+        } else {
+            return .systemBlue
+        }
+    }()
+
     /// The color to use for the survey footer label (Thank You text).
     @available(*, deprecated, message: "This property has been renamed to 'apptentiveSubmitStatusLabel'.")
     public static var apptentiveSubmitLabel: UIColor = {
@@ -468,13 +457,7 @@ extension UIColor {
     }()
 
     /// The color to use for the survey footer label (Thank You text).
-    @objc public static var apptentiveSubmitStatusLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .label
-        } else {
-            return .black
-        }
-    }()
+    @objc public static var apptentiveSubmitStatusLabel: UIColor = .apptentiveLabel
 
     /// The color to use for the terms of service label.
     @objc public static var apptentiveTermsOfServiceLabel: UIColor = {
@@ -498,6 +481,20 @@ extension UIColor {
     /// The color to use for the space between questions.
     @objc public static var apptentiveQuestionSeparator: UIColor = {
         return .clear
+    }()
+
+    /// The color to use for the unselected segments for branched surveys.
+    public static var apptentiveUnselectedSurveyIndicatorSegment: UIColor = {
+        return .gray
+    }()
+
+    /// The color to use for the selected segments for branched surveys.
+    public static var apptentiveSelectedSurveyIndicatorSegment: UIColor = {
+        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
+            return tintColor
+        } else {
+            return .systemBlue
+        }
     }()
 
     /// The color to use for the background of Message Center.
@@ -538,6 +535,11 @@ extension UIColor {
     /// The color to use for text input borders when selected.
     @objc public static var apptentiveTextInputBorderSelected: UIColor = {
         return .blue
+    }()
+
+    /// The text color used for the disclaimer text.
+    @objc public static var apptentiveDisclaimerLabel: UIColor = {
+        return .lightGray
     }()
 }
 
@@ -580,7 +582,7 @@ extension UIFont {
 
     /// The font used for all survey question labels.
     @objc public static var apptentiveQuestionLabel: UIFont = {
-        return .preferredFont(forTextStyle: .body)
+        return .preferredFont(forTextStyle: .headline)
     }()
 
     /// The font used for the terms of service.
@@ -634,6 +636,11 @@ extension UIFont {
         return .preferredFont(forTextStyle: .headline)
     }()
 
+    /// The font used for the disclaimer text.
+    @objc public static var apptentiveDisclaimerLabel: UIFont = {
+        return .preferredFont(forTextStyle: .callout)
+    }()
+
     /// The font used for the submit button at the end of surveys.
     @objc public static var apptentiveSubmitButtonTitle: UIFont = {
         return .preferredFont(forTextStyle: .headline)
@@ -643,6 +650,16 @@ extension UIFont {
     @objc public static var apptentiveTextInput: UIFont = {
         return .preferredFont(forTextStyle: .body)
     }()
+
+    /// Repairs the scalability of ``UIFont.apptentiveTextInput`` for `UITextView` and `UITextField` use.
+    internal func apptentiveRepairedFont() -> UIFont {
+        guard let textStyleString = self.fontDescriptor.object(forKey: UIFontDescriptor.AttributeName.textStyle) as? String else {
+            ApptentiveLogger.default.warning("Font \(self.debugDescription) has a missing or invalid textStyle and will not work with Dynamic Type.")
+            return self
+        }
+
+        return UIFontMetrics(forTextStyle: UIFont.TextStyle(rawValue: textStyleString)).scaledFont(for: self)
+    }
 }
 
 extension UIToolbar {
@@ -661,7 +678,7 @@ extension UIToolbar {
 }
 
 extension CGFloat {
-    /// The width of the layer border for Apptentive buttons.
+    /// The width of the layer border for Apptentive buttons for surveys.
     public static var apptentiveButtonBorderWidth: CGFloat = {
         return 2
     }()

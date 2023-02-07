@@ -72,8 +72,9 @@ class InteractionPresenterTests: XCTestCase {
     class FakeInteractionPresenter: InteractionPresenter {
         var viewModel: AnyObject?
 
-        override func presentSurvey(with viewModel: SurveyViewModel) throws {
-            self.viewModel = viewModel
+        override func presentSurvey(with surveyViewModel: SurveyViewModel) throws {
+
+            self.viewModel = surveyViewModel
 
             let fakeSurveyViewController = FakePresentedViewController()
             fakeSurveyViewController.view.tag = 333
@@ -81,7 +82,7 @@ class InteractionPresenterTests: XCTestCase {
             try self.presentViewController(fakeSurveyViewController)
         }
 
-        override func presentEnjoymentDialog(with viewModel: EnjoymentDialogViewModel) throws {
+        override func presentEnjoymentDialog(with viewModel: DialogViewModel) throws {
             self.viewModel = viewModel
 
             let fakeAlertController = FakePresentedViewController()
@@ -90,7 +91,7 @@ class InteractionPresenterTests: XCTestCase {
             try self.presentViewController(fakeAlertController)
         }
 
-        override func presentTextModal(with viewModel: TextModalViewModel) throws {
+        override func presentTextModal(with viewModel: DialogViewModel) throws {
             self.viewModel = viewModel
 
             let fakeAlertController = FakePresentedViewController()

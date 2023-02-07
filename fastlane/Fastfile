@@ -31,22 +31,25 @@ platform :ios do
 
   desc "Run tests"
   lane :test do
-    # Update the Defaults.plist for integration tests using environment variables
-    File.rename "../Tests/ApptentiveKit/Integration Tests/Defaults-Template.plist", "../Tests/ApptentiveKit/Integration Tests/Defaults.plist" unless File.exists? "../Tests/ApptentiveKit/Integration Tests/Defaults.plist"
-    update_plist(
-      plist_path: "Tests/ApptentiveKit/Integration Tests/Defaults.plist",
-      block: proc do |plist|
-        plist[:Key] = ENV["APPTENTIVE_PROD_KEY"]
-        plist[:Signature] = ENV["APPTENTIVE_PROD_SIGNATURE"]
-      end
+    # Update the TestCredentials.xcconfig for integration tests using environment variables
+    set_xcconfig_value(
+      path: 'Tests/ApptentiveKit/TestCredentials.xcconfig',
+      name: 'INTEGRATION_API_KEY',
+      value: ENV["APPTENTIVE_PROD_KEY"]
     )
-
+    
+    set_xcconfig_value(
+      path: 'Tests/ApptentiveKit/TestCredentials.xcconfig',
+      name: 'INTEGRATION_API_SIGNATURE',
+      value: ENV["APPTENTIVE_PROD_SIGNATURE"]
+    )
+    
     run_tests(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", devices: ["UI Test"], code_coverage: true)
   end
   
   desc "Generates a code coverage report"
   lane :coverage do
-    xcov(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", output_directory: ".fastlane/test_output", exclude_targets: "ApptentiveUITestsApp.app", minimum_coverage_percentage: 75.0)
+    xcov(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", output_directory: ".fastlane/test_output", exclude_targets: "ApptentiveUITestsApp.app, GenericJSON", minimum_coverage_percentage: 75.0)
   end
 
   desc "Runs the swift-format linter on ApptentiveKit"

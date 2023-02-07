@@ -11,8 +11,8 @@ import XCTest
 @testable import ApptentiveKit
 
 class TextModalViewModelTests: XCTestCase {
-    var viewModel: TextModalViewModel?
-    var spySender: SpyInteractionDelegate?
+    var viewModel: DialogViewModel!
+    var spySender: SpyInteractionDelegate!
 
     var gotDidSubmit: Bool = false
     var gotValidationDidChange: Bool = false
@@ -26,27 +26,23 @@ class TextModalViewModelTests: XCTestCase {
         }
 
         self.spySender = SpyInteractionDelegate()
-        self.viewModel = TextModalViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender!)
+        self.viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender!)
     }
 
     func testTextModal() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
-
         XCTAssertEqual(viewModel.title, "Message Title")
         XCTAssertEqual(viewModel.message, "Message content.")
-        XCTAssertEqual(viewModel.buttons[0].title, "Message Center")
-        XCTAssertEqual(viewModel.buttons[1].title, "Survey")
-        XCTAssertEqual(viewModel.buttons[2].title, "Link")
-        XCTAssertEqual(viewModel.buttons[3].title, "Dismiss")
+        XCTAssertEqual(viewModel.actions[0].label, "Message Center")
+        XCTAssertEqual(viewModel.actions[1].label, "Survey")
+        XCTAssertEqual(viewModel.actions[2].label, "Link")
+        XCTAssertEqual(viewModel.actions[3].label, "Dismiss")
     }
 
     func testMessageCenterButton() {
-        viewModel?.buttons[0].action?()
+        viewModel?.buttonSelected(at: 0)
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#interaction")
-        switch self.spySender?.engagedEvent?.userInfo {
+        XCTAssertEqual(self.spySender.engagedEvent?.codePointName, "com.apptentive#TextModal#interaction")
+        switch self.spySender.engagedEvent?.userInfo {
         case .textModalAction(let textModalAction):
             XCTAssertEqual(textModalAction.invokedInteractionID, "55c94045a71b52ea570054d6")
 
@@ -56,10 +52,10 @@ class TextModalViewModelTests: XCTestCase {
     }
 
     func testSurveyButton() {
-        viewModel?.buttons[1].action?()
+        viewModel?.buttonSelected(at: 1)
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#interaction")
-        switch self.spySender?.engagedEvent?.userInfo {
+        XCTAssertEqual(self.spySender.engagedEvent?.codePointName, "com.apptentive#TextModal#interaction")
+        switch self.spySender.engagedEvent?.userInfo {
         case .textModalAction(let textModalAction):
             XCTAssertEqual(textModalAction.invokedInteractionID, "55e6033045ce5551eb00000b")
 
@@ -69,10 +65,10 @@ class TextModalViewModelTests: XCTestCase {
     }
 
     func testLinkButton() {
-        viewModel?.buttons[2].action?()
+        viewModel?.buttonSelected(at: 2)
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#interaction")
-        switch self.spySender?.engagedEvent?.userInfo {
+        XCTAssertEqual(self.spySender.engagedEvent?.codePointName, "com.apptentive#TextModal#interaction")
+        switch self.spySender.engagedEvent?.userInfo {
         case .textModalAction(let textModalAction):
             XCTAssertEqual(textModalAction.invokedInteractionID, "56b248fac21f96e6700001d3")
 
@@ -82,18 +78,27 @@ class TextModalViewModelTests: XCTestCase {
     }
 
     func testRecordedAnswer() {
-        viewModel?.buttons[1].action?()
+        viewModel?.buttonSelected(at: 1)
         let recordedResponse = self.spySender?.responses
         XCTAssertEqual(recordedResponse?.count, 1)
         if let recordedResponseValue = recordedResponse?.values.first, let recordedAnswerValue = recordedResponseValue.first {
             XCTAssertEqual(recordedAnswerValue, Answer.choice("55e6037a45ce551189000017"))
         }
 
+        viewModel?.buttonSelected(at: 2)
+        let recordedResponse2 = self.spySender.responses
+        XCTAssertEqual(recordedResponse2[viewModel.interaction.id]?.count, 2)
+        XCTAssertEqual(recordedResponse2[viewModel.interaction.id], [Answer.choice("55e6037a45ce551189000017"), Answer.choice("55e6037a45ce551189000018")])
+
+        XCTAssertEqual(self.spySender.lastResponse[self.viewModel.interaction.id], [Answer.choice("55e6037a45ce551189000018")])
     }
 
     func testDismissButton() {
-        viewModel?.buttons[3].action?()
+        viewModel?.buttonSelected(at: 3)
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#dismiss")
+        XCTAssertEqual(self.spySender.engagedEvent?.codePointName, "com.apptentive#TextModal#dismiss")
+    }
+
+    func testLaunch() {
     }
 }

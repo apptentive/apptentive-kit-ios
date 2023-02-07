@@ -20,7 +20,7 @@ extension SurveyViewModel {
         /// The text of the user's current answer to the question.
         public var value: String? {
             didSet {
-                self.updateMarkedAsInvalid()
+                self.checkIfFixed()
             }
         }
 
@@ -39,11 +39,11 @@ extension SurveyViewModel {
             }
         }
 
-        override var response: [Answer]? {
+        override var response: QuestionResponse {
             if let trimmedAnswer = self.trimmedAnswerText {
-                return [.freeform(trimmedAnswer)]
+                return .answered([.freeform(trimmedAnswer)])
             } else {
-                return nil
+                return .empty
             }
         }
     }
