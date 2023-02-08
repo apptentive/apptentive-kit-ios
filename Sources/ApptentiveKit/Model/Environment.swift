@@ -179,7 +179,7 @@ class Environment: GlobalEnvironment {
     /// The version of the SDK (read from the SDK framework's Info.plist).
     lazy var sdkVersion: Version = {
         // First look for Version.plist, which is a workaround for Swift Package Manager.
-        guard let url = Bundle.module.url(forResource: "Distribution", withExtension: "plist"),
+        guard let url = Bundle.apptentive.url(forResource: "Distribution", withExtension: "plist"),
             let data = try? Data(contentsOf: url),
             let infoDictionary = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
             let versionString = infoDictionary["CFBundleShortVersionString"] as? String
@@ -188,7 +188,7 @@ class Environment: GlobalEnvironment {
             return "Unavailable"
         }
 
-        if let infoPListVersionString = Bundle.module.infoDictionary?["CFBundleShortVersionString"] as? String {
+        if let infoPListVersionString = Bundle.apptentive.infoDictionary?["CFBundleShortVersionString"] as? String {
             if infoPListVersionString != versionString {
                 ApptentiveLogger.default.warning("ApptentiveKit framework is damaged! Version in Info.plist (\(infoPListVersionString)) does not match SDK version (\(versionString))")
             }
@@ -273,9 +273,9 @@ class Environment: GlobalEnvironment {
         #if COCOAPODS
             self.distributionName = "CocoaPods"
         #else
-            if let _ = Bundle.module.url(forResource: "SwiftPM", withExtension: "txt") {
+            if let _ = Bundle.apptentive.url(forResource: "SwiftPM", withExtension: "txt") {
                 self.distributionName = "SwiftPM"
-            } else if let url = Bundle.module.url(forResource: "Distribution", withExtension: "plist"),
+            } else if let url = Bundle.apptentive.url(forResource: "Distribution", withExtension: "plist"),
                 let data = try? Data(contentsOf: url),
                 let infoDictionary = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
                 let distributionName = infoDictionary["ApptentiveDistributionName"] as? String

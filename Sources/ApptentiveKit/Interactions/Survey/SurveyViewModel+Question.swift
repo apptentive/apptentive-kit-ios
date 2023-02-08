@@ -83,7 +83,7 @@ extension SurveyViewModel {
             self.questionID = question.id
             self.text = question.text
             self.isRequired = question.required ?? false
-            self.requiredText = question.required ?? false ? (requiredText ?? NSLocalizedString("SurveyRequiredText", tableName: "Localizable", bundle: .module, value: "Required", comment: "Text indicating survey is required")) : nil
+            self.requiredText = question.required ?? false ? (requiredText ?? NSLocalizedString("SurveyRequiredText", tableName: "Localizable", bundle: .apptentive, value: "Required", comment: "Text indicating survey is required")) : nil
             self.errorMessage = question.errorMessage
             self.instructions = question.instructions
         }

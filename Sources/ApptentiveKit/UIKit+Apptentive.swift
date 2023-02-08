@@ -107,17 +107,17 @@ extension UIImage {
 
     /// The image to use as the chat bubble for outbound messages.
     @objc public static var apptentiveSentMessageBubble: UIImage? = {
-        return UIImage(named: "messageSentBubble", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 18, right: 18))
+        return UIImage(named: "messageSentBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 18, right: 18))
     }()
 
     /// The image to use as the chat bubble for inbound messages.
     @objc public static var apptentiveReceivedMessageBubble: UIImage? = {
-        return UIImage(named: "messageReceivedBubble", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 18, bottom: 18, right: 9))
+        return UIImage(named: "messageReceivedBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 18, bottom: 18, right: 9))
     }()
 
     /// The image to use for attachment placeholders in messages and the composer.
     @objc public static var apptentiveAttachmentPlaceholder: UIImage? = {
-        return UIImage(named: "document", in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal).resizableImage(withCapInsets: UIEdgeInsets(top: 14, left: 4, bottom: 4, right: 14))
+        return UIImage(named: "document", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal).resizableImage(withCapInsets: UIEdgeInsets(top: 14, left: 4, bottom: 4, right: 14))
     }()
 
     /// The image to use for the attachment delete button.
@@ -163,7 +163,7 @@ extension UIImage {
             }
         }
 
-        return UIImage(named: named, in: .module, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        return UIImage(named: named, in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
     }
 }
 

@@ -45,7 +45,7 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
     }
 
     public override func viewDidAppear(_ animated: Bool) {
-        UIAccessibility.post(notification: .announcement, argument: NSLocalizedString("Dialog announcement", bundle: .module, value: "Alert", comment: "Announcement when a dialog is presented."))
+        UIAccessibility.post(notification: .announcement, argument: NSLocalizedString("Dialog announcement", bundle: .apptentive, value: "Alert", comment: "Announcement when a dialog is presented."))
 
         super.viewDidAppear(animated)
     }
