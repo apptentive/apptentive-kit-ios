@@ -86,10 +86,16 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
             button.addTarget(self, action: #selector(dialogButtonTapped), for: .touchUpInside)
             button.tag = position
             button.setTitle(action.label, for: .normal)
-            if self.viewModel.dialogType == .textModal {
-                self.dialogView.buttonStackView.axis = .vertical
-            }
+            self.configureButtonAxis()
             self.dialogView.buttonStackView.addArrangedSubview(button)
+        }
+    }
+
+    private func configureButtonAxis() {
+        if self.viewModel.dialogType == .textModal && self.viewModel.actions.count > 2 {
+            self.dialogView.buttonStackView.axis = .vertical
+        } else {
+            self.dialogView.buttonStackView.axis = .horizontal
         }
     }
 
