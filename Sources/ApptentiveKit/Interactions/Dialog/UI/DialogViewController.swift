@@ -92,10 +92,17 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
     }
 
     private func configureButtonAxis() {
+
         if self.viewModel.dialogType == .textModal && self.viewModel.actions.count > 2 {
             self.dialogView.buttonStackView.axis = .vertical
         } else {
-            self.dialogView.buttonStackView.axis = .horizontal
+            self.viewModel.actions.forEach { action in
+                if action.label.count > 13 {
+                    self.dialogView.buttonStackView.axis = .vertical
+                } else {
+                    self.dialogView.buttonStackView.axis = .horizontal
+                }
+            }
         }
     }
 
