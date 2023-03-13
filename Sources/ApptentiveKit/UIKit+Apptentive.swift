@@ -503,7 +503,13 @@ extension UIColor {
     }()
 
     /// The color to use for the button that deletes the attachment from the draft message.
+    @available(*, deprecated, message: "This property has been renamed to 'apptentiveAttachmentRemoveButton'.")
     @objc public static var apptentiveMessageCenterAttachmentDeleteButton: UIColor = {
+        return .apptentiveAttachmentRemoveButton
+    }()
+
+    /// The color to use for the button that deletes the attachment from the draft message.
+    @objc public static var apptentiveAttachmentRemoveButton: UIColor = {
         let lightModeError = UIColor(red: 0.86, green: 0.1, blue: 0, alpha: 1)
         let darkModeError = UIColor(red: 1, green: 0.28, blue: 0.24, alpha: 1)
 

@@ -146,7 +146,7 @@ extension Apptentive {
         UIColor.apptentiveMessageCenterTextInputBorder = textInputBorderColor
         UIColor.apptentiveMessageCenterTextInputBackground = textInputBackgroundColor
         UIColor.apptentiveMessageCenterTextInput = textInputColor
-        UIColor.apptentiveMessageCenterAttachmentDeleteButton = attachmentDeleteButton
+        UIColor.apptentiveAttachmentRemoveButton = attachmentDeleteButton
         UIColor.apptentiveError = error
         UIColor.apptentiveTextInputPlaceholder = textInputPlaceholder
         UIColor.apptentiveMessageCenterTextInputPlaceholder = textInputPlaceholder
