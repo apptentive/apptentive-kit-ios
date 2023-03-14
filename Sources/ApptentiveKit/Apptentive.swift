@@ -245,6 +245,16 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
     }
 
+    /// Provides the SDK with the credentials necessary to connect to the Apptentive API.
+    /// - Parameter credentials: The `AppCredentials` object containing your Apptentive key and signature.
+    /// - Throws: An error if registration fails.
+    @available(iOS 13.0.0, *)
+    public func register(with credentials: AppCredentials) async throws {
+        let _ = try await withCheckedThrowingContinuation { continuation in
+            self.register(with: credentials) { continuation.resume(returning: $0) }
+        }
+    }
+
     /// Contains the app-level credentials necessary to connect to the Apptentive API.
     public struct AppCredentials: Codable, Equatable {
 
@@ -281,6 +291,19 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
     }
 
+    /// Engages the specified event, using the view controller (if any) as the presenting view controller for any interactions.
+    /// - Parameters:
+    ///   - event: The event to engage.
+    ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
+    /// - Returns: A boolean indicating whether or not an interaction was presented.
+    /// - Throws: An error if engaging the event fails.
+    @available(iOS 13.0.0, *)
+    public func engage(event: Event, from viewController: UIViewController? = nil) async throws -> Bool {
+        try await withCheckedThrowingContinuation { continuation in
+            self.engage(event: event, from: viewController) { continuation.resume(with: $0) }
+        }
+    }
+
     /// Dimisses any currently-visible interactions.
     ///
     /// Note that it is not possible to programmatically dismiss the Apple Rating Dialog (`SKStoreReviewController`).
@@ -313,6 +336,24 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
 
         self.presentMessageCenter(from: viewController, completion: completion)
+    }
+
+    /// Presents Apptentive's Message Center using the specified view controller for presentation,
+    /// attaching the specified custom data to the first message (if any) sent by the user.
+    /// - Parameters:
+    ///   - viewController: The view controller from which to present Message Center.
+    ///   - customData: The custom data to send along with the message.
+    /// - Returns: A boolean indicating if the message center was presented.
+    /// - Throws: An error if presenting message center with custom data fails.
+    @available(iOS 13.0.0, *)
+    public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData? = nil) async throws -> Bool {
+        try await withCheckedThrowingContinuation { continuation in
+            if let customData = customData {
+                self.presentMessageCenter(from: viewController, with: customData) { continuation.resume(with: $0) }
+            } else {
+                self.presentMessageCenterCompat(from: viewController)
+            }
+        }
     }
 
     /// Sends the specified text as a hidden message to the app's dashboard.
@@ -357,6 +398,17 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     public func canShowInteraction(event: Event, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         self.backendQueue.async {
             self.backend.canShowInteraction(event: event, completion: completion)
+        }
+    }
+
+    /// Checks if the event can trigger an interaction.
+    /// - Parameter event: The event used to check if it can trigger an interaction.
+    /// - Returns: A boolean indicating whether or not an interaction can be shown using the event.
+    /// - Throws: An error when failing.
+    @available(iOS 13.0.0, *)
+    public func canShowInteraction(event: Event) async throws -> Bool {
+        try await withCheckedThrowingContinuation { continuation in
+            self.canShowInteraction(event: event) { continuation.resume(with: $0) }
         }
     }
 
