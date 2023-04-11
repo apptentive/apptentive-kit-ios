@@ -230,7 +230,7 @@ class Backend {
     /// - Parameters:
     ///   - event: The `Event` object to be engaged.
     ///   - completion: A completion handler whose argument indicates whether engaging the event resulted in the presentation of an interaction.
-    func engage(event: Event, completion: ((Result<Bool, Error>) -> Void)?) {
+    func engage(event: Event, completion: @escaping (Result<Bool, Error>) -> Void) {
         ApptentiveLogger.engagement.info("Engaged event “\(event.codePointName)”")
 
         self.payloadSender.send(Payload(wrapping: event))
@@ -241,16 +241,10 @@ class Backend {
             if let interaction = try self.targeter.interactionData(for: event, state: self.conversation) {
                 try self.presentInteraction(interaction, completion: completion)
             } else {
-                DispatchQueue.main.async {
-                    completion?(.success(false))
-                }
+                completion(.success(false))
             }
         } catch let error {
-            DispatchQueue.main.async {
-                completion?(.failure(error))
-                ApptentiveLogger.default.error("Targeting error: \(error)")
-                apptentiveCriticalError("Targeting error: \(error)")
-            }
+            completion(.failure(error))
         }
     }
 
@@ -352,18 +346,13 @@ class Backend {
     /// - Parameters:
     ///  - event: The event used to check if it can trigger an interaction.
     ///  - completion: A completion handler that is called with a boolean indicating whether or not an interaction can be shown using the event.
-    func canShowInteraction(event: Event, completion: ((Result<Bool, Error>) -> Void)? = nil) {
+    func canShowInteraction(event: Event, completion: @escaping (Result<Bool, Error>) -> Void) {
         do {
             let result = try self.targeter.interactionData(for: event, state: self.conversation)
 
-            DispatchQueue.main.async {
-                completion?(.success(result != nil))
-            }
+            completion(.success(result != nil))
         } catch let error {
-            DispatchQueue.main.async {
-                completion?(.failure(error))
-            }
-            ApptentiveLogger.default.error("Error evaluating criteria for event \(event.name). Error: \(error).")
+            completion(.failure(error))
         }
     }
 

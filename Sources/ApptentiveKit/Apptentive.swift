@@ -287,7 +287,17 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         NotificationCenter.default.post(name: Notification.Name.apptentiveEventEngaged, object: nil, userInfo: event.userInfoForNotification())
 
         self.backendQueue.async {
-            self.backend.engage(event: event, completion: completion)
+            self.backend.engage(event: event) { result in
+                if let completion = completion {
+                    DispatchQueue.main.async {
+                        completion(result)
+                    }
+                } else {
+                    if case .failure(let error) = result {
+                        ApptentiveLogger.default.error("Error when engaging event: \(error)")
+                    }
+                }
+            }
         }
     }
 
@@ -397,7 +407,17 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///  - completion: A completion handler that is called with a boolean indicating whether or not an interaction can be shown using the event.
     public func canShowInteraction(event: Event, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         self.backendQueue.async {
-            self.backend.canShowInteraction(event: event, completion: completion)
+            self.backend.canShowInteraction(event: event) { result in
+                if let completion = completion {
+                    DispatchQueue.main.async {
+                        completion(result)
+                    }
+                } else {
+                    if case .failure(let error) = result {
+                        ApptentiveLogger.default.error("Error when evaluating criteria: \(error)")
+                    }
+                }
+            }
         }
     }
 
@@ -530,6 +550,7 @@ public enum ApptentiveError: Error {
     case invalidCustomDataType(Any?)
     case fileExistsAtContainerDirectoryPath
     case mismatchedCredentials
+    case emptyEventName
 }
 
 /// The method to call when a critical error occurs.
