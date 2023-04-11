@@ -329,7 +329,13 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///   - viewController: The view controller from which to present Message Center.
     ///   - completion: Called with the result of the message center presentation request.
     public func presentMessageCenter(from viewController: UIViewController?, completion: ((Result<Bool, Error>) -> Void)? = nil) {
-        self.engage(event: .showMessageCenter, from: viewController, completion: completion)
+        self.canShowMessageCenter { result in
+            if case .success(let canShow) = result, canShow {
+                self.engage(event: .showMessageCenter, from: viewController, completion: completion)
+            } else {
+                self.engage(event: .showMessageCenterFallback, from: viewController, completion: completion)
+            }
+        }
     }
 
     /// Presents Apptentive's Message Center using the specified view controller for presentation,
@@ -430,6 +436,20 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         try await withCheckedThrowingContinuation { continuation in
             self.canShowInteraction(event: event) { continuation.resume(with: $0) }
         }
+    }
+
+    /// Checks if Message Center can be presented.
+    /// - Parameter completion: A completion handler that is called with a boolean indicating whether or not an interaction can be shown using the event.
+    public func canShowMessageCenter(completion: ((Result<Bool, Error>) -> Void)? = nil) {
+        self.canShowInteraction(event: .showMessageCenter, completion: completion)
+    }
+
+    /// Checks if Message Center can be presented.
+    /// - Returns: A boolean indicating whether or not an interaction can be shown using the event.
+    /// - Throws: An error when failing.
+    @available(iOS 13.0.0, *)
+    public func canShowMessageCenter() async throws -> Bool {
+        return try await self.canShowInteraction(event: .showMessageCenter)
     }
 
     /// Creates a new Apptentive SDK object using the specified URL to communicate with the Apptentive API.

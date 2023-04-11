@@ -15,6 +15,7 @@ class MessagesViewController: UITableViewController, UIImagePickerControllerDele
 
     var customData = CustomData()
 
+    @IBOutlet weak var openMessageCenterCell: UITableViewCell!
     @IBOutlet weak var unreadMessageCountLabel: UILabel!
 
     @IBAction func cancelAttachmentText(sender: UIStoryboardSegue) {
@@ -60,6 +61,25 @@ class MessagesViewController: UITableViewController, UIImagePickerControllerDele
         default: break
         }
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+
+    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        if !self.isEditing {
+            self.apptentive.canShowMessageCenter { result in
+                let label = UILabel()
+                switch result {
+                case .success(let canShow):
+                    label.text = canShow ? "✅" : "❎"
+
+                case .failure(let error):
+                    label.text = "❌"
+                    print("Error during canShowMessageCenter: \(error.localizedDescription)")
+                }
+
+                label.sizeToFit()
+                tableView.cellForRow(at: indexPath)?.accessoryView = label
+            }
+        }
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

@@ -34,6 +34,6 @@ class InteractionTests: XCTestCase {
         let placeholder = EngagementManifest.placeholder
 
         XCTAssertEqual(placeholder.interactions[0].id, "message_center_fallback")
-        XCTAssertEqual(placeholder.targets["com.apptentive#app#show_message_center"]?[0].interactionID, "message_center_fallback")
+        XCTAssertEqual(placeholder.targets["com.apptentive#app#show_message_center_fallback"]?[0].interactionID, "message_center_fallback")
     }
 }

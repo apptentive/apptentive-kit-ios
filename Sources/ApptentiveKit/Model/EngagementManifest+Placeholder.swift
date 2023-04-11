@@ -20,6 +20,6 @@ extension EngagementManifest {
         let fallbackInteraction = Interaction(id: fallbackInteractionID, configuration: .textModal(configuration), typeName: "TextModal")
         let fallbackInvocation = Invocation(interactionID: fallbackInteractionID, criteria: ImplicitAndClause(subClauses: []))
 
-        return EngagementManifest(interactions: [fallbackInteraction], targets: [Event.showMessageCenter.codePointName: [fallbackInvocation]], expiry: .distantPast)
+        return EngagementManifest(interactions: [fallbackInteraction], targets: [Event.showMessageCenterFallback.codePointName: [fallbackInvocation]], expiry: .distantPast)
     }()
 }
