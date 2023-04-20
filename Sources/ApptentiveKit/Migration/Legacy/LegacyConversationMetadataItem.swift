@@ -17,10 +17,10 @@ class LegacyConversationMetadataItem: NSObject, NSSecureCoding {
     let localIdentifier: String?
     let directoryName: String?
     let jwt: String?
+    let userID: String?
+    let encryptionKey: Data?
 
-    func encode(with coder: NSCoder) {
-        apptentiveCriticalError("Saving legacy conversation metadata item not supported.")
-    }
+    func encode(with coder: NSCoder) {}
 
     required init?(coder: NSCoder) {
         self.state = ConversationState(rawValue: coder.decodeInteger(forKey: NSCodingKey.state))
@@ -28,6 +28,8 @@ class LegacyConversationMetadataItem: NSObject, NSSecureCoding {
         self.localIdentifier = coder.decodeObject(of: NSString.self, forKey: NSCodingKey.localIdentifier) as String?
         self.directoryName = coder.decodeObject(of: NSString.self, forKey: NSCodingKey.directoryName) as String?
         self.jwt = coder.decodeObject(of: NSString.self, forKey: NSCodingKey.jwt) as String?
+        self.userID = coder.decodeObject(of: NSString.self, forKey: NSCodingKey.userID) as String?
+        self.encryptionKey = coder.decodeObject(of: NSData.self, forKey: NSCodingKey.encryptionKey) as Data?
     }
 
     struct NSCodingKey {
@@ -36,6 +38,8 @@ class LegacyConversationMetadataItem: NSObject, NSSecureCoding {
         static let localIdentifier = "conversationLocalIdentifier"
         static let directoryName = "fileName"
         static let jwt = "JWT"
+        static let userID = "userId"
+        static let encryptionKey = "encryptionKey"
     }
 
     enum ConversationState: Int {

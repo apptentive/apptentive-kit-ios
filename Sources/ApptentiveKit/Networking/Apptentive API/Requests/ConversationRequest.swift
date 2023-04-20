@@ -20,20 +20,23 @@ struct ConversationRequest: Codable, Equatable, HTTPBodyPart {
         return try encoder.encode(self)
     }
 
-    init(conversation: Conversation) {
+    init(conversation: Conversation, token: String?) {
         self.appRelease = AppReleaseContent(with: conversation.appRelease)
         self.device = DeviceContent(with: conversation.device)
         self.person = PersonContent(with: conversation.person)
+        self.token = token
     }
 
     let appRelease: AppReleaseContent
     let person: PersonContent
     let device: DeviceContent
+    let token: String?
 
     enum CodingKeys: String, CodingKey {
         case appRelease = "app_release"
         case person
         case device
+        case token
     }
 }
 
@@ -43,11 +46,13 @@ struct ConversationResponse: Codable, Equatable {
     let id: String
     let deviceID: String?
     let personID: String
+    let encryptionKey: Data?
 
     private enum CodingKeys: String, CodingKey {
         case token
         case id
         case deviceID = "device_id"
         case personID = "person_id"
+        case encryptionKey = "encryption_key"
     }
 }

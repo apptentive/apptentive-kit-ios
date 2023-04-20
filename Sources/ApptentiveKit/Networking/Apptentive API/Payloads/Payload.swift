@@ -16,59 +16,82 @@ import Foundation
 /// sent successfully or that the failure in sending was unrecoverable (indicating that the request should
 /// not be retried).
 struct Payload: Codable, Equatable, CustomDebugStringConvertible {
-    /// Represents the HTTP request body to use for the API request.
-    let jsonObject: JSONObject
+    /// A string (corresponding to the nonce) that uniquely identifies the payload.
+    var identifier: String
 
-    /// The HTTP method to use for the API request.
-    let method: HTTPMethod
+    /// A string that identifies a payload as belonging to a particular conversation.
+    var tag: String
 
-    /// The path to use to build the URL for the API request.
-    let path: String
+    /// The credentials that should be used to send the payload.
+    private(set) var credentials: PayloadStoredCredentials
 
-    /// The attachments to send along with the request, if any.
-    let attachments: [Attachment]
+    /// The content type of the payload body.
+    var contentType: String?
 
-    /// Generates nonces, creation dates, UTC offsets, and stores session ID.
-    static var context = Context()
+    /// The path for the URL the payload is sent to.
+    var path: String
 
-    /// The parts making up the body of the HTTP request.
-    ///
-    /// This array will contain a single item except for payloads that include attachments.
-    var bodyParts: [HTTPBodyPart] {
-        return [self.jsonObject] + self.attachments
-    }
+    /// The method used to send the payload.
+    var method: HTTPMethod
+
+    /// The body data for the payload.
+    var bodyData: Data?
 
     var debugDescription: String {
         return "Payload(\(self.method) to \(self.path))"
     }
+
     /// Creates a new payload to add a survey response.
-    /// - Parameter surveyResponse: The survey response to add.
-    init(wrapping surveyResponse: SurveyResponse) {
-        self.init(specializedJSONObject: .surveyResponse(SurveyResponseContent(with: surveyResponse)), path: "surveys/\(surveyResponse.surveyID)/responses", method: .post)
+    /// - Parameters:
+    ///   - surveyResponse: The survey response to add.
+    ///   - context: A context object to supply nonspecific payload data.
+    /// - Throws: An error if the payload cannot be encoded.
+    init(wrapping surveyResponse: SurveyResponse, with context: Context) throws {
+        try self.init(context: context, specializedJSONObject: Payload.SpecializedJSONObject.surveyResponse(SurveyResponseContent(with: surveyResponse)), path: "surveys/\(surveyResponse.surveyID)/responses", method: .post)
     }
 
     /// Creates a new payload to add an event.
-    /// - Parameter event: The event to add.
-    init(wrapping event: Event) {
-        self.init(specializedJSONObject: .event(EventContent(with: event)), path: "events", method: .post)
+    /// - Parameters:
+    ///   - event: The event to add.
+    ///   - context: A context object to supply nonspecific payload data.
+    /// - Throws: An error if the payload cannot be encoded.
+    init(wrapping event: Event, with context: Context) throws {
+        try self.init(context: context, specializedJSONObject: .event(EventContent(with: event)), path: "events", method: .post)
     }
 
     /// Creates a new payload to update the person.
-    /// - Parameter person: The data with which to update the person.
-    init(wrapping person: Person) {
-        self.init(specializedJSONObject: .person(PersonContent(with: person)), path: "person", method: .put)
+    /// - Parameters:
+    ///   - person: The data with which to update the person.
+    ///   - context: A context object to supply nonspecific payload data.
+    /// - Throws: An error if the payload cannot be encoded.
+    init(wrapping person: Person, with context: Context) throws {
+        try self.init(context: context, specializedJSONObject: .person(PersonContent(with: person)), path: "person", method: .put)
     }
 
     /// Creates a new payload to update the device.
-    /// - Parameter device: The data with which to update the device.
-    init(wrapping device: Device) {
-        self.init(specializedJSONObject: .device(DeviceContent(with: device)), path: "device", method: .put)
+    /// - Parameters:
+    ///   - device: The data with which to update the device.
+    ///   - context: A context object to supply nonspecific payload data.
+    /// - Throws: An error if the payload cannot be encoded.
+    init(wrapping device: Device, with context: Context) throws {
+        try self.init(context: context, specializedJSONObject: .device(DeviceContent(with: device)), path: "device", method: .put)
     }
 
     /// Creates a new payload to update the app release.
-    /// - Parameter appRelease: The data with which to update the app release.
-    init(wrapping appRelease: AppRelease) {
-        self.init(specializedJSONObject: .appRelease(AppReleaseContent(with: appRelease)), path: "app_release", method: .put)
+    /// - Parameters:
+    ///   - appRelease: The data with which to update the app release.
+    ///   - context: A context object to supply nonspecific payload data.
+    /// - Throws: An error if the payload cannot be encoded.
+    init(wrapping appRelease: AppRelease, with context: Context) throws {
+        try self.init(context: context, specializedJSONObject: .appRelease(AppReleaseContent(with: appRelease)), path: "app_release", method: .put)
+    }
+
+    /// Creates a new payload to log out a session.
+    /// - Parameter context: A context object to supply nonspecific payload data.
+    /// - Returns: The newly-created logout payload.
+    /// - Throws: An error if the payload cannot be encoded.
+    static func logout(with context: Context) throws -> Self {
+        return try self.init(context: context, specializedJSONObject: .logout, path: "session", method: .delete)
     }
 
     /// - Parameter message:
@@ -76,11 +99,13 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
     /// Creates a new payload to send a message.
     /// - Parameters:
     ///   - message: The message to send.
+    ///   - context: A context object to supply nonspecific payload data.
     ///   - customData: The custom data to attach to the message.
     ///   - attachmentURLProvider: An object conforming to `AttachmentURLProviding` to provide the URL for any stored attachments.
-    init(wrapping message: MessageList.Message, customData: CustomData? = nil, attachmentURLProvider: AttachmentURLProviding) {
+    /// - Throws: An error if the payload cannot be encoded.
+    init(wrapping message: MessageList.Message, with context: Context, customData: CustomData? = nil, attachmentURLProvider: AttachmentURLProviding) throws {
         let attachments = message.attachments.compactMap { (attachment: MessageList.Message.Attachment) -> Payload.Attachment? in
-            var contents: Attachment.AttachmentContents
+            var contents: Payload.Attachment.AttachmentContents
 
             if let url = attachmentURLProvider.url(for: attachment) {
                 contents = .file(url)
@@ -91,26 +116,32 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
                 return nil
             }
 
-            return Attachment(contentType: attachment.contentType, filename: attachment.filename, contents: contents)
+            return Payload.Attachment(contentType: attachment.contentType, filename: attachment.filename, contents: contents)
         }
 
-        self.init(specializedJSONObject: .message(MessageContent(with: message, customData: customData)), path: "messages", method: .post, attachments: attachments)
+        // The API requires multipart encoding for encrypted messages and allows it for non-encrypted
+        try self.init(context: context, specializedJSONObject: .message(MessageContent(with: message, customData: customData)), path: "messages", method: .post, attachments: attachments, isMultipart: true)
     }
 
-    /// Initializes a new payload.
-    /// - Parameters:
-    ///   - specializedJSONObject: The payload-type-specific object used to create the JSON object.
-    ///   - path: The path for the API request.
-    ///   - method: The HTTP method for the API request.
-    ///   - attachments: The attachments to send with the payload, if any.
-    private init(specializedJSONObject: SpecializedJSONObject, path: String, method: HTTPMethod, attachments: [Attachment] = []) {
-        self.jsonObject = JSONObject(specializedJSONObject: specializedJSONObject, context: Self.context, shouldStripContainer: attachments.count > 0)
-        self.path = path
-        self.method = method
-        self.attachments = attachments
+    mutating func updateCredentials(_ credentials: PayloadStoredCredentials, using encoder: JSONEncoder, decoder: JSONDecoder, encryptionContext: Payload.Context.EncryptionContext?) throws {
+        self.credentials = credentials
+
+        if let encryptionContext = encryptionContext {
+            try self.updateEmbeddedToken(encryptionContext.embeddedToken, encoder: encoder, decoder: decoder, encryptionKey: encryptionContext.encryptionKey)
+        }
+    }
+
+    mutating func clearCredentials() {
+        self.credentials = .invalidEmbedded
     }
 
     struct Context {
+        let tag: String
+        let credentials: PayloadStoredCredentials
+        var sessionID: String?
+        let encoder: JSONEncoder
+        let encryptionContext: EncryptionContext?
+
         func getNextNonce() -> String {
             return UUID().uuidString
         }
@@ -123,15 +154,43 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             return TimeZone.current.secondsFromGMT()
         }
 
-        mutating func startSession() {
-            self.sessionID = UUID().uuidString
+        struct EncryptionContext: Equatable {
+            let encryptionKey: Data
+            let embeddedToken: String
+        }
+    }
+
+    init(context: Context, specializedJSONObject: Payload.SpecializedJSONObject, path: String, method: HTTPMethod, attachments: [Payload.Attachment] = [], isMultipart: Bool = false) throws {
+        let jsonObject = Payload.JSONObject(specializedJSONObject: specializedJSONObject, context: context, shouldStripContainer: isMultipart)
+        var bodyParts: [HTTPBodyPart] = [jsonObject] + attachments
+
+        if case .embedded = context.credentials, let encryptionKey = context.encryptionContext?.encryptionKey {
+            bodyParts = bodyParts.map { EncryptedHTTPBodyPart(bodyPart: $0, encryptionKey: encryptionKey, includeHeaders: isMultipart) }
         }
 
-        mutating func endSession() {
-            self.sessionID = nil
-        }
+        (self.contentType, self.bodyData) = try Self.encodeBodyData(from: bodyParts, encryptionKey: context.encryptionContext?.encryptionKey, using: context.encoder, isMultipart: isMultipart)
 
-        var sessionID: String?
+        self.identifier = jsonObject.nonce
+        self.path = path
+        self.method = method
+        self.tag = context.tag
+        self.credentials = context.credentials
+    }
+
+    static func encodeBodyData(from bodyParts: [HTTPBodyPart], encryptionKey: Data?, using encoder: JSONEncoder, isMultipart: Bool = false) throws -> (contentType: String?, bodyData: Data?) {
+        switch bodyParts.count {
+        case 0:
+            return (contentType: nil, bodyData: nil)
+
+        case 1 where !isMultipart:
+            return (contentType: bodyParts[0].contentType, try bodyParts[0].content(using: encoder))
+
+        default:
+            let boundary = ApptentiveAPI.createRandomString()
+            let contentType = encryptionKey == nil ? HTTPContentType.multipartMixed(boundary: boundary) : HTTPContentType.multipartEncrypted(boundary: boundary)
+            let bodyData = try ApptentiveAPI.encodeMultipart(bodyParts, with: encoder, boundary: boundary)
+            return (contentType: contentType, bodyData: bodyData)
+        }
     }
 
     /// Represents JSON request data and augments it with universal parameters for the Apptentive API.
@@ -157,11 +216,14 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         /// A string that uniquely identifies a particular launch (warm or cold) of the app.
         let sessionID: String?
 
+        /// A JWT that is embedded in the payload for encrypted payloads.
+        var embeddedToken: String?
+
         /// The name for JSON that will be included in a multipart request.
         ///
         /// Used as the value for the `name` attribute of the part's `Content-Disposition` header.
         var parameterName: String? {
-            return self.shouldStripContainer ? self.specializedJSONObject.containerKey.rawValue : nil
+            return self.shouldStripContainer ? self.specializedJSONObject.containerKey?.rawValue : nil
         }
 
         var filename: String? = nil
@@ -182,6 +244,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             self.creationDate = context.date
             self.creationUTCOffset = context.utcOffset
             self.sessionID = context.sessionID
+            self.embeddedToken = context.encryptionContext?.embeddedToken
         }
 
         init(from decoder: Decoder) throws {
@@ -189,7 +252,9 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
 
             let container = try decoder.container(keyedBy: PayloadTypeCodingKeys.self)
 
-            if let containerKey = container.allKeys.first {
+            self.embeddedToken = try container.decodeIfPresent(String.self, forKey: .token)
+
+            if let containerKey = container.allKeys.first(where: { $0 != .token }) {
                 switch containerKey {
                 case .response:
                     self.specializedJSONObject = .surveyResponse(try container.decode(SurveyResponseContent.self, forKey: containerKey))
@@ -208,6 +273,9 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
 
                 case .message:
                     self.specializedJSONObject = .message(try container.decode(MessageContent.self, forKey: containerKey))
+
+                case .token:
+                    self.specializedJSONObject = .logout
                 }
 
                 nestedContainer = try container.nestedContainer(keyedBy: Payload.AllPossibleCodingKeys.self, forKey: containerKey)
@@ -244,12 +312,14 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         func encode(to encoder: Encoder) throws {
             var container: KeyedEncodingContainer<Payload.AllPossibleCodingKeys>
 
-            if self.shouldStripContainer {
-                // For multipart requests, the outer container is left off.
-                container = encoder.container(keyedBy: Payload.AllPossibleCodingKeys.self)
-            } else {
+            if let containerKey = self.specializedJSONObject.containerKey, !self.shouldStripContainer {
                 var encodingContainer = encoder.container(keyedBy: PayloadTypeCodingKeys.self)
-                container = encodingContainer.nestedContainer(keyedBy: Payload.AllPossibleCodingKeys.self, forKey: self.specializedJSONObject.containerKey)
+                try encodingContainer.encodeIfPresent(self.embeddedToken, forKey: .token)
+
+                container = encodingContainer.nestedContainer(keyedBy: Payload.AllPossibleCodingKeys.self, forKey: containerKey)
+            } else {
+                container = encoder.container(keyedBy: Payload.AllPossibleCodingKeys.self)
+                try container.encodeIfPresent(self.embeddedToken, forKey: .token)
             }
 
             try container.encode(self.nonce, forKey: .nonce)
@@ -267,6 +337,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             case device
             case appRelease = "app_release"
             case message
+            case token
         }
     }
 
@@ -278,8 +349,9 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         case device(DeviceContent)
         case appRelease(AppReleaseContent)
         case message(MessageContent)
+        case logout
 
-        var containerKey: JSONObject.PayloadTypeCodingKeys {
+        var containerKey: JSONObject.PayloadTypeCodingKeys? {
             switch self {
             case .surveyResponse:
                 return .response
@@ -298,6 +370,9 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
 
             case .message:
                 return .message
+
+            case .logout:
+                return nil
             }
         }
 
@@ -320,6 +395,9 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
 
             case .message(let messageContents):
                 try messageContents.encodeContents(to: &container)
+
+            case .logout:
+                break
             }
         }
     }
@@ -331,6 +409,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         case creationDate = "client_created_at"
         case creationUTCOffset = "client_created_at_utc_offset"
         case sessionID = "session_id"
+        case token = "token"
 
         // Shared keys
         case customData = "custom_data"

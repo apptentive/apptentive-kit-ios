@@ -10,13 +10,14 @@ import Foundation
 
 @testable import ApptentiveKit
 
-class SpyRequestor: HTTPRequesting {
+class SpyRequestor: HTTPRequesting, FakeHTTPCancellableDelegate {
     var request: URLRequest?
     var responseData: Data?
     var temporaryURL: URL?
     var extraCompletion: (() -> Void)?
     var delay: TimeInterval = 0
     var error: HTTPClientError?
+    var cancellable: FakeHTTPCancellable?
 
     init(responseData: Data) {
         self.responseData = responseData
@@ -34,6 +35,9 @@ class SpyRequestor: HTTPRequesting {
             case .clientError(let response, _):
                 completion(self.responseData, response, nil)
 
+            case .unauthorized(let response, _):
+                completion(self.responseData, response, nil)
+
             case .serverError(let response, _):
                 completion(self.responseData, response, nil)
 
@@ -42,13 +46,16 @@ class SpyRequestor: HTTPRequesting {
                 completion(self.responseData, response, nil)
 
             default:
-                completion(self.responseData, nil, self.error)
+                completion(nil, nil, self.error)
             }
 
             self.extraCompletion?()
         }
 
-        return FakeHTTPCancellable()
+        self.cancellable = FakeHTTPCancellable()
+        self.cancellable?.delegate = self
+
+        return self.cancellable!
     }
 
     func download(_ url: URL, completion: @escaping (URL?, URLResponse?, Error?) -> Void) -> HTTPCancellable {
@@ -65,20 +72,33 @@ class SpyRequestor: HTTPRequesting {
                 completion(self.temporaryURL, response, nil)
 
             default:
-                completion(self.temporaryURL, nil, self.error)
+                completion(nil, nil, self.error)
             }
 
             self.extraCompletion?()
         }
 
-        return FakeHTTPCancellable()
+        self.cancellable = FakeHTTPCancellable()
+        self.cancellable?.delegate = self
+
+        return self.cancellable!
     }
 
+    func didCancel(_ cancellable: FakeHTTPCancellable) {
+        self.error = .connectionError(URLError(.cancelled))
+    }
 }
 
-struct FakeHTTPCancellable: HTTPCancellable {
+protocol FakeHTTPCancellableDelegate: AnyObject {
+    func didCancel(_ cancellable: FakeHTTPCancellable)
+}
+
+class FakeHTTPCancellable: NSObject, HTTPCancellable {
     var didCancel: Bool = false
-    mutating func cancel() {
+    weak var delegate: FakeHTTPCancellableDelegate?
+
+    func cancel() {
         self.didCancel = true
+        self.delegate?.didCancel(self)
     }
 }

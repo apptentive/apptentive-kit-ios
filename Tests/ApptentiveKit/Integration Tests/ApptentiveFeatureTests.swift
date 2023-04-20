@@ -28,6 +28,10 @@ class ApptentiveFeatureTests: XCTestCase {
         self.baseURL = url
         self.validKey = key
         self.validSignature = signature
+
+        apptentiveAssertionHandler = { message, file, line in
+            print("\(file):\(line): Apptentive critical error: \(message())")
+        }
     }
 
     override func tearDown() {
@@ -63,8 +67,8 @@ class ApptentiveFeatureTests: XCTestCase {
         let credentials = Apptentive.AppCredentials(key: self.validKey!, signature: self.validSignature!)
 
         do {
-         try await apptentive.register(with: credentials)
-           return true
+            try await apptentive.register(with: credentials)
+            return true
         } catch {
             return false
         }

@@ -10,7 +10,7 @@ import ApptentiveKit
 import UIKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, ApptentiveDelegate {
     var window: UIWindow?
     var apptentive: Apptentive?
 
@@ -43,6 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        print("Registered for remote notifications: \(deviceToken.map{ String(format: "%02.2hhx", $0) }.joined()).")
         self.apptentive?.setRemoteNotificationDeviceToken(deviceToken)
     }
 
@@ -73,8 +74,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     fileprivate func connect(_ completion: @escaping ((Result<Void, Error>)) -> Void) {
-
-
         guard let key = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_KEY") as? String,
               let signature = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_SIGNATURE") as? String,
               let urlString = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_BASE_URL") as? String,
@@ -82,9 +81,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             completion(.failure(AppError.credentialsError))
             return
         }
+
         self.apptentive = Apptentive(apiBaseURL: url)
+        self.apptentive?.delegate = self
 
         self.apptentive?.register(with: .init(key: key, signature: signature), completion: completion)
+    }
+
+    func authenticationDidFail(with error: Error) {
+        print("Authentication failed with error: \(error)")
     }
 }
 

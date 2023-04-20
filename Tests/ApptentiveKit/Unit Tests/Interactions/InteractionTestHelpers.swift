@@ -17,7 +17,7 @@ class InteractionTestHelpers {  // Has to be a class so that Bundle(for:) works.
         }
 
         let data = try Data(contentsOf: url)
-        return try JSONDecoder().decode(Interaction.self, from: data)
+        return try JSONDecoder.apptentive.decode(Interaction.self, from: data)
     }
 
     enum InteractionTestHelpersError: Error {

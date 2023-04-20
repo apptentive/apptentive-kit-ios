@@ -10,32 +10,8 @@ import Foundation
 
 typealias ConversationEnvironment = DeviceEnvironment & AppEnvironment
 
-/// Describes an object that can contain the information needed to connect to the Apptentive API.
-protocol APICredentialsProviding {
-
-    /// The key and signature to use when communicating with the Apptentive API.
-    var appCredentials: Apptentive.AppCredentials? { get }
-
-    /// The token and conversation ID used when communicating with the Apptentive API.
-    var conversationCredentials: Conversation.ConversationCredentials? { get }
-
-    var acceptLanguage: String? { get }
-}
-
 /// A object describing the state of the SDK, used for targeting and overall state management.
-struct Conversation: Equatable, Codable, APICredentialsProviding {
-
-    /// The key and signature to use when communicating with the Apptentive API.
-    var appCredentials: Apptentive.AppCredentials?
-
-    /// The token and conversation ID used when communicating with the Apptentive API.
-    var conversationCredentials: ConversationCredentials?
-
-    /// An object encapsulating the token and ID of a conversation.
-    struct ConversationCredentials: Equatable, Codable {
-        let token: String
-        let id: String
-    }
+struct Conversation: Equatable, Codable {
 
     /// The app release corresponding to the conversation.
     var appRelease: AppRelease
@@ -70,20 +46,6 @@ struct Conversation: Equatable, Codable, APICredentialsProviding {
     /// - Parameter newer: The newer conversation.
     /// - Throws: An error if the app- or conversation credentials are mismatched.
     mutating func merge(with newer: Conversation) throws {
-        guard self.appCredentials == nil || newer.appCredentials == nil || self.appCredentials == newer.appCredentials else {
-            apptentiveCriticalError("Apptentive Key and Signature have changed from their previous values, which is not supported.")
-            throw ApptentiveError.mismatchedCredentials
-        }
-
-        guard self.conversationCredentials == nil || newer.conversationCredentials == nil || self.conversationCredentials == newer.conversationCredentials else {
-            // Should never be changing conversation credentials unless they're currently nil.
-            apptentiveCriticalError("Both new and existing conversations have tokens, but they do not match.")
-            throw ApptentiveError.internalInconsistency
-        }
-
-        self.appCredentials = self.appCredentials ?? newer.appCredentials
-        self.conversationCredentials = self.conversationCredentials ?? newer.conversationCredentials
-
         if appRelease.version ?? 0 < newer.appRelease.version ?? 0 {
             self.codePoints.resetVersion()
             self.interactions.resetVersion()
@@ -112,11 +74,5 @@ struct Conversation: Equatable, Codable, APICredentialsProviding {
         try copy.merge(with: newer)
 
         return copy
-    }
-
-    // MARK: APICredentialsProviding
-
-    var acceptLanguage: String? {
-        return self.device.localeLanguageCode
     }
 }

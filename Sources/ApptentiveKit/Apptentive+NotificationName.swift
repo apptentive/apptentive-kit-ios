@@ -13,6 +13,7 @@ extension Notification.Name {
     static let payloadSending = Notification.Name("com.apptentive.payloadSending")
     static let payloadSent = Notification.Name("com.apptentive.payloadSent")
     static let payloadFailed = Notification.Name("com.apptentive.payloadFailed")
+
     /// The notification name to use to post and observe a notification when an event is engaged.
     public static let apptentiveEventEngaged = Notification.Name("com.apptentive.apptentiveEventEngaged")
 }

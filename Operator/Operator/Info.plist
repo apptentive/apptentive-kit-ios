@@ -8,6 +8,8 @@
 	<string>$(APPTENTIVE_API_KEY)</string>
 	<key>APPTENTIVE_API_SIGNATURE</key>
 	<string>$(APPTENTIVE_API_SIGNATURE)</string>
+	<key>APPTENTIVE_JWT_SECRET</key>
+	<string>$(APPTENTIVE_JWT_SECRET)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

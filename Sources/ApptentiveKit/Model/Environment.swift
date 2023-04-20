@@ -61,6 +61,7 @@ protocol DeviceEnvironment {
     var localeRegionCode: String? { get }
     var preferredLocalization: String? { get }
     var timeZoneSecondsFromGMT: Int { get }
+    var remoteNotificationDeviceToken: Data? { get set }
 
     #if canImport(UIKit)
         var contentSizeCategory: UIContentSizeCategory { get }
@@ -101,6 +102,9 @@ class Environment: GlobalEnvironment {
 
     /// Whether the apptentive theme is set to `none` and is being overidden.
     var isOverridingStyles: Bool
+
+    /// The remote notification device token for this device.
+    var remoteNotificationDeviceToken: Data?
 
     /// The file manager that should be used when interacting with the filesystem.
     let fileManager: FileManager

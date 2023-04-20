@@ -19,9 +19,7 @@ class LegacyPerson: NSObject, NSSecureCoding {
         return true
     }
 
-    func encode(with coder: NSCoder) {
-        apptentiveCriticalError("Saving legacy custom data is not supported")
-    }
+    func encode(with coder: NSCoder) {}
 
     required init?(coder: NSCoder) {
         self.name = coder.decodeObject(of: NSString.self, forKey: NSCodingKeys.name) as String?

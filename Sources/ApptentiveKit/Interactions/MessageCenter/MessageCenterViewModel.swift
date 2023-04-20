@@ -17,7 +17,6 @@ public protocol MessageCenterViewModelDelegate: AnyObject {
     func messageCenterViewModel(_: MessageCenterViewModel, didDeleteRowsAt indexPaths: [IndexPath])
     func messageCenterViewModel(_: MessageCenterViewModel, didUpdateRowsAt indexPaths: [IndexPath])
     func messageCenterViewModel(_: MessageCenterViewModel, didInsertRowsAt indexPaths: [IndexPath])
-    func messageCenterViewModel(_: MessageCenterViewModel, didMoveRowsAt indexPathMoves: [(IndexPath, IndexPath)])
     func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel)
 
     func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel)
@@ -573,7 +572,6 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         let allNonces = Set(oldIndexPaths.keys).union(Set(newIndexPaths.keys))
 
         var updatedIndexPaths = [IndexPath]()
-        var movedIndexPaths = [(IndexPath, IndexPath)]()
         var deletedIndexPaths = [IndexPath]()
         var insertedIndexPaths = [IndexPath]()
 
@@ -582,11 +580,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             let newIndexPath = newIndexPaths[nonce]
 
             switch (oldIndexPath, newIndexPath) {
-            case (.some(let oldIndexPath), .some(let newIndexPath)):
-                if oldIndexPath != newIndexPath {
-                    movedIndexPaths.append((oldIndexPath, newIndexPath))
-                }
-
+            case (.some, .some(let newIndexPath)):
                 if oldMessages[nonce] != newMessages[nonce] {
                     updatedIndexPaths.append(newIndexPath)
                 }
@@ -605,7 +599,6 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.delegate?.messageCenterViewModel(self, didDeleteRowsAt: deletedIndexPaths)
         self.delegate?.messageCenterViewModel(self, didInsertRowsAt: insertedIndexPaths)
         self.delegate?.messageCenterViewModel(self, didUpdateRowsAt: updatedIndexPaths)
-        self.delegate?.messageCenterViewModel(self, didMoveRowsAt: movedIndexPaths)
     }
 
     func validateProfile() {
