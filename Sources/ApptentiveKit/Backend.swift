@@ -569,7 +569,7 @@ class Backend: PayloadAuthenticationDelegate {
             let cacheURL = try Self.cacheDirectoryURL(with: containerName, environment: environment)
 
             switch transition {
-            case (from: .waiting, to: .loading(let appCredentials)):
+            case (from: .waiting, to: .loading(let appCredentials)), (from: .backgrounded, to: .loading(let appCredentials)):
                 try self.createCommonSavers(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment)
                 self.loadCommonFiles(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment)
 
