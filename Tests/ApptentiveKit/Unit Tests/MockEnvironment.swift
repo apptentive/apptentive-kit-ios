@@ -12,14 +12,15 @@ import UIKit
 
 struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
 
-    static let applicationSupportURL = URL(string: "file:///tmp/")!
+    static let applicationSupportURL = URL(fileURLWithPath: "/tmp/")
+    static let cachesURL = URL(fileURLWithPath: "/tmp/caches/")
     static let containerName = "com.apptentive.feedback"
 
     static func cleanContainerURL() throws {
         let containerURL = self.applicationSupportURL.appendingPathComponent(self.containerName)
 
         if FileManager.default.fileExists(atPath: containerURL.path) {
-            try FileManager.default.removeItem(at: containerURL)
+            try? FileManager.default.removeItem(at: containerURL)
         }
 
         try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true, attributes: [:])
@@ -62,6 +63,7 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
     var isInForeground = true
     var isProtectedDataAvailable = true
     var delegate: EnvironmentDelegate?
+    var remoteNotificationDeviceToken: Data?
 
     var appDisplayName: String = "This Nifty App"
 
@@ -70,7 +72,7 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
     }
 
     func cachesURL() throws -> URL {
-        return Self.applicationSupportURL
+        return Self.cachesURL
     }
 
     var shouldOpenURLSucceed = true

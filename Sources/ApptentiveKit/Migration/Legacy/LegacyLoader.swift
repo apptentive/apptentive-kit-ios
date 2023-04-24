@@ -8,68 +8,129 @@
 
 import Foundation
 
-struct LegacyLoader: Loader {
+class LegacyLoader: NSObject, Loader, NSKeyedUnarchiverDelegate {
     let containerURL: URL
+    let cacheURL: URL
     let environment: GlobalEnvironment
+    let appCredentials: Apptentive.AppCredentials
 
-    init(containerURL: URL, environment: GlobalEnvironment) {
-        self.containerURL = containerURL
-        self.environment = environment
+    func unarchiver(_ unarchiver: NSKeyedUnarchiver, cannotDecodeObjectOfClassName name: String, originalClasses classNames: [String]) -> AnyClass? {
+        print("Couldn't decode \(name)")
+        return NSString.self
     }
 
-    var conversationFileExists: Bool {
+    func unarchiver(_ unarchiver: NSKeyedUnarchiver, didDecode object: Any?) -> Any? {
+        print("Did decode \(String(describing: object))")
+        return object
+    }
+
+    required init(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) {
+        self.containerURL = containerURL
+        self.cacheURL = cacheURL
+        self.environment = environment
+        self.appCredentials = appCredentials
+    }
+
+    var rosterFileExists: Bool {
         return self.environment.fileManager.fileExists(atPath: self.metadataURL.path)
     }
 
-    func loadConversation() throws -> Conversation {
-        let data = try Data(contentsOf: self.metadataURL)
-        let legacyConversationMetadata = try NSKeyedUnarchiver.unarchivedObject(ofClass: LegacyConversationMetadata.self, from: data)
+    func conversationFileExists(for record: ConversationRoster.Record) -> Bool {
+        return self.environment.fileManager.fileExists(atPath: self.conversationFileURL(for: record).path)
+    }
 
-        // Look for an anonymous conversation's metadata item.
-        guard let activeConversationMetadataItem = legacyConversationMetadata?.items.first(where: { $0.state == .anonymous }),
-            let token = activeConversationMetadataItem.jwt,
-            let id = activeConversationMetadataItem.identifier,
-            let directory = activeConversationMetadataItem.directoryName
-        else {
-            throw LoaderError.noActiveAnonymousConversation
+    func loadRoster() throws -> ConversationRoster {
+        let data = try Data(contentsOf: self.metadataURL)
+        guard let legacyConversationMetadata = try NSKeyedUnarchiver.unarchivedObject(ofClass: LegacyConversationMetadata.self, from: data) else {
+            throw LoaderError.unreadableLegacyMetadata
         }
 
-        // Create a blank conversation and add the legacy credentials.
-        var conversation = Conversation(environment: self.environment)
-        conversation.conversationCredentials = Conversation.ConversationCredentials(token: token, id: id)
+        var activeRecord: ConversationRoster.Record? = nil
 
-        // Try to load the corresponding conversation.
-        let conversationFileURL = self.containerURL.appendingPathComponent("\(directory)/conversation-v1.archive")
-        let conversationData = try Data(contentsOf: conversationFileURL)
-        let legacyConversation = try NSKeyedUnarchiver.unarchivedObject(ofClass: LegacyConversation.self, from: conversationData)
+        // Look for an anonymous conversation's metadata item.
+        if let activeItem = legacyConversationMetadata.items.first(where: { $0.state != .loggedOut && $0.state != .undefined }),
+            let directory = activeItem.directoryName
+        {
+            let state: ConversationRoster.Record.State = try {
+                switch (activeItem.state, activeItem.identifier, activeItem.jwt, activeItem.userID, activeItem.encryptionKey) {
+                case (.anonymousPending, _, _, _, _):
+                    return .anonymousPending
+
+                case (.legacyPending, _, .some(let token), _, _):
+                    return .legacyPending(legacyToken: token)
+
+                case (.anonymous, .some(let id), .some(let token), _, _):
+                    return .anonymous(credentials: .init(id: id, token: token))
+
+                case (.loggedIn, .some(let id), .some(let token), .some(let userID), .some(let encryptionKey)):
+                    return .loggedIn(credentials: .init(id: id, token: token), subject: userID, encryptionKey: encryptionKey)
+
+                case (.loggedOut, .some(let id), _, .some(let userID), _):
+                    return .loggedOut(id: id, subject: userID)
+
+                default:
+                    apptentiveCriticalError("Error migrating active legacy metadata item \(String(describing: activeItem)).")
+                    throw LoaderError.unreadableLegacyMetadata
+                }
+            }()
+
+            activeRecord = ConversationRoster.Record(state: state, path: directory)
+        }
+
+        let loggedOutRecords: [ConversationRoster.Record] = legacyConversationMetadata.items.filter({ $0.state == .loggedOut }).compactMap { loggedOutItem in
+            guard let directory = loggedOutItem.directoryName, let id = loggedOutItem.identifier, let userID = loggedOutItem.userID else {
+                apptentiveCriticalError("Error migrating logged-out legacy metadata item \(String(describing: loggedOutItem)).")
+                return nil
+            }
+
+            return ConversationRoster.Record(state: .loggedOut(id: id, subject: userID), path: directory)
+        }
+
+        return ConversationRoster(active: activeRecord, loggedOut: loggedOutRecords)
+    }
+
+    func loadConversation(for record: ConversationRoster.Record) throws -> Conversation {
+        let conversationData = try Data(contentsOf: self.conversationFileURL(for: record))
+
+        var legacyConversation: LegacyConversation?
+
+        NSKeyedUnarchiver.setClass(LegacyConversation.self, forClassName: "ApptentiveConversation")
+
+        if case .loggedIn(credentials: _, subject: _, encryptionKey: let encryptionKey) = record.state {
+            legacyConversation = try NSKeyedUnarchiver.unarchivedObject(ofClass: LegacyConversation.self, from: conversationData.decrypted(with: encryptionKey))
+        } else {
+            legacyConversation = try NSKeyedUnarchiver.unarchivedObject(ofClass: LegacyConversation.self, from: conversationData)
+        }
+
+        var newConversation = Conversation(environment: self.environment)
 
         // Copy over iteraction metrics if possible.
         if let legacyInteractions = legacyConversation?.engagement?.interactions {
-            conversation.interactions = EngagementMetrics(legacyMetrics: legacyInteractions)
+            newConversation.interactions = EngagementMetrics(legacyMetrics: legacyInteractions)
         } else {
             throw ApptentiveError.internalInconsistency
         }
 
         // Copy over code point metrics if possible.
         if let legacyCodePoints = legacyConversation?.engagement?.codePoints {
-            conversation.codePoints = EngagementMetrics(legacyMetrics: legacyCodePoints)
+            newConversation.codePoints = EngagementMetrics(legacyMetrics: legacyCodePoints)
         } else {
             throw ApptentiveError.internalInconsistency
         }
 
         // Copy over person data if possible.
-        conversation.person.name = legacyConversation?.person?.name
-        conversation.person.emailAddress = legacyConversation?.person?.emailAddress
-        conversation.person.mParticleID = legacyConversation?.person?.mParticleID
-        conversation.person.customData = Apptentive.convertLegacyCustomData(legacyConversation?.person?.customData)
+        newConversation.person.name = legacyConversation?.person?.name
+        newConversation.person.emailAddress = legacyConversation?.person?.emailAddress
+        newConversation.person.mParticleID = legacyConversation?.person?.mParticleID
+        newConversation.person.customData = Apptentive.convertLegacyCustomData(legacyConversation?.person?.customData)
 
         // Copy over device (custom data) if possible.
-        conversation.device.customData = Apptentive.convertLegacyCustomData(legacyConversation?.device?.customData)
+        newConversation.device.customData = Apptentive.convertLegacyCustomData(legacyConversation?.device?.customData)
 
         // Copy over random values if possible.
-        conversation.random.values = legacyConversation?.random?.randomValues ?? [:]
+        newConversation.random.values = legacyConversation?.random?.randomValues ?? [:]
 
-        return conversation
+        return newConversation
     }
 
     func loadPayloads() throws -> [Payload] {
@@ -77,28 +138,40 @@ struct LegacyLoader: Loader {
         return []
     }
 
-    func loadMessages() throws -> MessageList? {
+    func loadMessages(for record: ConversationRoster.Record) throws -> MessageList? {
+        try self.environment.fileManager.createDirectory(at: cacheURL, withIntermediateDirectories: true)
+
         // These are also complicated to migrate and can just be re-downloaded.
         return nil
     }
 
-    func cleanUp() throws {
+    func cleanUpRoster() throws {
         // Until we're out of beta, keep the legacy conversation around.
-
-        // let data = try Data(contentsOf: self.metadataURL)
-        // let legacyConversationMetadata = try NSKeyedUnarchiver.unarchivedObject(ofClass: LegacyConversationMetadata.self, from: data)
-        //
-        // // Look for an anonymous conversation's metadata item.
-        // try legacyConversationMetadata?.items.compactMap { $0.directoryName }.forEach { directoryName in
-        //     let conversationDirectoryURL = self.containerURL.appendingPathComponent(directoryName, isDirectory: true)
-        //     try self.environment.fileManager.removeItem(at: conversationDirectoryURL)
+        // if self.rosterFileExists {
+        //     try self.environment.fileManager.removeItem(at: self.metadataURL)
         // }
+    }
+
+    func cleanUp(for record: ConversationRoster.Record) throws {
+        //        if self.conversationFileExists {
+        //            try self.environment.fileManager.removeItem(at: self.conversationFileURL)
+        //        }
         //
-        // try self.environment.fileManager.removeItem(at: self.metadataURL)
+        //        if self.environment.fileManager.fileExists(atPath: self.messagesFileURL.path) {
+        //            try self.environment.fileManager.removeItem(at: self.messagesFileURL)
+        //        }
     }
 
     private var metadataURL: URL {
         return self.containerURL.appendingPathComponent("conversation-v1.meta")
+    }
+
+    private func conversationFileURL(for record: ConversationRoster.Record) -> URL {
+        return self.containerURL.appendingPathComponent(record.path).appendingPathComponent("conversation-v1.archive")
+    }
+
+    private func messagesFileURL(for record: ConversationRoster.Record) -> URL {
+        return self.containerURL.appendingPathComponent(record.path).appendingPathComponent("messages-v1.archive")
     }
 }
 

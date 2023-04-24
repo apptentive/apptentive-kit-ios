@@ -27,7 +27,7 @@ extension Apptentive {
                 do {
                     let manifestData = try Data(contentsOf: url)
 
-                    let engagementManifest = try JSONDecoder().decode(EngagementManifest.self, from: manifestData)
+                    let engagementManifest = try JSONDecoder.apptentive.decode(EngagementManifest.self, from: manifestData)
 
                     self.backend.targeter.localEngagementManifest = engagementManifest
 
@@ -89,7 +89,7 @@ extension Apptentive {
         self.backendQueue.async {
             do {
                 let interactionData = try Data(contentsOf: url)
-                let interaction = try JSONDecoder().decode(Interaction.self, from: interactionData)
+                let interaction = try JSONDecoder.apptentive.decode(Interaction.self, from: interactionData)
 
                 DispatchQueue.main.async {
                     completion(
@@ -127,6 +127,53 @@ extension Apptentive {
 
             DispatchQueue.main.async {
                 completion(targetedEvents)
+            }
+        }
+    }
+
+    /// Queries information about the current connection to the Apptentive API.
+    /// - Parameter completion: A completion handler that is called with the result of the query.
+    public func getConnectionInfo(_ completion: @escaping (_ state: String?, _ id: String?, _ token: String?, _ subject: String?, _ buttonLabel: String?) -> Void) {
+        self.backendQueue.async {
+            var stateString = "No Active Conversation"
+            var subjectString: String? = nil
+            var idString: String? = nil
+            var buttonLabel: String? = nil
+            var tokenString: String? = nil
+
+            switch self.backend.state.roster.active?.state {
+            case .placeholder:
+                stateString = "Placeholder"
+
+            case .anonymousPending:
+                stateString = "Anonymous Pending"
+
+            case .legacyPending(let legacyToken):
+                tokenString = legacyToken
+                stateString = "Legacy Pending"
+
+            case .anonymous(let credentials):
+                idString = credentials.id
+                tokenString = credentials.token
+                stateString = "Anonymous"
+                buttonLabel = "Log In"
+
+            case .loggedIn(let credentials, let subject, encryptionKey: _):
+                idString = credentials.id
+                tokenString = credentials.token
+                subjectString = subject
+                stateString = "Logged In"
+                buttonLabel = "Log Out"
+
+            default:
+                idString = nil
+                subjectString = nil
+                stateString = "Logged Out"
+                buttonLabel = "Log In"
+            }
+
+            DispatchQueue.main.async {
+                completion(stateString, idString, tokenString, subjectString, buttonLabel)
             }
         }
     }

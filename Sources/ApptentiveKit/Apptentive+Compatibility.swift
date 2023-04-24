@@ -318,22 +318,32 @@ extension Apptentive {
         apptentiveCriticalError("This method is no longer implemented.")
     }
 
-    @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
-    @objc public func logIn(withToken token: String, completion: @escaping (Bool, Error) -> Void) {
-        apptentiveCriticalError("This method is no longer implemented.")
+    @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Void, Error> parameter.")
+    @objc public func logIn(withToken token: String, completion: @escaping (Bool, Error?) -> Void) {
+        self.logIn(with: token) { result in
+            switch result {
+            case .success:
+                completion(true, nil)
+
+            case .failure(let error):
+                completion(false, error)
+            }
+        }
     }
 
-    @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
+    @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Void, Error> parameter.")
     @objc public func logOut() {
-        apptentiveCriticalError("This method is no longer implemented.")
+        self.logOut(completion: nil)
     }
 
-    @available(*, deprecated, message: "Multiple users on the same device is not currently supported.")
+    @available(swift, deprecated: 1.0, message: "Assign an object that conforms to the 'ApptentiveDelegate' protocol to the Apptentive instance's 'delegate' property.")
     @objc public var authenticationFailureCallback: ApptentiveAuthenticationFailureCallback? {
         get {
-            nil
+            return Self.compatibilityDelegate.authenticationFailureCallback
         }
-        set {}
+        set {
+            Self.compatibilityDelegate.authenticationFailureCallback = newValue
+        }
     }
 
     @available(*, deprecated, message: "This feature is no longer supported.")
@@ -344,9 +354,18 @@ extension Apptentive {
         set {}
     }
 
-    @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
+    @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Void, Error> parameter.")
     @objc public func updateToken(_ token: String, completion: ((Bool) -> Void)? = nil) {
-        apptentiveCriticalError("This method is no longer implemented.")
+        self.updateToken(token) { (result: Result<Void, Error>) in
+            switch result {
+            case .success:
+                completion?(true)
+
+            case .failure(let error):
+                ApptentiveLogger.default.error("Error when attempting to update token: \(error)")
+                completion?(false)
+            }
+        }
     }
 
     @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of it's static log properties.")
@@ -390,6 +409,53 @@ extension Apptentive {
         }
 
         return result
+    }
+
+    @available(swift, deprecated: 1.0, message: "(Needed to silence deprecation warning elsewhere)")
+    private static let compatibilityDelegate = CompatibilityDelegate()
+
+    @available(swift, deprecated: 1.0, message: "Use the 'AuthenticationFailureReason' enumeration.")
+    class CompatibilityDelegate: ApptentiveDelegate {
+        func authenticationDidFail(with error: Error) {
+            let (reason, responseString) = Self.convertAuthenticationFailureError(error)
+
+            self.authenticationFailureCallback?(reason, responseString)
+        }
+
+        var authenticationFailureCallback: ApptentiveAuthenticationFailureCallback?
+
+        static func convertAuthenticationFailureError(_ error: Error) -> (ApptentiveAuthenticationFailureReason, String?) {
+            if case .authenticationFailed(reason: let reason, responseString: let responseString) = error as? ApptentiveError {
+                switch reason {
+                case .invalidAlgorithm:
+                    return (ApptentiveAuthenticationFailureReason.invalidAlgorithm, responseString)
+                case .malformedToken:
+                    return (ApptentiveAuthenticationFailureReason.malformedToken, responseString)
+                case .invalidToken:
+                    return (ApptentiveAuthenticationFailureReason.invalidToken, responseString)
+                case .missingSubClaim:
+                    return (ApptentiveAuthenticationFailureReason.missingSubClaim, responseString)
+                case .mismatchedSubClaim:
+                    return (ApptentiveAuthenticationFailureReason.mismatchedSubClaim, responseString)
+                case .invalidSubClaim:
+                    return (ApptentiveAuthenticationFailureReason.invalidSubClaim, responseString)
+                case .expiredToken:
+                    return (ApptentiveAuthenticationFailureReason.expiredToken, responseString)
+                case .revokedToken:
+                    return (ApptentiveAuthenticationFailureReason.revokedToken, responseString)
+                case .missingAppKey:
+                    return (ApptentiveAuthenticationFailureReason.missingAppKey, responseString)
+                case .missingAppSignature:
+                    return (ApptentiveAuthenticationFailureReason.missingAppSignature, responseString)
+                case .invalidKeySignaturePair:
+                    return (ApptentiveAuthenticationFailureReason.invalidKeySignaturePair, responseString)
+                default:
+                    return (.unknown, responseString)
+                }
+            } else {
+                return (.unknown, "")
+            }
+        }
     }
 }
 
@@ -446,13 +512,13 @@ extension UIViewController {
     }
 }
 
-@available(*, deprecated, message: "Multiple users on the same device is not currently supported.")
-public typealias ApptentiveAuthenticationFailureCallback = (ApptentiveAuthenticationFailureReason, String) -> Void
+@available(swift, deprecated: 1.0, message: "Use the 'AuthenticationFailureReason' enumeration.")
+public typealias ApptentiveAuthenticationFailureCallback = (ApptentiveAuthenticationFailureReason, String?) -> Void
 
 @available(*, deprecated, message: "This feature is no longer supported.")
 public typealias ApptentiveInteractionCallback = (String, [AnyHashable: Any]?) -> Bool
 
-@available(*, deprecated, message: "Multiple users on the same device is not currently supported.")
+@available(swift, deprecated: 1.0, message: "Use the 'AuthenticationFailureReason' enumeration.")
 @objc public enum ApptentiveAuthenticationFailureReason: Int {
     /// An unknown authentication failure.
     case unknown = 0

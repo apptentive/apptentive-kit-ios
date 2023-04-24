@@ -84,10 +84,11 @@ class SurveyBranchedBottomView: UIView {
     }
 
     private func configureTermsAndConditions() {
-        self.termsAndConditions.titleLabel?.textAlignment = .center
-        self.termsAndConditions.titleLabel?.textColor = .apptentiveTermsOfServiceLabel
+        self.termsAndConditions.titleLabel?.numberOfLines = 0
         self.termsAndConditions.titleLabel?.font = .apptentiveTermsOfServiceLabel
+        self.termsAndConditions.titleLabel?.textColor = .apptentiveTermsOfServiceLabel
         self.termsAndConditions.translatesAutoresizingMaskIntoConstraints = false
+        self.termsAndConditions.titleLabel?.textAlignment = .center
     }
 
     private func configureSurveyIndicator() {

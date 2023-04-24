@@ -47,7 +47,7 @@ class InteractionPresenterTests: XCTestCase {
             return XCTFail("Unable to encode test fake interaction string")
         }
 
-        let fakeInteraction = try JSONDecoder().decode(Interaction.self, from: fakeInteractionData)
+        let fakeInteraction = try JSONDecoder.apptentive.decode(Interaction.self, from: fakeInteractionData)
 
         XCTAssertThrowsError(try self.presentInteraction(fakeInteraction))
     }

@@ -6,58 +6,70 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
+import GenericJSON
 import XCTest
 
 @testable import ApptentiveKit
 
-class PayloadSenderTests: XCTestCase {
+class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
     var requestRetrier = SpyRequestStarter()
     var saver = SpySaver(containerURL: URL(string: "file:///tmp")!, filename: "PayloadQueue", fileManager: FileManager.default)
     var payloadSender: PayloadSender!
-    var credentialsProvider = MockCredentialsProvider(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), conversationCredentials: Conversation.ConversationCredentials(token: "def", id: "456"), acceptLanguage: "en")
     var notificationCenter = MockNotificationCenter()
+    var uncredentialedPayloadContext: Payload.Context!
+    let anonymousCredentials = AnonymousAPICredentials(appCredentials: .init(key: "abc", signature: "123"), conversationCredentials: .init(id: "def", token: "456"))
+    let jsonEncoder = JSONEncoder.apptentive
+    var authFailureErrorResponse: ErrorResponse?
 
-    override func setUp() {
+    var appCredentials: Apptentive.AppCredentials? {
+        return self.anonymousCredentials.appCredentials
+    }
+
+    func authenticationDidFail(with errorResponse: ErrorResponse?) {
+        self.authFailureErrorResponse = errorResponse
+    }
+
+    override func setUpWithError() throws {
         self.payloadSender = PayloadSender(requestRetrier: self.requestRetrier, notificationCenter: self.notificationCenter)
+        payloadSender.authenticationDelegate = self
+
+        self.uncredentialedPayloadContext = Payload.Context(tag: ".", credentials: .placeholder, sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: nil)
     }
 
     func testSessionID() throws {
-        Payload.context.startSession()
+        let payloadWithSession = try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext)
 
-        let payloadWithSession = Payload(wrapping: "test1")
+        self.uncredentialedPayloadContext.sessionID = nil
 
-        Payload.context.endSession()
+        let payloadWithoutSession = try Payload(wrapping: "test2", with: self.uncredentialedPayloadContext)
 
-        let payloadWithoutSession = Payload(wrapping: "test2")
+        self.uncredentialedPayloadContext.sessionID = "sessionID2"
 
-        Payload.context.startSession()
+        let payloadWithOtherSession = try Payload(wrapping: "test3", with: self.uncredentialedPayloadContext)
 
-        let payloadWithOtherSession = Payload(wrapping: "test3")
+        let payloadWithSessionJSON = try JSON(JSONSerialization.jsonObject(with: payloadWithSession.bodyData!))
+        let payloadWithoutSessionJSON = try JSON(JSONSerialization.jsonObject(with: payloadWithoutSession.bodyData!))
+        let payloadWithOtherSessionJSON = try JSON(JSONSerialization.jsonObject(with: payloadWithOtherSession.bodyData!))
 
-        XCTAssertNotNil(payloadWithSession.jsonObject.sessionID)
-        XCTAssertNil(payloadWithoutSession.jsonObject.sessionID)
-        XCTAssertNotEqual(payloadWithSession.jsonObject.sessionID, payloadWithOtherSession.jsonObject.sessionID)
-
-        let encodedPayload = try JSONEncoder().encode(payloadWithSession)
-        let decodedPayload = try JSONDecoder().decode(Payload.self, from: encodedPayload)
-
-        XCTAssertNotNil(decodedPayload.jsonObject.sessionID)
+        XCTAssertNotNil(payloadWithSessionJSON["event"]!["session_id"])
+        XCTAssertNil(payloadWithoutSessionJSON["event"]!["session_id"])
+        XCTAssertNotEqual(payloadWithSessionJSON["event"]!["session_id"], payloadWithOtherSessionJSON["session_id"])
     }
 
     func testNormalOperation() throws {
         self.payloadSender.saver = self.saver
 
         let payloads = [
-            Payload(wrapping: "test1"),
-            Payload(wrapping: "test2"),
-            Payload(wrapping: "test3"),
+            try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext),
+            try Payload(wrapping: "test2", with: self.uncredentialedPayloadContext),
+            try Payload(wrapping: "test3", with: self.uncredentialedPayloadContext),
         ]
 
         self.payloadSender.send(payloads[0])
         self.payloadSender.send(payloads[1])
         self.payloadSender.send(payloads[2])
 
-        let nonces = payloads.map { $0.jsonObject.nonce }
+        let nonces = payloads.map { $0.identifier }
 
         XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
 
@@ -73,17 +85,19 @@ class PayloadSenderTests: XCTestCase {
         self.requestRetrier.result = .success(PayloadResponse())
 
         // Start the payload sending process by setting the credentials.
-        payloadSender.credentialsProvider = self.credentialsProvider
+        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
 
         // Send one straggler payload while the requests are running.
-        let straggler = Payload(wrapping: "test4")
+        let credentialedPayloadContext = Payload.Context(
+            tag: ".", credentials: .header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), encoder: self.jsonEncoder, encryptionContext: nil)
+        let straggler = try Payload(wrapping: "test4", with: credentialedPayloadContext)
 
         self.payloadSender.send(straggler)
 
         let expectation = XCTestExpectation(description: "PayloadSender sends payloads")
 
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(500)) {
-            XCTAssertEqual(self.notificationCenter.sendingNonces, nonces + [straggler.jsonObject.nonce])
+            XCTAssertEqual(self.notificationCenter.sendingNonces, nonces + [straggler.identifier])
 
             do {
                 try self.payloadSender.savePayloadsIfNeeded()
@@ -94,8 +108,68 @@ class PayloadSenderTests: XCTestCase {
                 // Retrier should have made a request.
                 XCTAssertEqual(self.requestRetrier.requests.count, 4)
 
-                XCTAssertEqual(self.notificationCenter.sentNonces, nonces + [straggler.jsonObject.nonce])
+                XCTAssertEqual(self.notificationCenter.sentNonces, nonces + [straggler.identifier])
                 XCTAssertEqual(self.notificationCenter.failedNonces, [])
+            } catch let error {
+                XCTFail(error.localizedDescription)
+            }
+
+            expectation.fulfill()
+        }
+
+        self.wait(for: [expectation], timeout: 5)
+    }
+
+    func testHTTPUnauthorizedError() throws {
+        self.payloadSender.saver = self.saver
+
+        let payloads = [
+            try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext),
+            try Payload(wrapping: "test2", with: self.uncredentialedPayloadContext),
+        ]
+
+        self.payloadSender.send(payloads[0])
+        self.payloadSender.send(payloads[1])
+
+        let nonces = payloads.map { $0.identifier }
+
+        XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
+
+        // Payload sender should not save queue to saver by default.
+        XCTAssertEqual(self.saver.payloads.count, 0)
+
+        try self.payloadSender.savePayloadsIfNeeded()
+
+        // Payload sender should save queue to saver when asked.
+        XCTAssertEqual(self.saver.payloads.count, 2)
+
+        let errorResponse = ErrorResponse(error: "Mismatched sub claim", errorType: .mismatchedSubClaim)
+        let errorData = try self.jsonEncoder.encode(errorResponse)
+
+        // Mock the payload send request to fail.
+        self.requestRetrier.result = .failure(HTTPClientError.unauthorized(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations/1234/events")!, statusCode: 401, httpVersion: nil, headerFields: nil)!, errorData))
+
+        // Start the payload sending process by setting the credentials.
+        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+
+        XCTAssertNil(self.authFailureErrorResponse)
+
+        let expectation = XCTestExpectation(description: "PayloadSender sends payloads")
+
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(500)) {
+            XCTAssertEqual(self.notificationCenter.sendingNonces, [nonces.first!])
+            XCTAssertNotNil(self.authFailureErrorResponse)
+
+            do {
+                try self.payloadSender.savePayloadsIfNeeded()
+
+                // Payload queue should still be full (of payloads with no credentials)
+                XCTAssertEqual(self.saver.payloads.count, 2)
+
+                XCTAssertEqual(self.notificationCenter.failedErrors.count, 0)
+
+                // Retrier should have made a request.
+                XCTAssertEqual(self.requestRetrier.requests.count, 1)
             } catch let error {
                 XCTFail(error.localizedDescription)
             }
@@ -110,16 +184,16 @@ class PayloadSenderTests: XCTestCase {
         self.payloadSender.saver = self.saver
 
         let payloads = [
-            Payload(wrapping: "test1"),
-            Payload(wrapping: "test2"),
-            Payload(wrapping: "test3"),
+            try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext),
+            try Payload(wrapping: "test2", with: self.uncredentialedPayloadContext),
+            try Payload(wrapping: "test3", with: self.uncredentialedPayloadContext),
         ]
 
         self.payloadSender.send(payloads[0])
         self.payloadSender.send(payloads[1])
         self.payloadSender.send(payloads[2])
 
-        let nonces = payloads.map { $0.jsonObject.nonce }
+        let nonces = payloads.map { $0.identifier }
 
         XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
 
@@ -135,17 +209,19 @@ class PayloadSenderTests: XCTestCase {
         self.requestRetrier.result = .failure(HTTPClientError.clientError(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations/1234/events")!, statusCode: 422, httpVersion: nil, headerFields: nil)!, nil))
 
         // Start the payload sending process by setting the credentials.
-        payloadSender.credentialsProvider = self.credentialsProvider
+        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
 
         // Send one straggler payload while the requests are running.
-        let straggler = Payload(wrapping: "test4")
+        let credentialedPayloadContext = Payload.Context(
+            tag: ".", credentials: .header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), encoder: self.jsonEncoder, encryptionContext: nil)
+        let straggler = try Payload(wrapping: "test4", with: credentialedPayloadContext)
 
         self.payloadSender.send(straggler)
 
         let expectation = XCTestExpectation(description: "PayloadSender sends payloads")
 
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(500)) {
-            XCTAssertEqual(self.notificationCenter.sendingNonces, nonces + [straggler.jsonObject.nonce])
+            XCTAssertEqual(self.notificationCenter.sendingNonces, nonces + [straggler.identifier])
 
             do {
                 try self.payloadSender.savePayloadsIfNeeded()
@@ -153,7 +229,7 @@ class PayloadSenderTests: XCTestCase {
                 // Payload queue should be empty
                 XCTAssertEqual(self.saver.payloads.count, 0)
 
-                XCTAssertEqual(self.notificationCenter.failedNonces, nonces + [straggler.jsonObject.nonce])
+                XCTAssertEqual(self.notificationCenter.failedNonces, nonces + [straggler.identifier])
                 XCTAssertEqual(self.notificationCenter.failedErrors.count, 4)
 
                 // Retrier should have made a request.
@@ -168,23 +244,23 @@ class PayloadSenderTests: XCTestCase {
         self.wait(for: [expectation], timeout: 5)
     }
 
-    func testNoDiskAccess() {
-        self.payloadSender.send(Payload(wrapping: "test1"))
+    func testNoDiskAccess() throws {
+        try self.payloadSender.send(Payload(wrapping: "test1", with: self.uncredentialedPayloadContext))
 
         // Mock the payload send request to succeed.
         self.requestRetrier.result = .success(PayloadResponse())
 
         // Start the payload sending process by setting the credentials.
-        payloadSender.credentialsProvider = self.credentialsProvider
+        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
 
         // Retrier should have made a request.
         XCTAssertEqual(self.requestRetrier.requests.count, 1)
     }
 
-    func testImportantPayload() {
+    func testImportantPayload() throws {
         self.payloadSender.saver = self.saver
 
-        self.payloadSender.send(Payload(wrapping: "test1"), persistEagerly: true)
+        try self.payloadSender.send(Payload(wrapping: "test1", with: self.uncredentialedPayloadContext), persistEagerly: true)
 
         // Payload sender should save queue to saver when `persistEagerly` is set.
         XCTAssertEqual(self.saver.payloads.count, 1)
@@ -194,16 +270,16 @@ class PayloadSenderTests: XCTestCase {
         self.payloadSender.saver = self.saver
 
         let payloads = [
-            Payload(wrapping: "test1"),
-            Payload(wrapping: "test2"),
-            Payload(wrapping: "test3"),
+            try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext),
+            try Payload(wrapping: "test2", with: self.uncredentialedPayloadContext),
+            try Payload(wrapping: "test3", with: self.uncredentialedPayloadContext),
         ]
 
         self.payloadSender.send(payloads[0])
         self.payloadSender.send(payloads[1])
         self.payloadSender.send(payloads[2])
 
-        let nonces = payloads.map { $0.jsonObject.nonce }
+        let nonces = payloads.map { $0.identifier }
 
         XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
 
@@ -224,11 +300,13 @@ class PayloadSenderTests: XCTestCase {
 
             // Try sending another payload, making sure we'll be suspended.
             DispatchQueue.main.async {
-                let straggler = Payload(wrapping: "test4")
+                let credentialedPayloadContext = Payload.Context(
+                    tag: ".", credentials: .header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), encoder: self.jsonEncoder, encryptionContext: nil)
+                let straggler = try! Payload(wrapping: "test4", with: credentialedPayloadContext)
 
                 self.payloadSender.send(straggler)
 
-                XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces + [straggler.jsonObject.nonce])
+                XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces + [straggler.identifier])
                 XCTAssertEqual(self.notificationCenter.sentNonces, nonces)
                 XCTAssertEqual(self.notificationCenter.failedNonces, [])
 
@@ -246,16 +324,48 @@ class PayloadSenderTests: XCTestCase {
         }
 
         // Start the payload sending process by setting the credentials.
-        payloadSender.credentialsProvider = self.credentialsProvider
+        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
 
         self.wait(for: [expectation], timeout: 5)
     }
 
+    func testAddCredentials() throws {
+        let altPayloadContext = Payload.Context(tag: "alt", credentials: .placeholder, encoder: self.jsonEncoder, encryptionContext: nil)
+
+        let payloads = [
+            try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext),
+            try Payload(wrapping: "test2", with: altPayloadContext),
+            try Payload(wrapping: "test3", with: self.uncredentialedPayloadContext),
+        ]
+
+        self.payloadSender.send(payloads[0])
+        self.payloadSender.send(payloads[1])
+        self.payloadSender.send(payloads[2])
+
+        XCTAssertEqual(self.payloadSender.payloads[0].credentials, .placeholder)
+        XCTAssertEqual(self.payloadSender.payloads[1].credentials, .placeholder)
+        XCTAssertEqual(self.payloadSender.payloads[2].credentials, .placeholder)
+
+        self.requestRetrier.result = .success(PayloadResponse())
+
+        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+
+        XCTAssertNotEqual(self.payloadSender.payloads[0].credentials, .placeholder)
+        XCTAssertEqual(self.payloadSender.payloads[1].credentials, .placeholder)
+        XCTAssertNotEqual(self.payloadSender.payloads[2].credentials, .placeholder)
+
+        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+
+        XCTAssertNotNil(self.payloadSender.payloads[0].credentials)
+        XCTAssertNotNil(self.payloadSender.payloads[1].credentials)
+        XCTAssertNotNil(self.payloadSender.payloads[2].credentials)
+    }
+
     class SpyRequestStarter: HTTPRequestStarting {
         var result: Result<PayloadResponse, Error>? = nil
-        var requests = [HTTPEndpoint]()
+        var requests = [HTTPRequestBuilding]()
 
-        func start<T>(_ endpoint: HTTPEndpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void) where T: Decodable {
+        func start<T>(_ endpoint: HTTPRequestBuilding, identifier: String, completion: @escaping (Result<T, Error>) -> Void) where T: Decodable {
             guard let result = self.result as? Result<T, Error> else {
                 return XCTFail("Mock object type/nullability mismatch")
             }
@@ -276,14 +386,6 @@ class PayloadSenderTests: XCTestCase {
             self.payloads = object
         }
     }
-
-    struct MockCredentialsProvider: APICredentialsProviding {
-        var appCredentials: Apptentive.AppCredentials?
-
-        var conversationCredentials: Conversation.ConversationCredentials?
-
-        var acceptLanguage: String?
-    }
 }
 
 class MockNotificationCenter: NotificationCenter {
@@ -297,22 +399,22 @@ class MockNotificationCenter: NotificationCenter {
 extension MockNotificationCenter {
     var enqueuedNonces: [String] {
         postedNotifications.filter { $0.name == .payloadEnqueued }
-            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.jsonObject.nonce }
+            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.identifier }
     }
 
     var sendingNonces: [String] {
         postedNotifications.filter { $0.name == .payloadSending }
-            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.jsonObject.nonce }
+            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.identifier }
     }
 
     var sentNonces: [String] {
         postedNotifications.filter { $0.name == .payloadSent }
-            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.jsonObject.nonce }
+            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.identifier }
     }
 
     var failedNonces: [String] {
         postedNotifications.filter { $0.name == .payloadFailed }
-            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.jsonObject.nonce }
+            .compactMap { ($0.userInfo?[PayloadSender.payloadKey] as? Payload)?.identifier }
     }
 
     var failedErrors: [Error] {

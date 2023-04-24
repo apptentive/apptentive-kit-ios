@@ -13,8 +13,8 @@ extension Apptentive: UNUserNotificationCenterDelegate {
     /// - Parameter tokenData: The remote notification device token passed into `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`.
     @objc public func setRemoteNotificationDeviceToken(_ tokenData: Data) {
         self.backendQueue.async {
-            let tokenString = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
-            self.backend.conversation.device.integrationConfiguration["apptentive_push"] = ["token": tokenString]
+            self.backend.conversation?.device.remoteNotificationDeviceToken = tokenData
+            self.environment.remoteNotificationDeviceToken = tokenData
         }
     }
 
@@ -32,23 +32,27 @@ extension Apptentive: UNUserNotificationCenterDelegate {
     ///   - completionHandler: The `fetchCompletionHandler` parameter passed to `application(_:didReceiveRemoteNotification:)`.
     /// - Returns: `true` if the notification was handled by the Apptentive SDK, `false` if not.
     @objc public func didReceiveRemoteNotification(_ userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) -> Bool {
-        guard let _ = userInfo["apptentive"] else {
+        guard let _ = userInfo["apptentive"] as? [String: Any] else {
             ApptentiveLogger.default.info("Non-apptentive push notification received.")
             return false
         }
 
         ApptentiveLogger.default.info("Apptentive push notification received with userInfo: \(userInfo).")
         if let aps = userInfo["aps"] as? [String: Any], let contentAvailable = aps["content-available"] as? Bool, contentAvailable {
-            self.fetchMessages(completion: completionHandler)
+            self.fetchMessages { fetchResult in
+                // Post a user notification if no alert was displayed,
+                // either because this was a background push,
+                // or because the app is in the foreground.
+                if fetchResult == .newData && (aps["alert"] == nil || self.environment.isInForeground) {
+                    self.postUserNotification(with: userInfo)
+                }
 
-            // Post a user notification if no alert was displayed,
-            // either because this was a background push,
-            // or because the app is in the foreground.
-            if aps["alert"] == nil || self.environment.isInForeground {
-                self.postUserNotification(with: userInfo)
+                // Always send .newData so Apple doesn't throttle us.
+                completionHandler(.newData)
             }
         } else {
-            completionHandler(.noData)
+            // Always send .newData so Apple doesn't throttle us.
+            completionHandler(.newData)
         }
 
         return true
@@ -135,7 +139,9 @@ extension Apptentive: UNUserNotificationCenterDelegate {
 
     private func fetchMessages(completion: @escaping (UIBackgroundFetchResult) -> Void) {
         self.backendQueue.async {
-            self.backend.messageFetchCompletionHandler = completion
+            self.backend.messageFetchCompletionHandler = { fetchResult in
+                completion(fetchResult)
+            }
         }
     }
 
@@ -164,7 +170,7 @@ extension Apptentive: UNUserNotificationCenterDelegate {
         let content = UNMutableNotificationContent()
         content.title = self.environment.appDisplayName
         content.body = body
-        content.userInfo = ["apptentive": userInfo["apptentive"] ?? [:]]
+        content.userInfo = ["apptentive": userInfo["apptentive"] ?? [String: Any]()]
         content.sound = soundName.flatMap { UNNotificationSound(named: UNNotificationSoundName(rawValue: $0)) } ?? .default
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)

@@ -4,5 +4,9 @@
 <dict>
 	<key>ShakeGestureAction</key>
 	<string>dismissAllInteractions</string>
+	<key>Events</key>
+	<array>
+		<string></string>
+	</array>
 </dict>
 </plist>

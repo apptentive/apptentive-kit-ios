@@ -9,15 +9,19 @@
 import Foundation
 
 struct Beta3Loader: Loader {
-    var containerURL: URL
-    var environment: GlobalEnvironment
+    let containerURL: URL
+    let environment: GlobalEnvironment
 
-    init(containerURL: URL, environment: GlobalEnvironment) {
+    init(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) {
         self.containerURL = containerURL
         self.environment = environment
     }
 
-    var conversationFileExists: Bool {
+    var rosterFileExists: Bool {
+        return self.environment.fileManager.fileExists(atPath: self.commonConversationFileURL.path)
+    }
+
+    func conversationFileExists(for record: ConversationRoster.Record) -> Bool {
         return self.environment.fileManager.fileExists(atPath: self.conversationFileURL.path)
     }
 
@@ -29,7 +33,15 @@ struct Beta3Loader: Loader {
         return self.environment.fileManager.fileExists(atPath: self.messagesFileURL.path)
     }
 
-    func loadConversation() throws -> Conversation {
+    func loadRoster() throws -> ConversationRoster {
+        try self.cleanUpRoster()
+
+        throw LoaderError.brokenVersion
+    }
+
+    func loadConversation(for record: ConversationRoster.Record) throws -> Conversation {
+        try self.cleanUp(for: record)
+
         throw LoaderError.brokenVersion
     }
 
@@ -37,22 +49,28 @@ struct Beta3Loader: Loader {
         throw LoaderError.brokenVersion
     }
 
-    func loadMessages() throws -> MessageList? {
+    func loadMessages(for record: ConversationRoster.Record) throws -> MessageList? {
         throw LoaderError.brokenVersion
     }
 
-    func cleanUp() throws {
-        if self.conversationFileExists {
-            try self.environment.fileManager.removeItem(at: self.conversationFileURL)
-        }
-
+    func cleanUpRoster() throws {
         if self.payloadsFileExists {
             try self.environment.fileManager.removeItem(at: self.payloadsFileURL)
+        }
+    }
+
+    func cleanUp(for record: ConversationRoster.Record) throws {
+        if self.conversationFileExists(for: record) {
+            try self.environment.fileManager.removeItem(at: self.conversationFileURL)
         }
 
         if self.messagesFileExists {
             try self.environment.fileManager.removeItem(at: self.messagesFileURL)
         }
+    }
+
+    private var commonConversationFileURL: URL {
+        return self.containerURL.appendingPathComponent("Conversation.plist")
     }
 
     private var conversationFileURL: URL {

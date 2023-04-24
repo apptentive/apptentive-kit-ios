@@ -45,7 +45,7 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
     }
 
     public override func viewDidAppear(_ animated: Bool) {
-        UIAccessibility.post(notification: .announcement, argument: NSLocalizedString("Dialog announcement", bundle: .module, value: "Alert", comment: "Announcement when a dialog is presented."))
+        UIAccessibility.post(notification: .announcement, argument: NSLocalizedString("Dialog announcement", bundle: .apptentive, value: "Alert", comment: "Announcement when a dialog is presented."))
 
         super.viewDidAppear(animated)
     }
@@ -86,10 +86,23 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
             button.addTarget(self, action: #selector(dialogButtonTapped), for: .touchUpInside)
             button.tag = position
             button.setTitle(action.label, for: .normal)
-            if self.viewModel.dialogType == .textModal {
-                self.dialogView.buttonStackView.axis = .vertical
-            }
+            self.configureButtonAxis()
             self.dialogView.buttonStackView.addArrangedSubview(button)
+        }
+    }
+
+    private func configureButtonAxis() {
+
+        if self.viewModel.dialogType == .textModal && self.viewModel.actions.count > 2 {
+            self.dialogView.buttonStackView.axis = .vertical
+        } else {
+            self.viewModel.actions.forEach { action in
+                if action.label.count > 13 {
+                    self.dialogView.buttonStackView.axis = .vertical
+                } else {
+                    self.dialogView.buttonStackView.axis = .horizontal
+                }
+            }
         }
     }
 

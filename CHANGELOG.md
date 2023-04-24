@@ -1,3 +1,19 @@
+#2023-04-24 - 6.2.0
+
+#### New & Improved
+
+- Implemented Customer Authentication features from the legacy SDK in the new SDK (See iOS Integration Reference - Apptentive Customer Learning Center )
+- Added async versions of Apptentive methods with a completion handler argument
+- Added a canShowMessageCenter() method
+- Added an error when a event with an empty name is engaged
+- Added the ability to work with multiple app key/signature pairs without deleting and reinstalling
+
+#### Bugs Fixed
+
+- Fixed button placement issues in Notes and the Love Dialog
+- Improved handling of long “Terms and Conditions” text in Surveys
+- Fixed a potential name collision between the ApptentiveKit framework and its resource bundle in CocoaPods, Flutter, React Native, and Cordova integrations
+
 # 2023-02-07 - 6.1.0
 
 ### New & Improved

@@ -22,7 +22,7 @@ let package = Package(
         .target(
             name: "ApptentiveKit",
             dependencies: [],
-            exclude: ["Info.plist", "Bundle+Apptentive.swift"],
+            exclude: ["Info.plist"],
             resources: [.copy("Resources/SwiftPM.txt"), .copy("Resources/Distribution.plist")]
         ),
         .testTarget(

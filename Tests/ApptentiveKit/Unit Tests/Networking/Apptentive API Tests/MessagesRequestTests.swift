@@ -18,7 +18,7 @@ class MessagesRequestTests: XCTestCase {
 
         let responseData = responseJSON.data(using: .utf8)!
 
-        let response = try JSONDecoder().decode(MessagesResponse.self, from: responseData)
+        let response = try JSONDecoder.apptentive.decode(MessagesResponse.self, from: responseData)
 
         XCTAssertEqual(response.messages.count, 1)
     }

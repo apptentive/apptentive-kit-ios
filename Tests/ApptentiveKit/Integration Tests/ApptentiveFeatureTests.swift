@@ -28,6 +28,10 @@ class ApptentiveFeatureTests: XCTestCase {
         self.baseURL = url
         self.validKey = key
         self.validSignature = signature
+
+        apptentiveAssertionHandler = { message, file, line in
+            print("\(file):\(line): Apptentive critical error: \(message())")
+        }
     }
 
     override func tearDown() {
@@ -47,6 +51,26 @@ class ApptentiveFeatureTests: XCTestCase {
 
         self.sdkRegistrationWithConfirmation(credentials: credentials) {
             XCTAssertFalse($0)
+        }
+    }
+
+    @available(iOS 13.0.0, *)
+    func testSuccessfulSDKRegistration() async {
+        let result = await self.sdkRegistrationWithConfirmation()
+        XCTAssertTrue(result)
+    }
+
+    @available(iOS 13.0.0, *)
+    func sdkRegistrationWithConfirmation() async -> Bool {
+        let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: nil, environment: Environment())
+        (apptentive.environment as! Environment).protectedDataDidBecomeAvailable(notification: Notification(name: Notification.Name(rawValue: "foo")))
+        let credentials = Apptentive.AppCredentials(key: self.validKey!, signature: self.validSignature!)
+
+        do {
+            try await apptentive.register(with: credentials)
+            return true
+        } catch {
+            return false
         }
     }
 

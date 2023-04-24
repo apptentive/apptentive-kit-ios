@@ -98,7 +98,7 @@ final class CriteriaTests: XCTestCase {
         let url = Self.testResourceDirectory.appendingPathComponent(testName).appendingPathExtension("json")
 
         if let data = try? Data(contentsOf: url) {
-            if let criteria = try? JSONDecoder().decode(Criteria.self, from: data) {
+            if let criteria = try? JSONDecoder.apptentive.decode(Criteria.self, from: data) {
                 return criteria
             } else {
                 XCTFail("Criteria parsing failed for \(testName)")

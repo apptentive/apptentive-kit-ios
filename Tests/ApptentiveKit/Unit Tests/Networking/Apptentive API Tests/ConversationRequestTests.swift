@@ -18,9 +18,9 @@ import XCTest
 class ConversationRequestTests: XCTestCase {
     func testConversationEncoding() throws {
         let conversation = Conversation(environment: MockEnvironment())
-        let conversationRequest = ConversationRequest(conversation: conversation)
+        let conversationRequest = ConversationRequest(conversation: conversation, token: nil)
 
-        let conversationRequestJSON = try JSONEncoder().encode(conversationRequest)
+        let conversationRequestJSON = try JSONEncoder.apptentive.encode(conversationRequest)
 
         let expectedJSONString = """
             {
@@ -68,8 +68,8 @@ class ConversationRequestTests: XCTestCase {
             """
 
         let expectedJSON = expectedJSONString.data(using: .utf8)!
-        let decodedExpectedJSON = try JSONDecoder().decode(ConversationRequest.self, from: expectedJSON)
-        let decodedConversationRequestJSON = try JSONDecoder().decode(ConversationRequest.self, from: conversationRequestJSON)
+        let decodedExpectedJSON = try JSONDecoder.apptentive.decode(ConversationRequest.self, from: expectedJSON)
+        let decodedConversationRequestJSON = try JSONDecoder.apptentive.decode(ConversationRequest.self, from: conversationRequestJSON)
 
         XCTAssertEqual(decodedExpectedJSON.appRelease, decodedConversationRequestJSON.appRelease)
         XCTAssertEqual(decodedExpectedJSON.person, decodedConversationRequestJSON.person)
