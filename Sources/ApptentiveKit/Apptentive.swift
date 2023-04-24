@@ -492,6 +492,32 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
     }
 
+    /// Uses the specified JWT to authenticate a conversation.
+    ///
+    /// This also encrypts the conversation data stored on the device.
+    ///
+    /// The first call to this method on a given app install will upgrade the
+    /// initial conversation to an authenticated/encrypted conversation.
+    ///
+    /// Before calling this method again, `logOut()` must be called.
+    ///
+    /// After logging out, subsequent calls to this method will either resume
+    /// a conversation that was previously logged out (based on the `sub`
+    /// claim in the JWT), or create a new conversation for a subject that
+    /// has not previously logged in.
+    /// - Parameter token: The JWT used to authenticate the conversation.
+    ///   The JWT's `sub` (subject) claim is used to identify the conversation
+    ///   when logging back in from a logged-out state. The JWT should be
+    ///   signed with the secret from the API & Development section of the
+    ///   Settings tab in your app's Apptentive dashboard.
+    /// - Throws: an error if there is a problem logging in.
+    @available(iOS 13.0.0, *)
+    public func logIn(with token: String) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            self.logIn(with: token) { continuation.resume(with: $0) }
+        }
+    }
+
     /// Logs out the active conversation.
     ///
     /// This also discards the key used to encrypt/decrypt the conversation data and deletes cached attachments.
@@ -513,6 +539,17 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
     }
 
+    /// Logs out the active conversation.
+    ///
+    /// This also discards the key used to encrypt/decrypt the conversation data and deletes cached attachments.
+    /// - Throws: an error if the logout operation fails.
+    @available(iOS 13.0.0, *)
+    public func logOut() async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            self.logOut { continuation.resume(with: $0) }
+        }
+    }
+
     /// Updates the JWT for the currently logged-in conversation.
     /// - Parameters:
     ///   - token: The new JWT.
@@ -524,6 +561,16 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
                     completion?(result)
                 }
             }
+        }
+    }
+
+    /// Updates the JWT for the currently logged-in conversation.
+    /// - Parameter token: The new JWT.
+    /// - Throws: an error if the update operation fails.
+    @available(iOS 13.0.0, *)
+    public func updateToken(_ token: String) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            self.updateToken(token) { continuation.resume(with: $0) }
         }
     }
 
