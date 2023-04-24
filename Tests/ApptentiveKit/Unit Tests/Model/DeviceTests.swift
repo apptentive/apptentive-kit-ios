@@ -40,4 +40,15 @@ class DeviceTests: XCTestCase {
         XCTAssertEqual(device1.customData["foo"] as? String, "baz")
         XCTAssertEqual(device1.customData["bar"] as? String, "foo")
     }
+
+    func testPushToken() {
+        var environment = MockEnvironment()
+
+        let tokenData = Data(hexString: "06e78d0d5604079bc0a642c19c26983d85a30b40613840501274087cd96415bf")!
+        environment.remoteNotificationDeviceToken = tokenData
+
+        let device = Device(environment: environment)
+
+        XCTAssertEqual(device.integrationConfiguration, ["apptentive_push": ["token": tokenData]])
+    }
 }

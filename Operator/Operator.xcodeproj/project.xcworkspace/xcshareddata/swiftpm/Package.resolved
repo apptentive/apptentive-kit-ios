@@ -1,0 +1,77 @@
+{
+  "pins" : [
+    {
+      "identity" : "bluecryptor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/BlueCryptor.git",
+      "state" : {
+        "revision" : "cec97c24b111351e70e448972a7d3fe68a756d6d",
+        "version" : "2.0.2"
+      }
+    },
+    {
+      "identity" : "blueecc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/BlueECC.git",
+      "state" : {
+        "revision" : "1485268a54f8135435a825a855e733f026fa6cc8",
+        "version" : "1.2.201"
+      }
+    },
+    {
+      "identity" : "bluersa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/BlueRSA.git",
+      "state" : {
+        "revision" : "440f78db26d8bb073f29590f1c7bd31004da09ae",
+        "version" : "1.0.201"
+      }
+    },
+    {
+      "identity" : "generic-json-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/iwill/generic-json-swift",
+      "state" : {
+        "revision" : "0a06575f4038b504e78ac330913d920f1630f510",
+        "version" : "2.0.2"
+      }
+    },
+    {
+      "identity" : "kituracontracts",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/KituraContracts.git",
+      "state" : {
+        "revision" : "6edf7ac3dd2b3a2c61284778d430bbad7d8a6f23",
+        "version" : "2.0.1"
+      }
+    },
+    {
+      "identity" : "loggerapi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/LoggerAPI.git",
+      "state" : {
+        "revision" : "4e6b45e850ffa275e8e26a24c6454fd709d5b6ac",
+        "version" : "2.0.0"
+      }
+    },
+    {
+      "identity" : "swift-jwt",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/Swift-JWT/",
+      "state" : {
+        "revision" : "08e02ff214c41df49bdd189ff837d68ba11c437b",
+        "version" : "4.0.0"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "32e8d724467f8fe623624570367e3d50c5638e46",
+        "version" : "1.5.2"
+      }
+    }
+  ],
+  "version" : 2
+}

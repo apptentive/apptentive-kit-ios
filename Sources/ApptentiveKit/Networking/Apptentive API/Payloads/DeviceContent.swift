@@ -19,7 +19,7 @@ struct DeviceContent: Equatable, Codable, PayloadEncodable {
     let localeRaw: String?
     let localeCountryCode: String?
     let localeLanguageCode: String?
-    let integrationConfiguration: [String: [String: String]]?
+    let integrationConfiguration: [String: [String: Data]]?
     let advertisingIdentifier: UUID?
     let customData: CustomData
 

@@ -72,3 +72,32 @@ class PropertyListSaver<T: Codable>: Saver<T> {
         return "plist"
     }
 }
+
+/// A concrete subclass of `Saver` that saves data in Property List (plist) format.
+class EncryptedPropertyListSaver<T: Codable>: PropertyListSaver<T> {
+    var encryptionKey: Data?
+
+    init(containerURL: URL, filename: String, fileManager: FileManager, encryptionKey: Data?) {
+        self.encryptionKey = encryptionKey
+
+        super.init(containerURL: containerURL, filename: filename, fileManager: fileManager)
+    }
+
+    override func encode(object: T) throws -> Data {
+        let plaintext = try self.encoder.encode(object)
+
+        if let encryptionKey = self.encryptionKey {
+            return try plaintext.encrypted(with: encryptionKey)
+        } else {
+            return plaintext
+        }
+    }
+
+    override var fileExtension: String {
+        if let _ = self.encryptionKey {
+            return "\(super.fileExtension).encrypted"
+        } else {
+            return super.fileExtension
+        }
+    }
+}

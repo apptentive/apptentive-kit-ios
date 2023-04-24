@@ -13,6 +13,7 @@ import XCTest
 class HTTPRequestRetrierTests: XCTestCase {
     var requestRetrier: HTTPRequestRetrier!
     var requestor: SpyRequestor!
+    let pendingCredentials = PendingAPICredentials(appCredentials: .init(key: "abc", signature: "123"))
 
     override func setUp() {
         let responseString = """
@@ -27,18 +28,17 @@ class HTTPRequestRetrierTests: XCTestCase {
         self.requestor = SpyRequestor(responseData: responseString.data(using: .utf8)!)
 
         let retryPolicy = HTTPRetryPolicy(initialDelay: 1.0, multiplier: 1.0, useJitter: false)
-        let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://www.example.com")!, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"))
+        let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://www.example.com")!, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
         self.requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
     }
 
     func testStart() {
-        var conversation = Conversation(environment: MockEnvironment())
-        conversation.appCredentials = Apptentive.AppCredentials(key: "abc123", signature: "def456")
-        let endpoint: ApptentiveAPI = .createConversation(conversation)
+        let conversation = Conversation(environment: MockEnvironment())
+        let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
         let expect = self.expectation(description: "create conversation")
 
-        self.requestRetrier.start(endpoint, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
+        self.requestRetrier.start(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
             switch result {
             case .success(_):
                 break
@@ -56,13 +56,12 @@ class HTTPRequestRetrierTests: XCTestCase {
     func testStartUnlessUnderway() {
         self.requestor.delay = 1.0
 
-        var conversation = Conversation(environment: MockEnvironment())
-        conversation.appCredentials = Apptentive.AppCredentials(key: "abc123", signature: "def456")
-        let endpoint: ApptentiveAPI = .createConversation(conversation)
+        let conversation = Conversation(environment: MockEnvironment())
+        let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
         let expect = self.expectation(description: "create conversation")
 
-        self.requestRetrier.startUnlessUnderway(endpoint, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
+        self.requestRetrier.startUnlessUnderway(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
             switch result {
             case .success(_):
                 break
@@ -74,7 +73,7 @@ class HTTPRequestRetrierTests: XCTestCase {
             expect.fulfill()
         }
 
-        self.requestRetrier.startUnlessUnderway(endpoint, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
+        self.requestRetrier.startUnlessUnderway(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
             XCTFail("Second request completion handler should not be called.")
         }
 
@@ -82,9 +81,8 @@ class HTTPRequestRetrierTests: XCTestCase {
     }
 
     func testRetryOnConnectionError() {
-        var conversation = Conversation(environment: MockEnvironment())
-        conversation.appCredentials = Apptentive.AppCredentials(key: "abc123", signature: "def456")
-        let endpoint: ApptentiveAPI = .createConversation(conversation)
+        let conversation = Conversation(environment: MockEnvironment())
+        let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
         let expect1 = self.expectation(description: "create conversation")
         let expect2 = self.expectation(description: "retry once")
@@ -97,7 +95,7 @@ class HTTPRequestRetrierTests: XCTestCase {
             }
         }
 
-        self.requestRetrier.start(endpoint, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
+        self.requestRetrier.start(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
             switch result {
             case .success(_):
                 break
@@ -113,9 +111,49 @@ class HTTPRequestRetrierTests: XCTestCase {
     }
 
     func testNoRetryOnClientError() {
-        var conversation = Conversation(environment: MockEnvironment())
-        conversation.appCredentials = Apptentive.AppCredentials(key: "abc123", signature: "def456")
-        let endpoint: ApptentiveAPI = .createConversation(conversation)
+        let conversation = Conversation(environment: MockEnvironment())
+        let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
+
+        let expect1 = self.expectation(description: "create conversation")
+        let expect2 = self.expectation(description: "retry once")
+
+        let errorResponse = HTTPURLResponse(url: URL(string: "https://www.example.com")!, statusCode: 403, httpVersion: "1.1", headerFields: [:])!
+
+        self.requestor.error = .clientError(errorResponse, nil)
+
+        self.requestor.extraCompletion = {
+            if let _ = self.requestor.error {
+                self.requestor.error = nil
+                expect2.fulfill()
+            } else {
+                XCTFail("Should not retry request on client error")
+            }
+        }
+
+        self.requestRetrier.start(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
+            switch result {
+            case .failure(let error as HTTPClientError):
+                switch error {
+                case .clientError(_, _):
+                    break
+
+                default:
+                    XCTFail("Error should be a client or unauthorized error")
+                }
+
+            default:
+                XCTFail("conversation creation should fail on client error")
+            }
+
+            expect1.fulfill()
+        }
+
+        self.wait(for: [expect1, expect2], timeout: 5)
+    }
+
+    func testNoRetryOnUnauthorizedError() {
+        let conversation = Conversation(environment: MockEnvironment())
+        let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
         let expect1 = self.expectation(description: "create conversation")
         let expect2 = self.expectation(description: "retry once")
@@ -133,15 +171,15 @@ class HTTPRequestRetrierTests: XCTestCase {
             }
         }
 
-        self.requestRetrier.start(endpoint, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
+        self.requestRetrier.start(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
             switch result {
             case .failure(let error as HTTPClientError):
                 switch error {
-                case .clientError(_, _):
+                case .unauthorized(_, _):
                     break
 
                 default:
-                    XCTFail("Error should be a client error")
+                    XCTFail("Error should be a client or unauthorized error")
                 }
 
             default:

@@ -87,6 +87,10 @@ class Targeter {
     /// - Throws: An error if criteria evaluation fails.
     /// - Returns: The interaction to present, if any.
     private func interactionID(for event: Event, state: TargetingState) throws -> String? {
+        if event.name.trimmingCharacters(in: .whitespacesAndNewlines) == "" {
+            throw ApptentiveError.emptyEventName
+        }
+
         if let invocations = self.activeManifest.targets[event.codePointName] {
             if let interactionID = try self.interactionID(for: invocations, state: state) {
                 return interactionID

@@ -23,15 +23,20 @@ class HTTPClient {
     /// The string to send for the `User-Agent` header (if blank, the default for the requestor will be used).
     let userAgent: String?
 
+    /// The string to send for the `Accept-Language` header (if blank, `en` will be used).
+    let languageCode: String?
+
     /// Initializes a new client.
     /// - Parameters:
     ///   - requestor: The object conforming to `HTTPRequesting` that will be used to make requests.
     ///   - baseURL: The URL relative to which requests should be built.
     ///   - userAgent: The string to send for the user agent header.
-    init(requestor: HTTPRequesting, baseURL: URL, userAgent: String) {
+    ///   - languageCode: The string to send for the accept language header.
+    init(requestor: HTTPRequesting, baseURL: URL, userAgent: String?, languageCode: String?) {
         self.requestor = requestor
         self.baseURL = baseURL
         self.userAgent = userAgent
+        self.languageCode = languageCode
     }
 
     /// Performs a request to the specified endpoint.
@@ -40,9 +45,9 @@ class HTTPClient {
     ///   - completion: A completion handler called with the result of the request.
     /// - Returns: An `HTTPCancellable` instance corresponding to the request.
     @discardableResult
-    func request<T: Decodable>(_ endpoint: HTTPEndpoint, completion: @escaping (Result<T, Error>) -> Void) -> HTTPCancellable? {
+    func request<T: Decodable>(_ endpoint: HTTPRequestBuilding, completion: @escaping (Result<T, Error>) -> Void) -> HTTPCancellable? {
         do {
-            let request = try endpoint.buildRequest(baseURL: self.baseURL, userAgent: self.userAgent)
+            let request = try endpoint.buildRequest(baseURL: self.baseURL, userAgent: self.userAgent, languageCode: self.languageCode)
 
             Self.log(request)
 
@@ -91,6 +96,8 @@ class HTTPClient {
             } else {
                 throw HTTPClientError.missingResponseBody
             }
+        case 401:
+            throw HTTPClientError.unauthorized(httpResponse, data)
         case 400...499:
             throw HTTPClientError.clientError(httpResponse, data)
         case 500...599:
@@ -113,7 +120,7 @@ class HTTPClient {
                 ApptentiveLogger.network.debug("Body: <multipart>")
             } else {
                 // It's likely this is either plain text or JSON, so it can be treated as a string.
-                ApptentiveLogger.network.debug("Body: \(String(data: $0, encoding: .utf8) ?? "<encoding error>")")
+                ApptentiveLogger.network.debug("Body: \(String(data: $0, encoding: .utf8) ?? "<not plain utf-8>")")
             }
         }
     }
@@ -139,6 +146,7 @@ enum HTTPClientError: Error {
     case clientError(HTTPURLResponse, Data?)
     case serverError(HTTPURLResponse, Data?)
     case unhandledStatusCode(HTTPURLResponse, Data?)
+    case unauthorized(HTTPURLResponse, Data?)
 }
 
 extension HTTPClientError: LocalizedError {
@@ -168,7 +176,14 @@ extension HTTPClientError: LocalizedError {
             return message
 
         case .unhandledStatusCode(let response, _):
-            return "Unahndled status code: \(response.statusCode)"
+            return "Unhandled status code: \(response.statusCode)"
+
+        case .unauthorized(let response, let data):
+            var message = "Unauthorized: \(response.statusCode)."
+            if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                message = "\(message) Response object: \(responseString)"
+            }
+            return message
         }
     }
 }
@@ -187,8 +202,13 @@ struct HTTPContentType {
     // Making it not match the Accept header value also seems to break it (even with an Accept-Charset).
     // You are advised to not change this.
     static let json = "application/json;charset=UTF-8"
+    static let octetStream = "application/octet-stream"
 
-    static func multipart(boundary: String) -> String {
+    static func multipartMixed(boundary: String) -> String {
         return "multipart/mixed; boundary=\(boundary)"
+    }
+
+    static func multipartEncrypted(boundary: String) -> String {
+        return "multipart/encrypted; boundary=\(boundary)"
     }
 }

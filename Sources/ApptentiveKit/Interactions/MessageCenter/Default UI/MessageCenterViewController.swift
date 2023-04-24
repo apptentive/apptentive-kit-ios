@@ -355,12 +355,6 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.tableView.insertRows(at: indexPaths, with: .automatic)
     }
 
-    func messageCenterViewModel(_: MessageCenterViewModel, didMoveRowsAt indexPathMoves: [(IndexPath, IndexPath)]) {
-        for move in indexPathMoves {
-            self.tableView.moveRow(at: move.0, to: move.1)
-        }
-    }
-
     func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
         self.tableView.endUpdates()
 

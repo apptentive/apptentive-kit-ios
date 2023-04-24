@@ -88,6 +88,21 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
         return Self(internalName: "show_message_center")
     }
 
+    /// Convenience property for a `show_message_center_fallback` event (presents message center).
+    static var showMessageCenterFallback: Self {
+        return Self(internalName: "show_message_center_fallback")
+    }
+
+    //// Convenience property for a `login` event.
+    static var login: Self {
+        return Self(internalName: "login")
+    }
+
+    //// Convenience property for a `logout` event.
+    static var logout: Self {
+        return Self(internalName: "logout")
+    }
+
     /// Returns a `#`-separated string incorporating the vendor, interaction and name, all appropriately percent-escaped.
     ///
     /// Code points are used when looking up potential invocations in the engagement manifest's `targets` section.

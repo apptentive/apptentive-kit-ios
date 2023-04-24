@@ -100,6 +100,14 @@ class AttachmentManager: AttachmentURLProviding {
         }
     }
 
+    func deleteCachedAttachments() throws {
+        let cachedFileURLs = try self.fileManager.contentsOfDirectory(at: self.cacheContainerURL, includingPropertiesForKeys: nil)
+
+        for cachedFileURL in cachedFileURLs {
+            try self.fileManager.removeItem(at: cachedFileURL)
+        }
+    }
+
     func download(_ attachment: MessageList.Message.Attachment, completion: @escaping (Result<URL, Error>) -> Void, progress: ((Double) -> Void)? = nil) {
         switch attachment.storage {
         case .remote(let remoteURL, size: _):

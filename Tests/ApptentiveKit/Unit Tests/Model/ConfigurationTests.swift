@@ -18,7 +18,7 @@ class ConfigurationTests: XCTestCase {
 
         let data = json.data(using: .utf8)!
 
-        let configuration = try JSONDecoder().decode(Configuration.self, from: data)
+        let configuration = try JSONDecoder.apptentive.decode(Configuration.self, from: data)
 
         XCTAssertEqual(configuration.supportName, "Casey Test")
         XCTAssertEqual(configuration.supportEmail, "casey@apptentive.com")

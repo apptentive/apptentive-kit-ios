@@ -106,8 +106,8 @@ class MessageManager {
         notificationCenter.addObserver(self, selector: #selector(payloadFailed), name: Notification.Name.payloadFailed, object: nil)
     }
 
-    func load(from loader: Loader) throws {
-        if let loadedMessageList = try loader.loadMessages() {
+    func load(from loader: Loader, for record: ConversationRoster.Record) throws {
+        if let loadedMessageList = try loader.loadMessages(for: record) {
             self.messageList.messages = Self.merge(loadedMessageList.messages, with: self.messageList.messages, attachmentManager: self.attachmentManager)
             self.messageList.draftMessage = loadedMessageList.draftMessage
             self.draftAttachmentNumber = loadedMessageList.draftMessage.attachments.count + 1
@@ -287,9 +287,18 @@ class MessageManager {
 
     func saveMessagesIfNeeded() throws {
         if self.messageListNeedsSaving {
-            try self.saver?.save(self.messageList)
-            self.messageListNeedsSaving = false
+            try self.saveMessages()
         }
+    }
+
+    func saveMessages() throws {
+        try self.saver?.save(self.messageList)
+        self.messageListNeedsSaving = false
+    }
+
+    func deleteCachedMessages() throws {
+        self.messageList = MessageList(messages: [], draftMessage: Self.newDraftMessage())
+        try self.attachmentManager?.deleteCachedAttachments()
     }
 
     @objc func payloadSending(_ notification: Notification) {
@@ -304,8 +313,8 @@ class MessageManager {
         self.updateStatus(to: .failed, for: notification)
     }
 
-    static func createSaver(containerURL: URL, filename: String, fileManager: FileManager) -> PropertyListSaver<MessageList> {
-        return PropertyListSaver<MessageList>(containerURL: containerURL, filename: filename, fileManager: fileManager)
+    static func createSaver(containerURL: URL, filename: String, fileManager: FileManager, encryptionKey: Data?) -> EncryptedPropertyListSaver<MessageList> {
+        return EncryptedPropertyListSaver<MessageList>(containerURL: containerURL, filename: filename, fileManager: fileManager, encryptionKey: encryptionKey)
     }
 
     static func merge(_ existing: [MessageList.Message], with newer: [MessageList.Message], attachmentManager: AttachmentManager?) -> [MessageList.Message] {
@@ -404,10 +413,10 @@ class MessageManager {
             return apptentiveCriticalError("Should be able to find payload in payload sender notification's userInfo.")
         }
 
-        if let index = self.messageList.messages.firstIndex(where: { $0.nonce == payload.jsonObject.nonce }) {
+        if let index = self.messageList.messages.firstIndex(where: { $0.nonce == payload.identifier }) {
             self.messageList.messages[index].status = status
 
-            if status == .sent {
+            if status == .queued {
                 // Move the attachments from "saved" to "cached" so that the system can jettison them if needed.
                 let sentMessage = self.messageList.messages[index]
                 do {
@@ -420,7 +429,7 @@ class MessageManager {
                     }
 
                 } catch let error {
-                    ApptentiveLogger.attachments.error("Unable to move queued attachments for payload \(payload.jsonObject.nonce): \(error).")
+                    ApptentiveLogger.attachments.error("Unable to move queued attachments for payload \(payload.identifier): \(error).")
                 }
             }
         }  // else this wasn't a message payload.

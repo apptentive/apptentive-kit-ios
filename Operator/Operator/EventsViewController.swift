@@ -94,6 +94,8 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "Event", for: indexPath)
 
                 cell.textLabel?.text = self.customEvents[indexPath.row]
+                cell.accessoryView = nil
+
 
                 return cell
             }
@@ -101,6 +103,7 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
             let cell = tableView.dequeueReusableCell(withIdentifier: "Event", for: indexPath)
 
             cell.textLabel?.text = self.manifestEvents[indexPath.row]
+            cell.accessoryView = nil
 
             return cell
         }
@@ -158,6 +161,27 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
         }
 
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+
+    override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        if !self.isEditing {
+            let event = indexPath.section == 0 ? Event(name: self.customEvents[indexPath.row]) : Event(name: self.manifestEvents[indexPath.row])
+
+            self.apptentive.canShowInteraction(event: event) { result in
+                let label = UILabel()
+                switch result {
+                case .success(let canShow):
+                    label.text = canShow ? "✅" : "❎"
+
+                case .failure(let error):
+                    label.text = "❌"
+                    print("Error during canShowInteraction: \(error.localizedDescription)")
+                }
+
+                label.sizeToFit()
+                tableView.cellForRow(at: indexPath)?.accessoryView = label
+            }
+        }
     }
 
     // MARK: - Actions

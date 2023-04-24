@@ -13,7 +13,7 @@ extension Apptentive {
     func applyApptentiveTheme() {
         // UIAppearance-based overrides
 
-        let bundle = Bundle.module
+        let bundle = Bundle.apptentive
         guard let barTintColor = UIColor(named: "barTint", in: bundle, compatibleWith: nil),
             let barForegroundColor = UIColor(named: "barForeground", in: bundle, compatibleWith: nil),
             let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil),
@@ -146,7 +146,7 @@ extension Apptentive {
         UIColor.apptentiveMessageCenterTextInputBorder = textInputBorderColor
         UIColor.apptentiveMessageCenterTextInputBackground = textInputBackgroundColor
         UIColor.apptentiveMessageCenterTextInput = textInputColor
-        UIColor.apptentiveMessageCenterAttachmentDeleteButton = attachmentDeleteButton
+        UIColor.apptentiveAttachmentRemoveButton = attachmentDeleteButton
         UIColor.apptentiveError = error
         UIColor.apptentiveTextInputPlaceholder = textInputPlaceholder
         UIColor.apptentiveMessageCenterTextInputPlaceholder = textInputPlaceholder

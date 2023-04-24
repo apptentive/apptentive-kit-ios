@@ -47,7 +47,7 @@ final class TargeterTests: XCTestCase {
 
         let data = try Data(contentsOf: url)
 
-        return try JSONDecoder().decode(EngagementManifest.self, from: data)
+        return try JSONDecoder.apptentive.decode(EngagementManifest.self, from: data)
     }
 }
 

@@ -10,13 +10,13 @@ import Foundation
 
 /// Used by payload sender in place of the class below for better testability.
 protocol HTTPRequestStarting {
-    func start<T: Decodable>(_ endpoint: HTTPEndpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void)
+    func start<T: Decodable>(_ builder: HTTPRequestBuilding, identifier: String, completion: @escaping (Result<T, Error>) -> Void)
 }
 
 /// Retries HTTP requests until they either succeed or permanently fail.
 class HTTPRequestRetrier: HTTPRequestStarting {
     /// The policy to use for retrying requests.
-    private(set) var retryPolicy: HTTPRetryPolicy
+    var retryPolicy: HTTPRetryPolicy
 
     /// The HTTP client to use for requests.
     let client: HTTPClient
@@ -42,13 +42,13 @@ class HTTPRequestRetrier: HTTPRequestStarting {
 
     /// Starts a new request with the given parameters.
     /// - Parameters:
-    ///   - endpoint: The HTTP endpoint of the request.
+    ///   - builder: The HTTP endpoint of the request.
     ///   - identifier: A string that identifies the request.
     ///   - completion: A completion handler to call when the request either succeeds or fails permanently.
-    func start<T: Decodable>(_ endpoint: HTTPEndpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
-        let wrapper = RequestWrapper(endpoint: endpoint)
+    func start<T: Decodable>(_ builder: HTTPRequestBuilding, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
+        let wrapper = RequestWrapper(endpoint: builder)
 
-        let request = self.client.request(endpoint) { (result: Result<T, Error>) in
+        let request = self.client.request(builder) { (result: Result<T, Error>) in
             self.dispatchQueue.async {
                 self.processResult(result, identifier: identifier, completion: completion)
             }
@@ -63,17 +63,25 @@ class HTTPRequestRetrier: HTTPRequestStarting {
     /// This is useful for instances where the same request might be triggered multiple times but only one request is desirable.
     /// The completion handler for a duplicate request will not be called.
     /// - Parameters:
-    ///   - endpoint: The HTTP endpoint of the request.
+    ///   - builder: The HTTP endpoint of the request.
     ///   - identifier: A string that identifies the request.
     ///   - completion: A completion handler to call when the request either succeeds or fails permanently.
-    func startUnlessUnderway<T: Decodable>(_ endpoint: HTTPEndpoint, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
+    func startUnlessUnderway<T: Decodable>(_ builder: HTTPRequestBuilding, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
         if self.requests[identifier] != nil {
             ApptentiveLogger.network.info("A request with identifier \(identifier) is already underway. Skipping.")
 
             return
         }
 
-        self.start(endpoint, identifier: identifier, completion: completion)
+        self.start(builder, identifier: identifier, completion: completion)
+    }
+
+    /// Cancels the request with the specified identifier.
+    /// - Parameter identifier: The identifier for the request.
+    func cancel(identifier: String) {
+        if let request = self.requests[identifier] {
+            request.request?.cancel()
+        }
     }
 
     /// Processes the response created by the HTTP client to determine if the request should be retried.
@@ -119,10 +127,10 @@ class HTTPRequestRetrier: HTTPRequestStarting {
 
     /// Describes a request's endpoint and in-flight HTTP request.
     class RequestWrapper {
-        let endpoint: HTTPEndpoint
+        let endpoint: HTTPRequestBuilding
         var request: HTTPCancellable?
 
-        internal init(endpoint: HTTPEndpoint, request: HTTPCancellable? = nil) {
+        internal init(endpoint: HTTPRequestBuilding, request: HTTPCancellable? = nil) {
             self.endpoint = endpoint
             self.request = request
         }

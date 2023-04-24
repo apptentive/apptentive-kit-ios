@@ -16,9 +16,7 @@ class LegacyDevice: NSObject, NSSecureCoding {
         return true
     }
 
-    func encode(with coder: NSCoder) {
-        apptentiveCriticalError("Saving legacy custom data is not supported")
-    }
+    func encode(with coder: NSCoder) {}
 
     required init?(coder: NSCoder) {
         if let customData = coder.decodeObject(of: [NSDictionary.self, NSString.self, NSNumber.self], forKey: NSCodingKeys.customData) as? [String: Any]? {

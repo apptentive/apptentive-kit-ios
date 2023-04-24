@@ -12,20 +12,14 @@ import Foundation
 class LegacyConversation: NSObject, NSSecureCoding {
     static let supportsSecureCoding = true
 
-    let token: String?
-    let identifier: String?
     let engagement: LegacyEngagement?
     let person: LegacyPerson?
     let device: LegacyDevice?
     let random: LegacyRandom?
 
-    func encode(with coder: NSCoder) {
-        apptentiveCriticalError("Saving legacy conversation is not supported")
-    }
+    func encode(with coder: NSCoder) {}
 
     required init?(coder: NSCoder) {
-        self.token = coder.decodeObject(of: NSString.self, forKey: NSCodingKeys.token) as String?
-        self.identifier = coder.decodeObject(of: NSString.self, forKey: NSCodingKeys.identifier) as String?
         self.engagement = coder.decodeObject(of: LegacyEngagement.self, forKey: NSCodingKeys.engagement)
         self.person = coder.decodeObject(of: LegacyPerson.self, forKey: NSCodingKeys.person)
         self.device = coder.decodeObject(of: LegacyDevice.self, forKey: NSCodingKeys.device)
@@ -33,8 +27,6 @@ class LegacyConversation: NSObject, NSSecureCoding {
     }
 
     struct NSCodingKeys {
-        static let token = "token"
-        static let identifier = "identifier"
         static let engagement = "engagement"
         static let person = "person"
         static let device = "device"

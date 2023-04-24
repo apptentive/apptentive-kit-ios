@@ -168,7 +168,6 @@ class MessageCenterViewModelTests: XCTestCase {
         XCTAssertEqual(self.spyDelegate?.deletedRows, [IndexPath(row: 2, section: 0)])  // Deletes are relative to old groupings
         XCTAssertEqual(self.spyDelegate?.updatedRows, [IndexPath(row: 0, section: 1)])  // Updates are relative to new groupings
         XCTAssertEqual(self.spyDelegate?.insertedRows, [IndexPath(row: 1, section: 2), IndexPath(row: 3, section: 2)])  // Inserts are relative to new groupings
-        XCTAssertEqual(self.spyDelegate?.movedRows.count, 3)
     }
 
     func testSettingEmail() {
@@ -202,7 +201,6 @@ class MessageCenterViewModelTests: XCTestCase {
         var deletedRows = Set<IndexPath>()
         var updatedRows = Set<IndexPath>()
         var insertedRows = Set<IndexPath>()
-        var movedRows = [(IndexPath, IndexPath)]()
 
         func messageCenterViewModelDidBeginUpdates(_: MessageCenterViewModel) {
             beginEndBalance += 1
@@ -226,10 +224,6 @@ class MessageCenterViewModelTests: XCTestCase {
 
         func messageCenterViewModel(_: MessageCenterViewModel, didInsertRowsAt indexPaths: [IndexPath]) {
             self.insertedRows = Set(indexPaths)
-        }
-
-        func messageCenterViewModel(_: MessageCenterViewModel, didMoveRowsAt indexPathMoves: [(IndexPath, IndexPath)]) {
-            self.movedRows = indexPathMoves
         }
 
         func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {

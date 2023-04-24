@@ -20,7 +20,7 @@ struct Device: Equatable, Codable {
     var localeCountryCode: String?
     var localeLanguageCode: String?
     var utcOffset: Int?
-    var integrationConfiguration = [String: [String: String]]()
+    var integrationConfiguration = [String: [String: Data]]()
     var advertisingIdentifier: UUID?
     var customData = CustomData()
 
@@ -41,6 +41,17 @@ struct Device: Equatable, Codable {
         self.localeLanguageCode = environment.preferredLocalization
 
         self.utcOffset = environment.timeZoneSecondsFromGMT
+
+        self.remoteNotificationDeviceToken = environment.remoteNotificationDeviceToken
+    }
+
+    var remoteNotificationDeviceToken: Data? {
+        get {
+            return (self.integrationConfiguration["apptentive_push"]?["token"])
+        }
+        set {
+            self.integrationConfiguration["apptentive_push"] = newValue.flatMap { ["token": $0] }
+        }
     }
 
     /// Merges a device with a newer device.
