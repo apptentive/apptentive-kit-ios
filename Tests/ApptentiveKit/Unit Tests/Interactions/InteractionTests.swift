@@ -38,6 +38,6 @@ class InteractionTests: XCTestCase {
     }
 
     func testApptentiveTheme() {
-        Apptentive.shared.applyApptentiveTheme() // Just make sure it doesn't crash
+        Apptentive.shared.applyApptentiveTheme()  // Just make sure it doesn't crash
     }
 }
