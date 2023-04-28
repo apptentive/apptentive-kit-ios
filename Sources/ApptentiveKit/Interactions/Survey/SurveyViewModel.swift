@@ -50,7 +50,9 @@ public class SurveyViewModel {
     public let validationErrorMessage: String
 
     /// An optional legal disclaimer to show users.
-    public let disclaimerText: String?
+    public var disclaimerText: String? {
+        return self.currentPage.disclaimer
+    }
 
     /// An object describing the terms and conditions to be shown in the survey.
     public struct TermsAndConditions {
@@ -306,7 +308,7 @@ public class SurveyViewModel {
             let questions = Self.buildQuestionViewModels(questions: configuration.questionSets.flatMap { $0.questions }, requiredText: configuration.requiredText)
             let submitButtonText = configuration.questionSets.last?.buttonTitle ?? "Submit"
 
-            let singlePage = Page(id: self.singlePageID, description: configuration.introduction, questions: questions, advanceButtonLabel: submitButtonText, advanceLogic: [])
+            let singlePage = Page(id: self.singlePageID, description: configuration.introduction, disclaimer: configuration.disclaimerText, questions: questions, advanceButtonLabel: submitButtonText, advanceLogic: [])
             pages[singlePage.id] = singlePage
             self.currentPageID = singlePage.id
 
@@ -324,8 +326,10 @@ public class SurveyViewModel {
                 break
             }
 
-            if let introduction = configuration.introduction, let introButtonTitle = configuration.introButtonTitle {
-                let introPage = Page(id: self.introPageID, description: introduction, advanceButtonLabel: introButtonTitle, advanceLogic: [AdvanceLogic(criteria: .true, pageID: firstQuestionSetID)])
+            if configuration.introduction != nil || configuration.disclaimerText != nil {
+                let introPage = Page(
+                    id: self.introPageID, description: configuration.introduction, disclaimer: configuration.disclaimerText, advanceButtonLabel: configuration.introButtonTitle ?? "Begin",
+                    advanceLogic: [AdvanceLogic(criteria: .true, pageID: firstQuestionSetID)])
                 pages[introPage.id] = introPage
                 self.currentPageID = introPage.id
             } else {
@@ -336,7 +340,7 @@ public class SurveyViewModel {
             var successPageID: String?
 
             if configuration.shouldShowSuccessMessage, let successMessage = configuration.successMessage, let successButtonTitle = configuration.successButtonTitle {
-                let successPage = Page(id: self.successPageID, description: successMessage, questions: [], advanceButtonLabel: successButtonTitle, advanceLogic: [])
+                let successPage = Page(id: self.successPageID, description: successMessage, disclaimer: configuration.disclaimerText, questions: [], advanceButtonLabel: successButtonTitle, advanceLogic: [])
                 pages[successPage.id] = successPage
                 successPageID = successPage.id
             }
@@ -365,7 +369,6 @@ public class SurveyViewModel {
         self.rangeChoiceLabelNumberFormatter = NumberFormatter()
         self.isRequired = false
         self.validationErrorMessage = configuration.validationError
-        self.disclaimerText = configuration.disclaimerText
 
         self.visitedQuestionIDs = Set<String>()
         self.currentPage.questions.forEach { self.visitedQuestionIDs.insert($0.questionID) }
@@ -402,7 +405,6 @@ public class SurveyViewModel {
         self.validationErrorMessage = configuration.validationError
         self.successMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
         self.isRequired = configuration.required ?? false
-        self.disclaimerText = nil
 
         self.rangeChoiceLabelNumberFormatter = NumberFormatter()
 

@@ -149,6 +149,33 @@ class SurveyBranchedViewModelTests: XCTestCase {
         XCTAssertTrue(self.interactionDelegate.openedURL == url)
     }
 
+    func testDisclaimerIntroPage() throws {
+        let disclaimerNoIntroInteraction = try InteractionTestHelpers.loadInteraction(named: "SurveyBranchedDisclaimerNoIntro")
+
+        guard case .surveyV12(let configuration) = disclaimerNoIntroInteraction.configuration else {
+            return XCTFail("Interaction configuration should be survey branched configuration")
+        }
+
+        let viewModel = SurveyViewModel(configuration: configuration, interaction: disclaimerNoIntroInteraction, interactionDelegate: self.interactionDelegate)
+
+        XCTAssertEqual(viewModel.currentPageID, "intro", "Should have an intro page even without intro (but with disclaimer)")
+        XCTAssertNil(viewModel.introduction, "Introduction text should be nil for this interaction")
+        XCTAssertNotNil(viewModel.disclaimerText, "Disclaimer text should not be nil for this interaction")
+    }
+
+    func testNoDisclaimerNoIntroPage() throws {
+        let disclaimerNoIntroInteraction = try InteractionTestHelpers.loadInteraction(named: "SurveyBranchedNoIntro")
+
+        guard case .surveyV12(let configuration) = disclaimerNoIntroInteraction.configuration else {
+            return XCTFail("Interaction configuration should be survey branched configuration")
+        }
+
+        let viewModel = SurveyViewModel(configuration: configuration, interaction: disclaimerNoIntroInteraction, interactionDelegate: self.interactionDelegate)
+
+        XCTAssertNotEqual(viewModel.currentPageID, "intro")
+        XCTAssertNil(viewModel.disclaimerText, "Disclaimer text should not be nil for this interaction")
+    }
+
     class SpySurveyViewModelDelegate: SurveyViewModelDelegate {
         var didSubmit = false
         var validationDidChange = false
