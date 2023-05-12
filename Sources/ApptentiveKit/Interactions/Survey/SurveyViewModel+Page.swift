@@ -26,6 +26,9 @@ extension SurveyViewModel {
         /// For paged display mode, the text will be displayed in a centered label.
         public let description: String?
 
+        /// A second string of static text that will be displayed near the avance button.
+        public let disclaimer: String?
+
         /// The question view models corresponding to the questions to display on this page.
         public let questions: [SurveyViewModel.Question]
 
@@ -41,9 +44,10 @@ extension SurveyViewModel {
 
         internal let advanceLogic: [AdvanceLogic]
 
-        internal init(id: String, description: String? = nil, questions: [SurveyViewModel.Question] = [], advanceButtonLabel: String, pageIndicatorValue: Int? = nil, advanceLogic: [AdvanceLogic]) {
+        internal init(id: String, description: String? = nil, disclaimer: String? = nil, questions: [SurveyViewModel.Question] = [], advanceButtonLabel: String, pageIndicatorValue: Int? = nil, advanceLogic: [AdvanceLogic]) {
             self.id = id
             self.description = description
+            self.disclaimer = disclaimer
             self.questions = questions
             self.advanceButtonLabel = advanceButtonLabel
             self.pageIndicatorValue = pageIndicatorValue

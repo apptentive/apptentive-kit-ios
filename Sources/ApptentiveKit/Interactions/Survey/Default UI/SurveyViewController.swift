@@ -509,7 +509,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func surveyViewModelPageDidChange(_ viewModel: SurveyViewModel) {
-        self.backgroundView?.disclaimerLabel.isHidden = true
         let oldSectionCount = self.tableView.numberOfSections
         let newSectionCount = viewModel.questions.count
 
@@ -529,12 +528,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
 
         self.backgroundView?.label.text = viewModel.introduction
+        self.backgroundView?.disclaimerLabel.text = viewModel.disclaimerText
         self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(viewModel.advanceButtonText, for: .normal)
 
         if self.viewModel.surveyDidSendResponse {
             self.navigationItem.rightBarButtonItem = .none
             self.surveyBranchedBottomView?.bottomView.surveyIndicator.updateSurveyIndicatorForThankYouScreen()
-            self.backgroundView?.disclaimerLabel.isHidden = false
         } else if let selectedSegmentIndex = self.viewModel.currentSelectedSegmentIndex {
             self.surveyBranchedBottomView?.bottomView.surveyIndicator.currentSelectedSetIndex = selectedSegmentIndex
 
