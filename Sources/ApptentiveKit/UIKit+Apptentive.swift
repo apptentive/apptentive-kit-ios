@@ -226,11 +226,7 @@ extension UIColor {
 
     /// The tint color for text inputs for surveys.
     @objc public static var apptentivetextInputTint: UIColor = {
-        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
-            return tintColor
-        } else {
-            return .systemBlue
-        }
+        return .apptentiveTint
     }()
 
     /// The border color to use for the message text view.
@@ -323,6 +319,15 @@ extension UIColor {
             return .label
         } else {
             return .black
+        }
+    }()
+
+    /// The tint/accent color to use for buttons and similar controls in Apptentive interaction UI.
+    @objc public static var apptentiveTint: UIColor = {
+        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
+            return tintColor
+        } else {
+            return .systemBlue
         }
     }()
 
@@ -424,30 +429,22 @@ extension UIColor {
 
     /// The color to use for images in a selected state for surveys.
     @objc public static var apptentiveImageSelected: UIColor = {
-        return UIApplication.shared.windows.first?.tintColor ?? .systemBlue
+        return .apptentiveTint
     }()
 
     /// The color to use for images in a non-selected state for surveys.
     @objc public static var apptentiveImageNotSelected: UIColor = {
-        return UIApplication.shared.windows.first?.tintColor ?? .systemBlue
+        return .apptentiveTint
     }()
 
     /// The background color to use for the submit button on surveys.
     @objc public static var apptentiveSubmitButton: UIColor = {
-        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
-            return tintColor
-        } else {
-            return .systemBlue
-        }
+        return .apptentiveTint
     }()
 
     /// The background color to use for the footer which contains the terms and conditions for branched surveys.
     @objc public static var apptentiveBranchedSurveyFooter: UIColor = {
-        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
-            return tintColor
-        } else {
-            return .systemBlue
-        }
+        return .apptentiveTint
     }()
 
     /// The color to use for the survey footer label (Thank You text).
@@ -461,11 +458,7 @@ extension UIColor {
 
     /// The color to use for the terms of service label.
     @objc public static var apptentiveTermsOfServiceLabel: UIColor = {
-        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
-            return tintColor
-        } else {
-            return .systemBlue
-        }
+        return .apptentiveTint
     }()
 
     /// The color to use for the submit button text color.
@@ -490,11 +483,7 @@ extension UIColor {
 
     /// The color to use for the selected segments for branched surveys.
     public static var apptentiveSelectedSurveyIndicatorSegment: UIColor = {
-        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
-            return tintColor
-        } else {
-            return .systemBlue
-        }
+        return .apptentiveTint
     }()
 
     /// The color to use for the background of Message Center.

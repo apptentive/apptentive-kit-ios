@@ -29,7 +29,7 @@ public class DialogButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.setTitleColor(self.tintColor, for: .normal)
+        self.setTitleColor(.apptentiveTint, for: .normal)
         self.titleLabel?.adjustsFontSizeToFitWidth = true
         self.titleLabel?.minimumScaleFactor = 0.58
         self.titleLabel?.adjustsFontForContentSizeCategory = true
@@ -53,13 +53,6 @@ public class DialogButton: UIButton {
         if self.cornerRadius == -1 {
             self.layer.cornerRadius = self.bounds.height / 2
         }
-    }
-
-    // swift-format-ignore
-    public override func tintColorDidChange() {
-        super.tintColorDidChange()
-
-        self.setTitleColor(self.tintColor, for: .normal)
     }
 
     // swift-format-ignore
