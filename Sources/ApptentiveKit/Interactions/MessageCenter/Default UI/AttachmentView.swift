@@ -43,7 +43,7 @@ extension MessageCenterViewController {
 
             self.titleLabel.translatesAutoresizingMaskIntoConstraints = false
             self.titleLabel.font = .apptentiveMessageCenterAttachmentLabel
-            self.titleLabel.textColor = self.tintColor
+            self.titleLabel.textColor = .apptentiveTint
             self.titleLabel.textAlignment = .center
             self.titleLabel.adjustsFontForContentSizeCategory = true
 
