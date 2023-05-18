@@ -651,8 +651,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     }
 
     func applicationDidEnterBackground(_ environment: GlobalEnvironment) {
-        self.engage(event: .exit())
-
         self.backendQueue.async {
             self.backend.didEnterBackground(environment: environment)
         }

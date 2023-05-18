@@ -1,4 +1,14 @@
-#2023-04-24 - 6.2.0
+# 2023-05-18 - 6.2.1
+
+#### New & Improved
+
+- Added a new `apptentiveTint` property to the `UIColor` extension to set the default accent color for Apptentive interaction UI
+
+#### Bugs Fixed
+
+- Fixed an issue where the (internal) exit event was sent twice
+
+# 2023-04-24 - 6.2.0
 
 #### New & Improved
 
