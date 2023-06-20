@@ -57,6 +57,13 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         return true
     }
 
+    override var isModalInPresentation: Bool {
+        get {
+            return self.viewModel.shouldConfirmCancel
+        }
+        set {}
+    }
+
     var firstResponderCell: UITableViewCell?
 
     enum FooterMode {
@@ -753,15 +760,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.viewModel.cancel(partial: false)
     }
 
-    func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
-        if self.viewModel.shouldConfirmCancel {
-            DispatchQueue.main.async {
-                self.confirmCancel()
-            }
-            return false
-        } else {
-            return true
-        }
+    func presentationControllerDidAttemptToDismiss(_ presentationController: UIPresentationController) {
+        self.confirmCancel()
     }
 
     // MARK: - Private
