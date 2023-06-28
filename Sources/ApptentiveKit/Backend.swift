@@ -584,6 +584,7 @@ class Backend: PayloadAuthenticationDelegate {
             case (from: .posting, to: .anonymous(let payloadCredentials)):
                 self.registerCompletion?(.success(.new))
                 self.registerCompletion = nil
+                self.startSession()
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: nil)
                 self.startHousekeepingTimer()
@@ -591,6 +592,7 @@ class Backend: PayloadAuthenticationDelegate {
             case (from: .loading, to: .anonymous(let payloadCredentials)):
                 self.registerCompletion?(.success(.cached))
                 self.registerCompletion = nil
+                self.startSession()
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: nil)
                 self.startHousekeepingTimer()
@@ -598,6 +600,7 @@ class Backend: PayloadAuthenticationDelegate {
             case (from: .loading, to: .loggedIn(let payloadCredentials, let encryptionContext)):
                 self.registerCompletion?(.success(.cached))
                 self.registerCompletion = nil
+                self.startSession()
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: encryptionContext)
                 self.startHousekeepingTimer()
@@ -623,6 +626,10 @@ class Backend: PayloadAuthenticationDelegate {
             case (from: .loggedOut, to: .loggedIn):
                 guard let activeRecord = self.state.roster.active, let appCredentials = self.state.appCredentials else {
                     throw ApptentiveError.internalInconsistency
+                }
+
+                if self.sessionID == nil {
+                    self.startSession()
                 }
 
                 try self.createRecordSavers(for: activeRecord, containerURL: containerURL, environment: environment)
@@ -664,10 +671,10 @@ class Backend: PayloadAuthenticationDelegate {
                 self.saveToPersistentStorageIfNeeded()
 
             case (from: _, to: .backgrounded):
-                self.endSession()
+                break  // Allowed state transition, no action.
 
             case (from: .backgrounded, to: _):
-                self.startSession()
+                break  // Allowed state transition, no action.
 
             case (from: .locked, to: _):
                 if let appCredentials = self.state.appCredentials, state.isProtectedDataAvailable {
