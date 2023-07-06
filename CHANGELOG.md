@@ -1,3 +1,14 @@
+# 2023-07-06 - 6.2.2
+
+#### New & Improved:
+
+- Context messages in Message Center now have clickable URLs, emails, and phone numbers
+
+#### Bugs Fixed:
+
+- Fixed an issue that broke VoiceOver navigation in surveys when not using a full-screen modal presentation style
+- Fixed an issue that could prevent engaging the (internal) launch event in SceneDelegate apps written in Objective-C
+
 # 2023-05-18 - 6.2.1
 
 #### New & Improved
