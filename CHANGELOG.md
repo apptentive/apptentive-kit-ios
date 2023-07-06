@@ -1,4 +1,23 @@
-#2023-04-24 - 6.2.0
+# 2023-07-06 - 6.2.2
+
+#### New & Improved:
+
+- Context messages in Message Center now have clickable URLs, emails, and phone numbers
+
+#### Bugs Fixed:
+
+- Fixed an issue that broke VoiceOver navigation in surveys when not using a full-screen modal presentation style
+- Fixed an issue that could prevent engaging the (internal) launch event in SceneDelegate apps written in Objective-C
+
+# 2023-05-18 - 6.2.1
+
+#### New & Improved
+
+- Added a new `apptentiveTint` property to the `UIColor` extension to set the default accent color for Apptentive interaction UI
+
+#### Bugs Fixed
+
+- Fixed an issue where the (internal) exit event was sent twice
 
 #### New & Improved
 
