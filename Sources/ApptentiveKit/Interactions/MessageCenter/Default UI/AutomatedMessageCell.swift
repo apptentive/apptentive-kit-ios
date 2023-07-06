@@ -45,6 +45,7 @@ extension MessageCenterViewController {
             self.messageText.sizeToFit()
             self.messageText.setContentHuggingPriority(.defaultHigh, for: .vertical)
             self.messageText.adjustsFontForContentSizeCategory = true
+            self.messageText.dataDetectorTypes = UIDataDetectorTypes.all
 
             setConstraints()
         }
