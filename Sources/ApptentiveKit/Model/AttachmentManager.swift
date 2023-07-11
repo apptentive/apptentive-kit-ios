@@ -62,7 +62,11 @@ class AttachmentManager: AttachmentURLProviding {
 
     func removeStorage(for attachment: MessageList.Message.Attachment) throws {
         if let attachmentURL = self.url(for: attachment) {
-            try self.fileManager.removeItem(at: attachmentURL)
+            if self.fileManager.fileExists(atPath: attachmentURL.path) {
+                try self.fileManager.removeItem(at: attachmentURL)
+            } else {
+                ApptentiveLogger.default.error("File does not exist at attachment URL path when attempting to remove from storage.")
+            }
         }  // else it likely doesn't have a sidecar file.
     }
 
