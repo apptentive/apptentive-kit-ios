@@ -11,15 +11,23 @@ import UIKit
 /// Implements `intrinsicContentSize` without interfering with the autolayout of the compose view.
 class MessageCenterComposeContainerView: UIView {
     let composeView: MessageCenterComposeView
+    let separatorView: UIView
+    var separatorHeightConstraint = NSLayoutConstraint()
 
-    override init(frame: CGRect) {
-        self.composeView = MessageCenterComposeView(frame: frame)
+    init(composeView: MessageCenterComposeView) {
+        self.composeView = composeView
+        self.separatorView = UIView(frame: .zero)
 
-        super.init(frame: frame)
+        super.init(frame: .zero)
 
         self.addSubview(self.composeView)
+        self.addSubview(self.separatorView)
+
         self.translatesAutoresizingMaskIntoConstraints = false
         self.backgroundColor = .apptentiveMessageCenterComposeBoxBackground
+
+        self.separatorView.translatesAutoresizingMaskIntoConstraints = false
+        self.separatorView.backgroundColor = .apptentiveMessageCenterComposeBoxSeparator
 
         self.setUpConstraints()
     }
@@ -39,24 +47,36 @@ class MessageCenterComposeContainerView: UIView {
     private func setUpConstraints() {
         self.composeView.translatesAutoresizingMaskIntoConstraints = false
 
+        self.separatorHeightConstraint = self.separatorView.heightAnchor.constraint(equalToConstant: 1.0)
+
         NSLayoutConstraint.activate([
+            self.separatorView.topAnchor.constraint(equalTo: self.topAnchor),
+            self.separatorView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            self.separatorView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            self.separatorHeightConstraint,
+
             self.topAnchor.constraint(equalTo: self.composeView.topAnchor),
             self.leadingAnchor.constraint(equalTo: self.composeView.leadingAnchor),
             self.trailingAnchor.constraint(equalTo: self.composeView.trailingAnchor),
             self.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: self.composeView.bottomAnchor),
         ])
     }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        let fineLineWidth = 1.0 / self.traitCollection.displayScale
+        self.separatorHeightConstraint.constant = fineLineWidth
+    }
 }
 
 class MessageCenterComposeView: UIView {
     let textView: UITextView
     let placeholderLabel: UILabel
-    let separatorView: UIView
     let sendButton: UIButton
     var placeholderWidthConstraint: NSLayoutConstraint?
     var textViewHeightConstraint: NSLayoutConstraint?
     var textViewHeightLimitConstraint: NSLayoutConstraint?
-    var separatorHeightConstraint: NSLayoutConstraint?
     let attachmentButton: UIButton
     let attachmentStackView: UIStackView
 
@@ -64,7 +84,6 @@ class MessageCenterComposeView: UIView {
         self.textView = UITextView(frame: frame)
         self.placeholderLabel = UILabel(frame: frame)
         self.sendButton = UIButton(frame: frame)
-        self.separatorView = UIView(frame: frame)
         self.attachmentButton = UIButton(frame: frame)
         self.attachmentStackView = UIStackView(frame: frame)
 
@@ -72,7 +91,6 @@ class MessageCenterComposeView: UIView {
 
         self.addSubview(self.textView)
         self.addSubview(self.sendButton)
-        self.addSubview(self.separatorView)
         self.addSubview(self.attachmentButton)
         self.addSubview(self.attachmentStackView)
 
@@ -104,9 +122,6 @@ class MessageCenterComposeView: UIView {
         self.textView.font = .apptentiveMessageCenterTextInput
         self.textView.returnKeyType = .default
         self.textView.accessibilityIdentifier = "messageTextView"
-
-        self.separatorView.translatesAutoresizingMaskIntoConstraints = false
-        self.separatorView.backgroundColor = .apptentiveMessageCenterComposeBoxSeparator
 
         self.textView.addSubview(self.placeholderLabel)
         self.placeholderLabel.isAccessibilityElement = false
@@ -181,19 +196,12 @@ class MessageCenterComposeView: UIView {
     }
 
     private func setUpConstraints() {
-        self.separatorHeightConstraint = self.separatorView.heightAnchor.constraint(equalToConstant: 1.0)
-
         self.textViewHeightConstraint = self.textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 18.0)
         self.textViewHeightConstraint?.priority = .defaultHigh
         self.textViewHeightLimitConstraint = self.textView.heightAnchor.constraint(lessThanOrEqualToConstant: 100)
 
         NSLayoutConstraint.activate(
             [
-                self.separatorView.topAnchor.constraint(equalTo: self.topAnchor),
-                self.separatorView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-                self.separatorView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                self.separatorHeightConstraint,
-
                 self.attachmentButton.centerYAnchor.constraint(equalTo: self.textView.centerYAnchor),
                 self.attachmentButton.leadingAnchor.constraint(equalToSystemSpacingAfter: self.safeAreaLayoutGuide.leadingAnchor, multiplier: 1),
                 self.attachmentButton.heightAnchor.constraint(equalTo: self.attachmentButton.widthAnchor),
@@ -220,6 +228,5 @@ class MessageCenterComposeView: UIView {
 
         let fineLineWidth = 1.0 / self.traitCollection.displayScale
         self.textView.layer.borderWidth = fineLineWidth
-        self.separatorHeightConstraint?.constant = fineLineWidth
     }
 }

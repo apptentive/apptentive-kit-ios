@@ -10,11 +10,11 @@ import UIKit
 
 class EditProfileViewController: UIViewController {
     let viewModel: MessageCenterViewModel
-    let profileView: ProfileFooterView
+    let profileView: ProfileView
 
     init(viewModel: MessageCenterViewModel) {
         self.viewModel = viewModel
-        self.profileView = ProfileFooterView(frame: .zero)
+        self.profileView = ProfileView(frame: .zero)
 
         super.init(nibName: nil, bundle: nil)
     }

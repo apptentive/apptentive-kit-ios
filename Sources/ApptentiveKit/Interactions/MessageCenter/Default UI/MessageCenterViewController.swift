@@ -14,20 +14,28 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate,
     QLPreviewControllerDelegate, QLPreviewControllerDataSource, UITextFieldDelegate
 {
-    let viewModel: MessageCenterViewModel
-    let headerView: GreetingHeaderView
-    let messageListFooterView: MessageListFooterView
-    let composeContainerView: MessageCenterComposeContainerView
-    let profileFooterView: ProfileFooterView
-    let messageReceivedCellID = "MessageCellReceived"
-    let messageSentCellID = "MessageSentCell"
-    let automatedMessageCellID = "AutomatedMessageCell"
+    private let viewModel: MessageCenterViewModel
+    private let headerView: GreetingHeaderView
+    private let footerView: UIStackView
+    private let profileView: ProfileView
+    private let statusView: StatusView
+    private var composeView: MessageCenterComposeView
+    private var composeContainerView: MessageCenterComposeContainerView?
+    private let messageReceivedCellID = "MessageCellReceived"
+    private let messageSentCellID = "MessageSentCell"
+    private let automatedMessageCellID = "AutomatedMessageCell"
 
     init(viewModel: MessageCenterViewModel) {
-        self.composeContainerView = MessageCenterComposeContainerView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 44)))
         self.headerView = GreetingHeaderView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 320)))
-        self.messageListFooterView = MessageListFooterView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 88)))
-        self.profileFooterView = ProfileFooterView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 115)))
+
+        self.profileView = ProfileView(frame: .zero)
+        self.statusView = StatusView(frame: .zero)
+
+        self.footerView = UIStackView(frame: .zero)
+        self.footerView.frame = CGRect(origin: .zero, size: CGSize(width: 320, height: 0))
+
+        self.composeView = MessageCenterComposeView(frame: .zero)
+
         self.viewModel = viewModel
         super.init(style: .grouped)
 
@@ -75,54 +83,54 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.tableView.register(MessageSentCell.self, forCellReuseIdentifier: self.messageSentCellID)
         self.tableView.register(AutomatedMessageCell.self, forCellReuseIdentifier: self.automatedMessageCellID)
 
-        self.composeContainerView.composeView.textView.delegate = self
-        self.composeContainerView.composeView.textView.accessibilityLabel = self.viewModel.composerTitle
-        self.composeContainerView.composeView.textView.accessibilityHint = self.viewModel.composerPlaceholderText
+        self.composeView.textView.delegate = self
+        self.composeView.textView.accessibilityLabel = self.viewModel.composerTitle
+        self.composeView.textView.accessibilityHint = self.viewModel.composerPlaceholderText
 
-        self.composeContainerView.composeView.placeholderLabel.text = self.viewModel.composerPlaceholderText
-        self.composeContainerView.composeView.sendButton.addTarget(self, action: #selector(sendMessage), for: .touchUpInside)
-        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
-        self.composeContainerView.composeView.sendButton.accessibilityLabel = self.viewModel.sendButtonAccessibilityLabel
-        self.composeContainerView.composeView.sendButton.accessibilityHint = self.viewModel.sendButtonAccessibilityHint
+        self.composeView.placeholderLabel.text = self.viewModel.composerPlaceholderText
+        self.composeView.sendButton.addTarget(self, action: #selector(sendMessage), for: .touchUpInside)
+        self.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+        self.composeView.sendButton.accessibilityLabel = self.viewModel.sendButtonAccessibilityLabel
+        self.composeView.sendButton.accessibilityHint = self.viewModel.sendButtonAccessibilityHint
 
-        self.composeContainerView.composeView.attachmentButton.addTarget(self, action: #selector(addAttachment(_:)), for: .touchUpInside)
-        self.composeContainerView.composeView.attachmentButton.isEnabled = self.viewModel.canAddAttachment
-        self.composeContainerView.composeView.attachmentButton.accessibilityLabel = self.viewModel.attachButtonAccessibilityLabel
-        self.composeContainerView.composeView.attachmentButton.accessibilityHint = self.viewModel.attachButtonAccessibilityHint
+        self.composeView.attachmentButton.addTarget(self, action: #selector(addAttachment(_:)), for: .touchUpInside)
+        self.composeView.attachmentButton.isEnabled = self.viewModel.canAddAttachment
+        self.composeView.attachmentButton.accessibilityLabel = self.viewModel.attachButtonAccessibilityLabel
+        self.composeView.attachmentButton.accessibilityHint = self.viewModel.attachButtonAccessibilityHint
 
-        self.composeContainerView.composeView.attachmentStackView.tag = Self.draftMessageTag
+        self.composeView.attachmentStackView.tag = Self.draftMessageTag
         for index in 0..<MessageCenterViewModel.maxAttachmentCount {
             let attachmentView = DraftAttachmentView(frame: .zero)
             attachmentView.isHidden = true
             attachmentView.closeButton.addTarget(self, action: #selector(removeDraftAttachment(_:)), for: .touchUpInside)
             attachmentView.gestureRecognizer.addTarget(self, action: #selector(showAttachment(_:)))
             attachmentView.tag = index
-            self.composeContainerView.composeView.attachmentStackView.addArrangedSubview(attachmentView)
+            self.composeView.attachmentStackView.addArrangedSubview(attachmentView)
         }
 
+        self.footerView.axis = .vertical
+        self.footerView.spacing = 8
+
         self.tableView.tableHeaderView = self.headerView
+
         self.tableView.accessibilityLabel = self.viewModel.headingTitle
 
         self.headerView.greetingTitleLabel.text = self.viewModel.greetingTitle
         self.headerView.greetingBodyLabel.text = self.viewModel.greetingBody
         self.headerView.brandingImageView.url = self.viewModel.greetingImageURL
 
-        self.messageListFooterView.statusTextLabel.text = self.viewModel.statusBody
+        self.profileView.emailTextField.text = self.viewModel.emailAddress
+        self.profileView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.editProfileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
+        self.profileView.emailTextField.accessibilityLabel = self.viewModel.editProfileEmailPlaceholder
+        self.profileView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
+        self.profileView.emailTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
 
-        self.profileFooterView.slaLabel.text = self.viewModel.statusBody
-        self.profileFooterView.nameTextField.text = self.viewModel.name
-        self.profileFooterView.nameTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileNamePlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
-        self.profileFooterView.nameTextField.accessibilityLabel = self.viewModel.editProfileNamePlaceholder
-        self.profileFooterView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
-        self.profileFooterView.nameTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
-        self.profileFooterView.nameTextField.delegate = self
+        self.profileView.nameTextField.text = self.viewModel.name
+        self.profileView.nameTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.editProfileNamePlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
+        self.profileView.nameTextField.accessibilityLabel = self.viewModel.editProfileNamePlaceholder
+        self.profileView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
 
-        self.profileFooterView.emailTextField.text = self.viewModel.emailAddress
-        self.profileFooterView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
-        self.profileFooterView.emailTextField.accessibilityLabel = self.viewModel.editProfileEmailPlaceholder
-        self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
-        self.profileFooterView.emailTextField.addTarget(self, action: #selector(textFieldEditingDidEnd(_:)), for: .editingDidEnd)
-        self.profileFooterView.emailTextField.delegate = self
+        self.statusView.label.text = self.viewModel.statusBody
 
         self.updateProfileValidation(strict: self.viewModel.emailAddress?.isEmpty == false)
         self.tableView.separatorColor = .clear
@@ -164,11 +172,11 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     // MARK: Input accessory view
 
     override var canBecomeFirstResponder: Bool {
-        return true
+        return !self.composerIsInline
     }
 
     override var inputAccessoryView: UIView? {
-        return self.composeContainerView
+        return self.composerIsInline ? nil : self.composeContainerView
     }
 
     // MARK: - Table view data source
@@ -233,7 +241,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     // MARK: - Text Field Delegate
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        self.composeContainerView.composeView.textView.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+        self.composeView.textView.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
         textField.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
     }
 
@@ -247,7 +255,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.sizeComposeTextView()
 
         self.viewModel.draftMessageBody = textView.text
-        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+        self.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
     }
 
     func textViewDidBeginEditing(_ textView: UITextView) {
@@ -358,11 +366,33 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     func messageCenterViewModelDidEndUpdates(_: MessageCenterViewModel) {
         self.tableView.endUpdates()
 
+        if !self.composerIsInline && self.composeView.superview == self.footerView {
+            self.moveComposeViewToInputAccessoryView()
+        }
+
+        self.updateFooter()
+
         self.scrollToRelevantMessage(false)
     }
 
     func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel) {
+        if self.viewModel.shouldRequestProfile {
+            self.footerView.addArrangedSubview(self.profileView)
+        }
+
+        self.footerView.addArrangedSubview(self.statusView)
+
+        if self.composerIsInline {
+            self.footerView.addArrangedSubview(self.composeView)
+        } else {
+            self.composeContainerView = MessageCenterComposeContainerView(composeView: self.composeView)
+            self.becomeFirstResponder()
+        }
+
+        self.tableView.tableFooterView = self.footerView
+
         self.tableView.reloadData()
+
         self.updateFooter()
 
         if !self.viewModel.shouldRequestProfile {
@@ -399,14 +429,14 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     }
 
     func messageCenterViewModelDraftMessageDidUpdate(_: MessageCenterViewModel) {
-        self.composeContainerView.composeView.textView.text = self.viewModel.draftMessageBody
-        self.composeContainerView.composeView.textViewDidChange()
+        self.composeView.textView.text = self.viewModel.draftMessageBody
+        self.composeView.textViewDidChange()
         self.sizeComposeTextView()
 
         self.updateDraftAttachments()
 
-        self.composeContainerView.composeView.attachmentButton.isEnabled = viewModel.canAddAttachment
-        self.composeContainerView.composeView.sendButton.isEnabled = viewModel.canSendMessage
+        self.composeView.attachmentButton.isEnabled = viewModel.canAddAttachment
+        self.composeView.sendButton.isEnabled = viewModel.canSendMessage
     }
 
     func messageCenterViewModel(_: MessageCenterViewModel, didFailToRemoveAttachmentAt index: Int, with error: Error) {
@@ -467,10 +497,14 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     }
 
     @objc func sendMessage() {
+        self.viewModel.commitProfileEdits()
+
         self.viewModel.sendMessage()
 
-        self.composeContainerView.composeView.textView.resignFirstResponder()
-        self.tableView.tableFooterView = self.messageListFooterView
+        self.composeView.textView.resignFirstResponder()
+
+        self.updateFooter()
+
         self.navigationItem.leftBarButtonItem?.isEnabled = true
     }
 
@@ -520,14 +554,14 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     }
 
     @objc func textFieldChanged(_ sender: UITextField) {
-        self.viewModel.name = self.profileFooterView.nameTextField.text
-        self.viewModel.emailAddress = self.profileFooterView.emailTextField.text
+        self.viewModel.name = self.profileView.nameTextField.text
+        self.viewModel.emailAddress = self.profileView.emailTextField.text
 
         self.updateProfileValidation(strict: false)
     }
 
     @objc private func textFieldEditingDidEnd(_ sender: UITextField) {
-        self.updateProfileValidation(strict: sender == self.profileFooterView.emailTextField)
+        self.updateProfileValidation(strict: sender == self.profileView.emailTextField)
 
         if self.viewModel.profileIsValid {
             self.viewModel.commitProfileEdits()
@@ -545,50 +579,80 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     private var previewedMessage: MessageCenterViewModel.Message?
     private var previewSourceView: UIView?
 
+    private var composerIsInline: Bool {
+        return self.isBigScreen || self.viewModel.numberOfMessageGroups == 0
+    }
+
+    private var isBigScreen: Bool {
+        if #available(iOS 14.0, *) {
+            return self.traitCollection.userInterfaceIdiom == .mac || self.traitCollection.userInterfaceIdiom == .pad
+        } else {
+            return self.traitCollection.userInterfaceIdiom == .pad
+        }
+    }
+
     private func dismiss() {
         self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 
     private func updateProfileValidation(strict: Bool) {
         if self.viewModel.profileIsValid || !strict {
-            self.profileFooterView.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+            self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
         } else {
-            self.profileFooterView.emailTextField.layer.borderColor = UIColor.apptentiveError.cgColor
+            self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveError.cgColor
         }
 
-        self.composeContainerView.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+        self.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
     }
 
     @objc func scrollToRelevantMessage(_ animated: Bool) {
         self.initialScrollToBottomCompleted = true
 
-        guard let scrollTargetIndexPath = self.viewModel.oldestUnreadMessageIndexPath ?? self.viewModel.newestMessageIndexPath else {
-            return
+        let oldestUnreadIndexPath = self.viewModel.oldestUnreadMessageIndexPath
+        let newestMessageIndexPath = self.viewModel.newestMessageIndexPath
+
+        if let oldestUnreadIndexPath = oldestUnreadIndexPath, oldestUnreadIndexPath != newestMessageIndexPath {
+            self.tableView.scrollToRow(at: oldestUnreadIndexPath, at: .top, animated: animated)
+            self.postAccessibilityNotification(for: oldestUnreadIndexPath)
+        } else if let newestMessageIndexPath = newestMessageIndexPath {
+            self.tableView.scrollRectToVisible(self.tableView.bounds.offsetBy(dx: 0, dy: self.tableView.contentSize.height - self.tableView.bounds.height), animated: true)
+            self.postAccessibilityNotification(for: newestMessageIndexPath)
         }
+    }
 
-        self.tableView.scrollToRow(at: scrollTargetIndexPath, at: .top, animated: animated)
-
-        self.postAccessibilityNotification(for: scrollTargetIndexPath)
+    private func moveComposeViewToInputAccessoryView() {
+        self.footerView.removeArrangedSubview(self.composeView)
+        self.composeContainerView = MessageCenterComposeContainerView(composeView: composeView)
+        self.becomeFirstResponder()
     }
 
     private func updateFooter() {
         if self.viewModel.shouldRequestProfile {
             self.navigationItem.leftBarButtonItem?.isEnabled = false
-            self.profileFooterView.nameTextField.becomeFirstResponder()
-            self.tableView.tableFooterView = self.profileFooterView
+            self.profileView.isHidden = false
         } else {
             self.navigationItem.leftBarButtonItem?.isEnabled = true
-            self.tableView.tableFooterView = self.messageListFooterView
+            self.profileView.isHidden = true
+        }
+
+        if let newestMessageIndexPath = self.viewModel.newestMessageIndexPath, case .sentFromDevice = self.viewModel.message(at: newestMessageIndexPath).direction {
+            self.statusView.isHidden = false
+        } else {
+            self.statusView.isHidden = true
         }
 
         self.sizeHeaderFooterViews()
     }
 
     private func sizeComposeTextView() {
-        let textView = self.composeContainerView.composeView.textView
-        let textSize = textView.sizeThatFits(CGSize(width: textView.bounds.inset(by: textView.textContainerInset).width, height: CGFloat.greatestFiniteMagnitude))
+        let textView = self.composeView.textView
+        var textSize = textView.sizeThatFits(CGSize(width: textView.bounds.inset(by: textView.textContainerInset).width, height: CGFloat.greatestFiniteMagnitude))
 
-        self.composeContainerView.composeView.textViewHeightConstraint?.constant = textSize.height
+        if self.composerIsInline {
+            textSize.height = max(textSize.height, 100)
+        }
+
+        self.composeView.textViewHeightConstraint?.constant = textSize.height
     }
 
     private func sizeHeaderFooterViews() {
@@ -597,7 +661,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.tableView.tableHeaderView = self.tableView.tableHeaderView
 
         if let footerView = self.tableView.tableFooterView {
-            let footerSize = footerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 200), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
+            let footerSize = footerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: UIView.layoutFittingCompressedSize.height), withHorizontalFittingPriority: .required, verticalFittingPriority: .defaultHigh)
             footerView.bounds = CGRect(origin: .zero, size: footerSize)
             self.tableView.tableFooterView = footerView
         }
@@ -712,11 +776,11 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     private func updateDraftAttachments() {
         // Don't animate unless the count has changed (seems to avoid layout glitches).
-        let visibleCount = self.composeContainerView.composeView.attachmentStackView.arrangedSubviews.filter { $0.isHidden == false }.count
+        let visibleCount = self.composeView.attachmentStackView.arrangedSubviews.filter { $0.isHidden == false }.count
         let shouldAnimate = visibleCount != self.viewModel.draftMessage.attachments.count
 
         let animations = {
-            for (index, subview) in self.composeContainerView.composeView.attachmentStackView.arrangedSubviews.enumerated() {
+            for (index, subview) in self.composeView.attachmentStackView.arrangedSubviews.enumerated() {
                 if index >= self.viewModel.draftAttachments.count {
                     subview.isHidden = true
                     continue
