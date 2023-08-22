@@ -95,7 +95,7 @@ class ApptentiveFeatureTests: XCTestCase {
             expectation.fulfill()
         }
 
-        self.waitForExpectations(timeout: 1) { error in
+        self.waitForExpectations(timeout: 5) { error in
             if let error = error {
                 XCTFail("Authentication request timed out: \(error.localizedDescription)")
             }

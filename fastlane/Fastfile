@@ -25,8 +25,8 @@ platform :ios do
   
   desc "Clean build areas"
   lane :clean do
-    FileUtils.remove_dir "../.fastlane/test_output" if File.exists? "../.fastlane/test_output"
-    FileUtils.remove_dir "../build" if File.exists? "../build"
+    FileUtils.remove_dir "../.fastlane/test_output" if File.exist? "../.fastlane/test_output"
+    FileUtils.remove_dir "../build" if File.exist? "../build"
   end
 
   desc "Run tests"
@@ -178,7 +178,7 @@ platform :ios do
     end
 
     # Convert template Defaults.plist file to the real deal
-    File.rename "../Operator/Operator/Defaults-Template.plist", "../Operator/Operator/Defaults.plist" unless File.exists? "../Operator/Operator/Defaults.plist"
+    File.rename "../Operator/Operator/Defaults-Template.plist", "../Operator/Operator/Defaults.plist" unless File.exist? "../Operator/Operator/Defaults.plist"
 
     update_plist(
       plist_path: "Operator/Operator/Defaults.plist",
