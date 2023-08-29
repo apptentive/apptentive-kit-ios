@@ -176,4 +176,5 @@ class BackendTests: XCTestCase {
     //        apptentive.register(with: credentials)
     //        XCTAssertTrue(apptentive.environment.isOverridingStyles)
     //    }
+
 }

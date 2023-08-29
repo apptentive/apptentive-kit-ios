@@ -30,6 +30,8 @@
 
 - Fixed an issue where the (internal) exit event was sent twice
 
+# 2023-04-24 - 6.2.0
+
 #### New & Improved
 
 - Implemented Customer Authentication features from the legacy SDK in the new SDK (See iOS Integration Reference - Apptentive Customer Learning Center )
