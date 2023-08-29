@@ -71,7 +71,6 @@
 		013D8EB924F5C99B005EC4D1 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013D8EB824F5C99B005EC4D1 /* Backend.swift */; };
 		014303FD2722259C00A07F79 /* MessageCenterUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014303FC2722259C00A07F79 /* MessageCenterUITests.swift */; };
 		014304012722305C00A07F79 /* MessageComposeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014304002722305C00A07F79 /* MessageComposeView.swift */; };
-		014A6D5C2A702BA800A4C60F /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 014A6D5E2A702BA800A4C60F /* Localizable.stringsdict */; };
 		014E62552926B70800C2EF77 /* SurveyBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E62542926B70800C2EF77 /* SurveyBackgroundView.swift */; };
 		014E6259292713D100C2EF77 /* SurveyBranchedContainerBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E6256292713D100C2EF77 /* SurveyBranchedContainerBottomView.swift */; };
 		014E625A292713D100C2EF77 /* SurveyIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E6257292713D100C2EF77 /* SurveyIndicator.swift */; };
@@ -338,9 +337,6 @@
 		013D8EB824F5C99B005EC4D1 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Backend.swift; sourceTree = "<group>"; };
 		014303FC2722259C00A07F79 /* MessageCenterUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterUITests.swift; sourceTree = "<group>"; };
 		014304002722305C00A07F79 /* MessageComposeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageComposeView.swift; sourceTree = "<group>"; };
-		014A6D5D2A702BA800A4C60F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
-		014A6D5F2A702BB100A4C60F /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
-		014A6D602A702BF900A4C60F /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		014E62542926B70800C2EF77 /* SurveyBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyBackgroundView.swift; sourceTree = "<group>"; };
 		014E6256292713D100C2EF77 /* SurveyBranchedContainerBottomView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyBranchedContainerBottomView.swift; sourceTree = "<group>"; };
 		014E6257292713D100C2EF77 /* SurveyIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurveyIndicator.swift; sourceTree = "<group>"; };
@@ -791,7 +787,6 @@
 				01BA40B0260BEC4900C555E8 /* Distribution.plist */,
 				EFAA226A27C5520200B4FC3B /* Localizable.strings */,
 				01F2D81728F0F3020097E35D /* SwiftPM.txt */,
-				014A6D5E2A702BA800A4C60F /* Localizable.stringsdict */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1350,7 +1345,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				016E6D8625F83E6900151E29 /* Media.xcassets in Resources */,
-				014A6D5C2A702BA800A4C60F /* Localizable.stringsdict in Resources */,
 				01F2D81428F0CE4F0097E35D /* Distribution.plist in Resources */,
 				EFAA226827C5520200B4FC3B /* Localizable.strings in Resources */,
 			);
@@ -1682,16 +1676,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		014A6D5E2A702BA800A4C60F /* Localizable.stringsdict */ = {
-			isa = PBXVariantGroup;
-			children = (
-				014A6D5D2A702BA800A4C60F /* en */,
-				014A6D5F2A702BB100A4C60F /* de */,
-				014A6D602A702BF900A4C60F /* ru */,
-			);
-			name = Localizable.stringsdict;
-			sourceTree = "<group>";
-		};
 		1F323D5B240EEE0500A678BC /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

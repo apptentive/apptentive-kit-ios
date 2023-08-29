@@ -768,7 +768,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.apptentive.Operator;
 				PRODUCT_NAME = Operator;
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.apptentive.Operator";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Operator Development";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match com.apptentive.Operator Development";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -797,7 +797,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.apptentive.Operator;
 				PRODUCT_NAME = Operator;
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.apptentive.Operator";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Operator Development";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match com.apptentive.Operator Development";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
