@@ -95,7 +95,14 @@ class MessageCenterViewModelTests: XCTestCase {
 
     // TODO: Test Draft Editing Methods
 
-    // TODO: Test Sending
+    func testSendMessage() {
+        self.viewModel.draftMessageBody = "Test Message"
+
+        self.viewModel.sendMessage()
+
+        XCTAssertEqual(self.spyInteractionDelegate?.sentMessage?.body, "Test Message")
+        XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#MessageCenter#send")
+    }
 
     func testDiffSections() {
         // Using example from https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/TableView_iPhone/ManageInsertDeleteRow/ManageInsertDeleteRow.html#//apple_ref/doc/uid/TP40007451-CH10-SW20
@@ -180,6 +187,10 @@ class MessageCenterViewModelTests: XCTestCase {
         self.viewModel?.emailAddress = "fake email"
         self.viewModel.cancelProfileEdits()
         XCTAssertEqual(self.viewModel?.emailAddress, "test email")
+
+        self.viewModel?.emailAddress = " "
+        self.viewModel?.commitProfileEdits()
+        XCTAssertNil(self.spyInteractionDelegate?.personEmailAddress)
     }
 
     func testSettingName() {
@@ -192,6 +203,10 @@ class MessageCenterViewModelTests: XCTestCase {
         self.viewModel?.name = "fake name"
         self.viewModel.cancelProfileEdits()
         XCTAssertEqual(self.viewModel?.name, "name")
+
+        self.viewModel?.name = " "
+        self.viewModel?.commitProfileEdits()
+        XCTAssertNil(self.spyInteractionDelegate?.personName)
     }
 
     class SpyViewModelDelegate: MessageCenterViewModelDelegate {

@@ -107,12 +107,12 @@ extension UIImage {
 
     /// The image to use as the chat bubble for outbound messages.
     @objc public static var apptentiveSentMessageBubble: UIImage? = {
-        return UIImage(named: "messageSentBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 18, right: 18))
+        return UIImage(named: "messageSentBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 14, right: 18))
     }()
 
     /// The image to use as the chat bubble for inbound messages.
     @objc public static var apptentiveReceivedMessageBubble: UIImage? = {
-        return UIImage(named: "messageReceivedBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 18, bottom: 18, right: 9))
+        return UIImage(named: "messageReceivedBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: 9, left: 18, bottom: 14, right: 9))
     }()
 
     /// The image to use for attachment placeholders in messages and the composer.

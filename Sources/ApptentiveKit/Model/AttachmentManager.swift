@@ -202,7 +202,10 @@ class AttachmentManager: AttachmentURLProviding {
         let cancellable = self.requestor.download(remoteURL) { tempURL, response, error in
             completion(
                 Result(catching: {
+                    self.progressObservations.removeValue(forKey: remoteURL)?.invalidate()
+
                     if let error = error {
+                        progress?(0)
                         throw error
                     }
 
@@ -212,7 +215,6 @@ class AttachmentManager: AttachmentURLProviding {
                     ApptentiveLogger.attachments.debug("Trying to write attachment data from \(remoteURL.path) to \(localURL.path).")
                     try self.fileManager.moveItem(at: tempURL, to: localURL)
                     ApptentiveLogger.attachments.debug("Successfully wrote attachment data to \(localURL.path).")
-                    self.progressObservations.removeValue(forKey: remoteURL)?.invalidate()
 
                     return localURL
                 })

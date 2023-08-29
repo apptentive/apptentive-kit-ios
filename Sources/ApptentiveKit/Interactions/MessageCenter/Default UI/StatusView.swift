@@ -34,6 +34,7 @@ extension MessageCenterViewController {
             self.label.textColor = .apptentiveMessageCenterStatus
             self.label.textAlignment = .center
             self.label.adjustsFontForContentSizeCategory = true
+            self.label.isAccessibilityElement = true
         }
 
         private func setUpConstraints() {
@@ -50,7 +51,7 @@ extension MessageCenterViewController {
         override var intrinsicContentSize: CGSize {
             var result = self.label.systemLayoutSizeFitting(self.bounds.size)
 
-            result.height += 16
+            result.height += self.layoutMargins.top + self.layoutMargins.bottom
 
             return result
         }

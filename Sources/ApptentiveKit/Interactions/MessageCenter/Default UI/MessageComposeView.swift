@@ -55,7 +55,7 @@ class MessageCenterComposeContainerView: UIView {
             self.separatorView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             self.separatorHeightConstraint,
 
-            self.topAnchor.constraint(equalTo: self.composeView.topAnchor),
+            self.composeView.topAnchor.constraint(equalToSystemSpacingBelow: self.topAnchor, multiplier: 1),
             self.leadingAnchor.constraint(equalTo: self.composeView.leadingAnchor),
             self.trailingAnchor.constraint(equalTo: self.composeView.trailingAnchor),
             self.safeAreaLayoutGuide.bottomAnchor.constraint(equalTo: self.composeView.bottomAnchor),
@@ -143,6 +143,7 @@ class MessageCenterComposeView: UIView {
         }
 
         self.textView.accessibilityIdentifier = "composeTextView"
+        self.accessibilityElements = [self.attachmentButton, self.textView, self.sendButton, self.attachmentStackView]
 
         self.updatePlaceholderConstraints()
     }
@@ -177,6 +178,7 @@ class MessageCenterComposeView: UIView {
             self.sendButton.setPreferredSymbolConfiguration(.init(pointSize: 32.0), forImageIn: .normal)
         }
         self.sendButton.setImage(.apptentiveMessageSendButton, for: .normal)
+        self.sendButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
         self.sendButton.accessibilityIdentifier = "sendButton"
     }
 
@@ -186,6 +188,7 @@ class MessageCenterComposeView: UIView {
             self.attachmentButton.setPreferredSymbolConfiguration(.init(pointSize: 32.0), forImageIn: .normal)
         }
         self.attachmentButton.setImage(.apptentiveMessageAttachmentButton, for: .normal)
+        self.attachmentButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
         self.attachmentButton.accessibilityIdentifier = "attachmentButton"
     }
 
@@ -197,7 +200,7 @@ class MessageCenterComposeView: UIView {
 
     private func setUpConstraints() {
         self.textViewHeightConstraint = self.textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 18.0)
-        self.textViewHeightConstraint?.priority = .defaultHigh
+        self.textViewHeightConstraint?.priority = .init(751)
         self.textViewHeightLimitConstraint = self.textView.heightAnchor.constraint(lessThanOrEqualToConstant: 100)
 
         NSLayoutConstraint.activate(
@@ -206,7 +209,7 @@ class MessageCenterComposeView: UIView {
                 self.attachmentButton.leadingAnchor.constraint(equalToSystemSpacingAfter: self.safeAreaLayoutGuide.leadingAnchor, multiplier: 1),
                 self.attachmentButton.heightAnchor.constraint(equalTo: self.attachmentButton.widthAnchor),
 
-                self.textView.topAnchor.constraint(equalToSystemSpacingBelow: self.topAnchor, multiplier: 1.0),
+                self.textView.topAnchor.constraint(equalTo: self.topAnchor),
                 self.textView.leadingAnchor.constraint(equalToSystemSpacingAfter: self.attachmentButton.trailingAnchor, multiplier: 1.0),
                 self.sendButton.leadingAnchor.constraint(equalToSystemSpacingAfter: self.textView.trailingAnchor, multiplier: 1.0),
 

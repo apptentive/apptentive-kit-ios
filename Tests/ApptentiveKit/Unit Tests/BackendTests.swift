@@ -135,45 +135,45 @@ class BackendTests: XCTestCase {
         self.wait(for: [expectation], timeout: 5)
     }
 
-//    func testPayloadWithBadToken() throws {
-//        let expectation = XCTestExpectation(description: "Payload failed sent")
-//
-//        // Mock the payload send request to fail.
-//        let errorResponse = ErrorResponse(error: "Mismatched sub claim", errorType: .mismatchedSubClaim)
-//        let errorData = try self.jsonEncoder.encode(errorResponse)
-//
-//        self.requestor.responseData = errorData
-//        self.requestor.error = .unauthorized(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations/def456/messages")!, statusCode: 401, httpVersion: nil, headerFields: nil)!, errorData)
-//
-//        self.requestor.extraCompletion = {
-//            if self.requestor.request?.httpMethod == "POST" {
-//                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
-//                    XCTAssertNotNil(self.backendDelegate.authError)
-//                    expectation.fulfill()
-//                }
-//            }
-//        }
-//
-//        self.backend.queue.async {
-//            XCTAssertNil(self.backendDelegate.authError)
-//
-//            try? self.backend.sendMessage(.init(nonce: UUID().uuidString, body: "Test"))
-//        }
-//
-//        self.wait(for: [expectation], timeout: 5)
-//    }
+    //    func testPayloadWithBadToken() throws {
+    //        let expectation = XCTestExpectation(description: "Payload failed sent")
+    //
+    //        // Mock the payload send request to fail.
+    //        let errorResponse = ErrorResponse(error: "Mismatched sub claim", errorType: .mismatchedSubClaim)
+    //        let errorData = try self.jsonEncoder.encode(errorResponse)
+    //
+    //        self.requestor.responseData = errorData
+    //        self.requestor.error = .unauthorized(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations/def456/messages")!, statusCode: 401, httpVersion: nil, headerFields: nil)!, errorData)
+    //
+    //        self.requestor.extraCompletion = {
+    //            if self.requestor.request?.httpMethod == "POST" {
+    //                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+    //                    XCTAssertNotNil(self.backendDelegate.authError)
+    //                    expectation.fulfill()
+    //                }
+    //            }
+    //        }
+    //
+    //        self.backend.queue.async {
+    //            XCTAssertNil(self.backendDelegate.authError)
+    //
+    //            try? self.backend.sendMessage(.init(nonce: UUID().uuidString, body: "Test"))
+    //        }
+    //
+    //        self.wait(for: [expectation], timeout: 5)
+    //    }
 
-//    func testOverridingStyles() {
-//        apptentiveAssertionHandler = { message, file, line in
-//            print("\(file):\(line): Apptentive critical error: \(message())")
-//        }
-//        let credentials = Apptentive.AppCredentials(key: "", signature: "")
-//        let baseURL = URL(string: "https://api.apptentive.com/")!
-//        let queue = DispatchQueue(label: "Test Queue")
-//        let environment = MockEnvironment()
-//        let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: queue, environment: environment)
-//        apptentive.theme = .none
-//        apptentive.register(with: credentials)
-//        XCTAssertTrue(apptentive.environment.isOverridingStyles)
-//    }
+    //    func testOverridingStyles() {
+    //        apptentiveAssertionHandler = { message, file, line in
+    //            print("\(file):\(line): Apptentive critical error: \(message())")
+    //        }
+    //        let credentials = Apptentive.AppCredentials(key: "", signature: "")
+    //        let baseURL = URL(string: "https://api.apptentive.com/")!
+    //        let queue = DispatchQueue(label: "Test Queue")
+    //        let environment = MockEnvironment()
+    //        let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: queue, environment: environment)
+    //        apptentive.theme = .none
+    //        apptentive.register(with: credentials)
+    //        XCTAssertTrue(apptentive.environment.isOverridingStyles)
+    //    }
 }

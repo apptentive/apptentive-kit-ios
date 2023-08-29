@@ -241,6 +241,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        DispatchQueue.main.async {
+            self.updateHeaderFooterSize()
+            self.tableView.tableHeaderView = self.introductionView
+            self.tableView.tableFooterView = self.submitView
+        }
         //We can't capture the view's window in the viewDidLoad, which is needed when sizing the larger header.
         ApptentiveNavigationController.prefersLargeHeader ? self.configureNavigationBarForLargeHeader() : self.configureNavigationBar()
         // Need to increase the inset becuase when large dynamic type is set, the bottom input accessory view gets a larger height which covers the view.
@@ -249,12 +254,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        self.updateHeaderFooterSize()
-        self.tableView.tableHeaderView = self.introductionView
-        self.tableView.tableFooterView = self.submitView
+    override var prefersStatusBarHidden: Bool {
+        return false
     }
 
     // MARK: - Table view data source
@@ -308,7 +309,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         switch (question, cell) {
         case (let freeformQuestion as SurveyViewModel.FreeformQuestion, let singleLineCell as SurveySingleLineCell):
             singleLineCell.textField.attributedPlaceholder = NSAttributedString(
-                string: freeformQuestion.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder, NSAttributedString.Key.font: UIFont.apptentiveTextInputPlaceholder])
+                string: freeformQuestion.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder, NSAttributedString.Key.font: UIFont.apptentiveTextInputPlaceholder.apptentiveRepairedFont()])
             singleLineCell.textField.text = freeformQuestion.value
             singleLineCell.textField.delegate = self
             singleLineCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
@@ -376,7 +377,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 otherCell.textField.delegate = self
                 otherCell.textField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
                 otherCell.textField.tag = self.tag(for: indexPath)
-                otherCell.textField.attributedPlaceholder = NSAttributedString(string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder])
+                otherCell.textField.attributedPlaceholder = NSAttributedString(
+                    string: choice.placeholderText ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveTextInputPlaceholder, NSAttributedString.Key.font: UIFont.apptentiveTextInputPlaceholder.apptentiveRepairedFont()])
             }
 
         default:
@@ -936,5 +938,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 self.tableView.scrollToRow(at: IndexPath(row: 0, section: firstInvalidQuestionIndex), at: .middle, animated: true)
             }
         }
+    }
+
+    private func scaledFontForPlaceholderLabel() -> UIFont {
+        let fontMetrics = UIFontMetrics(forTextStyle: .body)
+        let scaledApptentivePlaceholderFont = fontMetrics.scaledFont(for: UIFont.preferredFont(forTextStyle: .body))
+        return scaledApptentivePlaceholderFont
     }
 }

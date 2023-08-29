@@ -24,19 +24,17 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     private let messageReceivedCellID = "MessageCellReceived"
     private let messageSentCellID = "MessageSentCell"
     private let automatedMessageCellID = "AutomatedMessageCell"
+    private var lastFocusedControl: UIFocusEnvironment?
 
     init(viewModel: MessageCenterViewModel) {
         self.headerView = GreetingHeaderView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 320)))
-
         self.profileView = ProfileView(frame: .zero)
         self.statusView = StatusView(frame: .zero)
-
-        self.footerView = UIStackView(frame: .zero)
-        self.footerView.frame = CGRect(origin: .zero, size: CGSize(width: 320, height: 0))
-
+        self.footerView = UIStackView(frame: CGRect(origin: .zero, size: CGSize(width: 320, height: 0)))
         self.composeView = MessageCenterComposeView(frame: .zero)
 
         self.viewModel = viewModel
+
         super.init(style: .grouped)
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -69,12 +67,6 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.navigationItem.rightBarButtonItem?.action = #selector(closeMessageCenter)
         self.navigationItem.rightBarButtonItem?.accessibilityLabel = self.viewModel.closeButtonAccessibilityLabel
         self.navigationItem.rightBarButtonItem?.accessibilityHint = self.viewModel.closeButtonAccessibilityHint
-
-        self.navigationItem.leftBarButtonItem = .apptentiveProfileEdit
-        self.navigationItem.leftBarButtonItem?.target = self
-        self.navigationItem.leftBarButtonItem?.action = #selector(openProfileEditView)
-        self.navigationItem.leftBarButtonItem?.accessibilityLabel = self.viewModel.profileButtonAccessibilityLabel
-        self.navigationItem.leftBarButtonItem?.accessibilityHint = self.viewModel.profileButtonAccessibilityHint
 
         self.tableView.rowHeight = UITableView.automaticDimension
         self.tableView.estimatedRowHeight = 1000
@@ -116,24 +108,44 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.tableView.accessibilityLabel = self.viewModel.headingTitle
 
         self.headerView.greetingTitleLabel.text = self.viewModel.greetingTitle
-        self.headerView.greetingBodyLabel.text = self.viewModel.greetingBody
+        self.headerView.greetingBodyText.text = self.viewModel.greetingBody
         self.headerView.brandingImageView.url = self.viewModel.greetingImageURL
 
-        self.profileView.emailTextField.text = self.viewModel.emailAddress
-        self.profileView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.editProfileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
-        self.profileView.emailTextField.accessibilityLabel = self.viewModel.editProfileEmailPlaceholder
-        self.profileView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
-        self.profileView.emailTextField.addTarget(self, action: #selector(textFieldDidEndEditing(_:)), for: .editingDidEnd)
-
         self.profileView.nameTextField.text = self.viewModel.name
-        self.profileView.nameTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.editProfileNamePlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
+        self.profileView.nameTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileNamePlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
         self.profileView.nameTextField.accessibilityLabel = self.viewModel.editProfileNamePlaceholder
         self.profileView.nameTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
+        self.profileView.nameTextField.delegate = self
+
+        self.profileView.emailTextField.text = self.viewModel.emailAddress
+        self.profileView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
+        self.profileView.emailTextField.accessibilityLabel = self.viewModel.editProfileEmailPlaceholder
+        self.profileView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
+        self.profileView.emailTextField.delegate = self
+
+        self.profileView.errorLabel.text = self.viewModel.profileEmailInvalidError
 
         self.statusView.label.text = self.viewModel.statusBody
 
         self.updateProfileValidation(strict: self.viewModel.emailAddress?.isEmpty == false)
         self.tableView.separatorColor = .clear
+
+        self.tableView.accessibilityElements = [self.headerView, self.footerView]
+        self.showKeyboardForIpad()
+    }
+
+    override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        // Presenting image/file picker seems to lose focus from the attachment button
+        if let lastFocusedControl = self.lastFocusedControl {
+            self.lastFocusedControl = nil
+            return [lastFocusedControl]
+        } else {
+            return super.preferredFocusEnvironments
+        }
+    }
+
+    override var prefersStatusBarHidden: Bool {
+        return false
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -141,6 +153,22 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
             self.sizeHeaderFooterViews()
         } completion: { _ in
         }
+    }
+
+    override func indexPathForPreferredFocusedView(in tableView: UITableView) -> IndexPath? {
+        if let oldestUnreadMessageIndexPath = self.viewModel.oldestUnreadMessageIndexPath {
+            return oldestUnreadMessageIndexPath
+        } else if let newestMessageIndexPath = self.viewModel.newestMessageIndexPath {
+            return newestMessageIndexPath
+        } else {
+            return nil
+        }
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        self.sizeHeaderFooterViews()
     }
 
     override func viewDidLayoutSubviews() {
@@ -172,11 +200,11 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     // MARK: Input accessory view
 
     override var canBecomeFirstResponder: Bool {
-        return !self.composerIsInline
+        return self.composeContainerView != nil
     }
 
     override var inputAccessoryView: UIView? {
-        return self.composerIsInline ? nil : self.composeContainerView
+        return self.composeContainerView
     }
 
     // MARK: - Table view data source
@@ -208,16 +236,24 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         switch (message.direction, cell) {
         case (.sentFromDashboard, let receivedCell as MessageReceivedCell):
+            receivedCell.messageText.isHidden = message.body?.isEmpty != false
             receivedCell.messageText.text = message.body
+            receivedCell.messageText.accessibilityLabel = message.accessibilityLabel
+            receivedCell.messageText.accessibilityHint = message.accessibilityHint
             receivedCell.dateLabel.text = message.statusText
             receivedCell.senderLabel.text = message.sender?.name
             receivedCell.profileImageView.url = message.sender?.profilePhotoURL
+            receivedCell.attachmentStackView.isHidden = message.attachments.count == 0
             self.updateStackView(receivedCell.attachmentStackView, with: message, at: indexPath)
             receivedCell.accessibilityElements = [receivedCell.senderLabel, receivedCell.messageText, receivedCell.attachmentStackView, receivedCell.dateLabel]
 
         case (.sentFromDevice, let sentCell as MessageSentCell):
+            sentCell.messageText.isHidden = message.body?.isEmpty != false
             sentCell.messageText.text = message.body
+            sentCell.messageText.accessibilityLabel = message.accessibilityLabel
+            sentCell.messageText.accessibilityHint = message.accessibilityHint
             sentCell.statusLabel.text = message.statusText
+            sentCell.attachmentStackView.isHidden = message.attachments.count == 0
             self.updateStackView(sentCell.attachmentStackView, with: message, at: indexPath)
             sentCell.accessibilityElements = [sentCell.messageText, sentCell.attachmentStackView, sentCell.statusLabel]
 
@@ -247,6 +283,26 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func textFieldDidEndEditing(_ textField: UITextField) {
         textField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+
+        self.updateProfileValidation(strict: textField == self.profileView.emailTextField)
+
+        if self.viewModel.profileIsValid {
+            self.viewModel.commitProfileEdits()
+        }
+
+        self.updateFooter()
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == self.profileView.nameTextField {
+            self.profileView.emailTextField.becomeFirstResponder()
+        } else if self.viewModel.profileIsValid {
+            self.composeView.textView.becomeFirstResponder()
+        } else {
+            self.updateProfileValidation(strict: true)
+        }
+
+        return true
     }
 
     // MARK: - Text View Delegate
@@ -266,6 +322,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         picker.dismiss(animated: true, completion: nil)
+        self.lastFocusedControl = self.composeView.attachmentButton
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             self.viewModel.addImageAttachment(image, name: nil)
         } else {
@@ -282,6 +339,8 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     @available(iOS 14, *)
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
+        self.lastFocusedControl = self.composeView.attachmentButton
+        self.setNeedsFocusUpdate()
         for result in results {
             result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
                 if let error = error {
@@ -302,6 +361,8 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
         controller.dismiss(animated: true)
+        self.lastFocusedControl = self.composeView.attachmentButton
+        self.setNeedsFocusUpdate()
         self.viewModel.addFileAttachment(at: url)
     }
 
@@ -372,7 +433,11 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.updateFooter()
 
-        self.scrollToRelevantMessage(false)
+        self.updateProfileEditButton()
+
+        DispatchQueue.main.async {
+            self.scrollToRelevantMessage(true)
+        }
     }
 
     func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel) {
@@ -391,12 +456,17 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.tableView.tableFooterView = self.footerView
 
-        self.tableView.reloadData()
-
         self.updateFooter()
 
-        if !self.viewModel.shouldRequestProfile {
-            self.scrollToRelevantMessage(false)
+        self.tableView.reloadData()
+
+        self.updateProfileEditButton()
+
+        DispatchQueue.main.async {
+            // Give the `becomeFirstResponder` a chance to take effect and adjust content insets
+            if !self.viewModel.shouldRequestProfile {
+                self.scrollToRelevantMessage(false)
+            }
         }
     }
 
@@ -457,6 +527,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error) {
         ApptentiveLogger.messages.error("Unable to download attachment #\(index) in row \(indexPath.row) of section \(indexPath.section).")
+        self.tableView.reloadRows(at: [indexPath], with: .fade)
     }
 
     // MARK: - Notifications
@@ -475,7 +546,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         }
     }
 
-    // MARK: - Targets
+    // MARK: - Actions
 
     @objc func openProfileEditView() {
         let profileViewController = EditProfileViewController(viewModel: self.viewModel)
@@ -554,18 +625,13 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     }
 
     @objc func textFieldChanged(_ sender: UITextField) {
-        self.viewModel.name = self.profileView.nameTextField.text
-        self.viewModel.emailAddress = self.profileView.emailTextField.text
+        if sender == self.profileView.nameTextField {
+            self.viewModel.name = self.profileView.nameTextField.text
+        } else if sender == self.profileView.emailTextField {
+            self.viewModel.emailAddress = self.profileView.emailTextField.text
+        }
 
         self.updateProfileValidation(strict: false)
-    }
-
-    @objc private func textFieldEditingDidEnd(_ sender: UITextField) {
-        self.updateProfileValidation(strict: sender == self.profileView.emailTextField)
-
-        if self.viewModel.profileIsValid {
-            self.viewModel.commitProfileEdits()
-        }
     }
 
     // MARK: - Private
@@ -579,8 +645,13 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     private var previewedMessage: MessageCenterViewModel.Message?
     private var previewSourceView: UIView?
 
+    // For some reason the footer reports an outdated size before the resize animation completes,
+    // which breaks the table footer view size calculation and leads to a layout glitch.
+    // I spent way to much time trying and failing to fix this the "right" way, hence this hack.
+    private var footerSizeAdjustment: CGFloat = 0
+
     private var composerIsInline: Bool {
-        return self.isBigScreen || self.viewModel.numberOfMessageGroups == 0
+        return self.isBigScreen && self.viewModel.numberOfMessageGroups == 0
     }
 
     private var isBigScreen: Bool {
@@ -598,11 +669,24 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     private func updateProfileValidation(strict: Bool) {
         if self.viewModel.profileIsValid || !strict {
             self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+            self.profileView.errorLabel.isHidden = true
         } else {
             self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveError.cgColor
+            self.profileView.errorLabel.isHidden = false
+            UIAccessibility.post(notification: .screenChanged, argument: self.profileView.errorLabel)
         }
 
         self.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
+    }
+
+    private func updateProfileEditButton() {
+        if self.viewModel.shouldAllowProfileEdit {
+            self.navigationItem.leftBarButtonItem = .apptentiveProfileEdit
+            self.navigationItem.leftBarButtonItem?.target = self
+            self.navigationItem.leftBarButtonItem?.action = #selector(openProfileEditView)
+            self.navigationItem.leftBarButtonItem?.accessibilityLabel = self.viewModel.profileButtonAccessibilityLabel
+            self.navigationItem.leftBarButtonItem?.accessibilityHint = self.viewModel.profileButtonAccessibilityHint
+        }
     }
 
     @objc func scrollToRelevantMessage(_ animated: Bool) {
@@ -615,7 +699,11 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
             self.tableView.scrollToRow(at: oldestUnreadIndexPath, at: .top, animated: animated)
             self.postAccessibilityNotification(for: oldestUnreadIndexPath)
         } else if let newestMessageIndexPath = newestMessageIndexPath {
-            self.tableView.scrollRectToVisible(self.tableView.bounds.offsetBy(dx: 0, dy: self.tableView.contentSize.height - self.tableView.bounds.height), animated: true)
+            if let statusRect = self.tableView.tableFooterView?.frame, !self.statusView.isHidden {
+                self.tableView.scrollRectToVisible(statusRect, animated: animated)
+            } else {
+                self.tableView.scrollToRow(at: newestMessageIndexPath, at: .bottom, animated: animated)
+            }
             self.postAccessibilityNotification(for: newestMessageIndexPath)
         }
     }
@@ -623,10 +711,13 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     private func moveComposeViewToInputAccessoryView() {
         self.footerView.removeArrangedSubview(self.composeView)
         self.composeContainerView = MessageCenterComposeContainerView(composeView: composeView)
+        self.sizeComposeTextView()
         self.becomeFirstResponder()
     }
 
     private func updateFooter() {
+        self.viewModel.validateProfile()
+
         if self.viewModel.shouldRequestProfile {
             self.navigationItem.leftBarButtonItem?.isEnabled = false
             self.profileView.isHidden = false
@@ -656,12 +747,19 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     }
 
     private func sizeHeaderFooterViews() {
+        let preferredMaxLayoutWidth = self.tableView.bounds.inset(by: self.tableView.safeAreaInsets).width
+
+        self.headerView.greetingTitleLabel.preferredMaxLayoutWidth = preferredMaxLayoutWidth
+
         let headerViewSize = self.headerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: 100), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
         self.headerView.bounds = CGRect(origin: .zero, size: headerViewSize)
         self.tableView.tableHeaderView = self.tableView.tableHeaderView
 
         if let footerView = self.tableView.tableFooterView {
-            let footerSize = footerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: UIView.layoutFittingCompressedSize.height), withHorizontalFittingPriority: .required, verticalFittingPriority: .defaultHigh)
+            self.statusView.label.preferredMaxLayoutWidth = preferredMaxLayoutWidth
+
+            var footerSize = footerView.systemLayoutSizeFitting(CGSize(width: self.tableView.bounds.width, height: UIView.layoutFittingCompressedSize.height), withHorizontalFittingPriority: .required, verticalFittingPriority: .defaultHigh)
+            footerSize.height += self.footerSizeAdjustment
             footerView.bounds = CGRect(origin: .zero, size: footerSize)
             self.tableView.tableFooterView = footerView
         }
@@ -762,7 +860,9 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         alertController.view.accessibilityIdentifier = "AddAttachment"
 
         alertController.popoverPresentationController?.sourceView = sourceView
-
+        if self.composeView.textView.isFirstResponder {
+            self.composeView.textView.resignFirstResponder()
+        }
         self.present(alertController, animated: true, completion: nil)
     }
 
@@ -774,10 +874,20 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         return (indexPath.section << 16) | (indexPath.item & 0xFFFF)
     }
 
+    private func showKeyboardForIpad() {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            if self.viewModel.shouldRequestProfile && self.viewModel.profileMode == .requiredEmail {
+                self.profileView.emailTextField.becomeFirstResponder()
+            } else {
+                self.composeView.textView.becomeFirstResponder()
+            }
+        }
+    }
+
     private func updateDraftAttachments() {
         // Don't animate unless the count has changed (seems to avoid layout glitches).
         let visibleCount = self.composeView.attachmentStackView.arrangedSubviews.filter { $0.isHidden == false }.count
-        let shouldAnimate = visibleCount != self.viewModel.draftMessage.attachments.count
+        let shouldAnimate = visibleCount != self.viewModel.draftMessage.attachments.count && self.tableView.tableFooterView != nil
 
         let animations = {
             for (index, subview) in self.composeView.attachmentStackView.arrangedSubviews.enumerated() {
@@ -805,6 +915,16 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
                     attachmentView.imageView.image = .apptentiveAttachmentPlaceholder
                 }
             }
+
+            if visibleCount > 0 && self.viewModel.draftMessage.attachments.count == 0 {
+                self.footerSizeAdjustment = -58
+            } else if visibleCount == 0 && self.viewModel.draftMessage.attachments.count > 0 {
+                self.footerSizeAdjustment = 58
+            } else {
+                self.footerSizeAdjustment = 0
+            }
+
+            self.sizeHeaderFooterViews()
         }
 
         if shouldAnimate {

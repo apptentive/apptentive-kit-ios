@@ -13,15 +13,18 @@ class ProfileView: UIView {
 
     let nameTextField: UITextField
     let emailTextField: UITextField
+    let errorLabel: UILabel
 
     override init(frame: CGRect) {
         self.nameTextField = UITextField(frame: .zero)
         self.emailTextField = UITextField(frame: .zero)
+        self.errorLabel = UILabel(frame: .zero)
 
         super.init(frame: frame)
 
         self.addSubview(self.nameTextField)
         self.addSubview(self.emailTextField)
+        self.addSubview(self.errorLabel)
 
         configureViews()
     }
@@ -45,6 +48,7 @@ class ProfileView: UIView {
         self.nameTextField.contentVerticalAlignment = .center
         self.nameTextField.font = .apptentiveMessageCenterTextInput
         self.nameTextField.textColor = .apptentiveMessageCenterTextInput
+        self.nameTextField.returnKeyType = .next
         self.nameTextField.autocapitalizationType = .words
         self.nameTextField.accessibilityIdentifier = "name"
         self.nameTextField.backgroundColor = .apptentiveTextInputBackground
@@ -61,16 +65,24 @@ class ProfileView: UIView {
         self.emailTextField.font = .apptentiveMessageCenterTextInput
         self.emailTextField.textColor = .apptentiveMessageCenterTextInput
         self.emailTextField.keyboardType = .emailAddress
+        self.emailTextField.returnKeyType = .done
         self.emailTextField.autocapitalizationType = .none
         self.emailTextField.accessibilityIdentifier = "email"
         self.emailTextField.backgroundColor = .apptentiveTextInputBackground
+
+        self.errorLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.errorLabel.adjustsFontForContentSizeCategory = true
+        self.errorLabel.numberOfLines = 0
+        self.errorLabel.lineBreakMode = .byWordWrapping
+        self.errorLabel.font = .apptentiveInstructionsLabel
+        self.errorLabel.textColor = .apptentiveError
 
         setConstraints()
     }
 
     private func setConstraints() {
         NSLayoutConstraint.activate([
-            self.nameTextField.topAnchor.constraint(equalToSystemSpacingBelow: self.readableContentGuide.topAnchor, multiplier: 1),
+            self.nameTextField.topAnchor.constraint(equalTo: self.readableContentGuide.topAnchor),
             self.nameTextField.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.readableContentGuide.trailingAnchor.constraint(equalTo: self.nameTextField.trailingAnchor),
             self.nameTextField.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
@@ -79,7 +91,11 @@ class ProfileView: UIView {
             self.emailTextField.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.readableContentGuide.trailingAnchor.constraint(equalTo: self.emailTextField.trailingAnchor),
             self.emailTextField.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
-            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.emailTextField.bottomAnchor, multiplier: 1),
+
+            self.errorLabel.topAnchor.constraint(equalToSystemSpacingBelow: self.emailTextField.bottomAnchor, multiplier: 1),
+            self.errorLabel.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor, constant: 5),
+            self.readableContentGuide.trailingAnchor.constraint(equalTo: self.errorLabel.trailingAnchor, constant: 5),
+            self.bottomAnchor.constraint(equalTo: self.errorLabel.bottomAnchor),
         ])
     }
 }

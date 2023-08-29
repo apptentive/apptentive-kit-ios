@@ -110,6 +110,9 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// The save button text of the profile view.
     public let profileSaveButtonText: String
 
+    /// The error text to show if the email appears invalid.
+    public let profileEmailInvalidError: String
+
     /// The title of the edit profile view.
     public let editProfileViewTitle: String
 
@@ -192,6 +195,9 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// Whether the profile field should be shown alongside the composer.
     public var shouldRequestProfile: Bool
 
+    /// Whether the profile editor should be enable.
+    public var shouldAllowProfileEdit: Bool
+
     /// Describes the type of profile editing.
     public enum ProfileMode {
         case optionalEmail
@@ -244,8 +250,8 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
     /// Saves changes from the `name` and `emailAddress` properties to the interactionDelegate.
     public func commitProfileEdits() {
-        self.interactionDelegate.personName = self.name
-        self.interactionDelegate.personEmailAddress = self.emailAddress
+        self.interactionDelegate.personName = self.name?.trimmingCharacters(in: .whitespacesAndNewlines).nullifiedIfEmpty()
+        self.interactionDelegate.personEmailAddress = self.emailAddress?.trimmingCharacters(in: .whitespacesAndNewlines).nullifiedIfEmpty()
     }
 
     /// Reverts the values of the `name` and `emailAddress` properties to those from the interactionDelegate.
@@ -422,6 +428,8 @@ public class MessageCenterViewModel: MessageManagerDelegate {
                 DispatchQueue.main.async {
                     self.delegate?.messageCenterViewModel(self, didFailToSendMessageWith: error)
                 }
+            } else {
+                self.interactionDelegate.engage(event: .send(from: self.interaction))
             }
         }
     }
@@ -442,6 +450,8 @@ public class MessageCenterViewModel: MessageManagerDelegate {
 
         if groupings != self.groupedMessages || !self.hasLoadedMessages {
             DispatchQueue.main.async {
+                self.updateShouldAllowProfileEdit()
+
                 if self.hasLoadedMessages {
                     self.delegate?.messageCenterViewModelDidBeginUpdates(self)
                     self.update(from: self.groupedMessages, to: groupings)
@@ -511,10 +521,12 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.profileEmailPlaceholder = configuration.profile.initial.emailHint
         self.profileCancelButtonText = configuration.profile.initial.skipButton
         self.profileSaveButtonText = configuration.profile.initial.saveButton
+        self.profileEmailInvalidError = NSLocalizedString("MC Email Validation Error", bundle: .apptentive, value: "Please enter a valid email address.", comment: "The error message shown/read if email appears invalid.")
 
         self.hasLoadedMessages = false
         self.profileIsValid = false
         self.shouldRequestProfile = false
+        self.shouldAllowProfileEdit = self.profileMode != .hidden  // May be updated to allow edit in `messageManagerMessagesDidChange(_:)`
         self.managedMessages = []
         self.groupedMessages = []
         self.draftMessage = Message(nonce: "", direction: .sentFromDevice(.failed), isAutomated: false, attachments: [], sender: nil, body: nil, sentDate: Date(), statusText: "", accessibilityLabel: "", accessibilityHint: "")
@@ -735,11 +747,20 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             statusText = sentDateString
         }
 
-        let accessibilityLabel = managedMessage.body ?? NSLocalizedString("No Text", bundle: .apptentive, value: "No Text", comment: "Accessibility label for messages with no text")
+        var accessibilityLabel: String?
+        var accessibilityHint: String?
+
+        if managedMessage.body?.isEmpty != false {
+            accessibilityLabel = managedMessage.body ?? NSLocalizedString("No Text", bundle: .apptentive, value: "No Text", comment: "Accessibility label for messages with no text")
+        }
+
+        if attachments.count > 0 {
+            accessibilityHint = String(format: NSLocalizedString("%d attachment(s)", bundle: .apptentive, value: "%d attachment(s)", comment: "Accessibility hint for messages with attachments"), attachments.count)
+        }
 
         return Message(
             nonce: managedMessage.nonce, direction: direction, isAutomated: managedMessage.isAutomated, attachments: attachments, sender: sender, body: managedMessage.body, sentDate: managedMessage.sentDate,
-            statusText: statusText, accessibilityLabel: accessibilityLabel, accessibilityHint: statusText)
+            statusText: statusText, accessibilityLabel: accessibilityLabel, accessibilityHint: accessibilityHint)
     }
 
     static func assembleGroupedMessages(messages: [Message]) -> [[Message]] {
@@ -779,6 +800,24 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     }
 
     private static let emailPredicate = NSPredicate(format: "SELF MATCHES %@", "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")
+
+    private func updateShouldAllowProfileEdit() {
+        let userHasSentMessage = self.managedMessages.contains(where: { managedMessage in
+            switch managedMessage.status {
+            case .failed, .sending, .sent:
+                return !managedMessage.isHidden
+
+            default:
+                return false
+            }
+        })
+
+        let hasNameOrEmailAddress = self.name?.isEmpty == false || self.emailAddress?.isEmpty == false
+
+        if hasNameOrEmailAddress && userHasSentMessage {
+            self.shouldAllowProfileEdit = true
+        }
+    }
 }
 
 extension Event {
@@ -789,6 +828,12 @@ extension Event {
         result.userInfo = id.flatMap { .messageInfo(ReadMessageInfo(id: $0)) }
 
         return result
+    }
+}
+
+extension String {
+    fileprivate func nullifiedIfEmpty() -> String? {
+        return self.isEmpty ? nil : self
     }
 }
 
