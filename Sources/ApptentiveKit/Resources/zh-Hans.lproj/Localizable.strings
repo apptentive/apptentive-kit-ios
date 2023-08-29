@@ -52,3 +52,5 @@
 /* Title for note saying MC is unavailable */
 "MC Unavailable Title" = "消息中心无法使用";
 
+/* The validation error displayed in Message Center when the profile email is invalid */
+"MC Email Validation Error" = "错误-电子邮件丢失或格式无效。";

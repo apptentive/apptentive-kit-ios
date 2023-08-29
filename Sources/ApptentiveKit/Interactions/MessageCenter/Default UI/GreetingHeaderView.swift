@@ -11,14 +11,14 @@ import UIKit
 class GreetingHeaderView: UIView {
 
     let greetingTitleLabel: UILabel
-    let greetingBodyLabel: UILabel
+    let greetingBodyText: UITextView
     let brandingImageView: ApptentiveImageView
     let innerStackView: UIStackView
     let outerStackView: UIStackView
 
     override init(frame: CGRect) {
         self.greetingTitleLabel = UILabel(frame: .zero)
-        self.greetingBodyLabel = UILabel(frame: .zero)
+        self.greetingBodyText = UITextView(frame: .zero)
         self.brandingImageView = ApptentiveImageView()
         self.innerStackView = UIStackView(frame: .zero)
         self.outerStackView = UIStackView(frame: .zero)
@@ -32,20 +32,27 @@ class GreetingHeaderView: UIView {
 
     private func setupViews() {
         self.greetingTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.greetingTitleLabel.numberOfLines = 0
-        self.greetingTitleLabel.lineBreakMode = .byWordWrapping
         self.greetingTitleLabel.font = .apptentiveMessageCenterGreetingTitle
         self.greetingTitleLabel.textAlignment = .center
         self.greetingTitleLabel.textColor = .apptentiveMessageCenterGreetingTitle
         self.greetingTitleLabel.adjustsFontForContentSizeCategory = true
+        self.greetingTitleLabel.isAccessibilityElement = true
+        if #available(iOS 13.0, *) {
+            self.greetingTitleLabel.accessibilityRespondsToUserInteraction = true
+        }
 
-        self.greetingBodyLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.greetingBodyLabel.numberOfLines = 0
-        self.greetingBodyLabel.lineBreakMode = .byWordWrapping
-        self.greetingBodyLabel.font = .apptentiveMessageCenterGreetingBody
-        self.greetingBodyLabel.textAlignment = .center
-        self.greetingBodyLabel.textColor = .apptentiveMessageCenterGreetingBody
-        self.greetingBodyLabel.adjustsFontForContentSizeCategory = true
+        self.greetingBodyText.translatesAutoresizingMaskIntoConstraints = false
+        self.greetingBodyText.font = .apptentiveMessageCenterGreetingBody
+        self.greetingBodyText.textAlignment = .center
+        self.greetingBodyText.textColor = .apptentiveMessageCenterGreetingBody
+        self.greetingBodyText.adjustsFontForContentSizeCategory = true
+        self.greetingBodyText.dataDetectorTypes = UIDataDetectorTypes.all
+        self.greetingBodyText.isScrollEnabled = false
+        self.greetingBodyText.isEditable = false
+        self.greetingBodyText.textContainerInset = .zero
+        self.greetingBodyText.textContainer.lineFragmentPadding = 0
+        self.greetingBodyText.backgroundColor = .apptentiveMessageCenterBackground
+        self.greetingBodyText.isAccessibilityElement = true
 
         self.brandingImageView.translatesAutoresizingMaskIntoConstraints = false
         self.brandingImageView.layer.masksToBounds = true
@@ -59,7 +66,7 @@ class GreetingHeaderView: UIView {
         self.innerStackView.spacing = 16
 
         self.innerStackView.addArrangedSubview(self.greetingTitleLabel)
-        self.innerStackView.addArrangedSubview(self.greetingBodyLabel)
+        self.innerStackView.addArrangedSubview(self.greetingBodyText)
 
         self.outerStackView.translatesAutoresizingMaskIntoConstraints = false
         self.outerStackView.axis = self.traitCollection.verticalSizeClass == .compact ? .horizontal : .vertical
@@ -82,9 +89,10 @@ class GreetingHeaderView: UIView {
         NSLayoutConstraint.activate([
             brandingHeightConstraint,
             self.brandingImageView.widthAnchor.constraint(equalToConstant: 100),
+            self.outerStackView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             self.outerStackView.topAnchor.constraint(equalToSystemSpacingBelow: self.topAnchor, multiplier: 2),
-            self.outerStackView.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
-            self.readableContentGuide.trailingAnchor.constraint(equalTo: self.outerStackView.trailingAnchor),
+            self.outerStackView.leadingAnchor.constraint(greaterThanOrEqualTo: self.readableContentGuide.leadingAnchor),
+            self.readableContentGuide.trailingAnchor.constraint(greaterThanOrEqualTo: self.outerStackView.trailingAnchor),
             self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.outerStackView.bottomAnchor, multiplier: 2),
         ])
     }

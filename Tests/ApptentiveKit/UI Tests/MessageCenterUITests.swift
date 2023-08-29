@@ -38,40 +38,29 @@ class MessageCenterUITests: XCTestCase {
         attachmentButton.tap()
         app.buttons["Images"].tap()
 
-        app /*@START_MENU_TOKEN@*/.scrollViews.otherElements.images[
-            "Photo, August 08, 2012, 2:55 PM"
-        ] /*[[".otherElements[\"Photos\"].scrollViews.otherElements",".otherElements[\"Photo, March 30, 2018, 12:14 PM, Photo, August 08, 2012, 2:55 PM, Photo, August 08, 2012, 2:29 PM, Photo, August 08, 2012, 11:52 AM, Photo, October 09, 2009, 2:09 PM, Photo, March 12, 2011, 4:17 PM\"].images[\"Photo, August 08, 2012, 2:55 PM\"]",".images[\"Photo, August 08, 2012, 2:55 PM\"]",".scrollViews.otherElements"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,0]]@END_MENU_TOKEN@*/
-            .tap()
-        app /*@START_MENU_TOKEN@*/.scrollViews.otherElements.images[
-            "Photo, August 08, 2012, 2:29 PM"
-        ] /*[[".otherElements[\"Photos\"].scrollViews.otherElements",".otherElements[\"Photo, March 30, 2018, 12:14 PM, Photo, August 08, 2012, 2:55 PM, Photo, August 08, 2012, 2:29 PM, Photo, August 08, 2012, 11:52 AM, Photo, October 09, 2009, 2:09 PM, Photo, March 12, 2011, 4:17 PM\"].images[\"Photo, August 08, 2012, 2:29 PM\"]",".images[\"Photo, August 08, 2012, 2:29 PM\"]",".scrollViews.otherElements"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,0]]@END_MENU_TOKEN@*/
-            .tap()
-        app /*@START_MENU_TOKEN@*/.scrollViews.otherElements.images[
-            "Photo, March 12, 2011, 4:17 PM"
-        ] /*[[".otherElements[\"Photos\"].scrollViews.otherElements",".otherElements[\"Photo, March 30, 2018, 12:14 PM, Photo, August 08, 2012, 2:55 PM, Photo, August 08, 2012, 2:29 PM, Photo, August 08, 2012, 11:52 AM, Photo, October 09, 2009, 2:09 PM, Photo, March 12, 2011, 4:17 PM\"].images[\"Photo, March 12, 2011, 4:17 PM\"]",".images[\"Photo, March 12, 2011, 4:17 PM\"]",".scrollViews.otherElements"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,0]]@END_MENU_TOKEN@*/
-            .tap()
-        app /*@START_MENU_TOKEN@*/.scrollViews.otherElements.images[
-            "Photo, October 09, 2009, 2:09 PM"
-        ] /*[[".otherElements[\"Photos\"].scrollViews.otherElements",".otherElements[\"Photo, March 30, 2018, 12:14 PM, Photo, August 08, 2012, 2:55 PM, Photo, August 08, 2012, 2:29 PM, Photo, August 08, 2012, 11:52 AM, Photo, October 09, 2009, 2:09 PM, Photo, March 12, 2011, 4:17 PM\"].images[\"Photo, October 09, 2009, 2:09 PM\"]",".images[\"Photo, October 09, 2009, 2:09 PM\"]",".scrollViews.otherElements"],[[[-1,3,1],[-1,0,1]],[[-1,2],[-1,1]]],[0,0]]@END_MENU_TOKEN@*/
-            .tap()
+        let _ = app.staticTexts["Select up to 4 photos."].waitForExistence(timeout: 5)
+
+        app.scrollViews.otherElements.images.element(boundBy: 0).tap()
+        app.scrollViews.otherElements.images.element(boundBy: 1).tap()
+        app.scrollViews.otherElements.images.element(boundBy: 2).tap()
+        app.scrollViews.otherElements.images.element(boundBy: 3).tap()
 
         app.navigationBars["Photos"].buttons["Add"].tap()
 
-        if app.buttons["Remove IMG_0001.jpeg"].waitForExistence(timeout: 5.0) {
-            app.buttons["Remove IMG_0001.jpeg"].tap()
+        if app.buttons["Remove IMG_0003.jpeg"].waitForExistence(timeout: 5.0) {
+            app.buttons["Remove IMG_0003.jpeg"].tap()
 
             attachmentButton.tap()
             app.buttons["Files"].tap()
             app.buttons["Cancel"].tap()
 
-            XCTAssertFalse(app.buttons["Remove IMG_0001.jpeg"].exists)
+            XCTAssertFalse(app.buttons["Remove IMG_0003.jpeg"].exists)
 
             sendButton.tap()
         } else {
             XCTFail("Remove button didn't show up")
         }
     }
-
     func testUIDocumentPicker() {
         XCUIApplication().activate()
 

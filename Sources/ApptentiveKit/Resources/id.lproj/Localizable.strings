@@ -52,3 +52,5 @@
 /* Title for note saying MC is unavailable */
 "MC Unavailable Title" = "Pusat Pesan tidak Tersedia";
 
+/* The validation error displayed in Message Center when the profile email is invalid */
+"MC Email Validation Error" = "Kesalahan - Email tidak boleh kosong atau format tidak valid.";

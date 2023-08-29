@@ -56,12 +56,15 @@ extension MessageCenterViewController {
         }
 
         private func setConstraints() {
+            let aspectConstraint = self.imageView.widthAnchor.constraint(equalTo: self.imageView.heightAnchor)
+            aspectConstraint.priority = .defaultHigh
+
             NSLayoutConstraint.activate(
                 [
-                    self.imageView.topAnchor.constraint(equalToSystemSpacingBelow: self.topAnchor, multiplier: 0.5),
+                    self.imageView.topAnchor.constraint(equalTo: self.topAnchor),
                     self.imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
                     self.imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                    self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.imageView.bottomAnchor, multiplier: 0.5),
+                    self.bottomAnchor.constraint(equalTo: self.imageView.bottomAnchor),
 
                     self.titleLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
                     self.titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
@@ -71,8 +74,8 @@ extension MessageCenterViewController {
                     self.widthAnchor.constraint(equalTo: self.progressView.widthAnchor, constant: 12),
                     self.bottomAnchor.constraint(equalTo: self.progressView.bottomAnchor, constant: 6),
 
-                    self.imageView.heightAnchor.constraint(equalToConstant: 44),
-                    self.imageView.widthAnchor.constraint(equalTo: self.imageView.heightAnchor),
+                    self.imageView.heightAnchor.constraint(equalToConstant: 55),
+                    aspectConstraint,
                 ]
             )
         }

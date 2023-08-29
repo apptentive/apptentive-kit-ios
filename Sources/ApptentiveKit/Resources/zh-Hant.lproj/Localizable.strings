@@ -52,3 +52,5 @@
 /* Title for note saying MC is unavailable */
 "MC Unavailable Title" = "無資訊中心提供";
 
+/* The validation error displayed in Message Center when the profile email is invalid */
+"MC Email Validation Error" = "錯誤 - 缺少電子郵件或電子郵件格式無效。";

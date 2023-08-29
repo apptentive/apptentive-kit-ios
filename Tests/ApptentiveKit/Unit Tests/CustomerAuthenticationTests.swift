@@ -129,6 +129,7 @@ final class CustomerAuthenticationTests: XCTestCase {
 
                     self.requestor.responseData = try! self.jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey))
                     XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0, 0)
+                    XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount, 1)
 
                     self.backend.logIn(with: barbaraJWT) { result in
 
@@ -157,6 +158,7 @@ final class CustomerAuthenticationTests: XCTestCase {
                             XCTAssertTrue(self.backendDelegate.environment.fileManager.fileExists(atPath: encryptedMessageListPath), "Missing encrypted Message List file at \(encryptedMessageListPath)")
 
                             XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount, 1)
+                            XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount, 1)
 
                         case .failure(let error):
                             XCTFail(error.localizedDescription)
@@ -211,6 +213,7 @@ final class CustomerAuthenticationTests: XCTestCase {
 
                     self.backend.conversation?.person.emailAddress = "charlie@example.com"
                     XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0, 0)
+                    XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount ?? 0, 0)
 
                     self.backend.logIn(with: barbaraJWT) { result in
 
@@ -228,6 +231,7 @@ final class CustomerAuthenticationTests: XCTestCase {
 
                             XCTAssertEqual(self.backend.conversation?.person.emailAddress, "barb@example.com")
                             XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount, 1)
+                            XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount, 1)
 
                         case .failure(let error):
                             XCTFail(error.localizedDescription)
@@ -274,6 +278,7 @@ final class CustomerAuthenticationTests: XCTestCase {
 
                     self.requestor.responseData = try! jsonEncoder.encode(ConversationResponse(token: barbaraJWT, id: "def456", deviceID: "def", personID: "456", encryptionKey: fakeEncryptionKey))
                     XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0, 0)
+                    XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount ?? 0, 0)
 
                     self.backend.logIn(with: barbaraJWT) { result in
                         switch result {
@@ -288,6 +293,7 @@ final class CustomerAuthenticationTests: XCTestCase {
                             XCTAssertEqual(loggedInCredentials.token, barbaraJWT)
                             XCTAssertEqual(loggedInCredentials.id, "def456")
                             XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount, 1)
+                            XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount, 1)
 
                         case .failure(let error):
                             XCTFail(error.localizedDescription)

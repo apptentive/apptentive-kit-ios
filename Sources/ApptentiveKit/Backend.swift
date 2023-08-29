@@ -582,17 +582,19 @@ class Backend: PayloadAuthenticationDelegate {
                 try self.startAnonymousConversation(with: pendingCredentials)
 
             case (from: .posting, to: .anonymous(let payloadCredentials)):
+                self.startSession()
+
                 self.registerCompletion?(.success(.new))
                 self.registerCompletion = nil
-                self.startSession()
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: nil)
                 self.startHousekeepingTimer()
 
             case (from: .loading, to: .anonymous(let payloadCredentials)):
+                self.startSession()
+
                 self.registerCompletion?(.success(.cached))
                 self.registerCompletion = nil
-                self.startSession()
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: nil)
                 self.startHousekeepingTimer()
@@ -628,14 +630,11 @@ class Backend: PayloadAuthenticationDelegate {
                     throw ApptentiveError.internalInconsistency
                 }
 
-                if self.sessionID == nil {
-                    self.startSession()
-                }
-
                 try self.createRecordSavers(for: activeRecord, containerURL: containerURL, environment: environment)
                 self.loadRecordFiles(for: activeRecord, containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment)
                 self.resumeHousekeepingTimer()
 
+                self.startSession()
                 self.engage(event: .login, completion: nil)
 
             case (from: .loggedIn, to: .loggedOut):

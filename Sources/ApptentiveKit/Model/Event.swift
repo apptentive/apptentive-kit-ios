@@ -68,6 +68,11 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
         return Self(internalName: "submit", interaction: interaction)
     }
 
+    /// Convenience method for a `submit` event (e.g. a survey).
+    static func send(from interaction: Interaction?) -> Self {
+        return Self(internalName: "send", interaction: interaction)
+    }
+
     /// Convenience method for a `cancel` event (e.g. a survey).
     static func cancel(from interaction: Interaction?) -> Self {
         return Self(internalName: "cancel", interaction: interaction)

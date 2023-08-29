@@ -1,5 +1,5 @@
 //
-//  ProfileFooterView.swift
+//  ProfileView.swift
 //  ApptentiveKit
 //
 //  Created by Luqmaan Khan on 2/3/22.
@@ -9,22 +9,22 @@
 import Foundation
 import UIKit
 
-class ProfileFooterView: UIView {
+class ProfileView: UIView {
 
     let nameTextField: UITextField
     let emailTextField: UITextField
-    let slaLabel: UILabel
+    let errorLabel: UILabel
 
     override init(frame: CGRect) {
         self.nameTextField = UITextField(frame: .zero)
         self.emailTextField = UITextField(frame: .zero)
-        self.slaLabel = UILabel(frame: .zero)
+        self.errorLabel = UILabel(frame: .zero)
 
         super.init(frame: frame)
 
         self.addSubview(self.nameTextField)
         self.addSubview(self.emailTextField)
-        self.addSubview(self.slaLabel)
+        self.addSubview(self.errorLabel)
 
         configureViews()
     }
@@ -48,6 +48,7 @@ class ProfileFooterView: UIView {
         self.nameTextField.contentVerticalAlignment = .center
         self.nameTextField.font = .apptentiveMessageCenterTextInput
         self.nameTextField.textColor = .apptentiveMessageCenterTextInput
+        self.nameTextField.returnKeyType = .next
         self.nameTextField.autocapitalizationType = .words
         self.nameTextField.accessibilityIdentifier = "name"
         self.nameTextField.backgroundColor = .apptentiveTextInputBackground
@@ -64,25 +65,24 @@ class ProfileFooterView: UIView {
         self.emailTextField.font = .apptentiveMessageCenterTextInput
         self.emailTextField.textColor = .apptentiveMessageCenterTextInput
         self.emailTextField.keyboardType = .emailAddress
+        self.emailTextField.returnKeyType = .done
         self.emailTextField.autocapitalizationType = .none
         self.emailTextField.accessibilityIdentifier = "email"
         self.emailTextField.backgroundColor = .apptentiveTextInputBackground
 
-        self.slaLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.slaLabel.adjustsFontForContentSizeCategory = true
-        self.slaLabel.numberOfLines = 0
-        self.slaLabel.lineBreakMode = .byWordWrapping
-        self.slaLabel.font = .apptentiveMessageCenterStatus
-        self.slaLabel.textColor = .apptentiveMessageCenterStatus
-        self.slaLabel.contentMode = .center
-        self.slaLabel.textAlignment = .center
+        self.errorLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.errorLabel.adjustsFontForContentSizeCategory = true
+        self.errorLabel.numberOfLines = 0
+        self.errorLabel.lineBreakMode = .byWordWrapping
+        self.errorLabel.font = .apptentiveInstructionsLabel
+        self.errorLabel.textColor = .apptentiveError
 
         setConstraints()
     }
 
     private func setConstraints() {
         NSLayoutConstraint.activate([
-            self.nameTextField.topAnchor.constraint(equalToSystemSpacingBelow: self.readableContentGuide.topAnchor, multiplier: 1),
+            self.nameTextField.topAnchor.constraint(equalTo: self.readableContentGuide.topAnchor),
             self.nameTextField.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
             self.readableContentGuide.trailingAnchor.constraint(equalTo: self.nameTextField.trailingAnchor),
             self.nameTextField.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
@@ -92,11 +92,10 @@ class ProfileFooterView: UIView {
             self.readableContentGuide.trailingAnchor.constraint(equalTo: self.emailTextField.trailingAnchor),
             self.emailTextField.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
 
-            self.slaLabel.topAnchor.constraint(equalToSystemSpacingBelow: self.emailTextField.bottomAnchor, multiplier: 4),
-            self.slaLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: self.readableContentGuide.leadingAnchor, multiplier: 1),
-            self.readableContentGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: self.slaLabel.trailingAnchor, multiplier: 1),
-            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.slaLabel.bottomAnchor, multiplier: 1),
-
+            self.errorLabel.topAnchor.constraint(equalToSystemSpacingBelow: self.emailTextField.bottomAnchor, multiplier: 1),
+            self.errorLabel.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor, constant: 5),
+            self.readableContentGuide.trailingAnchor.constraint(equalTo: self.errorLabel.trailingAnchor, constant: 5),
+            self.bottomAnchor.constraint(equalTo: self.errorLabel.bottomAnchor),
         ])
     }
 }

@@ -52,3 +52,5 @@
 /* Title for note saying MC is unavailable */
 "MC Unavailable Title" = "Центр сообщений недоступен";
 
+/* The validation error displayed in Message Center when the profile email is invalid */
+"MC Email Validation Error" = "Ошибка — адрес электронной почты отсутствует или имеет недопустимый формат.";

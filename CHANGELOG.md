@@ -1,3 +1,14 @@
+# 2023-08-29 - 6.2.3
+
+#### New & Improved:
+
+- Enhancements and fixes to Message Center focused on accessibility and keyboard navigation
+- Log category is now "Apptentive" rather than "PointsOfInterest"
+
+#### Bugs Fixed:
+
+- Logs now show without any redaction, even when not using a debugger
+
 # 2023-07-06 - 6.2.2
 
 #### New & Improved:

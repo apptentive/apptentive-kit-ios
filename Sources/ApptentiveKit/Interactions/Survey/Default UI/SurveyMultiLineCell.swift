@@ -114,7 +114,7 @@ class SurveyMultiLineCell: UITableViewCell {
         self.placeholderLabel.isUserInteractionEnabled = false
         self.placeholderLabel.adjustsFontSizeToFitWidth = true
         self.placeholderLabel.minimumScaleFactor = 0.1
-        self.placeholderLabel.font = .apptentiveTextInputPlaceholder
+        self.placeholderLabel.font = .apptentiveTextInputPlaceholder.apptentiveRepairedFont()
         self.placeholderLabel.textColor = .apptentiveTextInputPlaceholder
 
         self.updatePlaceholderConstraints()
