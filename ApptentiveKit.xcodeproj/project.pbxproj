@@ -205,6 +205,7 @@
 		EF1306C326F0D08700837F2A /* MessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306C226F0D08700837F2A /* MessageList.swift */; };
 		EF1306D626F3D2EC00837F2A /* MessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306D526F3D2EC00837F2A /* MessageManager.swift */; };
 		EF18B1BF2723104600F53D3A /* MessageListFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF18B1BE2723104600F53D3A /* MessageListFooterView.swift */; };
+		EF2B2A672A97F3D3007926E4 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EF2B2A662A969653007926E4 /* PrivacyInfo.xcprivacy */; };
 		EF417551271F5F860013248B /* ApptentiveImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF417550271F5F860013248B /* ApptentiveImageView.swift */; };
 		EF4B13D52878BB530090CCF0 /* SurveyConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B13D42878BB530090CCF0 /* SurveyConfiguration.swift */; };
 		EF4B13DD287E35690090CCF0 /* SurveyBranchedViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B13DC287E35690090CCF0 /* SurveyBranchedViewModelTests.swift */; };
@@ -502,6 +503,7 @@
 		EF1306CE26F18C1B00837F2A /* MessageCenterViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterViewModelTests.swift; sourceTree = "<group>"; };
 		EF1306D526F3D2EC00837F2A /* MessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageManager.swift; sourceTree = "<group>"; };
 		EF18B1BE2723104600F53D3A /* MessageListFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageListFooterView.swift; sourceTree = "<group>"; };
+		EF2B2A662A969653007926E4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Sources/ApptentiveKit/Resources/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT; };
 		EF417550271F5F860013248B /* ApptentiveImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApptentiveImageView.swift; sourceTree = "<group>"; };
 		EF4B13D42878BB530090CCF0 /* SurveyConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyConfiguration.swift; sourceTree = "<group>"; };
 		EF4B13DC287E35690090CCF0 /* SurveyBranchedViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyBranchedViewModelTests.swift; sourceTree = "<group>"; };
@@ -787,6 +789,7 @@
 				01BA40B0260BEC4900C555E8 /* Distribution.plist */,
 				EFAA226A27C5520200B4FC3B /* Localizable.strings */,
 				01F2D81728F0F3020097E35D /* SwiftPM.txt */,
+				EF2B2A662A969653007926E4 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1346,6 +1349,7 @@
 			files = (
 				016E6D8625F83E6900151E29 /* Media.xcassets in Resources */,
 				01F2D81428F0CE4F0097E35D /* Distribution.plist in Resources */,
+				EF2B2A672A97F3D3007926E4 /* PrivacyInfo.xcprivacy in Resources */,
 				EFAA226827C5520200B4FC3B /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
