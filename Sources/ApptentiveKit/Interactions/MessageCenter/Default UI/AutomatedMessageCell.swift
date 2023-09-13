@@ -42,10 +42,11 @@ extension MessageCenterViewController {
             self.messageText.backgroundColor = .apptentiveMessageBubbleInbound
             self.messageText.isScrollEnabled = false
             self.messageText.isEditable = false
-            self.messageText.sizeToFit()
-            self.messageText.setContentHuggingPriority(.defaultHigh, for: .vertical)
+            self.messageText.textContainerInset = UIEdgeInsets(top: -3, left: 0, bottom: 0, right: 0)
+            self.messageText.textContainer.lineFragmentPadding = 0
             self.messageText.adjustsFontForContentSizeCategory = true
             self.messageText.dataDetectorTypes = UIDataDetectorTypes.all
+            self.messageText.isAccessibilityElement = true  // Make navigable via full keyboard access.
 
             setConstraints()
         }
@@ -58,10 +59,10 @@ extension MessageCenterViewController {
                     self.contentView.trailingAnchor.constraint(greaterThanOrEqualTo: self.bubbleImageView.trailingAnchor, constant: 60),
                     self.contentView.bottomAnchor.constraint(equalTo: self.bubbleImageView.bottomAnchor, constant: 10),
 
-                    self.messageText.topAnchor.constraint(equalToSystemSpacingBelow: self.bubbleImageView.topAnchor, multiplier: 1),
-                    self.messageText.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 20),
-                    self.bubbleImageView.trailingAnchor.constraint(equalToSystemSpacingAfter: self.messageText.trailingAnchor, multiplier: 1),
-                    self.bubbleImageView.bottomAnchor.constraint(equalToSystemSpacingBelow: self.messageText.bottomAnchor, multiplier: 1),
+                    self.messageText.topAnchor.constraint(equalTo: self.bubbleImageView.topAnchor, constant: 15),
+                    self.messageText.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 27),
+                    self.bubbleImageView.trailingAnchor.constraint(equalTo: self.messageText.trailingAnchor, constant: 15),
+                    self.bubbleImageView.bottomAnchor.constraint(equalTo: self.messageText.bottomAnchor, constant: 15),
                 ]
             )
         }

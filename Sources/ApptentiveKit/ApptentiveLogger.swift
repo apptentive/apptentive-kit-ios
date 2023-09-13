@@ -25,7 +25,7 @@ public struct ApptentiveLogger {
     /// Creates a logger with the specified subsystem.
     init(subsystem: String) {
         if #available(iOS 12.0, *) {
-            self.log = OSLog(subsystem: subsystem, category: .pointsOfInterest)
+            self.log = OSLog(subsystem: subsystem, category: "Apptentive")
         } else {
             self.log = nil
         }
@@ -39,7 +39,7 @@ public struct ApptentiveLogger {
                     return
                 }
 
-                os_log(level.logType, log: log, "%@", message.description)
+                os_log(level.logType, log: log, "%{public}@", message.description)
             } else {
                 print("\(level.label)/Apptentive: \(message.description)")
             }

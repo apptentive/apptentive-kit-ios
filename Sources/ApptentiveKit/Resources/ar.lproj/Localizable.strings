@@ -52,3 +52,5 @@
 /* Title for note saying MC is unavailable */
 "MC Unavailable Title" = "مركز الرسائل غير متوفر";
 
+/* The validation error displayed in Message Center when the profile email is invalid */
+"MC Email Validation Error" = "خطأ - البريد الإلكتروني إما مفقود أو بصيغة غير صالحة.";

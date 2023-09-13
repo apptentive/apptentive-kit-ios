@@ -48,7 +48,7 @@ extension MessageCenterViewModel {
                 && lhs.statusText == rhs.statusText
         }
 
-        init(nonce: String, direction: Direction, isAutomated: Bool, attachments: [Attachment], sender: Sender?, body: String?, sentDate: Date, statusText: String, accessibilityLabel: String, accessibilityHint: String) {
+        init(nonce: String, direction: Direction, isAutomated: Bool, attachments: [Attachment], sender: Sender?, body: String?, sentDate: Date, statusText: String, accessibilityLabel: String?, accessibilityHint: String?) {
             self.nonce = nonce
             self.direction = direction
             self.isAutomated = isAutomated

@@ -1,12 +1,12 @@
 pipeline {
   agent {
-    label 'macos'
+    label 'apple'
   }
 
   options {
     timeout(time: 20, unit: 'MINUTES')
   }
-  
+
   environment {
     GEM_HOME=".gem"
     LC_ALL="en_US.UTF-8"
@@ -17,8 +17,9 @@ pipeline {
     stage('Dev PR') {
       when {
         changeRequest target: 'develop'
+
         expression {
-          env.ENVIRONMENT == 'dev'
+          env.ENVIRONMENT == 'dev-eks_0'
         }
       }
 
@@ -26,20 +27,21 @@ pipeline {
         stage('bundle install') {
           steps {
             script {
-              sh 'gem install bundler:2.2.28 && bundle install'
+              sh 'brew install swift-format'
+              sh 'source /Users/ec2-user/.bash_profile && rbenv install --skip-existing && rbenv rehash && which ruby && which gem && gem install bundler:2.2.28 && bundle install'
             }
           }
         }
-        
+
         stage('clean') {
           steps {
             script {
-              sh 'bundle exec fastlane clean'
-              sh 'bundle exec fastlane action clear_derived_data'
+              sh 'source /Users/ec2-user/.bash_profile &&  bundle exec fastlane clean'
+              sh 'source /Users/ec2-user/.bash_profile &&  bundle exec fastlane action clear_derived_data'
             }
           }
         }
-        
+
         stage('verification') {
           parallel {
             stage('test') {
@@ -47,7 +49,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'iosBuildProdSignature', variable: 'APPTENTIVE_PROD_SIGNATURE')]) {
                   withCredentials([string(credentialsId: 'iosBuildProdKey', variable: 'APPTENTIVE_PROD_KEY')]) {
                     script {
-                      sh 'bundle exec fastlane test && bundle exec fastlane coverage'
+                      sh 'source /Users/ec2-user/.bash_profile &&  bundle exec fastlane test && bundle exec fastlane coverage'
                     }
                   }
                 }
@@ -57,7 +59,7 @@ pipeline {
             stage('lint') {
               steps {
                 script {
-                  sh 'bundle exec fastlane lint'
+                  sh 'source /Users/ec2-user/.bash_profile &&  bundle exec fastlane lint'
                 }
               }
             }
@@ -67,7 +69,7 @@ pipeline {
         stage('framework') {
           steps {
             script {
-              sh 'bundle exec fastlane clean && bundle exec fastlane framework'
+              sh 'source /Users/ec2-user/.bash_profile &&  bundle exec fastlane clean && bundle exec fastlane framework'
             }
           }
         }

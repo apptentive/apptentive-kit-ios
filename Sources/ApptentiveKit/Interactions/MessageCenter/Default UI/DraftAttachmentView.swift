@@ -55,16 +55,16 @@ extension MessageCenterViewController {
                 [
                     self.imageView.topAnchor.constraint(equalToSystemSpacingBelow: self.topAnchor, multiplier: 1),
                     self.imageView.leadingAnchor.constraint(equalToSystemSpacingAfter: self.leadingAnchor, multiplier: 1),
-                    self.trailingAnchor.constraint(equalToSystemSpacingAfter: self.imageView.trailingAnchor, multiplier: 0),
-                    self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.imageView.bottomAnchor, multiplier: 0),
+                    self.trailingAnchor.constraint(equalTo: self.imageView.trailingAnchor),
+                    self.bottomAnchor.constraint(equalTo: self.imageView.bottomAnchor),
 
                     self.closeButton.centerYAnchor.constraint(equalTo: self.imageView.topAnchor),
                     self.closeButton.centerXAnchor.constraint(equalTo: self.imageView.leadingAnchor),
                     self.closeButton.heightAnchor.constraint(equalToConstant: 32),
                     self.closeButton.widthAnchor.constraint(equalTo: self.closeButton.heightAnchor),
 
-                    self.heightAnchor.constraint(equalToConstant: 58),
-                    self.widthAnchor.constraint(equalToConstant: 58),
+                    self.heightAnchor.constraint(equalToConstant: 64),
+                    self.widthAnchor.constraint(equalToConstant: 64),
                 ]
             )
         }

@@ -52,3 +52,5 @@
 /* Title for note saying MC is unavailable */
 "MC Unavailable Title" = "Die Mitteilungszentrale ist nicht verfügbar";
 
+/* The validation error displayed in Message Center when the profile email is invalid */
+"MC Email Validation Error" = "Fehler - Die E-Mail ist entweder nicht vorhanden oder hat ein ungültiges Format.";

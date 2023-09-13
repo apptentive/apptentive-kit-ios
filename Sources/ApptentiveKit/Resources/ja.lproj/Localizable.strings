@@ -52,3 +52,5 @@
 /* Title for note saying MC is unavailable */
 "MC Unavailable Title" = "メッセージセンターはご利用できません";
 
+/* The validation error displayed in Message Center when the profile email is invalid */
+"MC Email Validation Error" = "エラー - メールアドレスが入力されていないか、形式が無効です。";
