@@ -180,6 +180,17 @@ open class InteractionPresenter {
         }
     }
 
+    /// Checks if Message Center is currently displayed.
+    public var messageCenterCurrentlyPresented: Bool {
+        if let apptentiveNavigationController = self.presentedViewController as? ApptentiveNavigationController,
+            let rootViewController = apptentiveNavigationController.viewControllers.first
+        {
+            return rootViewController is MessageCenterViewController
+        } else {
+            return false
+        }
+    }
+
     open func dismissPresentedViewController(animated: Bool) {
         self.presentedViewController?.dismiss(animated: animated)
 
