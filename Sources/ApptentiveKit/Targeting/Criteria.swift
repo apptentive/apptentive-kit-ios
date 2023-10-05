@@ -223,8 +223,6 @@ enum ConditionalOperator: String {
             return false
         case (.notEquals, nil, nil):
             return false
-        case (.notEquals, nil, _):
-            return true
 
         // Nonequality set (interaction response) operators
         case (.notEquals, let value as Set<String>, let parameter as String):
