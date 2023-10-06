@@ -111,7 +111,7 @@ class ConnectionViewController: UITableViewController {
             self.performSegue(withIdentifier: "PresentJWTBuilder", sender: self)
 
         case .logOut:
-            self.apptentive.logOut()
+            self.apptentive.logOut() { (_: Result<Void, Error>) in }
             self.refreshConnectionInfo()
             self.currentSubject = nil
 
