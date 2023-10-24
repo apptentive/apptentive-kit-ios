@@ -576,7 +576,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.viewModel.sendMessage()
 
         self.composeView.textView.resignFirstResponder()
-
+        self.viewModel.draftMessageBody = nil
         self.updateFooter()
 
         self.navigationItem.leftBarButtonItem?.isEnabled = true
