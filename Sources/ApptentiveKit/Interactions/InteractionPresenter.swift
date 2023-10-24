@@ -165,7 +165,7 @@ open class InteractionPresenter {
         // Fall back to the crawling the window's VC hierachy if certain failures exist.
         // TODO: make sure this works with scene-based apps.
         if self.presentingViewController == nil || self.presentingViewController?.isViewLoaded == false || self.presentingViewController?.view.window == nil {
-            self.presentingViewController = UIApplication.shared.keyWindow?.topViewController
+            self.presentingViewController = UIViewController.topViewController()
         }
 
         // If we have a presenting view but one of its ancestors' `isBeingDismissed` is set, use that VC's parent.
@@ -238,4 +238,21 @@ public enum InteractionPresenterError: Error {
 
 struct CancelInteractionCause: Codable, Equatable {
     let cause: String
+}
+
+extension UIViewController {
+    class func topViewController(controller: UIViewController? = UIApplication.shared.windows.first?.rootViewController) -> UIViewController? {
+        if let navigationController = controller as? UINavigationController {
+            return topViewController(controller: navigationController.visibleViewController)
+        }
+        if let tabController = controller as? UITabBarController {
+            if let selected = tabController.selectedViewController {
+                return topViewController(controller: selected)
+            }
+        }
+        if let presented = controller?.presentedViewController {
+            return topViewController(controller: presented)
+        }
+        return controller
+    }
 }

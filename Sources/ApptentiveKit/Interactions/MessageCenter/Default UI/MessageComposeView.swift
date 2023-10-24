@@ -138,9 +138,7 @@ class MessageCenterComposeView: UIView {
         self.textView.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
         self.textView.clipsToBounds = true
 
-        if #available(iOS 13.0, *) {
-            self.textView.layer.cornerCurve = .continuous
-        }
+        self.textView.layer.cornerCurve = .continuous
 
         self.textView.accessibilityIdentifier = "composeTextView"
         self.accessibilityElements = [self.attachmentButton, self.textView, self.sendButton, self.attachmentStackView]
@@ -174,9 +172,8 @@ class MessageCenterComposeView: UIView {
 
     private func configureSendButton() {
         self.sendButton.translatesAutoresizingMaskIntoConstraints = false
-        if #available(iOS 13.0, *) {
-            self.sendButton.setPreferredSymbolConfiguration(.init(pointSize: 32.0), forImageIn: .normal)
-        }
+
+        self.sendButton.setPreferredSymbolConfiguration(.init(pointSize: 32.0), forImageIn: .normal)
         self.sendButton.setImage(.apptentiveMessageSendButton, for: .normal)
         self.sendButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
         self.sendButton.accessibilityIdentifier = "sendButton"
@@ -184,9 +181,9 @@ class MessageCenterComposeView: UIView {
 
     private func configureAttachmentButton() {
         self.attachmentButton.translatesAutoresizingMaskIntoConstraints = false
-        if #available(iOS 13.0, *) {
-            self.attachmentButton.setPreferredSymbolConfiguration(.init(pointSize: 32.0), forImageIn: .normal)
-        }
+
+        self.attachmentButton.setPreferredSymbolConfiguration(.init(pointSize: 32.0), forImageIn: .normal)
+
         self.attachmentButton.setImage(.apptentiveMessageAttachmentButton, for: .normal)
         self.attachmentButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
         self.attachmentButton.accessibilityIdentifier = "attachmentButton"

@@ -552,9 +552,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         let profileViewController = EditProfileViewController(viewModel: self.viewModel)
 
         let navigationController = ApptentiveNavigationController(rootViewController: profileViewController)
-        if #available(iOS 13.0, *) {
-            navigationController.isModalInPresentation = true
-        }
+        navigationController.isModalInPresentation = true
         self.present(navigationController, animated: true, completion: nil)
     }
 

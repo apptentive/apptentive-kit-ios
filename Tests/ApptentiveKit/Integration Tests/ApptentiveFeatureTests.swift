@@ -54,13 +54,11 @@ class ApptentiveFeatureTests: XCTestCase {
         }
     }
 
-    @available(iOS 13.0.0, *)
     func testSuccessfulSDKRegistration() async {
         let result = await self.sdkRegistrationWithConfirmation()
         XCTAssertTrue(result)
     }
 
-    @available(iOS 13.0.0, *)
     func sdkRegistrationWithConfirmation() async -> Bool {
         let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: nil, environment: Environment())
         (apptentive.environment as! Environment).protectedDataDidBecomeAvailable(notification: Notification(name: Notification.Name(rawValue: "foo")))

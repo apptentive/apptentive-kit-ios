@@ -54,12 +54,9 @@ class SurveyChoiceCell: UITableViewCell {
 
         self.buttonImageView.translatesAutoresizingMaskIntoConstraints = false
         self.buttonImageView.adjustsImageSizeForAccessibilityContentSizeCategory = true
-        if #available(iOS 13.0, *) {
-            self.buttonImageView.preferredSymbolConfiguration = .init(textStyle: .body, scale: .large)
-        } else {
-            self.imageHeightConstraint = self.buttonImageView.heightAnchor.constraint(equalToConstant: 25)
-            // TODO: set size for iOS 11 & 12 (PBI-4804)
-        }
+
+        self.buttonImageView.preferredSymbolConfiguration = .init(textStyle: .body, scale: .large)
+
         self.buttonImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
         self.contentView.addSubview(self.buttonImageView)
 
@@ -78,11 +75,9 @@ class SurveyChoiceCell: UITableViewCell {
         textIndentingConstraint.priority = .defaultHigh
 
         let imageYConstraint: NSLayoutConstraint = {
-            if #available(iOS 13.0, *) {
-                return self.buttonImageView.firstBaselineAnchor.constraint(equalTo: self.choiceLabel.firstBaselineAnchor)
-            } else {
-                return self.buttonImageView.centerYAnchor.constraint(equalTo: self.choiceLabel.centerYAnchor)
-            }
+
+            return self.buttonImageView.firstBaselineAnchor.constraint(equalTo: self.choiceLabel.firstBaselineAnchor)
+
         }()
 
         NSLayoutConstraint.activate([

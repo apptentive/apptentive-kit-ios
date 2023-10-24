@@ -73,11 +73,8 @@ public class DialogView: UIView {
     }
 
     override init(frame: CGRect) {
-        if #available(iOS 13.0, *) {
-            self.blurEffect = UIBlurEffect(style: .systemChromeMaterial)
-        } else {
-            self.blurEffect = UIBlurEffect(style: .extraLight)
-        }
+
+        self.blurEffect = UIBlurEffect(style: .systemChromeMaterial)
 
         self.backgroundView = UIVisualEffectView(effect: self.blurEffect)
         self.headerImageView = UIImageView()
@@ -197,9 +194,9 @@ public class DialogView: UIView {
         self.backgroundView.contentView.addSubview(self.buttonStackView)
 
         // Cutting corners
-        if #available(iOS 13.0, *) {
-            self.layer.cornerCurve = .continuous
-        }
+
+        self.layer.cornerCurve = .continuous
+
         self.layer.masksToBounds = true
 
         self.headerImageView.contentMode = .scaleAspectFit
@@ -317,11 +314,7 @@ public class DialogView: UIView {
     private static func buildSeparatorView(with blurEffect: UIBlurEffect) -> UIVisualEffectView {
         let separatorView: UIVisualEffectView
 
-        if #available(iOS 13.0, *) {
-            separatorView = UIVisualEffectView(effect: UIVibrancyEffect(blurEffect: blurEffect, style: .separator))
-        } else {
-            separatorView = UIVisualEffectView(effect: UIVibrancyEffect(blurEffect: blurEffect))
-        }
+        separatorView = UIVisualEffectView(effect: UIVibrancyEffect(blurEffect: blurEffect, style: .separator))
 
         separatorView.contentView.backgroundColor = .white
 
