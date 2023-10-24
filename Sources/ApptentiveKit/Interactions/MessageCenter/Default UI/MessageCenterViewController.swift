@@ -132,6 +132,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.tableView.accessibilityElements = [self.headerView, self.footerView]
         self.showKeyboardForIpad()
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
     }
 
     override var preferredFocusEnvironments: [UIFocusEnvironment] {
@@ -547,6 +548,10 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     }
 
     // MARK: - Actions
+
+    @objc func willEnterForeground() {
+        self.tableView.reloadData()
+    }
 
     @objc func openProfileEditView() {
         let profileViewController = EditProfileViewController(viewModel: self.viewModel)
