@@ -38,7 +38,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-        UIApplication.shared.keyWindow?.layer.speed = UserDefaults.standard.float(forKey: "layerSpeed")
+        if let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
+            keyWindow.layer.speed = UserDefaults.standard.float(forKey: "layerSpeed")
+        }
 
         Apptentive.shared.theme = .none
         UIColor.apptentiveTermsOfServiceLabel = .white

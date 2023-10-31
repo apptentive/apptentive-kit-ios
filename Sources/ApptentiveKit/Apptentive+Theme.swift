@@ -49,17 +49,15 @@ extension Apptentive {
             return
         }
 
-        if #available(iOS 13.0, *) {
-            let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: question, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0, weight: .medium)] as [NSAttributedString.Key: Any]
-            let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: apptentiveGroupPrimaryColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0, weight: .medium)] as [NSAttributedString.Key: Any]
+        let segmentedControlTextAttributesOnLoad = [NSAttributedString.Key.foregroundColor: question, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0, weight: .medium)] as [NSAttributedString.Key: Any]
+        let segmentedControlTextAttributesWhenSelected = [NSAttributedString.Key.foregroundColor: apptentiveGroupPrimaryColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0, weight: .medium)] as [NSAttributedString.Key: Any]
 
-            let segmentedControlAppearance = UISegmentedControl.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
-            segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesOnLoad, for: .normal)
-            segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesWhenSelected, for: .selected)
-            segmentedControlAppearance.setBackgroundImage(image(with: rangeNotSelectedSegmentBackground), for: .normal, barMetrics: .default)
-            segmentedControlAppearance.setBackgroundImage(image(with: surveyImageChoice), for: .selected, barMetrics: .default)
-            segmentedControlAppearance.setDividerImage(image(with: apptentiveRangeControlBorder), forLeftSegmentState: .normal, rightSegmentState: .normal, barMetrics: .default)
-        }
+        let segmentedControlAppearance = UISegmentedControl.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
+        segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesOnLoad, for: .normal)
+        segmentedControlAppearance.setTitleTextAttributes(segmentedControlTextAttributesWhenSelected, for: .selected)
+        segmentedControlAppearance.setBackgroundImage(image(with: rangeNotSelectedSegmentBackground), for: .normal, barMetrics: .default)
+        segmentedControlAppearance.setBackgroundImage(image(with: surveyImageChoice), for: .selected, barMetrics: .default)
+        segmentedControlAppearance.setDividerImage(image(with: apptentiveRangeControlBorder), forLeftSegmentState: .normal, rightSegmentState: .normal, barMetrics: .default)
 
         let barTitleTextAttributes = [NSAttributedString.Key.foregroundColor: barForegroundColor, NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .title2)]
 
@@ -72,26 +70,18 @@ extension Apptentive {
 
         let toolBarAppearanceProxy = UIToolbar.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
 
-        if #available(iOS 13.0, *) {
-            let barAppearance = UIBarAppearance()
-            barAppearance.configureWithOpaqueBackground()
-            barAppearance.backgroundColor = barTintColor
+        let barAppearance = UIBarAppearance()
+        barAppearance.configureWithOpaqueBackground()
+        barAppearance.backgroundColor = barTintColor
 
-            let navigationBarAppearance = UINavigationBarAppearance(barAppearance: barAppearance)
-            navigationBarAppearance.titleTextAttributes = barTitleTextAttributes
-            navigationBarAppearanceProxy.standardAppearance = navigationBarAppearance
-            navigationBarAppearanceProxy.scrollEdgeAppearance = navigationBarAppearance
+        let navigationBarAppearance = UINavigationBarAppearance(barAppearance: barAppearance)
+        navigationBarAppearance.titleTextAttributes = barTitleTextAttributes
+        navigationBarAppearanceProxy.standardAppearance = navigationBarAppearance
+        navigationBarAppearanceProxy.scrollEdgeAppearance = navigationBarAppearance
 
-            toolBarAppearanceProxy.standardAppearance = UIToolbarAppearance(barAppearance: barAppearance)
-            if #available(iOS 15.0, *) {
-                toolBarAppearanceProxy.scrollEdgeAppearance = toolBarAppearanceProxy.standardAppearance
-            }
-        } else {
-            navigationBarAppearanceProxy.barTintColor = barTintColor
-            navigationBarAppearanceProxy.isTranslucent = false
-
-            toolBarAppearanceProxy.barTintColor = barTintColor
-            toolBarAppearanceProxy.isTranslucent = false
+        toolBarAppearanceProxy.standardAppearance = UIToolbarAppearance(barAppearance: barAppearance)
+        if #available(iOS 15.0, *) {
+            toolBarAppearanceProxy.scrollEdgeAppearance = toolBarAppearanceProxy.standardAppearance
         }
 
         UIToolbar.apptentiveMode = .alwaysShown
@@ -103,11 +93,8 @@ extension Apptentive {
         barButtonItemAppearance.tintColor = barForegroundColor
 
         let backgroundColor: UIColor = {
-            if #available(iOS 13.0, *) {
-                return .systemBackground
-            } else {
-                return .white
-            }
+            return .systemBackground
+
         }()
         let tableViewAppearance = UITableView.appearance(whenContainedInInstancesOf: [ApptentiveNavigationController.self])
 
@@ -153,11 +140,7 @@ extension Apptentive {
         UIColor.apptentiveTextInputBorderSelected = textInputBorderSelected
         UIColor.apptentiveDisclaimerLabel = disclaimerColor
 
-        if #available(iOS 13.0, *) {
-            UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
-        } else {
-            UIColor.apptentiveRangeControlBorder = .clear
-        }
+        UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
 
         UIColor.apptentiveTermsOfServiceLabel = termsOfServiceColor
 
@@ -172,11 +155,9 @@ extension Apptentive {
 
         UIBarButtonItem.apptentiveClose = {
             let systemClose: UIBarButtonItem = {
-                if #available(iOS 13.0, *) {
-                    return UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
-                } else {
-                    return UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
-                }
+
+                return UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
+
             }()
 
             let closeImage: UIImage? = {

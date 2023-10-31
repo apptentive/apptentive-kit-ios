@@ -86,6 +86,10 @@ extension SurveyViewModel {
             }
         }
 
+        override var hasAnswer: Bool {
+            super.hasAnswer || self.choices.contains(where: \.isSelected)
+        }
+
         override var isValid: Bool {
             let selectedChoiceCount = self.choices.filter({ $0.isSelected }).count
 

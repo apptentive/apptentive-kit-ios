@@ -24,21 +24,17 @@ class SurveyMultiLineCell: UITableViewCell {
 
             switch self.tableViewStyle {
             case .insetGrouped:
-                if #available(iOS 13.0, *) {
-                    // The following determined experimentally to match UITextField
-                    self.textView.textContainerInset = UIEdgeInsets(top: 1.0, left: -5.0, bottom: 1.0, right: -5.0)
 
-                    self.leadingConstraint?.constant = 16.0
-                    self.trailingConstraint?.constant = 16.0
-                }
+                // The following determined experimentally to match UITextField
+                self.textView.textContainerInset = UIEdgeInsets(top: 1.0, left: -5.0, bottom: 1.0, right: -5.0)
+
+                self.leadingConstraint?.constant = 16.0
+                self.trailingConstraint?.constant = 16.0
 
             default:
                 // The following determined experimentally to match UITextField
-                if #available(iOS 13.0, *) {
-                    self.textView.textContainerInset = UIEdgeInsets(top: 6.0, left: 2.0, bottom: 6.0, right: 2.0)
-                } else {
-                    self.textView.textContainerInset = UIEdgeInsets(top: 4.0, left: 2.0, bottom: 4.0, right: 2.0)
-                }
+
+                self.textView.textContainerInset = UIEdgeInsets(top: 6.0, left: 2.0, bottom: 6.0, right: 2.0)
 
                 self.leadingConstraint?.constant = 14.5
                 self.trailingConstraint?.constant = 14.5
@@ -49,7 +45,7 @@ class SurveyMultiLineCell: UITableViewCell {
     }
 
     var borderLayer: CALayer {
-        if #available(iOS 13.0, *), case self.tableViewStyle = UITableView.Style.insetGrouped {
+        if self.tableViewStyle == UITableView.Style.insetGrouped {
             return self.layer
         } else {
             return self.textView.layer

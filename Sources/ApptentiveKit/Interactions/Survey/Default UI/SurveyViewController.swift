@@ -863,12 +863,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         if let navigationControllerView = self.navigationController?.view {
             //Increase top bar height.
             var topBarHeight: CGFloat = 0
-            if #available(iOS 13.0, *) {
-                if let windowScene = self.view.window?.windowScene {
-                    topBarHeight = windowScene.screen.bounds.width / 3
-                }
-            } else {
-                topBarHeight = UIScreen.main.bounds.width / 3
+
+            if let windowScene = self.view.window?.windowScene {
+                topBarHeight = windowScene.screen.bounds.width / 3
             }
 
             self.navigationController?.additionalSafeAreaInsets.top = topBarHeight
@@ -887,10 +884,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 ])
             }
 
-            //Configure the close button.
-            if #available(iOS 13.0, *) {
-                UIButton.apptentiveClose?.setPreferredSymbolConfiguration(.init(pointSize: 20.0), forImageIn: .normal)
-            }
+            UIButton.apptentiveClose?.setPreferredSymbolConfiguration(.init(pointSize: 20.0), forImageIn: .normal)
+
             if let closeButton = UIButton.apptentiveClose, let navigationControllerView = self.navigationController?.view {
                 closeButton.addTarget(self, action: #selector(cancelSurvey), for: .touchUpInside)
                 closeButton.translatesAutoresizingMaskIntoConstraints = false

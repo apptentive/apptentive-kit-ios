@@ -8,6 +8,11 @@
       "person/custom_data/key_with_null_value": {
         "$exists": false
       }
+    },
+    {
+      "person/custom_data/key_with_null_value": {
+        "$ne": "foo"
+      }
     }
   ]
 }
