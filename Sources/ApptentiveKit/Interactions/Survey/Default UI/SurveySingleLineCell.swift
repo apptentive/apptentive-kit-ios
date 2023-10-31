@@ -20,23 +20,22 @@ class SurveySingleLineCell: UITableViewCell {
             // so that it looks good in the (non-inset) grouped table view style.
             self.textField.borderStyle = .roundedRect
 
-            if #available(iOS 13.0, *) {
-                self.borderLayer.cornerCurve = .continuous
+            self.borderLayer.cornerCurve = .continuous
 
-                if case self.tableViewStyle = UITableView.Style.insetGrouped {
-                    self.textField.borderStyle = .none
-                    self.leadingConstraint?.constant = 16.0
-                    self.trailingConstraint?.constant = 16.0
-                    self.topConstraint?.constant = 0
-                    self.bottomConstraint?.constant = 0
-                    self.heightConstraint?.constant = 44
-                }
+            if case self.tableViewStyle = UITableView.Style.insetGrouped {
+                self.textField.borderStyle = .none
+                self.leadingConstraint?.constant = 16.0
+                self.trailingConstraint?.constant = 16.0
+                self.topConstraint?.constant = 0
+                self.bottomConstraint?.constant = 0
+                self.heightConstraint?.constant = 44
             }
+
         }
     }
 
     var borderLayer: CALayer {
-        if #available(iOS 13.0, *), case self.tableViewStyle = UITableView.Style.insetGrouped {
+        if self.tableViewStyle == UITableView.Style.insetGrouped {
             return self.layer
         } else {
             return self.textField.layer

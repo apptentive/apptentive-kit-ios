@@ -258,7 +258,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// Provides the SDK with the credentials necessary to connect to the Apptentive API.
     /// - Parameter credentials: The `AppCredentials` object containing your Apptentive key and signature.
     /// - Throws: An error if registration fails.
-    @available(iOS 13.0.0, *)
     public func register(with credentials: AppCredentials) async throws {
         let _ = try await withCheckedThrowingContinuation { continuation in
             self.register(with: credentials) { continuation.resume(returning: $0) }
@@ -317,7 +316,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
     /// - Returns: A boolean indicating whether or not an interaction was presented.
     /// - Throws: An error if engaging the event fails.
-    @available(iOS 13.0.0, *)
     public func engage(event: Event, from viewController: UIViewController? = nil) async throws -> Bool {
         try await withCheckedThrowingContinuation { continuation in
             self.engage(event: event, from: viewController) { continuation.resume(with: $0) }
@@ -371,7 +369,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///   - customData: The custom data to send along with the message.
     /// - Returns: A boolean indicating if the message center was presented.
     /// - Throws: An error if presenting message center with custom data fails.
-    @available(iOS 13.0.0, *)
     public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData? = nil) async throws -> Bool {
         try await withCheckedThrowingContinuation { continuation in
             if let customData = customData {
@@ -441,7 +438,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// - Parameter event: The event used to check if it can trigger an interaction.
     /// - Returns: A boolean indicating whether or not an interaction can be shown using the event.
     /// - Throws: An error when failing.
-    @available(iOS 13.0.0, *)
     public func canShowInteraction(event: Event) async throws -> Bool {
         try await withCheckedThrowingContinuation { continuation in
             self.canShowInteraction(event: event) { continuation.resume(with: $0) }
@@ -457,7 +453,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// Checks if Message Center can be presented.
     /// - Returns: A boolean indicating whether or not an interaction can be shown using the event.
     /// - Throws: An error when failing.
-    @available(iOS 13.0.0, *)
     public func canShowMessageCenter() async throws -> Bool {
         return try await self.canShowInteraction(event: .showMessageCenter)
     }
@@ -511,7 +506,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///   signed with the secret from the API & Development section of the
     ///   Settings tab in your app's Apptentive dashboard.
     /// - Throws: an error if there is a problem logging in.
-    @available(iOS 13.0.0, *)
     public func logIn(with token: String) async throws {
         try await withCheckedThrowingContinuation { continuation in
             self.logIn(with: token) { continuation.resume(with: $0) }
@@ -543,7 +537,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///
     /// This also discards the key used to encrypt/decrypt the conversation data and deletes cached attachments.
     /// - Throws: an error if the logout operation fails.
-    @available(iOS 13.0.0, *)
     public func logOut() async throws {
         try await withCheckedThrowingContinuation { continuation in
             self.logOut { continuation.resume(with: $0) }
@@ -567,7 +560,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// Updates the JWT for the currently logged-in conversation.
     /// - Parameter token: The new JWT.
     /// - Throws: an error if the update operation fails.
-    @available(iOS 13.0.0, *)
     public func updateToken(_ token: String) async throws {
         try await withCheckedThrowingContinuation { continuation in
             self.updateToken(token) { continuation.resume(with: $0) }

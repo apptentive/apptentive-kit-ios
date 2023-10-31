@@ -30,14 +30,10 @@ extension UITableView {
 
 extension UITableView.Style {
     /// The table view style to use for Apptentive UI.
-    ///
-    /// Defaults to grouped for iOS 12 and inset grouped for iOS 13 and later.
     public static var apptentive: UITableView.Style = {
-        if #available(iOS 13.0, *) {
-            return .insetGrouped
-        } else {
-            return .grouped
-        }
+
+        return .insetGrouped
+
     }()
 }
 
@@ -48,14 +44,9 @@ extension UIModalPresentationStyle {
 
 extension UIBarButtonItem {
     /// The bar button item to use for closing Apptentive UI.
-    ///
-    /// Defaults to the system cancel button on iOS 12 and the system close button on iOS 13 and later.
     @objc public static var apptentiveClose: UIBarButtonItem = {
-        if #available(iOS 13.0, *) {
-            return UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
-        } else {
-            return UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
-        }
+
+        return UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
 
     }()
 
@@ -72,13 +63,11 @@ extension UIButton {
 
     /// The close button used to replicate the bar button item when large headers are used in surveys.
     public static var apptentiveClose: UIButton? = {
-        if #available(iOS 13.0, *) {
-            let button = UIButton()
-            button.setImage(UIImage.init(systemName: "xmark"), for: .normal)
-            button.tintColor = .gray
-            return button
-        }
-        return nil
+        let button = UIButton()
+        button.setImage(UIImage.init(systemName: "xmark"), for: .normal)
+        button.tintColor = .gray
+        return button
+
     }()
 
     /// The style for call-to-action buttons in Apptentive UI.
@@ -122,10 +111,8 @@ extension UIImage {
 
     /// The image to use for the attachment delete button.
     @objc public static var apptentiveAttachmentRemoveButton: UIImage? = {
-        if #available(iOS 13.0, *) {
-            if let minusImage = UIImage.init(systemName: "minus.circle.fill") {
-                return minusImage
-            }
+        if let minusImage = UIImage.init(systemName: "minus.circle.fill") {
+            return minusImage
         }
 
         return .apptentiveImage(named: "minus.circle.fill")?.withRenderingMode(.alwaysOriginal)
@@ -157,10 +144,9 @@ extension UIImage {
     }()
 
     static func apptentiveImage(named: String) -> UIImage? {
-        if #available(iOS 13.0, *) {
-            if let result = UIImage(systemName: named) {
-                return result
-            }
+
+        if let result = UIImage(systemName: named) {
+            return result
         }
 
         return UIImage(named: named, in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
@@ -171,29 +157,25 @@ extension UIColor {
 
     /// The color to use for the background in text inputs for message center.
     @objc public static var apptentiveMessageCenterTextInputBackground: UIColor = {
-        if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-                    return .black
 
-                default:
-                    return .white
+        return UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return .black
 
-                }
+            default:
+                return .white
+
             }
-        } else {
-            return .white
         }
+
     }()
 
     /// The placeholder color to use for text inputs for message center.
     @objc public static var apptentiveMessageCenterTextInputPlaceholder: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .placeholderText
-        } else {
-            return UIColor(red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 67.0 / 255.0, alpha: 74.0 / 255.0)
-        }
+
+        return .placeholderText
+
     }()
 
     /// The placeholder color to use for text inputs for message center.
@@ -209,19 +191,17 @@ extension UIColor {
 
     /// The text color to use for all text inputs in message center.
     @objc public static var apptentiveMessageCenterTextInput: UIColor = {
-        if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-                    return .secondaryLabel
 
-                default:
-                    return .black
-                }
+        return UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return .secondaryLabel
+
+            default:
+                return .black
             }
-        } else {
-            return .black
         }
+
     }()
 
     /// The tint color for text inputs for surveys.
@@ -298,33 +278,31 @@ extension UIColor {
         let lightModeError = UIColor(red: 0.86, green: 0.1, blue: 0, alpha: 1)
         let darkModeError = UIColor(red: 1, green: 0.28, blue: 0.24, alpha: 1)
 
-        if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-                    return darkModeError
+        return UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return darkModeError
 
-                default:
-                    return lightModeError
-                }
+            default:
+                return lightModeError
             }
-        } else {
-            return lightModeError
         }
+
     }()
 
     /// The color to use for labels of primary prominance.
     internal static var apptentiveLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .label
-        } else {
-            return .black
-        }
+
+        return .label
+
     }()
 
     /// The tint/accent color to use for buttons and similar controls in Apptentive interaction UI.
     @objc public static var apptentiveTint: UIColor = {
-        if let tintColor = UIApplication.shared.keyWindow?.rootViewController?.view.tintColor {
+        if let windowScene = UIApplication.shared.connectedScenes
+            .first(where: { $0 is UIWindowScene }) as? UIWindowScene,
+            let tintColor = windowScene.windows.first?.tintColor
+        {
             return tintColor
         } else {
             return .systemBlue
@@ -333,11 +311,9 @@ extension UIColor {
 
     /// The color to use for labels of secondary prominence.
     @objc public static var apptentiveSecondaryLabel: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondaryLabel
-        } else {
-            return .darkGray
-        }
+
+        return .secondaryLabel
+
     }()
 
     /// The border color to use for the segmented control for range surveys.
@@ -355,46 +331,40 @@ extension UIColor {
 
     /// The color to use for text fields and text views.
     @objc public static var apptentiveTextInputBackground: UIColor = {
-        if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-                    return .black
 
-                default:
-                    return .white
+        return UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return .black
 
-                }
+            default:
+                return .white
+
             }
-        } else {
-            return .white
         }
+
     }()
 
     /// The color to use for text within text fields and text views.
     @objc public static var apptentiveTextInput: UIColor = {
-        if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-                    return .secondaryLabel
 
-                default:
-                    return .black
-                }
+        return UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return .secondaryLabel
+
+            default:
+                return .black
             }
-        } else {
-            return .black
         }
+
     }()
 
     /// The color to use for the placeholder text within text fields and text views.
     @objc public static var apptentiveTextInputPlaceholder: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .placeholderText
-        } else {
-            return UIColor(red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 67.0 / 255.0, alpha: 74.0 / 255.0)
-        }
+
+        return .placeholderText
+
     }()
 
     /// The color used for min and max labels for the range survey.
@@ -402,29 +372,23 @@ extension UIColor {
 
     /// The color used for the background of the entire survey.
     @objc public static var apptentiveGroupedBackground: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .systemGroupedBackground
-        } else {
-            return .white
-        }
+
+        return .systemGroupedBackground
+
     }()
 
     /// The color used for the cell where the survey question is located.
     @objc public static var apptentiveSecondaryGroupedBackground: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .secondarySystemGroupedBackground
-        } else {
-            return .white
-        }
+
+        return .secondarySystemGroupedBackground
+
     }()
 
     /// The color to use for separators in e.g. table views.
     @objc public static var apptentiveSeparator: UIColor = {
-        if #available(iOS 13.0, *) {
-            return .separator
-        } else {
-            return UIColor(red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 67.0 / 255.0, alpha: 74.0 / 255.0)
-        }
+
+        return .separator
+
     }()
 
     /// The color to use for images in a selected state for surveys.
@@ -502,19 +466,16 @@ extension UIColor {
         let lightModeError = UIColor(red: 0.86, green: 0.1, blue: 0, alpha: 1)
         let darkModeError = UIColor(red: 1, green: 0.28, blue: 0.24, alpha: 1)
 
-        if #available(iOS 13.0, *) {
-            return UIColor { traitCollection in
-                switch traitCollection.userInterfaceStyle {
-                case .dark:
-                    return darkModeError
+        return UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return darkModeError
 
-                default:
-                    return lightModeError
-                }
+            default:
+                return lightModeError
             }
-        } else {
-            return lightModeError
         }
+
     }()
 
     /// The color to use for the compose box for Message Center.

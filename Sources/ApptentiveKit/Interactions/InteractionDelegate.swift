@@ -73,7 +73,7 @@ protocol SurveyBranching: AnyObject {
 
 /// Describes an object that can request an App Store review.
 protocol ReviewRequesting: AnyObject {
-    /// Requests an App Store review from the system
+    /// Requests an App Store review from the system.
     /// - Parameter completion: Called with a value indicating whether the review request was shown.
     func requestReview(completion: @escaping (Bool) -> Void)
 }

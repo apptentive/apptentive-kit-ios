@@ -205,7 +205,7 @@ class TargetingStateTests: XCTestCase {
     }
 
     func testDeviceOSVersion() throws {
-        XCTAssertEqual(try self.conversation.value(for: "device/os_version") as? Version, "12")
+        XCTAssertEqual(try self.conversation.value(for: "device/os_version") as? Version, "13.0")
     }
 
     func testDeviceOSBuild() throws {

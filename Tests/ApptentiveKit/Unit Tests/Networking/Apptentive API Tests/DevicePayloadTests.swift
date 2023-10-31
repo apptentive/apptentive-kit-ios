@@ -71,7 +71,7 @@ class DevicePayloadTests: XCTestCase {
                 "os_build": "1",
                 "client_created_at_utc_offset": -28800,
                 "locale_raw": "en_US",
-                "os_version": "12.0",
+                "os_version": "13.0",
                 "hardware": "iPhone0,0",
                 "carrier": null
               }
@@ -127,7 +127,7 @@ class DevicePayloadTests: XCTestCase {
                 "os_build": "1",
                 "client_created_at_utc_offset": -28800,
                 "locale_raw": "en_US",
-                "os_version": "12.0",
+                "os_version": "13.0",
                 "hardware": "iPhone0,0",
                 "carrier": null
               }

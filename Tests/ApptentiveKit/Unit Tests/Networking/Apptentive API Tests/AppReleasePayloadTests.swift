@@ -73,7 +73,7 @@ class AppReleasePayloadTests: XCTestCase {
                             "sdk_distribution": null,
                             "sdk_distribution_version": null,
                             "cf_bundle_identifier": "com.apptentive.test",
-                            "deployment_target": "12.1"
+                            "deployment_target": "13.0"
                           }
                         }
             """
@@ -140,7 +140,7 @@ class AppReleasePayloadTests: XCTestCase {
                             "sdk_distribution": null,
                             "sdk_distribution_version": null,
                             "cf_bundle_identifier": "com.apptentive.test",
-                            "deployment_target": "12.1"
+                            "deployment_target": "13.0"
                           }
                         }
             """

@@ -132,7 +132,7 @@ extension Apptentive: UNUserNotificationCenterDelegate {
             return
         }
 
-        if apptentive["action"] as? String == "pmc" {
+        if apptentive["action"] as? String == "pmc" && !self.interactionPresenter.messageCenterCurrentlyPresented {
             self.presentMessageCenter(from: nil, completion: nil)
         }
     }

@@ -29,15 +29,18 @@ class MessagesViewController: UITableViewController, UIImagePickerControllerDele
 
         self.apptentive.sendAttachment(textViewController.textField.text ?? "")
     }
-
-    override func viewWillAppear(_ animated: Bool) {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
         self.updateUnreadCount(to: self.apptentive.unreadMessageCount)
 
         self.observation = self.apptentive.observe(\.unreadMessageCount, options: [.new]) { [weak self] _, _ in
             guard let self = self else { return }
             self.updateUnreadCount(to: self.apptentive.unreadMessageCount)
         }
+    }
 
+    override func viewWillAppear(_ animated: Bool) {
         self.navigationItem.prompt = self.customData.keys.count > 0 ? "Message Center will be presented with Custom Data" : nil
     }
 

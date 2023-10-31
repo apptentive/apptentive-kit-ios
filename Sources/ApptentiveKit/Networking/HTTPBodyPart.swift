@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias mediaType = String
+typealias MediaType = String
 
 protocol HTTPBodyPart {
     var contentType: String { get }

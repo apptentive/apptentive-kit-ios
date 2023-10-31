@@ -202,7 +202,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         let nonce: String
 
         /// The date/time at which the payload was created.
-        let creationDate: Date
+        let createdAt: Date
 
         /// The offset (in seconds) from UTC for the creation date.
         let creationUTCOffset: Int
@@ -241,7 +241,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             self.shouldStripContainer = shouldStripContainer
 
             self.nonce = context.getNextNonce()
-            self.creationDate = context.date
+            self.createdAt = context.date
             self.creationUTCOffset = context.utcOffset
             self.sessionID = context.sessionID
             self.embeddedToken = context.encryptionContext?.embeddedToken
@@ -290,7 +290,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             }
 
             self.nonce = try nestedContainer.decode(String.self, forKey: .nonce)
-            self.creationDate = try nestedContainer.decode(Date.self, forKey: .creationDate)
+            self.createdAt = try nestedContainer.decode(Date.self, forKey: .createdAt)
             self.creationUTCOffset = try nestedContainer.decode(Int.self, forKey: .creationUTCOffset)
             self.sessionID = try nestedContainer.decodeIfPresent(String.self, forKey: .sessionID)
         }
@@ -323,7 +323,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             }
 
             try container.encode(self.nonce, forKey: .nonce)
-            try container.encode(self.creationDate, forKey: .creationDate)
+            try container.encode(self.createdAt, forKey: .createdAt)
             try container.encode(self.creationUTCOffset, forKey: .creationUTCOffset)
             try container.encodeIfPresent(self.sessionID, forKey: .sessionID)
 
@@ -406,7 +406,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
     enum AllPossibleCodingKeys: String, CodingKey {
         // Ubiquitous keys
         case nonce
-        case creationDate = "client_created_at"
+        case createdAt = "client_created_at"
         case creationUTCOffset = "client_created_at_utc_offset"
         case sessionID = "session_id"
         case token = "token"

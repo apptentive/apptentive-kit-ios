@@ -24,25 +24,17 @@ public struct ApptentiveLogger {
 
     /// Creates a logger with the specified subsystem.
     init(subsystem: String) {
-        if #available(iOS 12.0, *) {
-            self.log = OSLog(subsystem: subsystem, category: "Apptentive")
-        } else {
-            self.log = nil
-        }
+        self.log = OSLog(subsystem: subsystem, category: "Apptentive")
     }
 
     private func log(_ message: ApptentiveLogMessage, level: LogLevel) {
         if level >= self.logLevel {
-            if #available(iOS 12.0, *) {
-                guard let log = self.log else {
-                    apptentiveCriticalError("Expected log to be available in iOS 12+")
-                    return
-                }
-
-                os_log(level.logType, log: log, "%{public}@", message.description)
-            } else {
-                print("\(level.label)/Apptentive: \(message.description)")
+            guard let log = self.log else {
+                apptentiveCriticalError("Expected log to be available.")
+                return
             }
+
+            os_log(level.logType, log: log, "%{public}@", message.description)
         }
     }
 

@@ -187,11 +187,9 @@
             }]
         },
         {
-            "$not": [{
-                "interactions/hasnt_seen_interaction/answers/id": {
-                    "$ne": "foo"
-                }
-            }]
+            "interactions/hasnt_seen_interaction/answers/id": {
+                "$ne": "foo"
+            }
         }
     ]
 }

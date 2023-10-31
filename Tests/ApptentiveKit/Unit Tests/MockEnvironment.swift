@@ -29,7 +29,7 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
     var isOverridingStyles: Bool = false
     var identifierForVendor: UUID? = UUID(uuidString: "A230943F-14C7-4C57-BEA2-39EFC51F284C")
     var osName: String = "iOS"
-    var osVersion: Version = "12.0"
+    var osVersion: Version = "13.0"
     var localeIdentifier: String = "en_US"
     var localeRegionCode: String? = "US"
     var preferredLocalization: String? = "en"
@@ -56,7 +56,7 @@ struct MockEnvironment: DeviceEnvironment, AppEnvironment, PlatformEnvironment {
         "DTSDKName": "iphonesimulator13.4.internal",
         "DTXcode": "1160",
         "DTXcodeBuild": "11E703a",
-        "MinimumOSVersion": "12.1",
+        "MinimumOSVersion": "13.0",
     ]
 
     var fileManager = FileManager.default
