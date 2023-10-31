@@ -42,6 +42,8 @@
 
 #### Bugs Fixed
 
+# 2023-04-24 - 6.2.0
+
 - Fixed an issue where the (internal) exit event was sent twice
 
 #### New & Improved
