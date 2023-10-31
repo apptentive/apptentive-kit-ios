@@ -6,7 +6,7 @@ Pod::Spec.new do |spec|
   spec.license          = "BSD"
   spec.swift_version    = "5.5"
   spec.author           = { 'Apptentive SDK Team' => 'sdks@apptentive.com' }
-  spec.platform         = :ios, "11.0"
+  spec.platform         = :ios, "13.0"
   spec.source           = { :git => "https://github.com/apptentive/apptentive-kit-ios.git", :tag => "v#{spec.version}" }
   spec.source_files     = "Sources/ApptentiveKit/**/*.{h,swift}"
   spec.resource_bundles = { "ApptentiveKitResources" => [ "Sources/ApptentiveKit/Resources/*.lproj", "Sources/ApptentiveKit/Resources/Media.xcassets", "Sources/ApptentiveKit/Resources/Distribution.plist" ] }
