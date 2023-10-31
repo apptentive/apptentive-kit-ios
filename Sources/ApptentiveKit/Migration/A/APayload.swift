@@ -17,7 +17,7 @@ struct APayload: Decodable {
     struct JSONObject: Decodable {
         let specializedJSONObject: Payload.SpecializedJSONObject
         let nonce: String
-        let creationDate: Date
+        let createdAt: Date
         let creationUTCOffset: Int
         let shouldStripContainer: Bool
         let sessionID: String?
@@ -65,7 +65,7 @@ struct APayload: Decodable {
             }
 
             self.nonce = try nestedContainer.decode(String.self, forKey: .nonce)
-            self.creationDate = try nestedContainer.decode(Date.self, forKey: .creationDate)
+            self.createdAt = try nestedContainer.decode(Date.self, forKey: .createdAt)
             self.creationUTCOffset = try nestedContainer.decode(Int.self, forKey: .creationUTCOffset)
             self.sessionID = try nestedContainer.decodeIfPresent(String.self, forKey: .sessionID)
         }

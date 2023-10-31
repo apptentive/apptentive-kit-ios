@@ -641,6 +641,7 @@ class Backend: PayloadAuthenticationDelegate {
                 self.suspendHousekeepingTimer()
                 self.conversation = nil
                 try self.messageManager.deleteCachedMessages()
+                self.invalidateEngagementManifest()
 
             case (from: .loggedIn, to: .loggedIn(let payloadCredentials, let encryptionContext)):  // Conversation credentials were updated.
                 guard let activeRecord = self.state.roster.active else {

@@ -37,9 +37,8 @@ class GreetingHeaderView: UIView {
         self.greetingTitleLabel.textColor = .apptentiveMessageCenterGreetingTitle
         self.greetingTitleLabel.adjustsFontForContentSizeCategory = true
         self.greetingTitleLabel.isAccessibilityElement = true
-        if #available(iOS 13.0, *) {
-            self.greetingTitleLabel.accessibilityRespondsToUserInteraction = true
-        }
+
+        self.greetingTitleLabel.accessibilityRespondsToUserInteraction = true
 
         self.greetingBodyText.translatesAutoresizingMaskIntoConstraints = false
         self.greetingBodyText.font = .apptentiveMessageCenterGreetingBody

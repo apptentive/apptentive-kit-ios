@@ -132,6 +132,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.tableView.accessibilityElements = [self.headerView, self.footerView]
         self.showKeyboardForIpad()
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
     }
 
     override var preferredFocusEnvironments: [UIFocusEnvironment] {
@@ -548,13 +549,15 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     // MARK: - Actions
 
+    @objc func willEnterForeground() {
+        self.tableView.reloadData()
+    }
+
     @objc func openProfileEditView() {
         let profileViewController = EditProfileViewController(viewModel: self.viewModel)
 
         let navigationController = ApptentiveNavigationController(rootViewController: profileViewController)
-        if #available(iOS 13.0, *) {
-            navigationController.isModalInPresentation = true
-        }
+        navigationController.isModalInPresentation = true
         self.present(navigationController, animated: true, completion: nil)
     }
 
@@ -573,7 +576,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.viewModel.sendMessage()
 
         self.composeView.textView.resignFirstResponder()
-
+        self.viewModel.draftMessageBody = nil
         self.updateFooter()
 
         self.navigationItem.leftBarButtonItem?.isEnabled = true

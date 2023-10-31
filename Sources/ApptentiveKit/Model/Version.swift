@@ -46,7 +46,7 @@ struct Version: Equatable, Comparable, ExpressibleByStringLiteral, ExpressibleBy
                 major = integer
             }
 
-            if !scanner.scanString(".", into: nil) {
+            if scanner.scanString(".") == nil {
                 break endOfSemanticVersion
             }
 
@@ -54,7 +54,7 @@ struct Version: Equatable, Comparable, ExpressibleByStringLiteral, ExpressibleBy
                 minor = integer
             }
 
-            if !scanner.scanString(".", into: nil) {
+            if scanner.scanString(".") == nil {
                 break endOfSemanticVersion
             }
 

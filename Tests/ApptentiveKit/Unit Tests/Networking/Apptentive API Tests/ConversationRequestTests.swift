@@ -32,7 +32,7 @@ class ConversationRequestTests: XCTestCase {
                 "os_build": "1",
                 "custom_data": {},
                 "locale_country_code": "US",
-                "os_version": "12.0",
+                "os_version": "13.0",
                 "locale_raw": "en_US",
                 "hardware": "iPhone0,0",
                 "content_size_category": "UICTContentSizeCategoryM"
@@ -40,7 +40,7 @@ class ConversationRequestTests: XCTestCase {
               "app_release": {
                 "dt_platform_version": "13.4",
                 "overriding_styles": false,
-                "deployment_target": "12.1",
+                "deployment_target": "13.0",
                 "dt_xcode": "1160",
                 "dt_xcode_build": "11E703a",
                 "sdk_version": "0.0.0",

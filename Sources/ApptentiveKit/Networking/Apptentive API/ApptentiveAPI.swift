@@ -339,10 +339,10 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     static func parseExpiry(_ response: HTTPURLResponse) -> Date? {
         if let cacheControlHeader = response.allHeaderFields["Cache-Control"] as? String {
             let scanner = Scanner(string: cacheControlHeader.lowercased())
-            var maxAge: Double = .nan
-            if scanner.scanString("max-age", into: nil) && scanner.scanString("=", into: nil) && scanner.scanDouble(&maxAge) {
+            var maxAge: Int = 0
+            if (scanner.scanString("max-age") != nil) && (scanner.scanString("=") != nil) && scanner.scanInt(&maxAge) {
                 maxAge = max(maxAge, 600)  // API has a bug where it sends a max-age of zero sometimes.
-                return Date(timeIntervalSinceNow: maxAge)
+                return Date(timeIntervalSinceNow: Double(maxAge))
             }
         }
         return nil

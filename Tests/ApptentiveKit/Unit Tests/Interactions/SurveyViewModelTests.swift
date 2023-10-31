@@ -58,6 +58,19 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         XCTAssertEqual(self.viewModel.questions[0].instructions, "select one")
     }
 
+    func testOtherOptionSelection() {
+        guard let viewModel = self.viewModel else {
+            return XCTFail("Unable to load view model")
+        }
+
+        guard let otherQuestion = viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion else {
+            return XCTFail("Choice questions have non-radio-button view models")
+        }
+        XCTAssertEqual(otherQuestion.choices.filter { $0.isSelected }.count, 0)
+        otherQuestion.toggleChoice(at: 2)
+        XCTAssertTrue(otherQuestion.choices[2].isSelected)
+    }
+
     func testRadioButtonSelection() {
         guard let viewModel = self.viewModel else {
             return XCTFail("Unable to load view model")

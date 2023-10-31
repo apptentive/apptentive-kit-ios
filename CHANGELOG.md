@@ -1,3 +1,17 @@
+# 2023-10-31 - 6.5.0
+
+#### New & Improved:
+
+- Added a [Privacy Manifest](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files) to declare information on data collected by the SDK
+- Incremented the deployment target to iOS 13.0
+
+#### Bugs Fixed:
+
+- Message Center now checks if it is already visible when opening in response to a push notification.
+- The close confirmation alert is now shown if an "Other" choice has been selected in Surveys.
+- Fixed a layout issue that sometimes appeared in Message Center.
+- The compose field in Message Center now clears after a message is sent, even when an autocorrect suggestion is accepted.
+
 # 2023-08-29 - 6.2.3
 
 #### New & Improved:
@@ -28,9 +42,9 @@
 
 #### Bugs Fixed
 
-- Fixed an issue where the (internal) exit event was sent twice
-
 # 2023-04-24 - 6.2.0
+
+- Fixed an issue where the (internal) exit event was sent twice
 
 #### New & Improved
 
