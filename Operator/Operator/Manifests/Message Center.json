@@ -22,7 +22,7 @@
           "greeting": {
             "title": "Hello!",
             "body": "We'd love to get feedback from you on our app. The more details you can provide, the better.",
-            "image_url": "https://apptentive-app-icons-production.s3.amazonaws.com/521f9bba68e2758b6d00098d_1443569347.png"
+            "image_url": "https://app-icons.apptentive.com/5f35712b4abf9904b600001e_1642763441.png"
           },
           "status": {
             "body": "We will respond to your message soon."
@@ -76,7 +76,7 @@
           "greeting": {
             "title": "Hello!",
             "body": "We'd love to get feedback from you on our app. The more details you can provide, the better.",
-            "image_url": "https://apptentive-app-icons-production.s3.amazonaws.com/521f9bba68e2758b6d00098d_1443569347.png"
+            "image_url": "https://app-icons.apptentive.com/5f35712b4abf9904b600001e_1642763441.png"
           },
           "status": {
             "body": "We will respond to your message soon."
@@ -130,7 +130,7 @@
           "greeting": {
             "title": "Hello!",
             "body": "We'd love to get feedback from you on our app. The more details you can provide, the better.",
-            "image_url": "https://apptentive-app-icons-production.s3.amazonaws.com/521f9bba68e2758b6d00098d_1443569347.png"
+            "image_url": "https://app-icons.apptentive.com/5f35712b4abf9904b600001e_1642763441.png"
           },
           "status": {
             "body": "We will respond to your message soon."
@@ -184,7 +184,7 @@
           "greeting": {
             "title": "Hello!",
             "body": "We'd love to get feedback from you on our app. The more details you can provide, the better.",
-            "image_url": "https://apptentive-app-icons-production.s3.amazonaws.com/521f9bba68e2758b6d00098d_1443569347.png"
+            "image_url": "https://app-icons.apptentive.com/5f35712b4abf9904b600001e_1642763441.png"
           },
           "status": {
             "body": "We will respond to your message soon."
@@ -240,7 +240,7 @@
           "greeting": {
             "title": "Hello!",
             "body": "We'd love to get feedback from you on our app. The more details you can provide, the better.",
-            "image_url": "https://apptentive-app-icons-production.s3.amazonaws.com/521f9bba68e2758b6d00098d_1443569347.png"
+            "image_url": "https://app-icons.apptentive.com/5f35712b4abf9904b600001e_1642763441.png"
           },
           "status": {
             "body": "We will respond to your message soon."
@@ -296,7 +296,7 @@
           "greeting": {
             "title": "Hello!",
             "body": "We'd love to get feedback from you on our app. The more details you can provide, the better.",
-            "image_url": "https://apptentive-app-icons-production.s3.amazonaws.com/521f9bba68e2758b6d00098d_1443569347.png"
+            "image_url": "https://app-icons.apptentive.com/5f35712b4abf9904b600001e_1642763441.png"
           },
           "status": {
             "body": "We will respond to your message soon."
@@ -338,5 +338,8 @@
         "criteria": {}
       }
     ]
-  }
+  },
+  "resources": [
+      "https://app-icons.apptentive.com/5f35712b4abf9904b600001e_1642763441.png"
+  ]
 }

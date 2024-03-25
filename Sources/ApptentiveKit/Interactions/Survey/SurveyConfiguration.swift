@@ -18,8 +18,6 @@ struct SurveyConfiguration: Decodable {
     let introduction: String?
     let successMessage: String?
     let shouldShowSuccessMessage: Bool
-    let submitText: String?
-    let nextText: String?
     let validationError: String
     let requiredText: String
     let closeConfirmationTitle: String
@@ -39,8 +37,6 @@ struct SurveyConfiguration: Decodable {
         case introduction = "description"
         case successMessage = "success_message"
         case shouldShowSuccessMessage = "show_success_message"
-        case submitText = "submit_text"
-        case nextText = "next_text"
         case validationError = "validation_error"
         case requiredText = "required_text"
         case closeConfirmationTitle = "close_confirm_title"

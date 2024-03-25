@@ -32,6 +32,7 @@ class SpyInteractionDelegate: InteractionDelegate {
     var automatedMessageBody: String?
     var matchingInvocationIndex: Int = 0
     var matchingAdvanceLogicIndex: Int = 0
+    var prefetchedImage: UIImage?
 
     func engage(event: Event) {
         self.engagedEvent = event
@@ -195,5 +196,15 @@ class SpyInteractionDelegate: InteractionDelegate {
 
     func sendMessage(_ message: MessageList.Message, completion: ((Result<Void, Error>) -> Void)?) {
 
+    }
+
+    func getImage(at url: URL, scale: CGFloat, completion: @escaping (Result<UIImage, Error>) -> Void) {
+        DispatchQueue.main.async {
+            if let prefetchedImage = self.prefetchedImage {
+                completion(.success(prefetchedImage))
+            } else {
+                completion(.failure(ApptentiveError.resourceNotDecodableAsImage))
+            }
+        }
     }
 }

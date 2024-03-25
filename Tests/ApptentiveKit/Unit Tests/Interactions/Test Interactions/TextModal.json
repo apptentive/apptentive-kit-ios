@@ -2,6 +2,7 @@
   "id": "55e6037a45ce55118900001a",
   "type": "TextModal",
   "version": 1,
+  "format": "plain",
   "configuration": {
     "actions": [
       {
@@ -43,6 +44,13 @@
         "label": "Dismiss"
       }
     ],
+    "image": {
+      "url": "https://variety.com/wp-content/uploads/2022/12/Disney-Plus.png",
+      "layout": "fill",
+      "alt_text": "Disney Logo",
+      "height": 100
+    },
+    "max_height": 40,
     "title": "Message Title",
     "body": "Message content.",
     "name": "Message Center 2.0 Note"

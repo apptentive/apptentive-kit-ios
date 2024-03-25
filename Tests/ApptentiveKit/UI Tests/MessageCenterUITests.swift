@@ -47,14 +47,14 @@ class MessageCenterUITests: XCTestCase {
 
         app.navigationBars["Photos"].buttons["Add"].tap()
 
-        if app.buttons["Remove IMG_0003.jpeg"].waitForExistence(timeout: 5.0) {
-            app.buttons["Remove IMG_0003.jpeg"].tap()
+        if app.buttons["Remove IMG_0004.jpeg"].waitForExistence(timeout: 5.0) {
+            app.buttons["Remove IMG_0004.jpeg"].tap()
 
             attachmentButton.tap()
             app.buttons["Files"].tap()
             app.buttons["Cancel"].tap()
 
-            XCTAssertFalse(app.buttons["Remove IMG_0003.jpeg"].exists)
+            XCTAssertFalse(app.buttons["Remove IMG_0004.jpeg"].exists)
 
             sendButton.tap()
         } else {

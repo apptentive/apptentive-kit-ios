@@ -11,7 +11,7 @@ import UIKit
 class MessageReceivedCell: UITableViewCell {
     let stackView: UIStackView
     let messageText: UITextView
-    let profileImageView: ApptentiveImageView
+    let profileImageView: UIImageView
     let senderLabel: UILabel
     let dateLabel: UILabel
     let bubbleImageView: UIImageView
@@ -22,7 +22,7 @@ class MessageReceivedCell: UITableViewCell {
         self.messageText = UITextView(frame: .zero)
         self.dateLabel = UILabel(frame: .zero)
         self.senderLabel = UILabel(frame: .zero)
-        self.profileImageView = ApptentiveImageView()
+        self.profileImageView = UIImageView(frame: .zero)
         self.bubbleImageView = UIImageView(image: .apptentiveReceivedMessageBubble)
         self.attachmentStackView = UIStackView(frame: .zero)
 

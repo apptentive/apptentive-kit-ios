@@ -23,7 +23,7 @@ class AppleRatingDialogController {
         self.delegate = delegate
     }
 
-    func requestReview() {
+    func requestReview(completion: @escaping (Bool) -> Void) {
         self.delegate.engage(event: .request(from: self.interaction))
 
         self.delegate.requestReview { (wasShown) in
@@ -32,6 +32,8 @@ class AppleRatingDialogController {
             } else {
                 self.delegate.engage(event: .notShown(from: self.interaction))
             }
+
+            completion(wasShown)
         }
     }
 }

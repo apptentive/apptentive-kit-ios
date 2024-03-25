@@ -115,12 +115,11 @@ class HTTPClient {
             ApptentiveLogger.network.debug("  \(header): \(value, privacy: .auto)")
         })
 
-        request.httpBody.flatMap {
-            if request.allHTTPHeaderFields?["Content-Type"]?.contains("multipart") ?? false {
-                ApptentiveLogger.network.debug("Body: <multipart>")
+        request.httpBody.flatMap { bodyData in
+            if let stringValue = String(data: bodyData, encoding: .utf8) {
+                ApptentiveLogger.network.debug("Body: \(stringValue)")
             } else {
-                // It's likely this is either plain text or JSON, so it can be treated as a string.
-                ApptentiveLogger.network.debug("Body: \(String(data: $0, encoding: .utf8) ?? "<not plain utf-8>")")
+                ApptentiveLogger.network.debug("Body (base64): \(bodyData.base64EncodedString())")
             }
         }
     }

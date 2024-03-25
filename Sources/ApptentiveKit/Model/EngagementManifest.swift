@@ -23,6 +23,8 @@ struct EngagementManifest: Expiring, Decodable {
     /// A dictionary whose keys are code points (see `Event`) and whose values are `Invocation` objects.
     let targets: [String: [Invocation]]
 
+    let prefetch: [URL]?
+
     /// The date after which the engagement manifest should be considered stale.
     var expiry: Date?
 

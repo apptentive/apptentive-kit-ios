@@ -283,7 +283,7 @@ struct ApptentiveAPI: HTTPRequestBuilding {
 
     /// The API version to send for the request.
     static var apiVersion: String {
-        "12"
+        "13"
     }
 
     /// The string to be sent for the request's `User-Agent` header.

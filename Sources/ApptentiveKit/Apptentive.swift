@@ -36,7 +36,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// The theme to apply to Apptentive UI.
     ///
     /// This property must be set before calling `register(credentials:)`.
-    public var theme: UITheme = .apptentive
+    @objc public var theme: UITheme = .apptentive
 
     /// The name of the person using the app, if available.
     @objc public var personName: String? {
@@ -205,12 +205,12 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     }
 
     /// Indicates a theme that will be applied to Apptentive UI.
-    public enum UITheme {
+    @objc public enum UITheme: Int {
         /// Apptentive cross-platform look and feel.
-        case apptentive
+        case apptentive = 1
 
         /// iOS default look and feel.
-        case none
+        case none = 0
     }
 
     /// Provides the SDK with the credentials necessary to connect to the Apptentive API.
@@ -580,6 +580,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     let backendQueue: DispatchQueue
     let backend: Backend
     var environment: GlobalEnvironment
+    let resourceManager: ResourceManager
 
     init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: GlobalEnvironment? = nil) {
         if Self.alreadyInitialized {
@@ -593,9 +594,11 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         self.backendQueue = backendQueue ?? DispatchQueue(label: "com.apptentive.backend", qos: .default, autoreleaseFrequency: .workItem)
         self.environment = environment ?? Environment()
         let containerName = containerDirectory ?? "com.apptentive.feedback"
-        self.backend = Backend(queue: self.backendQueue, environment: self.environment, baseURL: self.baseURL, containerName: containerName)
+        let requestor = URLSession(configuration: Backend.urlSessionConfiguration)
+        self.backend = Backend(queue: self.backendQueue, environment: self.environment, baseURL: self.baseURL, requestor: requestor, containerName: containerName)
 
         self.interactionPresenter = InteractionPresenter()
+        self.resourceManager = ResourceManager(fileManager: self.environment.fileManager, requestor: requestor)
 
         super.init()
 
@@ -686,6 +689,7 @@ public enum ApptentiveError: Swift.Error, LocalizedError {
     case invalidEncryptionKey
     case noActiveConversation
     case authenticationFailed(reason: AuthenticationFailureReason?, responseString: String?)
+    case resourceNotDecodableAsImage
 
     // swift-format-ignore
     public var errorDescription: String? {
@@ -731,6 +735,9 @@ public enum ApptentiveError: Swift.Error, LocalizedError {
 
         case .emptyEventName:
             return "An event must have a non-empty name."
+
+        case .resourceNotDecodableAsImage:
+            return "The resource was not decodable as an image."
         }
     }
 }

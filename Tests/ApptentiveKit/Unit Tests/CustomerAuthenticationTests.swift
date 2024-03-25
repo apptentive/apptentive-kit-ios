@@ -44,6 +44,7 @@ final class CustomerAuthenticationTests: XCTestCase {
     class MockBackendDelegate: BackendDelegate {
         let environment: ApptentiveKit.GlobalEnvironment = MockEnvironment()
         let interactionPresenter = InteractionPresenter()
+        var resourceManager: ApptentiveKit.ResourceManager = ResourceManager(fileManager: MockFileManager(), requestor: SpyRequestor(responseData: Data()))
 
         func authenticationDidFail(with error: Error) {}
     }

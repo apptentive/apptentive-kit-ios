@@ -21,52 +21,138 @@ class InteractionPresenterTests: XCTestCase {
     func testShowAppleRatingDialog() throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "AppleRatingDialog")
 
-        XCTAssertNoThrow(try self.interactionPresenter?.presentInteraction(interaction))
+        let expectation = self.expectation(description: "Interaction presented")
+
+        self.interactionPresenter?.presentInteraction(interaction) { result in
+            if case .failure(let error) = result {
+                XCTFail(error.localizedDescription)
+            }
+
+            expectation.fulfill()
+        }
+
+        self.wait(for: [expectation], timeout: 10)
     }
 
     func testPresentEnjoymentDialog() throws {
-        try self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "EnjoymentDialog"))
+        let expectation = self.expectation(description: "Interaction presented")
+
+        self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "EnjoymentDialog")) { result in
+            if case .failure(let error) = result {
+                XCTFail(error.localizedDescription)
+            }
+
+            expectation.fulfill()
+        }
+
+        self.wait(for: [expectation], timeout: 10)
     }
 
     func testPresentSurvey() throws {
-        try self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "Survey"))
+        let expectation = self.expectation(description: "Interaction presented")
+
+        self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "Survey")) { result in
+            if case .failure(let error) = result {
+                XCTFail(error.localizedDescription)
+            }
+
+            expectation.fulfill()
+       }
+
+        self.wait(for: [expectation], timeout: 10)
     }
 
     func testPresentTextModal() throws {
-        try self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "TextModal"))
+        let expectation = self.expectation(description: "Interaction presented")
+
+        self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "TextModal")) { result in
+            if case .failure(let error) = result {
+                XCTFail(error.localizedDescription)
+            }
+
+            expectation.fulfill()
+        }
+
+        self.wait(for: [expectation], timeout: 10)
     }
 
     func testPresentUnimplemented() throws {
+        let expectation = self.expectation(description: "Interaction presented")
+
         let fakeInteractionString = """
                     {
                     "id": "abc123",
                     "type": "FakeInteraction",
                     }
             """
+
         guard let fakeInteractionData = fakeInteractionString.data(using: .utf8) else {
             return XCTFail("Unable to encode test fake interaction string")
         }
 
         let fakeInteraction = try JSONDecoder.apptentive.decode(Interaction.self, from: fakeInteractionData)
+        
+        self.presentInteraction(fakeInteraction) { result in
+            if case .success = result {
+                XCTFail("Should have an unimplemented error.")
+            }
 
-        XCTAssertThrowsError(try self.presentInteraction(fakeInteraction))
+            expectation.fulfill()
+        }
+
+        self.wait(for: [expectation], timeout: 10)
     }
 
     func testDismssPresentedInteraction() throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "TextModal")
         let presentingViewController = FakePresentingViewController()
 
-        try self.interactionPresenter?.presentInteraction(interaction, from: presentingViewController)
+        let expectation = self.expectation(description: "Interaction presented")
 
-        let presentedViewController = presentingViewController.fakePresentedViewController as! FakePresentedViewController
+        self.interactionPresenter?.presentInteraction(interaction, from: presentingViewController) { result in
+            if case .failure(let error) = result {
+                XCTFail(error.localizedDescription)
+            }
 
-        self.interactionPresenter?.dismissPresentedViewController(animated: true)
+            DispatchQueue.main.async {
+                guard let presentedViewController = presentingViewController.fakePresentedViewController as? FakePresentedViewController else {
+                    return XCTFail("No presented view controller, or is not fake presented view controller.")
+                }
 
-        XCTAssertTrue(presentedViewController.didDismiss)
+                self.interactionPresenter?.dismissPresentedViewController(animated: true)
 
-        let spyInteractionDelegate = self.interactionPresenter?.delegate as! SpyInteractionDelegate
-        XCTAssertEqual(spyInteractionDelegate.engagedEvent?.codePointName, "com.apptentive#TextModal#cancel")
-        XCTAssertEqual(spyInteractionDelegate.engagedEvent?.userInfo, EventUserInfo.dismissCause(.init(cause: "notification")))
+                XCTAssertTrue(presentedViewController.didDismiss)
+
+                let spyInteractionDelegate = self.interactionPresenter?.delegate as! SpyInteractionDelegate
+                XCTAssertEqual(spyInteractionDelegate.engagedEvent?.codePointName, "com.apptentive#TextModal#cancel")
+                XCTAssertEqual(spyInteractionDelegate.engagedEvent?.userInfo, EventUserInfo.dismissCause(.init(cause: "notification")))
+
+                expectation.fulfill()
+            }
+        }
+
+        self.wait(for: [expectation], timeout: 10)
+
+    }
+
+    func testNoPresentingViewController() throws {
+        let interaction = try InteractionTestHelpers.loadInteraction(named: "TextModal")
+
+        guard let interactionPresenter = self.interactionPresenter as? FakeInteractionPresenter else {
+            return XCTFail("interactionPresenter is nil or not a FakeInteractionPresenter")
+        }
+
+        let expectation = self.expectation(description: "Interaction not presented")
+
+        interactionPresenter.presentInteraction(interaction, from: nil) { result in
+            if case .success = result {
+                XCTFail()
+            }
+
+            expectation.fulfill()
+        }
+
+        self.wait(for: [expectation], timeout: 10)
     }
 
     class FakeInteractionPresenter: InteractionPresenter {
@@ -91,13 +177,19 @@ class InteractionPresenterTests: XCTestCase {
             try self.presentViewController(fakeAlertController)
         }
 
-        override func presentTextModal(with viewModel: DialogViewModel) throws {
+        override func presentTextModal(with viewModel: DialogViewModel, completion: @escaping (Result<Void, Error>) -> Void) {
             self.viewModel = viewModel
 
             let fakeAlertController = FakePresentedViewController()
             fakeAlertController.view.tag = 333
 
-            try self.presentViewController(fakeAlertController)
+            do {
+                try self.presentViewController(fakeAlertController)
+
+                completion(.success(()))
+            } catch let error {
+                completion(.failure(error))
+            }
         }
     }
 
@@ -136,18 +228,23 @@ class InteractionPresenterTests: XCTestCase {
         }
     }
 
-    private func presentInteraction(_ interaction: Interaction) throws {
+    private func presentInteraction(_ interaction: Interaction, completion: @escaping (Result<Void, Error>) -> Void) {
         guard let interactionPresenter = self.interactionPresenter as? FakeInteractionPresenter else {
-            return XCTFail("interactionPresenter is nil or not a FakeInteractionPresenter")
+            return completion(.failure(NSError(domain: "interactionPresenter is nil or not a FakeInteractionPresenter", code: 123)))
         }
 
-        XCTAssertThrowsError(try interactionPresenter.presentInteraction(interaction, from: nil))
-
         let viewController = FakePresentingViewController()
-        try interactionPresenter.presentInteraction(interaction, from: viewController)
 
-        XCTAssertNotNil(interactionPresenter.viewModel)
-        XCTAssertEqual(viewController, interactionPresenter.presentingViewController)
-        XCTAssertEqual(viewController.fakePresentedViewController?.view.tag, 333)
+        interactionPresenter.presentInteraction(interaction, from: viewController) { result in
+            if case .failure(let error) = result {
+                return completion(.failure(error))
+            }
+
+            XCTAssertNotNil(interactionPresenter.viewModel)
+            XCTAssertEqual(viewController, interactionPresenter.presentingViewController)
+            XCTAssertEqual(viewController.fakePresentedViewController?.view.tag, 333)
+
+            completion(.success(()))
+        }
     }
 }

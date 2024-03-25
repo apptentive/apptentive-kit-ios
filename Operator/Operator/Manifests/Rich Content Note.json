@@ -1,0 +1,299 @@
+{
+  "interactions": [
+    {
+      "id": "548cc5dd49f63bb5c2000001",
+      "type": "TextModal",
+      "format": "html",
+      "configuration": {
+          "title": "New Promotion!",
+          "body": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://variety.com/wp-content/uploads/2022/12/Disney-Plus.png",
+          "layout": "full_width",
+          "alt_text": "Disney Logo",
+          "scale": 2
+        },
+        "max_height": 100
+      }
+    },
+    {
+      "id": "548cc5dd49f63bb5c2000002",
+      "type": "TextModal",
+      "format": "plain",
+      "configuration": {
+        "title": "No Prefetch!",
+        "body": "Redeem our exclusive promotion today and treat yourself to more discounts.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://slowfil.es/file?type=png&delay=2500",
+          "layout": "center",
+          "alt_text": "Alchemer Logo",
+          "scale": 2
+        },
+        "max_height": 40
+      }
+    },
+    {
+      "id": "fill-square",
+      "type": "TextModal",
+      "format": "plain",
+      "configuration": {
+        "title": "Square (Full Width)",
+        "body": "Redeem our exclusive promotion today and treat yourself to more discounts.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://github.com/apptentive/test-logos/blob/main/square.png?raw=true",
+          "layout": "full_width",
+          "alt_text": "SQU\nARE",
+          "scale": 2
+        },
+        "max_height": 40
+      }
+    },
+    {
+      "id": "fill-tall",
+      "type": "TextModal",
+      "format": "plain",
+      "configuration": {
+        "title": "Tall (Full Width)",
+        "body": "Redeem our exclusive promotion today and treat yourself to more discounts.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://github.com/apptentive/test-logos/blob/main/tall.png?raw=true",
+          "layout": "fill",
+          "alt_text": "TALL & SKINNY",
+          "scale": 2
+        },
+        "max_height": 40
+      }
+    },
+    {
+      "id": "fill-wide",
+      "type": "TextModal",
+      "format": "html",
+      "configuration": {
+        "title": "Wide Image",
+        "body": "Redeem our exclusive promotion today and treat yourself to more discounts.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://github.com/apptentive/test-logos/blob/main/wide.png?raw=true",
+          "layout": "full_width",
+          "alt_text": "Short & Fat",
+          "scale": 2
+        },
+        "max_height": 20
+      }
+    },
+    {
+      "id": "left-square",
+      "type": "TextModal",
+      "format": "html",
+      "configuration": {
+        "title": "Left Square",
+        "body": "Redeem our exclusive promotion today and treat yourself to more discounts.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://github.com/apptentive/test-logos/blob/main/small-square.png?raw=true",
+          "layout": "align_left",
+          "alt_text": "SQU\nARE",
+          "scale": 3
+        },
+        "max_height": 20
+      }
+    },
+    {
+      "id": "center-square",
+      "type": "TextModal",
+      "format": "html",
+      "configuration": {
+        "title": "Center Square",
+        "body": "Redeem our exclusive promotion today and treat yourself to more discounts.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://github.com/apptentive/test-logos/blob/main/small-square.png?raw=true",
+          "layout": "center",
+          "alt_text": "SQU\nARE",
+          "scale": 3
+        },
+        "max_height": 20
+      }
+    },
+    {
+      "id": "right-square",
+      "type": "TextModal",
+      "format": "html",
+      "configuration": {
+        "title": "Right Square",
+        "body": "Redeem our exclusive promotion today and treat yourself to more discounts.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://github.com/apptentive/test-logos/blob/main/small-square.png?raw=true",
+          "layout": "align_right",
+          "alt_text": "SQU\nARE",
+          "scale": 3
+        },
+        "max_height": 20
+      }
+    },
+    {
+      "id": "54a3437b7724c57cf6000043",
+      "type": "NavigateToLink",
+      "configuration": {
+        "url": "http://www.example.com"
+      }
+    }
+  ],
+  "targets": {
+    "local#app#launch": [
+      {
+        "interaction_id": "548cc5dd49f63bb5c2000001",
+        "criteria": {
+          "interactions/548cc5dd49f63bb5c2000001/invokes/total": 0
+        }
+      }
+    ]
+  },
+  "prefetch": [
+      "https://github.com/apptentive/test-logos/blob/main/wide.png?raw=true",
+      "https://github.com/apptentive/test-logos/blob/main/tall.png?raw=true",
+      "https://github.com/apptentive/test-logos/blob/main/square.png?raw=true",
+      "https://github.com/apptentive/test-logos/blob/main/small-square.png?raw=true"
+  ]
+}

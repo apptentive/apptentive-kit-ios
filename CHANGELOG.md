@@ -1,3 +1,14 @@
+# 2024-03-25 - 6.6.0
+
+#### New & Improved:
+
+- Added image support through dashboard for Prompts (previously called Notes)
+
+#### Bugs Fixed:
+
+- Fixed some layout issues in paged Surveys
+- Privacy manifest is now included in Package.swift
+
 # 2023-10-31 - 6.5.0
 
 #### New & Improved:
@@ -41,8 +52,6 @@
 - Added a new `apptentiveTint` property to the `UIColor` extension to set the default accent color for Apptentive interaction UI
 
 #### Bugs Fixed
-
-# 2023-04-24 - 6.2.0
 
 - Fixed an issue where the (internal) exit event was sent twice
 

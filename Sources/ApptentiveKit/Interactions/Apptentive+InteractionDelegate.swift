@@ -6,7 +6,7 @@
 //  Copyright © 2022 Apptentive, Inc. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 extension Apptentive {
 
@@ -197,4 +197,14 @@ extension Apptentive {
     }
 
     // Note: ProfileUpdating is public (stored) properties and thus not present here.
+
+    // MARK: ResourceProviding
+
+    func getImage(at url: URL, scale: CGFloat, completion: @escaping (Result<UIImage, Error>) -> Void) {
+        self.resourceManager.getImage(at: url, scale: scale) { result in
+            DispatchQueue.main.async {
+                completion(result)
+            }
+        }
+    }
 }

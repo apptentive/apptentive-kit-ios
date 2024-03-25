@@ -13,6 +13,7 @@ struct TextModalConfiguration: Decodable {
     let name: String?
     let body: String?
     let actions: [Action]
+    let image: Image?
 
     struct Action: Decodable {
         let id: String
@@ -31,5 +32,25 @@ struct TextModalConfiguration: Decodable {
             case actionType = "action"
             case invocations = "invokes"
         }
+    }
+
+    struct Image: Decodable {
+        let url: URL
+        let layout: String
+        let altText: String
+
+        enum CodingKeys: String, CodingKey {
+            case url
+            case layout
+            case altText = "alt_text"
+        }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case title
+        case name
+        case body
+        case actions
+        case image
     }
 }

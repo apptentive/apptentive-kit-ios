@@ -19,6 +19,7 @@ class BackendTests: XCTestCase {
     let jsonEncoder = JSONEncoder.apptentive
 
     class MockBackendDelegate: BackendDelegate {
+        var resourceManager: ApptentiveKit.ResourceManager = ResourceManager(fileManager: MockFileManager(), requestor: SpyRequestor(responseData: Data()))
         let environment: ApptentiveKit.GlobalEnvironment = MockEnvironment()
         let interactionPresenter = InteractionPresenter()
         var authError: Error?

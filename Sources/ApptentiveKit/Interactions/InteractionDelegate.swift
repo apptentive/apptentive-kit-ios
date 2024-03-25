@@ -9,7 +9,7 @@
 import UIKit
 
 typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & MessageSending & MessageProviding & AttachmentManaging & ProfileEditing
-    & UnreadMessageUpdating & SurveyBranching
+    & UnreadMessageUpdating & SurveyBranching & ResourceProviding
 
 /// Describes an object that can manage attachments to a draft message and load attachments from an arbitrary message.
 protocol AttachmentManaging: AnyObject {
@@ -104,4 +104,9 @@ protocol ResponseRecording: AnyObject {
     /// Resets the current response to the specified question.
     /// - Parameter questionID: The identifier for the question.
     func resetCurrentResponse(for questionID: String)
+}
+
+/// Describes an object that can provide the data downloaded from a URL (typically with pre-fetch).
+protocol ResourceProviding: AnyObject {
+    func getImage(at url: URL, scale: CGFloat, completion: @escaping (Result<UIImage, Error>) -> Void)
 }

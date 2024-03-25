@@ -23,7 +23,11 @@ let package = Package(
             name: "ApptentiveKit",
             dependencies: [],
             exclude: ["Info.plist"],
-            resources: [.copy("Resources/SwiftPM.txt"), .copy("Resources/Distribution.plist")]
+            resources: [
+                .copy("Resources/SwiftPM.txt"),
+                .copy("Resources/Distribution.plist"),
+                .copy("PrivacyInfo.xcprivacy")
+            ]
         ),
         .testTarget(
             name: "ApptentiveKit Tests",

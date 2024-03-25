@@ -190,8 +190,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(self.viewModel.advanceButtonText, for: .normal)
             self.surveyBranchedBottomView?.bottomView.nextButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
-            self.backgroundView?.label.text = self.viewModel.introduction
-            self.backgroundView?.disclaimerLabel.text = self.viewModel.disclaimerText
+            self.configureIntroThankYouAndDisclaimerText()
+
             if self.viewModel.highlightFirstQuestionSegment {
                 self.surveyBranchedBottomView?.bottomView.surveyIndicator.updateSelectedSegmentAppearance()
             }
@@ -243,7 +243,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         super.viewDidLayoutSubviews()
         DispatchQueue.main.async {
             self.updateHeaderFooterSize()
-            self.tableView.tableHeaderView = self.introductionView
+            if self.viewModel.displayMode == .list {
+                self.tableView.tableHeaderView = self.introductionView
+            }
             self.tableView.tableFooterView = self.submitView
         }
         //We can't capture the view's window in the viewDidLoad, which is needed when sizing the larger header.
@@ -518,6 +520,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func surveyViewModelPageDidChange(_ viewModel: SurveyViewModel) {
+
         let oldSectionCount = self.tableView.numberOfSections
         let newSectionCount = viewModel.questions.count
 
@@ -536,8 +539,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.tableView.deleteSections(sectionsToDelete, with: .left)
         }
 
-        self.backgroundView?.label.text = viewModel.introduction
-        self.backgroundView?.disclaimerLabel.text = viewModel.disclaimerText
+        self.backgroundView?.textView.text = viewModel.introduction
+        self.configureIntroThankYouAndDisclaimerText()
         self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(viewModel.advanceButtonText, for: .normal)
 
         if self.viewModel.surveyDidSendResponse {
@@ -767,6 +770,36 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     // MARK: - Private
+
+    private func configureIntroThankYouAndDisclaimerText() {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        let attributedText = NSMutableAttributedString()
+        if let introduction = self.viewModel.introduction {
+            let introductionString = NSAttributedString(
+                string: introduction,
+                attributes: [
+                    .font: UIFont.apptentiveQuestionLabel,
+                    .foregroundColor: UIColor.apptentiveSurveyIntroduction,
+                    .paragraphStyle: paragraph,
+
+                ])
+            attributedText.append(introductionString)
+        }
+        attributedText.append(NSAttributedString(string: "\n"))
+        if let disclaimer = self.viewModel.disclaimerText {
+            let disclaimerString = NSAttributedString(
+                string: disclaimer,
+                attributes: [
+                    .font: UIFont.apptentiveDisclaimerLabel,
+                    .foregroundColor: UIColor.apptentiveDisclaimerLabel,
+                    .paragraphStyle: paragraph,
+                ])
+            attributedText.append(disclaimerString)
+        }
+
+        self.backgroundView?.textView.attributedText = attributedText
+    }
 
     private var isUpdatingValidation = false
 

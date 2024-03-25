@@ -32,9 +32,11 @@ public protocol MessageCenterViewModelDelegate: AnyObject {
     func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFinishAt index: Int, inMessageAt indexPath: IndexPath)
 
     func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error)
+
+    func messageCenterViewModel(_: MessageCenterViewModel, profilePhoto: UIImage, didDownloadFor indexPath: IndexPath)
 }
 
-typealias MessageCenterInteractionDelegate = EventEngaging & MessageSending & MessageProviding & AttachmentManaging & ProfileEditing & UnreadMessageUpdating
+typealias MessageCenterInteractionDelegate = EventEngaging & MessageSending & MessageProviding & AttachmentManaging & ProfileEditing & UnreadMessageUpdating & ResourceProviding
 
 /// A class that describes the data in message center and allows messages to be gathered and transmitted.
 public class MessageCenterViewModel: MessageManagerDelegate {
@@ -430,6 +432,40 @@ public class MessageCenterViewModel: MessageManagerDelegate {
                 }
             } else {
                 self.interactionDelegate.engage(event: .send(from: self.interaction))
+            }
+        }
+    }
+
+    public func getGreetingImage(completion: @escaping (UIImage) -> Void) {
+        self.interactionDelegate.getImage(at: self.greetingImageURL, scale: 3) { result in
+            if case .success(let image) = result {
+                completion(image)
+            } else {
+                ApptentiveLogger.messages.error("Unable to download/convert image at \(self.greetingImageURL)")
+            }
+        }
+    }
+
+    private var inFlightProfilePhotos = [URL: IndexPath]()
+
+    public func getProfilePhoto(for indexPath: IndexPath) {
+        guard let url = self.message(at: indexPath).sender?.profilePhotoURL else {
+            return
+        }
+
+        inFlightProfilePhotos[url] = indexPath
+
+        self.interactionDelegate.getImage(at: url, scale: 3) { [weak self, url] (result) in
+            guard let self = self else {
+                return
+            }
+
+            self.inFlightProfilePhotos[url] = nil
+
+            if case .success(let image) = result {
+                self.delegate?.messageCenterViewModel(self, profilePhoto: image, didDownloadFor: indexPath)
+            } else {
+                ApptentiveLogger.messages.error("Unable to download/decode/update profile photo at \(url)")
             }
         }
     }

@@ -30,6 +30,7 @@ extension Apptentive {
                     let engagementManifest = try JSONDecoder.apptentive.decode(EngagementManifest.self, from: manifestData)
 
                     self.backend.targeter.localEngagementManifest = engagementManifest
+                    self.resourceManager.prefetchResources(at: engagementManifest.prefetch ?? [])
 
                     DispatchQueue.main.async {
                         Self.engagementManifestURL = url
@@ -72,10 +73,7 @@ extension Apptentive {
         self.backendQueue.async {
             if let interaction = self.backend.targeter.interactionIndex[id] {
                 DispatchQueue.main.async {
-                    completion(
-                        Result(catching: {
-                            try self.interactionPresenter.presentInteraction(interaction)
-                        }))
+                    self.interactionPresenter.presentInteraction(interaction, completion: completion)
                 }
             }
         }
@@ -92,10 +90,7 @@ extension Apptentive {
                 let interaction = try JSONDecoder.apptentive.decode(Interaction.self, from: interactionData)
 
                 DispatchQueue.main.async {
-                    completion(
-                        Result(catching: {
-                            try self.interactionPresenter.presentInteraction(interaction)
-                        }))
+                    self.interactionPresenter.presentInteraction(interaction, completion: completion)
                 }
             } catch let error {
                 DispatchQueue.main.async {

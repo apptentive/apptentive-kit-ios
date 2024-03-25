@@ -38,7 +38,7 @@ struct Interaction: Decodable {
                 self.configuration = .navigateToLink(try container.decode(NavigateToLinkConfiguration.self, forKey: .configuration))
 
             case "Survey":
-                if apiVersion == 12 {
+                if case .some(let version) = apiVersion, version >= 12 {
                     self.configuration = .surveyV12(try container.decode(SurveyConfiguration.self, forKey: .configuration))
                 } else {
                     self.configuration = .surveyV11(try container.decode(SurveyV11Configuration.self, forKey: .configuration))
