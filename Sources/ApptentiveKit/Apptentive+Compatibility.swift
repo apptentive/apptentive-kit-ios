@@ -173,9 +173,16 @@ extension Apptentive {
         return [:]
     }
 
-    @available(*, deprecated, message: "This feature is not implemented and will always result in false.")
+    @available(swift, deprecated: 1.0, message: "Use the 'canShowMessageCenter(completion:)' method instead.")
     @objc public func queryCanShowMessageCenter(completion: @escaping (Bool) -> Void) {
-        completion(false)
+        self.canShowMessageCenter() { result in
+            switch result {
+            case .success(let canShowMessageCenter):
+                completion(canShowMessageCenter)
+            case .failure(_):
+                completion(false)
+            }
+        }
     }
 
     @objc(presentMessageCenterFromViewController:)

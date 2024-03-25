@@ -9,12 +9,13 @@
 import UIKit
 
 class SurveyBackgroundView: UIView {
-    let label: UILabel
-    let disclaimerLabel: UILabel
+    let textView: UITextView
+
+    var landscapeConstraints: [NSLayoutConstraint] = []
+    var portraitConstraints: [NSLayoutConstraint] = []
 
     override init(frame: CGRect) {
-        self.label = UILabel(frame: frame)
-        self.disclaimerLabel = UILabel(frame: frame)
+        self.textView = UITextView(frame: frame)
         super.init(frame: frame)
 
         self.configureLabels()
@@ -25,30 +26,32 @@ class SurveyBackgroundView: UIView {
     }
 
     func configureLabels() {
-        self.label.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.label)
+        self.textView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(self.textView)
 
-        self.label.textAlignment = .center
-        self.label.font = .apptentiveQuestionLabel
-        self.label.numberOfLines = 0
+        self.textView.isEditable = false
+        self.textView.isScrollEnabled = true
+        self.textView.backgroundColor = .apptentiveGroupedBackground
 
-        self.disclaimerLabel.font = .apptentiveDisclaimerLabel
-        self.disclaimerLabel.textColor = .apptentiveDisclaimerLabel
-        self.disclaimerLabel.adjustsFontForContentSizeCategory = true
-        self.disclaimerLabel.textAlignment = .center
-        self.disclaimerLabel.numberOfLines = 0
-        self.disclaimerLabel.lineBreakMode = .byWordWrapping
+        self.landscapeConstraints = [
+            self.textView.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
+            self.textView.trailingAnchor.constraint(equalTo: self.readableContentGuide.trailingAnchor),
+            self.textView.topAnchor.constraint(equalTo: self.readableContentGuide.topAnchor, constant: 50),
+            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textView.bottomAnchor, multiplier: 25.0),
+        ]
 
-        self.disclaimerLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(self.disclaimerLabel)
+        self.portraitConstraints = [
+            self.textView.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
+            self.textView.trailingAnchor.constraint(equalTo: self.readableContentGuide.trailingAnchor),
+            self.textView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textView.bottomAnchor, multiplier: 25.0),
+        ]
+    }
 
-        NSLayoutConstraint.activate([
-            self.label.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
-            self.label.trailingAnchor.constraint(equalTo: self.readableContentGuide.trailingAnchor),
-            self.label.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            self.disclaimerLabel.topAnchor.constraint(equalTo: self.label.bottomAnchor, constant: 15),
-            self.disclaimerLabel.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
-            self.disclaimerLabel.trailingAnchor.constraint(equalTo: self.readableContentGuide.trailingAnchor),
-        ])
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        let isCompact = traitCollection.verticalSizeClass == .compact
+        NSLayoutConstraint.deactivate(isCompact ? self.portraitConstraints : self.landscapeConstraints)
+        NSLayoutConstraint.activate(isCompact ? self.landscapeConstraints : self.portraitConstraints)
     }
 }

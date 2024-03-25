@@ -225,6 +225,9 @@ extension ApptentiveLogger {
     /// Logger for message center attachments.
     public static var attachments = ApptentiveLogger(subsystem: subsystemPrefix + ".attachments")
 
+    /// Logger for resource manager.
+    public static var resources = ApptentiveLogger(subsystem: subsystemPrefix + ".resources")
+
     /// The overall log level.
     ///
     /// Reading this value returns the log level of the default log.

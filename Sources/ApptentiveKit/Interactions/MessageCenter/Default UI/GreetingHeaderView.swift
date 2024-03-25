@@ -12,14 +12,14 @@ class GreetingHeaderView: UIView {
 
     let greetingTitleLabel: UILabel
     let greetingBodyText: UITextView
-    let brandingImageView: ApptentiveImageView
+    let brandingImageView: UIImageView
     let innerStackView: UIStackView
     let outerStackView: UIStackView
 
     override init(frame: CGRect) {
         self.greetingTitleLabel = UILabel(frame: .zero)
         self.greetingBodyText = UITextView(frame: .zero)
-        self.brandingImageView = ApptentiveImageView()
+        self.brandingImageView = UIImageView(frame: .zero)
         self.innerStackView = UIStackView(frame: .zero)
         self.outerStackView = UIStackView(frame: .zero)
         super.init(frame: frame)

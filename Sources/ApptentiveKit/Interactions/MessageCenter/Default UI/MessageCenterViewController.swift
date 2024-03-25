@@ -109,7 +109,10 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.headerView.greetingTitleLabel.text = self.viewModel.greetingTitle
         self.headerView.greetingBodyText.text = self.viewModel.greetingBody
-        self.headerView.brandingImageView.url = self.viewModel.greetingImageURL
+
+        self.viewModel.getGreetingImage { [weak self] (image) in
+            self?.headerView.brandingImageView.image = image
+        }
 
         self.profileView.nameTextField.text = self.viewModel.name
         self.profileView.nameTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileNamePlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
@@ -243,7 +246,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
             receivedCell.messageText.accessibilityHint = message.accessibilityHint
             receivedCell.dateLabel.text = message.statusText
             receivedCell.senderLabel.text = message.sender?.name
-            receivedCell.profileImageView.url = message.sender?.profilePhotoURL
+            self.viewModel.getProfilePhoto(for: indexPath)
             receivedCell.attachmentStackView.isHidden = message.attachments.count == 0
             self.updateStackView(receivedCell.attachmentStackView, with: message, at: indexPath)
             receivedCell.accessibilityElements = [receivedCell.senderLabel, receivedCell.messageText, receivedCell.attachmentStackView, receivedCell.dateLabel]
@@ -529,6 +532,14 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error) {
         ApptentiveLogger.messages.error("Unable to download attachment #\(index) in row \(indexPath.row) of section \(indexPath.section).")
         self.tableView.reloadRows(at: [indexPath], with: .fade)
+    }
+
+    func messageCenterViewModel(_: MessageCenterViewModel, profilePhoto: UIImage, didDownloadFor indexPath: IndexPath) {
+        guard let receivedCell = self.tableView.cellForRow(at: indexPath) as? MessageReceivedCell else {
+            return
+        }
+
+        receivedCell.profileImageView.image = profilePhoto
     }
 
     // MARK: - Notifications

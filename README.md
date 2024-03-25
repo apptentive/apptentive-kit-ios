@@ -46,7 +46,7 @@ If you plan to use Message Center, you should have a button in your app where yo
 
 ## Further Reading
 
-Please visit our [Customer Learning Center](https://learn.apptentive.com) for more extensive integration and migration guides, as well as guides for product owners and developers for other platforms. 
+Please visit our [Customer Learning Center](https://help.alchemer.com/help) for more extensive integration and migration guides, as well as guides for product owners and developers for other platforms. 
 
 ## Contributing
 
@@ -54,6 +54,4 @@ Our client code is completely [open source](LICENSE.txt), and we welcome contrib
 
 ## Reporting Issues
 
-If you experience an issue with the Apptentive SDK, please [open a GitHub issue](https://github.com/apptentive/apptentive-ios/issues?direction=desc&sort=created&state=open).
-
-If the request is urgent, please contact <mailto:support@apptentive.com>.
+If you experience an issue with the Apptentive SDK, please [open a GitHub issue](https://github.com/apptentive/apptentive-kit-ios/issues?direction=desc&sort=created&state=open).

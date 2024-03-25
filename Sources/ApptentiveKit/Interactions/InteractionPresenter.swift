@@ -25,10 +25,10 @@ open class InteractionPresenter {
     /// - Parameters:
     ///   - interaction: The interaction to present.
     ///   - presentingViewController: The view controller to use to present the interaction.
-    /// - Throws: If the `sender` property isn't set, if the interaction isn't recognized, or if the presenting view controller is missing or invalid.
-    func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController? = nil) throws {
+    ///   - completion: A closure that is called when interaction presentation is initiated.
+    func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController? = nil, completion: @escaping (Result<Void, Error>) -> Void) {
         guard let delegate = self.delegate else {
-            throw ApptentiveError.internalInconsistency
+            return completion(.failure(ApptentiveError.internalInconsistency))
         }
 
         if let presentingViewController = presentingViewController {
@@ -37,37 +37,38 @@ open class InteractionPresenter {
 
         switch interaction.configuration {
         case .appleRatingDialog:
-            AppleRatingDialogController(interaction: interaction, delegate: delegate).requestReview()
+            AppleRatingDialogController(interaction: interaction, delegate: delegate).requestReview(completion: { _ in completion(.success(())) })
 
         case .enjoymentDialog(let configuration):
             let viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            try self.presentEnjoymentDialog(with: viewModel)
+            completion(Result { try self.presentEnjoymentDialog(with: viewModel) })
 
         case .navigateToLink(let configuration):
             let controller = NavigateToLinkController(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
             controller.navigateToLink()
+            completion(.success(()))
 
         case .surveyV11(let configuration):
             let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            try self.presentSurvey(with: viewModel)
+            completion(Result { try self.presentSurvey(with: viewModel) })
 
         case .textModal(let configuration):
             let viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            try self.presentTextModal(with: viewModel)
+            self.presentTextModal(with: viewModel, completion: completion)
 
         case .messageCenter(let configuration):
             let viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            try self.presentMessageCenter(with: viewModel)
+            completion(Result { try self.presentMessageCenter(with: viewModel) })
 
         case .surveyV12(let configuration):
             let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            try self.presentSurvey(with: viewModel)
+            completion(Result { try self.presentSurvey(with: viewModel) })
 
         case .notImplemented:
-            throw InteractionPresenterError.notImplemented(interaction.typeName, interaction.id)
+            completion(.failure(InteractionPresenterError.notImplemented(interaction.typeName, interaction.id)))
 
         case .failedDecoding:
-            throw InteractionPresenterError.decodingFailed(interaction.typeName, interaction.id)
+            completion(.failure(InteractionPresenterError.decodingFailed(interaction.typeName, interaction.id)))
         }
 
         self.presentedInteraction = interaction
@@ -125,15 +126,24 @@ open class InteractionPresenter {
     /// Presents a TextModal ("Note") interaction.
     ///
     /// Override this method to change the way that notes are presented, such as to use a custom view controller.
-    /// - Parameter viewModel: the dialog view model that represents the note and handles button taps.
-    /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
-    open func presentTextModal(with viewModel: DialogViewModel) throws {
+    /// - Parameters:
+    ///    - viewModel: the dialog view model that represents the note and handles button taps.
+    ///    - completion: a closure that is called when the text modal is presented successfully or fails.
+    open func presentTextModal(with viewModel: DialogViewModel, completion: @escaping (Result<Void, Error>) -> Void) {
         let viewController = DialogViewController(viewModel: viewModel)
-        try self.presentViewController(
-            viewController,
-            completion: {
-                viewModel.launch()
-            })
+
+        viewModel.prepareForPresentation {
+            do {
+                try self.presentViewController(
+                    viewController,
+                    completion: {
+                        viewModel.launch()
+                        completion(.success(()))
+                    })
+            } catch let error {
+                completion(.failure(error))
+            }
+        }
     }
 
     /// Presents a view-controller-based interaction.

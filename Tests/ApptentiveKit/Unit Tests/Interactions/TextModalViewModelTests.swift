@@ -30,7 +30,7 @@ class TextModalViewModelTests: XCTestCase {
     }
 
     func testTextModal() {
-        XCTAssertEqual(viewModel.title, "Message Title")
+        XCTAssertEqual(viewModel.title,"Message Title")
         XCTAssertEqual(viewModel.message, "Message content.")
         XCTAssertEqual(viewModel.actions[0].label, "Message Center")
         XCTAssertEqual(viewModel.actions[1].label, "Survey")
@@ -100,5 +100,32 @@ class TextModalViewModelTests: XCTestCase {
     }
 
     func testLaunch() {
+        viewModel.launch()
+
+        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#TextModal#launch")
+    }
+
+    func testImageProperties() {
+
+        guard case .loading(let altText, _) = viewModel.image else {
+            return XCTFail("Expected image to be loading after init.")
+        }
+
+        XCTAssertEqual(altText, "Disney Logo")
+
+        let expectation = self.expectation(description: "Wait for image to load")
+
+        let prefetchData = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==")!
+        self.spySender.prefetchedImage = UIImage(data: prefetchData)
+
+        self.viewModel.prepareForPresentation {
+            guard case .loaded = self.viewModel.image else {
+                return XCTFail("Expected image to be loaded after runloop.")
+            }
+
+            expectation.fulfill()
+        }
+
+        self.wait(for: [expectation], timeout: 1)
     }
 }

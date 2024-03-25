@@ -8,10 +8,11 @@
 
 import UIKit
 
-typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & ResponseRecording
+typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & ResponseRecording & ResourceProviding
 
 /// Describes the updates to the UI triggered from the view model.
 public protocol DialogViewModelDelegate: AnyObject {
+    func dialogViewModel(_: DialogViewModel, didLoadImage: DialogViewModel.Image)
     func dismiss()
 }
 
@@ -29,6 +30,19 @@ public class DialogViewModel {
 
     /// The data and actions for each button for a note.
     public let actions: [DialogViewModel.Action]
+
+    /// Indicates the properties of the image to be displayed on the note.
+    public var image: DialogViewModel.Image {
+        didSet {
+            self.delegate?.dialogViewModel(self, didLoadImage: self.image)
+        }
+    }
+
+    /// The maximum percentage (0–100) of the usable vertical screen space that the note should use.
+    public var maxHeight: Int = 100
+
+    /// Indicates if the dialog only contains an image.
+    public var dialogOnlyContainsImage: Bool = false
 
     /// The delegate used to update the DialogViewController.
     public weak var delegate: DialogViewModelDelegate?
@@ -61,10 +75,12 @@ public class DialogViewModel {
         case textModal
     }
 
-    // MARK: - Internal
+    static let imageScale: CGFloat = 3
 
+    // MARK: - Internal
     let interaction: Interaction
     let interactionDelegate: DialogInteractionDelegate
+    let imageConfiguration: TextModalConfiguration.Image?
 
     init(configuration: TextModalConfiguration, interaction: Interaction, interactionDelegate: DialogInteractionDelegate) {
         self.interaction = interaction
@@ -75,6 +91,17 @@ public class DialogViewModel {
         self.actions = configuration.actions.enumerated().map { (position, action) in
             return Self.buildTextModalAction(action: action, position: position, interaction: interaction, interactionDelegate: interactionDelegate)
         }
+        self.imageConfiguration = configuration.image
+
+        if let configurationImage = configuration.image {
+            let layout = DialogViewModel.Image.Layout(rawValue: configurationImage.layout) ?? .fullWidth
+            if (self.title ?? "").isEmpty && (self.message ?? "").isEmpty {
+                self.dialogOnlyContainsImage = true
+            }
+            self.image = .loading(altText: configurationImage.altText, layout: layout)
+        } else {
+            self.image = .none
+        }
     }
 
     init(configuration: EnjoymentDialogConfiguration, interaction: Interaction, interactionDelegate: DialogInteractionDelegate) {
@@ -83,6 +110,8 @@ public class DialogViewModel {
         self.dialogType = .enjoymentDialog
         self.title = configuration.title
         self.message = nil
+        self.imageConfiguration = nil
+        self.image = .none
 
         self.actions = [
             DialogViewModel.Action(
@@ -98,7 +127,42 @@ public class DialogViewModel {
         ]
     }
 
+    func prepareForPresentation(completion: @escaping () -> Void) {
+        guard let configurationImage = self.imageConfiguration else {
+            return completion()
+        }
+
+        self.prepareForPresentationCompletion = completion
+        self.interactionDelegate.getImage(at: configurationImage.url, scale: Self.imageScale) { result in
+            switch result {
+            case .success(let image):
+                let layout = DialogViewModel.Image.Layout(rawValue: configurationImage.layout) ?? .fullWidth
+                self.image = .loaded(image: image, acessibilityLabel: configurationImage.altText, layout: layout, maxHeight: self.maxHeight(with: self.maxHeight))
+            case .failure(let error):
+                ApptentiveLogger.interaction.error("Error retrieving image from \(configurationImage.url): \(error)")
+            }
+
+            self.prepareForPresentationCompletion?()
+            self.prepareForPresentationCompletion = nil
+        }
+
+        // Display prompt once image loads or after trying for 2 seconds.
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Self.preloadTimeout)) {
+            self.prepareForPresentationCompletion?()
+            self.prepareForPresentationCompletion = nil
+        }
+    }
+
     // MARK: - Private
+
+    private var prepareForPresentationCompletion: (() -> Void)? = nil
+    private static let preloadTimeout = 2
+
+    private func maxHeight(with maxHeight: Int) -> CGFloat {
+        let portraitHeight = UIScreen.main.bounds.height
+        let safeAreaInsets = UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0
+        return (CGFloat(maxHeight) / 100) * (portraitHeight - safeAreaInsets)
+    }
 
     private static func buildTextModalAction(action: TextModalConfiguration.Action, position: Int, interaction: Interaction, interactionDelegate: DialogInteractionDelegate) -> DialogViewModel.Action {
         return DialogViewModel.Action(

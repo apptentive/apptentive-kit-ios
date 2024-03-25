@@ -13,6 +13,7 @@ import UIKit
 protocol BackendDelegate: AnyObject {
     var environment: GlobalEnvironment { get }
     var interactionPresenter: InteractionPresenter { get }
+    var resourceManager: ResourceManager { get }
 
     func authenticationDidFail(with error: Swift.Error)
 }
@@ -94,12 +95,13 @@ class Backend: PayloadAuthenticationDelegate {
     ///   - queue: The dispatch queue on which the backend instance should run.
     ///   - environment: The environment object used to initialize the conversation.
     ///   - baseURL: The URL where the Apptentive API is based.
+    ///   - requestor: An object conforming to HTTPRequesting to use to make HTTP requests.
     ///   - containerName: The name of the container directory in Application Support and Caches.
-    convenience init(queue: DispatchQueue, environment: GlobalEnvironment, baseURL: URL, containerName: String) {
+    convenience init(queue: DispatchQueue, environment: GlobalEnvironment, baseURL: URL, requestor: HTTPRequesting, containerName: String) {
         let conversation = Conversation(environment: environment)
         let targeter = Targeter(engagementManifest: EngagementManifest.placeholder)
         let messageManager = MessageManager(notificationCenter: NotificationCenter.default)
-        let client = HTTPClient(requestor: URLSession(configuration: Self.urlSessionConfiguration), baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: environment.sdkVersion), languageCode: environment.preferredLocalization)
+        let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: environment.sdkVersion), languageCode: environment.preferredLocalization)
         let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let roster = ConversationRoster(active: .init(state: .placeholder, path: "placeholder"), loggedOut: [])
@@ -728,6 +730,8 @@ class Backend: PayloadAuthenticationDelegate {
             try self.saveRoster()
             try self.payloadSender.savePayloadsIfNeeded()
         }
+
+        self.delegate?.resourceManager.prefetchContainerURL = containerURL.appendingPathComponent(CurrentLoader.resourceDirectoryName(for: appCredentials))
     }
 
     private func createRecordSavers(for record: ConversationRoster.Record, containerURL: URL, environment: GlobalEnvironment) throws {
@@ -764,6 +768,8 @@ class Backend: PayloadAuthenticationDelegate {
         self.payloadSender.saver = nil
         self.conversationSaver = nil
         self.rosterSaver = nil
+
+        self.delegate?.resourceManager.prefetchContainerURL = nil
     }
 
     /// Loads the conversation using the specified loader.
@@ -796,17 +802,21 @@ class Backend: PayloadAuthenticationDelegate {
 
         DispatchQueue.main.async {
             do {
-                try delegate.interactionPresenter.presentInteraction(interaction)
+                delegate.interactionPresenter.presentInteraction(interaction) { result in
+                    switch result {
+                    case .success:
+                        completion?(.success(true))
 
-                completion?(.success(true))
+                        self.queue.async {
+                            self.conversation?.interactions.invoke(for: interaction.id)
+                        }
 
-                self.queue.async {
-                    self.conversation?.interactions.invoke(for: interaction.id)
+                    case .failure(let error):
+                        completion?(.failure(error))
+                        ApptentiveLogger.default.error("Interaction presentation error: \(error)")
+                        apptentiveCriticalError("Interaction presentation error: \(error)")
+                    }
                 }
-            } catch let error {
-                completion?(.failure(error))
-                ApptentiveLogger.default.error("Interaction presentation error: \(error)")
-                apptentiveCriticalError("Interaction presentation error: \(error)")
             }
         }
     }
@@ -1006,6 +1016,7 @@ class Backend: PayloadAuthenticationDelegate {
                     ApptentiveLogger.default.debug("New engagement manifest received.")
 
                     self.targeter.engagementManifest = engagementManifest
+                    self.delegate?.resourceManager.prefetchResources(at: engagementManifest.prefetch ?? [])
 
                 case .failure(let error):
                     ApptentiveLogger.network.error("Failed to download engagement manifest: \(error).")
@@ -1042,7 +1053,7 @@ class Backend: PayloadAuthenticationDelegate {
         return try environment.cachesURL().appendingPathComponent(containerName)
     }
 
-    private static let urlSessionConfiguration: URLSessionConfiguration = {
+    static let urlSessionConfiguration: URLSessionConfiguration = {
         let configuration = URLSessionConfiguration.default
 
         #if DEBUG

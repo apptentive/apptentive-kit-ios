@@ -62,10 +62,10 @@ class SpyRequestor: HTTPRequesting, FakeHTTPCancellableDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(self.delay / 1000.0))) {
             switch self.error {
             case .clientError(let response, _):
-                completion(self.temporaryURL, response, nil)
+                completion(self.temporaryURL, response, self.error)
 
             case .serverError(let response, _):
-                completion(self.temporaryURL, response, nil)
+                completion(self.temporaryURL, response, self.error)
 
             case .none:
                 let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "1.1", headerFields: [:])

@@ -32,7 +32,7 @@ class AppleRatingDialogControllerTests: XCTestCase {
     func testWasShown() {
         self.spySender?.shouldRequestReviewSucceed = true
 
-        controller?.requestReview()
+        controller?.requestReview(completion: { _ in })
 
         XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, Event.shown(from: controller!.interaction).codePointName)
     }
@@ -40,7 +40,7 @@ class AppleRatingDialogControllerTests: XCTestCase {
     func testWasNotShown() {
         self.spySender?.shouldRequestReviewSucceed = false
 
-        controller?.requestReview()
+        controller?.requestReview(completion: { _ in })
 
         XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, Event.notShown(from: controller!.interaction).codePointName)
     }

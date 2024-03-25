@@ -258,5 +258,7 @@ class MessageCenterViewModelTests: XCTestCase {
         func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFinishAt index: Int, inMessageAt indexPath: IndexPath) {}
 
         func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error) {}
+
+        func messageCenterViewModel(_: ApptentiveKit.MessageCenterViewModel, profilePhoto: UIImage, didDownloadFor indexPath: IndexPath) {}
     }
 }
