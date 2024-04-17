@@ -17,7 +17,7 @@ extension EngagementManifest {
         let fallbackButtonTitle = NSLocalizedString("MC Unavailable Dismiss Button", tableName: nil, bundle: .apptentive, value: "OK", comment: "Dismiss button title for note saying MC is unavailable")
 
         let configuration = TextModalConfiguration(title: fallbackTitle, name: nil, body: fallbackMessage, actions: [.init(id: "dismiss", label: fallbackButtonTitle, actionType: .dismiss, invocations: [])], image: nil)
-        let fallbackInteraction = Interaction(id: fallbackInteractionID, configuration: .textModal(configuration), typeName: "TextModal")
+        let fallbackInteraction = Interaction(id: fallbackInteractionID, configuration: .textModal(configuration), typeName: "TextModal", format: nil)
         let fallbackInvocation = Invocation(interactionID: fallbackInteractionID, criteria: ImplicitAndClause(subClauses: []))
 
         return EngagementManifest(interactions: [fallbackInteraction], targets: [Event.showMessageCenterFallback.codePointName: [fallbackInvocation]], prefetch: [], expiry: .distantPast)

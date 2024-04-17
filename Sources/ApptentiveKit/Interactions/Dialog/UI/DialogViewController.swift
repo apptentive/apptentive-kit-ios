@@ -17,16 +17,27 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
     var buttons: [DialogButton] = []
     var buttonRadiusIsCustom: Bool = false
 
+    // Prevent touches from passing through to e.g. a FlutterView behind this one.
+    public override var next: UIResponder? {
+        return self.view.window
+    }
+
     // swift-format-ignore
     public override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.view.backgroundColor = .init(white: 0, alpha: 0.2)
+        self.view.backgroundColor = .init(white: 0, alpha: 0.4)
         self.view.isOpaque = false
 
-        self.dialogView.titleLabel.text = self.viewModel.title
-        self.dialogView.messageLabel.text = self.viewModel.message
-        self.dialogView.isMessageHidden = self.viewModel.message == nil || self.viewModel.message?.isEmpty == true
+        if self.viewModel.dialogType == .textModal {
+            let scaledTitleFont = UIFontMetrics(forTextStyle: .headline).scaledFont(for: self.dialogView.titleFont)
+            let scaledMessageFont = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: self.dialogView.messageFont)
+            self.dialogView.titleTextView.attributedText = self.viewModel.title?.attributedString(withFont: scaledTitleFont, alignment: .center)
+            self.dialogView.messageTextView.attributedText = self.viewModel.message?.attributedString(withFont: scaledMessageFont, alignment: .center)
+        } else {
+            self.dialogView.titleTextView.text = self.viewModel.title
+            self.dialogView.messageTextView.text = self.viewModel.message
+        }
 
         self.view.addSubview(dialogView)
 
@@ -39,7 +50,14 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
 
     init(viewModel: DialogViewModel) {
         self.viewModel = viewModel
-        self.dialogView = DialogView(frame: .zero, collapseImageBottomPadding: self.viewModel.dialogOnlyContainsImage, dialogType: self.viewModel.dialogType)
+
+        self.dialogView = DialogView(
+            frame: .zero,
+            dialogType: self.viewModel.dialogType,
+            dialogContainsImage: self.viewModel.dialogContainsImage, isTitleHidden: self.viewModel.isTitleHidden,
+            isMessageHidden: self.viewModel.isMessageHidden
+        )
+
         super.init(nibName: nil, bundle: nil)
         viewModel.delegate = self
 
@@ -79,12 +97,15 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
             self.dialogView.headerImageView.contentMode = layout.contentMode(for: self.traitCollection)
             self.dialogView.imageInset = layout.imageInset
             self.updateAspectRatioConstraintAndMaxHeight(image: image, maxWidth: DialogViewController.widthConstant, maxHeight: maxHeight, contentMode: layout.contentMode(for: self.traitCollection))
+            self.dialogView.headerImage = nil  // Don't show UIAppearance-based image
+
         case .loading(let altText, let layout):
             self.dialogView.headerImageAlternateLabel.text = altText
             self.dialogView.headerImageView.image = nil
             self.dialogView.headerImageView.accessibilityLabel = nil
             self.dialogView.headerImageView.isAccessibilityElement = false
             self.dialogView.imageInset = layout.imageInset
+            self.dialogView.headerImage = nil  // Don't show UIAppearance-based image
 
         case .none:
             self.dialogView.headerImageAlternateLabel.text = nil
@@ -119,15 +140,26 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
 
         self.dialogView.headerImageViewHeightConstraint = self.dialogView.headerImageView.heightAnchor.constraint(lessThanOrEqualToConstant: height)
         self.dialogView.headerImageViewHeightConstraint.priority = fitPriority
-        if !self.viewModel.dialogOnlyContainsImage {
-            self.dialogView.headerImageViewBottomConstraint = self.dialogView.titleLabel.topAnchor.constraint(equalTo: self.dialogView.headerImageView.bottomAnchor, constant: 20)
+
+        if self.dialogView.isMessageHidden && !self.dialogView.isTitleHidden {
+            self.dialogView.headerImageViewBottomConstraint = self.dialogView.titleTextView.topAnchor.constraint(equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.messageBottomConstraintConstant)
+            self.dialogView.titleBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.titleTextView.lastBaselineAnchor, constant: self.dialogView.messageBottomConstraintConstant)
+        } else if self.dialogView.isTitleHidden && !self.dialogView.isMessageHidden {
+            self.dialogView.headerImageViewBottomConstraint = self.dialogView.messageTextView.topAnchor.constraint(
+                equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.topSpacingIdealConstraintConstant - self.dialogView.messageBottomConstraintConstant)
+            self.dialogView.messageBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.messageTextView.lastBaselineAnchor, constant: self.dialogView.messageBottomConstraintConstant)
+        } else if self.dialogView.isTitleHidden && self.dialogView.isMessageHidden {
+            self.dialogView.headerImageViewBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.imageInset.bottom)
         }
+
         NSLayoutConstraint.activate([
             self.dialogView.heightAnchor.constraint(lessThanOrEqualToConstant: maxHeight),
             self.dialogView.headerImageView.widthAnchor.constraint(equalToConstant: maxWidth),
             self.dialogView.headerImageViewHeightConstraint,
             self.dialogView.headerImageViewAspectConstraint,
             self.dialogView.headerImageViewBottomConstraint,
+            self.dialogView.titleBottomConstraint,
+            self.dialogView.messageBottomConstraint,
         ])
     }
 
@@ -184,3 +216,7 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
         ])
     }
 }
+
+public class EnjoymentDialogViewController: DialogViewController {}
+
+public class TextModalViewController: DialogViewController {}

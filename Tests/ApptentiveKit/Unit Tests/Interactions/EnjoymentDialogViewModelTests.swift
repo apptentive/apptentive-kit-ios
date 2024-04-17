@@ -40,6 +40,7 @@ class EnjoymentDialogViewModelTests: XCTestCase {
         let noButtonText = viewModel.actions[0].label
         XCTAssertEqual(noButtonText, "No")
         XCTAssertEqual(yesButtonText, "Yes")
+        XCTAssertNil(viewModel.imageConfiguration)
     }
 
     func testYesButton() {

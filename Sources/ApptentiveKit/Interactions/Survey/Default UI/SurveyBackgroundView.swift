@@ -9,7 +9,7 @@
 import UIKit
 
 class SurveyBackgroundView: UIView {
-    let textView: UITextView
+    var textView: UITextView
 
     var landscapeConstraints: [NSLayoutConstraint] = []
     var portraitConstraints: [NSLayoutConstraint] = []
@@ -19,6 +19,7 @@ class SurveyBackgroundView: UIView {
         super.init(frame: frame)
 
         self.configureLabels()
+        NotificationCenter.default.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
     }
 
     required init?(coder: NSCoder) {
@@ -32,6 +33,7 @@ class SurveyBackgroundView: UIView {
         self.textView.isEditable = false
         self.textView.isScrollEnabled = true
         self.textView.backgroundColor = .apptentiveGroupedBackground
+        self.textView.dataDetectorTypes = .all
 
         self.landscapeConstraints = [
             self.textView.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),
@@ -46,12 +48,13 @@ class SurveyBackgroundView: UIView {
             self.textView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
             self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.textView.bottomAnchor, multiplier: 25.0),
         ]
+
+        NSLayoutConstraint.activate(self.portraitConstraints)
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        let isCompact = traitCollection.verticalSizeClass == .compact
-        NSLayoutConstraint.deactivate(isCompact ? self.portraitConstraints : self.landscapeConstraints)
-        NSLayoutConstraint.activate(isCompact ? self.landscapeConstraints : self.portraitConstraints)
+    @objc func orientationDidChange() {
+        let isLandscape = UIDevice.current.orientation.isLandscape
+        NSLayoutConstraint.deactivate(isLandscape ? self.portraitConstraints : self.landscapeConstraints)
+        NSLayoutConstraint.activate(isLandscape ? self.landscapeConstraints : self.portraitConstraints)
     }
 }

@@ -441,10 +441,6 @@ public class SurveyViewModel {
         return self.currentPage.advanceLogic.count == 0
     }
 
-    internal var surveyIsOnIntroPage: Bool {
-        return self.currentPage.id == "intro"
-    }
-
     /// Sets the current question set and the question list with the new ones based on the selected answer.
     internal func advanceToNextPage() {
         self.interactionDelegate.getNextPageID(for: currentPage.advanceLogic) { (result: Result<String?, Error>) in

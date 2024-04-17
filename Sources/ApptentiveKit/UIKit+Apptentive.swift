@@ -616,6 +616,14 @@ extension UIFont {
 
         return UIFontMetrics(forTextStyle: UIFont.TextStyle(rawValue: textStyleString)).scaledFont(for: self)
     }
+
+    func createUIFontMetricsForHTML() -> UIFont {
+        let fontDescriptor = self.fontDescriptor
+        if let textStyle = fontDescriptor.fontAttributes[.textStyle] as? UIFont.TextStyle {
+            return UIFontMetrics(forTextStyle: textStyle).scaledFont(for: self)
+        }
+        return self
+    }
 }
 
 extension UIToolbar {

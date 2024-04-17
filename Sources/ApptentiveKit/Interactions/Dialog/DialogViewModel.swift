@@ -31,6 +31,15 @@ public class DialogViewModel {
     /// The data and actions for each button for a note.
     public let actions: [DialogViewModel.Action]
 
+    /// Tells the DialogView how to configure the constraints based on if there is an image.
+    public var dialogContainsImage: Bool = false
+
+    /// Indicates if the title is not present to configure the UI.
+    var isTitleHidden: Bool = false
+
+    /// Indicates if the message is not present to configure the UI.
+    var isMessageHidden: Bool = false
+
     /// Indicates the properties of the image to be displayed on the note.
     public var image: DialogViewModel.Image {
         didSet {
@@ -40,9 +49,6 @@ public class DialogViewModel {
 
     /// The maximum percentage (0–100) of the usable vertical screen space that the note should use.
     public var maxHeight: Int = 100
-
-    /// Indicates if the dialog only contains an image.
-    public var dialogOnlyContainsImage: Bool = false
 
     /// The delegate used to update the DialogViewController.
     public weak var delegate: DialogViewModelDelegate?
@@ -86,18 +92,19 @@ public class DialogViewModel {
         self.interaction = interaction
         self.interactionDelegate = interactionDelegate
         self.dialogType = .textModal
-        self.title = configuration.title
+        self.title = configuration.title?.boldHTMLSpan()
         self.message = configuration.body
+        self.isMessageHidden = self.message == nil || self.message?.isEmpty == true
+        self.isTitleHidden = self.title == nil || self.title?.isEmpty == true
+
         self.actions = configuration.actions.enumerated().map { (position, action) in
             return Self.buildTextModalAction(action: action, position: position, interaction: interaction, interactionDelegate: interactionDelegate)
         }
         self.imageConfiguration = configuration.image
 
         if let configurationImage = configuration.image {
+            self.dialogContainsImage = true
             let layout = DialogViewModel.Image.Layout(rawValue: configurationImage.layout) ?? .fullWidth
-            if (self.title ?? "").isEmpty && (self.message ?? "").isEmpty {
-                self.dialogOnlyContainsImage = true
-            }
             self.image = .loading(altText: configurationImage.altText, layout: layout)
         } else {
             self.image = .none

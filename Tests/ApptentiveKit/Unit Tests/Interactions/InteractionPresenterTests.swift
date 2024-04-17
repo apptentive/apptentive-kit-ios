@@ -57,7 +57,7 @@ class InteractionPresenterTests: XCTestCase {
             }
 
             expectation.fulfill()
-       }
+        }
 
         self.wait(for: [expectation], timeout: 10)
     }
@@ -91,7 +91,7 @@ class InteractionPresenterTests: XCTestCase {
         }
 
         let fakeInteraction = try JSONDecoder.apptentive.decode(Interaction.self, from: fakeInteractionData)
-        
+
         self.presentInteraction(fakeInteraction) { result in
             if case .success = result {
                 XCTFail("Should have an unimplemented error.")
@@ -132,7 +132,6 @@ class InteractionPresenterTests: XCTestCase {
         }
 
         self.wait(for: [expectation], timeout: 10)
-
     }
 
     func testNoPresentingViewController() throws {
