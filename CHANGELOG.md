@@ -1,3 +1,15 @@
+# 2024-04-17 - v6.7.0
+
+#### New Features
+
+ - Added rich text support through dashboard for Prompts and Surveys
+ 
+#### Bugs Fixed:
+
+- Fixed a concurrency issue that could lead to a crash when an HTTP request is retried
+- Fixed an issue where the background of a Prompt or Love Dialog remained responsive to taps in Flutter
+- Restored the ability to set a Prompt or Love Dialog header image via UIAppearance
+
 # 2024-03-25 - 6.6.0
 
 #### New & Improved:

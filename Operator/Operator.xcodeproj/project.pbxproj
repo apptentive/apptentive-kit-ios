@@ -213,6 +213,7 @@
 		018B099824577B15007450EA /* Operator */ = {
 			isa = PBXGroup;
 			children = (
+				01D76280246358E4007A5AD5 /* ApptentiveKit.xcodeproj */,
 				011B6708275B196600148290 /* Operator.entitlements */,
 				01CBA930282B2E7500614A24 /* Manifests */,
 				01EB6C072477409C0067F4B9 /* README.md */,
@@ -235,7 +236,6 @@
 				018B09A924577B17007450EA /* Info.plist */,
 				018B09C52457AEF7007450EA /* Defaults.plist */,
 				0133E52F293FE7FF008BF351 /* Credentials.xcconfig */,
-				01D76280246358E4007A5AD5 /* ApptentiveKit.xcodeproj */,
 			);
 			path = Operator;
 			sourceTree = "<group>";
@@ -309,8 +309,9 @@
 		018B098E24577B15007450EA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1140;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1520;
 				ORGANIZATIONNAME = "Apptentive, Inc";
 				TargetAttributes = {
 					018B099524577B15007450EA = {
