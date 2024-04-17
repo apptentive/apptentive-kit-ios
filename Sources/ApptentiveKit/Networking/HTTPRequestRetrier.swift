@@ -112,7 +112,9 @@ class HTTPRequestRetrier: HTTPRequestStarting {
                     wrapper.request = self.client.request(
                         wrapper.endpoint,
                         completion: { (result: Result<T, Error>) in
-                            self.processResult(result, identifier: identifier, completion: completion)
+                            self.dispatchQueue.async {
+                                self.processResult(result, identifier: identifier, completion: completion)
+                            }
                         })
                 }
             } else {

@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 extension DialogViewModel {
-    public enum Image {
+    public enum Image: Equatable {
         case none
         case loading(altText: String, layout: Layout)
         case loaded(image: UIImage, acessibilityLabel: String, layout: Layout, maxHeight: CGFloat)

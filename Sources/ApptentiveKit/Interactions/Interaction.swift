@@ -58,7 +58,7 @@ struct Interaction: Decodable {
         } catch let error {
             let id = self.id
             let typeName = self.typeName
-            ApptentiveLogger.interaction.error("Failure decoding configuration for interaction id \(id) of type \(typeName): \(String(describing: error)).")
+            ApptentiveLogger.interaction.error("Failure decoding configuration for interaction id \(id) of type \(typeName): \(String(describing: error))")
 
             self.configuration = .failedDecoding
         }
@@ -83,7 +83,7 @@ struct Interaction: Decodable {
         case failedDecoding
     }
 
-    internal init(id: String, configuration: Interaction.InteractionConfiguration, typeName: String) {
+    internal init(id: String, configuration: Interaction.InteractionConfiguration, typeName: String, format: String?) {
         self.id = id
         self.configuration = configuration
         self.typeName = typeName

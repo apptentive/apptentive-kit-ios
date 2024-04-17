@@ -115,7 +115,7 @@ open class InteractionPresenter {
     /// - Parameter viewModel: the dialog view model that represents the love dialog and handles button taps.
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
     open func presentEnjoymentDialog(with viewModel: DialogViewModel) throws {
-        let viewController = DialogViewController(viewModel: viewModel)
+        let viewController = EnjoymentDialogViewController(viewModel: viewModel)
         try self.presentViewController(
             viewController,
             completion: {
@@ -130,7 +130,7 @@ open class InteractionPresenter {
     ///    - viewModel: the dialog view model that represents the note and handles button taps.
     ///    - completion: a closure that is called when the text modal is presented successfully or fails.
     open func presentTextModal(with viewModel: DialogViewModel, completion: @escaping (Result<Void, Error>) -> Void) {
-        let viewController = DialogViewController(viewModel: viewModel)
+        let viewController = TextModalViewController(viewModel: viewModel)
 
         viewModel.prepareForPresentation {
             do {

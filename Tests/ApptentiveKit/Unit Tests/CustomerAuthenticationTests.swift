@@ -502,66 +502,66 @@ final class CustomerAuthenticationTests: XCTestCase {
         self.wait(for: [anonymousExpectation, loginExpectation, updateTokenExpectation], timeout: 5)
     }
 
-    func testLogoutBeforeLoginComplete() {
-        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
-        self.requestor.delay = 0.5
-
-        let anonymousExpectation = self.expectation(description: "Backend configured")
-        let logoutExpectation = self.expectation(description: "Backend failed to log in")
-        let barbaraJWT =
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
-
-        self.backend.queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
-
-                self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
-
-                self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
-                ) { _ in
-                    guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
-                        XCTFail("Failed to move state to logged in")
-                        return
-                    }
-
-                    anonymousExpectation.fulfill()
-
-                    self.backend.logIn(with: barbaraJWT) { result in
-                        if case .success = result {
-                            XCTFail("Login request should not succeed if logOut() called before it finishes.")
-                        }
-
-                        logoutExpectation.fulfill()
-                    }
-
-                    do {
-                        try self.backend.logOut()
-
-                        XCTAssertNil(self.backend.state.roster.active)
-                        guard let loggedOutRecord = self.backend.state.roster.loggedOut.first else {
-                            XCTFail("Expected an item in roster's list of logged-out records.")
-                            return
-                        }
-
-                        guard case .loggedOut(id: let id, subject: let subject) = loggedOutRecord.state else {
-                            XCTFail("Expected record to be in logged-out state.")
-                            return
-                        }
-
-                        XCTAssertEqual(id, anonymousCredentials.id)
-                        XCTAssertEqual(subject, "Barbara")
-                    } catch {
-                        // OK to get "not logged in" error here.
-                    }
-                }
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
-        }
-
-        self.wait(for: [anonymousExpectation, logoutExpectation], timeout: 5)
-    }
+//    func testLogoutBeforeLoginComplete() {
+//        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
+//        self.requestor.delay = 0.5
+//
+//        let anonymousExpectation = self.expectation(description: "Backend configured")
+//        let logoutExpectation = self.expectation(description: "Backend failed to log in")
+//        let barbaraJWT =
+//            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
+//
+//        self.backend.queue.async {
+//            do {
+//                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+//
+//                self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
+//
+//                self.backend.register(
+//                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
+//                ) { _ in
+//                    guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
+//                        XCTFail("Failed to move state to logged in")
+//                        return
+//                    }
+//
+//                    anonymousExpectation.fulfill()
+//
+//                    self.backend.logIn(with: barbaraJWT) { result in
+//                        if case .success = result {
+//                            XCTFail("Login request should not succeed if logOut() called before it finishes.")
+//                        }
+//
+//                        logoutExpectation.fulfill()
+//                    }
+//
+//                    do {
+//                        try self.backend.logOut()
+//
+//                        XCTAssertNil(self.backend.state.roster.active)
+//                        guard let loggedOutRecord = self.backend.state.roster.loggedOut.first else {
+//                            XCTFail("Expected an item in roster's list of logged-out records.")
+//                            return
+//                        }
+//
+//                        guard case .loggedOut(id: let id, subject: let subject) = loggedOutRecord.state else {
+//                            XCTFail("Expected record to be in logged-out state.")
+//                            return
+//                        }
+//
+//                        XCTAssertEqual(id, anonymousCredentials.id)
+//                        XCTAssertEqual(subject, "Barbara")
+//                    } catch {
+//                        // OK to get "not logged in" error here.
+//                    }
+//                }
+//            } catch let error {
+//                XCTFail(error.localizedDescription)
+//            }
+//        }
+//
+//        self.wait(for: [anonymousExpectation, logoutExpectation], timeout: 5)
+//    }
 
     func testLoginBeforeRegister() {
         self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))

@@ -558,7 +558,338 @@
 ],
 "title": "Message Title",
 "body": "Message content.",
-"name": "TextModal"
+"name": "TextModal",
+"image": {
+  "url": "https://variety.com/wp-content/uploads/2022/12/Disney-Plus.png",
+  "layout": "full_width",
+  "alt_text": "Disney Logo",
+  "scale": 2
+},
+"max_height": 100
+}
+},
+{
+"id": "55e6037a45ce55118900001f",
+"type": "TextModal",
+"version": 1,
+"configuration": {
+"actions": [
+{
+"id": "55e6037a45ce551189000016",
+"action": "interaction",
+"label": "Message Center",
+"invokes": [
+{
+"interaction_id": "55c94045a71b52ea570054d6",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000017",
+"action": "interaction",
+"label": "Survey",
+"invokes": [
+{
+"interaction_id": "55e6033045ce5551eb00000b",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000018",
+"action": "interaction",
+"label": "Link",
+"invokes": [
+{
+"interaction_id": "56b248fac21f96e6700001d3",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000019",
+"action": "dismiss",
+"label": "Dismiss"
+}
+],
+"title": "Message Title",
+"body": null,
+"name": "TextModal - Title Only",
+"max_height": 100
+}
+},
+{
+"id": "55e6037a45ce55118900001d",
+"type": "TextModal",
+"version": 1,
+"configuration": {
+"actions": [
+{
+"id": "55e6037a45ce551189000016",
+"action": "interaction",
+"label": "Message Center",
+"invokes": [
+{
+"interaction_id": "55c94045a71b52ea570054d6",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000017",
+"action": "interaction",
+"label": "Survey",
+"invokes": [
+{
+"interaction_id": "55e6033045ce5551eb00000b",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000018",
+"action": "interaction",
+"label": "Link",
+"invokes": [
+{
+"interaction_id": "56b248fac21f96e6700001d3",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000019",
+"action": "dismiss",
+"label": "Dismiss"
+}
+],
+"title": null,
+"body": "Message content.",
+"name": "TextModal - Message Only",
+"max_height": 100
+}
+},
+{
+"id": "55e6037a45ce551189000014",
+"type": "TextModal",
+"version": 1,
+"configuration": {
+"actions": [
+{
+"id": "55e6037a45ce551189000016",
+"action": "interaction",
+"label": "Message Center",
+"invokes": [
+{
+"interaction_id": "55c94045a71b52ea570054d6",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000017",
+"action": "interaction",
+"label": "Survey",
+"invokes": [
+{
+"interaction_id": "55e6033045ce5551eb00000b",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000018",
+"action": "interaction",
+"label": "Link",
+"invokes": [
+{
+"interaction_id": "56b248fac21f96e6700001d3",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000019",
+"action": "dismiss",
+"label": "Dismiss"
+}
+],
+"title": null,
+"body": null,
+"name": "TextModal - No Image/No Title/No Body",
+"max_height": 100
+}
+},
+{
+"id": "55e6037a45ce55118900001p",
+"type": "TextModal",
+"version": 1,
+"configuration": {
+"actions": [
+{
+"id": "55e6037a45ce551189000016",
+"action": "interaction",
+"label": "Message Center",
+"invokes": [
+{
+"interaction_id": "55c94045a71b52ea570054d6",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000017",
+"action": "interaction",
+"label": "Survey",
+"invokes": [
+{
+"interaction_id": "55e6033045ce5551eb00000b",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000018",
+"action": "interaction",
+"label": "Link",
+"invokes": [
+{
+"interaction_id": "56b248fac21f96e6700001d3",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000019",
+"action": "dismiss",
+"label": "Dismiss"
+}
+],
+"title": null,
+"body": null,
+"name": "TextModal - Image Only",
+"image": {
+  "url": "https://variety.com/wp-content/uploads/2022/12/Disney-Plus.png",
+  "layout": "full_width",
+  "alt_text": "Disney Logo",
+  "scale": 2
+},
+"max_height": 100
+}
+},
+{
+"id": "55e6037a45ce55118900001q",
+"type": "TextModal",
+"version": 1,
+"configuration": {
+"actions": [
+{
+"id": "55e6037a45ce551189000016",
+"action": "interaction",
+"label": "Message Center",
+"invokes": [
+{
+"interaction_id": "55c94045a71b52ea570054d6",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000017",
+"action": "interaction",
+"label": "Survey",
+"invokes": [
+{
+"interaction_id": "55e6033045ce5551eb00000b",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000018",
+"action": "interaction",
+"label": "Link",
+"invokes": [
+{
+"interaction_id": "56b248fac21f96e6700001d3",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000019",
+"action": "dismiss",
+"label": "Dismiss"
+}
+],
+"title": null,
+"body": "Message content.",
+"name": "TextModal - Image w/ Only Body",
+"image": {
+  "url": "https://variety.com/wp-content/uploads/2022/12/Disney-Plus.png",
+  "layout": "full_width",
+  "alt_text": "Disney Logo",
+  "scale": 2
+},
+"max_height": 100
+}
+},
+{
+"id": "55e6037a45ce55118900001u",
+"type": "TextModal",
+"version": 1,
+"configuration": {
+"actions": [
+{
+"id": "55e6037a45ce551189000016",
+"action": "interaction",
+"label": "Message Center",
+"invokes": [
+{
+"interaction_id": "55c94045a71b52ea570054d6",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000017",
+"action": "interaction",
+"label": "Survey",
+"invokes": [
+{
+"interaction_id": "55e6033045ce5551eb00000b",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000018",
+"action": "interaction",
+"label": "Link",
+"invokes": [
+{
+"interaction_id": "56b248fac21f96e6700001d3",
+"criteria": {}
+}
+]
+},
+{
+"id": "55e6037a45ce551189000019",
+"action": "dismiss",
+"label": "Dismiss"
+}
+],
+"title": "Message Title",
+"body": null,
+"name": "TextModal - Image w/ Only Title",
+"image": {
+  "url": "https://variety.com/wp-content/uploads/2022/12/Disney-Plus.png",
+  "layout": "full_width",
+  "alt_text": "Disney Logo",
+  "scale": 2
+},
+"max_height": 100
 }
 },
 {

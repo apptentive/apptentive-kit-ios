@@ -44,7 +44,7 @@ func checkRequestHeading(for payload: Payload, decoder: JSONDecoder, expectedMet
     let expectedHeaders = [
         "APPTENTIVE-KEY": "abc",
         "APPTENTIVE-SIGNATURE": "123",
-        "X-API-Version": "13",
+        "X-API-Version": "14",
         "User-Agent": "Apptentive/1.2.3 (Apple)",
         "Content-Type": payload.contentType,
         "Authorization": "Bearer 456",
@@ -96,7 +96,7 @@ func checkEncryptedRequestHeading(for payload: Payload, decoder: JSONDecoder, ex
         "APPTENTIVE-KEY": "abc",
         "APPTENTIVE-SIGNATURE": "123",
         "APPTENTIVE-ENCRYPTED": "true",
-        "X-API-Version": "13",
+        "X-API-Version": "14",
         "User-Agent": "Apptentive/1.2.3 (Apple)",
         "Content-Type": payload.contentType,
         "Accept": "application/json;charset=UTF-8",

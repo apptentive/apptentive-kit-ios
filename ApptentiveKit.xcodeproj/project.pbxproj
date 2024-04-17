@@ -210,10 +210,12 @@
 		EF1306C326F0D08700837F2A /* MessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306C226F0D08700837F2A /* MessageList.swift */; };
 		EF1306D626F3D2EC00837F2A /* MessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1306D526F3D2EC00837F2A /* MessageManager.swift */; };
 		EF18B1BF2723104600F53D3A /* MessageListFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF18B1BE2723104600F53D3A /* MessageListFooterView.swift */; };
+		EF1E65352BBF3483007F7384 /* String+HTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1E65342BBF3483007F7384 /* String+HTML.swift */; };
 		EF2B2A672A97F3D3007926E4 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EF2B2A662A969653007926E4 /* PrivacyInfo.xcprivacy */; };
 		EF4B13D52878BB530090CCF0 /* SurveyConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B13D42878BB530090CCF0 /* SurveyConfiguration.swift */; };
 		EF4B13DD287E35690090CCF0 /* SurveyBranchedViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B13DC287E35690090CCF0 /* SurveyBranchedViewModelTests.swift */; };
 		EF5A7EEE294146720024395D /* Data+Encryption.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A7EED294146720024395D /* Data+Encryption.swift */; };
+		EF61A6102BC1C3FD00C6C879 /* UILabel+DataDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61A60F2BC1C3FD00C6C879 /* UILabel+DataDetection.swift */; };
 		EF69E0BC258962DA00FA0636 /* SurveyRangeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF69E0BB258962DA00FA0636 /* SurveyRangeCell.swift */; };
 		EF6B23D82B2E28AD007B2971 /* DialogViewModel+Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6B23D72B2E28AD007B2971 /* DialogViewModel+Image.swift */; };
 		EF849D9128979D6000CEC6E1 /* SurveyBranchedUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF849D9028979D6000CEC6E1 /* SurveyBranchedUITests.swift */; };
@@ -512,10 +514,12 @@
 		EF1306CE26F18C1B00837F2A /* MessageCenterViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenterViewModelTests.swift; sourceTree = "<group>"; };
 		EF1306D526F3D2EC00837F2A /* MessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageManager.swift; sourceTree = "<group>"; };
 		EF18B1BE2723104600F53D3A /* MessageListFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageListFooterView.swift; sourceTree = "<group>"; };
+		EF1E65342BBF3483007F7384 /* String+HTML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+HTML.swift"; sourceTree = "<group>"; };
 		EF2B2A662A969653007926E4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Sources/ApptentiveKit/Resources/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT; };
 		EF4B13D42878BB530090CCF0 /* SurveyConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyConfiguration.swift; sourceTree = "<group>"; };
 		EF4B13DC287E35690090CCF0 /* SurveyBranchedViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyBranchedViewModelTests.swift; sourceTree = "<group>"; };
 		EF5A7EED294146720024395D /* Data+Encryption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Encryption.swift"; sourceTree = "<group>"; };
+		EF61A60F2BC1C3FD00C6C879 /* UILabel+DataDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+DataDetection.swift"; sourceTree = "<group>"; };
 		EF69E0BB258962DA00FA0636 /* SurveyRangeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyRangeCell.swift; sourceTree = "<group>"; };
 		EF6B23B52B290623007B2971 /* TextModalConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextModalConfigurationTests.swift; sourceTree = "<group>"; };
 		EF6B23D72B2E28AD007B2971 /* DialogViewModel+Image.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DialogViewModel+Image.swift"; sourceTree = "<group>"; };
@@ -907,6 +911,8 @@
 				013D8E8624F03888005EC4D1 /* Networking */,
 				017FC93125310E4700C7A47F /* Targeting */,
 				01A0918723FCB5D600AF187E /* Apptentive.swift */,
+				EF1E65342BBF3483007F7384 /* String+HTML.swift */,
+				EF61A60F2BC1C3FD00C6C879 /* UILabel+DataDetection.swift */,
 				EFCE2AEF27E3F553001ADB11 /* Apptentive+NotificationName.swift */,
 				0173EA4225B2035F009740F5 /* ApptentiveLogger.swift */,
 				0158976624E5C8C600DF0DC0 /* Apptentive+Compatibility.swift */,
@@ -1458,6 +1464,7 @@
 				01645BC1278621C0003A0614 /* MessagesResponse.swift in Sources */,
 				017481ED27ADC9B000FE020B /* AttachmentView.swift in Sources */,
 				01ED6263257B02050023208C /* NavigateToLinkConfiguration.swift in Sources */,
+				EF61A6102BC1C3FD00C6C879 /* UILabel+DataDetection.swift in Sources */,
 				01659FD129B932CA00F84643 /* APayload.swift in Sources */,
 				017230FA253673AA0095AEAA /* Version.swift in Sources */,
 				01634A47299EAAF100F6F1B6 /* JWT.swift in Sources */,
@@ -1467,6 +1474,7 @@
 				015775EA29A7FDF300AAACA0 /* FreshLoader.swift in Sources */,
 				EFF97A5A28DB6F21000C1F56 /* DialogViewModel+Action.swift in Sources */,
 				01FB0AA12B27E3A500F96921 /* ResourceManager.swift in Sources */,
+				EF1E65352BBF3483007F7384 /* String+HTML.swift in Sources */,
 				017A915F2A5CE162001023C2 /* StatusView.swift in Sources */,
 				015A0D3725509BB600EF077D /* SurveyViewModel+RangeQuestion.swift in Sources */,
 				01B1FEDD29C52CF7003511D0 /* SessionRequest.swift in Sources */,

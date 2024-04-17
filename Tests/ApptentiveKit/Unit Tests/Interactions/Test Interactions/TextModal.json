@@ -2,7 +2,6 @@
   "id": "55e6037a45ce55118900001a",
   "type": "TextModal",
   "version": 1,
-  "format": "plain",
   "configuration": {
     "actions": [
       {

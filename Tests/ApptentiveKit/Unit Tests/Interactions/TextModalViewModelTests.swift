@@ -30,12 +30,24 @@ class TextModalViewModelTests: XCTestCase {
     }
 
     func testTextModal() {
-        XCTAssertEqual(viewModel.title,"Message Title")
+        XCTAssertEqual(viewModel.title, "<span style=\"font-weight:bold;\">Message Title</span>")
         XCTAssertEqual(viewModel.message, "Message content.")
         XCTAssertEqual(viewModel.actions[0].label, "Message Center")
         XCTAssertEqual(viewModel.actions[1].label, "Survey")
         XCTAssertEqual(viewModel.actions[2].label, "Link")
         XCTAssertEqual(viewModel.actions[3].label, "Dismiss")
+        XCTAssertEqual(viewModel.dialogType, .textModal)
+        XCTAssertEqual(viewModel.maxHeight, 100)
+        if let imageURL = URL(string: "https://variety.com/wp-content/uploads/2022/12/Disney-Plus.png") {
+            XCTAssertEqual(viewModel.imageConfiguration?.url, imageURL)
+        }
+        XCTAssertEqual(viewModel.imageConfiguration?.layout, "fill")
+        XCTAssertEqual(viewModel.imageConfiguration?.altText, "Disney Logo")
+        XCTAssertFalse(viewModel.isTitleHidden)
+        XCTAssertFalse(viewModel.isMessageHidden)
+        XCTAssertEqual(DialogViewModel.imageScale, 3)
+        XCTAssertNotEqual(viewModel.image, DialogViewModel.Image.none)
+
     }
 
     func testMessageCenterButton() {

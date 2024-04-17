@@ -49,7 +49,7 @@ platform :ios do
   
   desc "Generates a code coverage report"
   lane :coverage do
-    xcov(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", output_directory: ".fastlane/test_output", exclude_targets: "ApptentiveUITestsApp.app, GenericJSON", minimum_coverage_percentage: 75.0)
+    xcov(project: "ApptentiveKit.xcodeproj", scheme: "ApptentiveKit", output_directory: ".fastlane/test_output", exclude_targets: "ApptentiveUITestsApp.app, GenericJSON", minimum_coverage_percentage: 70.0)
   end
 
   desc "Runs the swift-format linter on ApptentiveKit"

@@ -84,7 +84,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 viewToHide = self.submitView?.submitLabel
 
             case .thankYou:
-                self.submitView?.submitLabel.text = self.viewModel.thankYouMessage
+                if let thankYouHtml = self.configureHTMLFont(text: self.viewModel.thankYouMessage, apptentiveFont: .apptentiveSubmitStatusLabel.createUIFontMetricsForHTML(), alignment: .center) {
+                    self.submitView?.submitLabel.attributedText = thankYouHtml
+                    if (self.viewModel.thankYouMessage?.containsURL()) != nil {
+                        self.submitView?.submitLabel.enableDataDetection()
+                    }
+                } else {
+                    self.submitView?.submitLabel.text = self.viewModel.thankYouMessage
+                }
                 self.submitView?.submitLabel.textColor = .apptentiveSubmitStatusLabel
                 viewToShow = self.submitView?.submitLabel
 
@@ -145,8 +152,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.introductionView?.textLabel.text = self.viewModel.introduction
-
         if let headerLogo = UIImage.apptentiveHeaderLogo {
             let headerImageView = UIImageView(image: headerLogo.withRenderingMode(.alwaysOriginal))
             headerImageView.contentMode = .scaleAspectFit
@@ -158,14 +163,39 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         switch self.viewModel.displayMode {
         case .list:
             self.submitView?.submitButton.setTitle(self.viewModel.advanceButtonText, for: .normal)
-            self.submitView?.disclaimerLabel.text = self.viewModel.disclaimerText
+
+            if let disclaimerHtml = self.configureHTMLFont(text: self.viewModel.disclaimerText, apptentiveFont: .apptentiveDisclaimerLabel.createUIFontMetricsForHTML(), alignment: .center) {
+                self.submitView?.disclaimerLabel.attributedText = disclaimerHtml
+                self.submitView?.disclaimerLabel.textColor = .apptentiveDisclaimerLabel
+                if (self.viewModel.disclaimerText?.containsURL()) != nil {
+                    self.submitView?.disclaimerLabel.enableDataDetection()
+                }
+
+            } else {
+                self.submitView?.disclaimerLabel.text = self.viewModel.disclaimerText
+            }
 
             self.submitView?.submitButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
             // Pre-set submit label to allocate space
-            self.submitView?.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
+            if let thankYouHtml = self.configureHTMLFont(text: self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage, apptentiveFont: .apptentiveSubmitStatusLabel.createUIFontMetricsForHTML(), alignment: .center) {
+                self.submitView?.submitLabel.attributedText = thankYouHtml
+                if (self.viewModel.thankYouMessage?.containsURL()) != nil {
+                    self.submitView?.submitLabel.enableDataDetection()
+                }
+            } else {
+                self.submitView?.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
+            }
 
-            self.introductionView?.textLabel.text = self.viewModel.introduction
+            if let introHtml = self.configureHTMLFont(text: self.viewModel.introduction, apptentiveFont: .apptentiveSurveyIntroductionLabel.createUIFontMetricsForHTML(), alignment: .center) {
+                self.introductionView?.textLabel.attributedText = introHtml
+                self.introductionView?.textLabel.textColor = .apptentiveSurveyIntroduction
+                if (self.viewModel.introduction?.containsURL()) != nil {
+                    self.introductionView?.textLabel.enableDataDetection()
+                }
+            } else {
+                self.introductionView?.textLabel.text = self.viewModel.introduction
+            }
 
             self.configureTermsOfService()
 
@@ -190,7 +220,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(self.viewModel.advanceButtonText, for: .normal)
             self.surveyBranchedBottomView?.bottomView.nextButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
-            self.configureIntroThankYouAndDisclaimerText()
+            self.configureIntroThankYouAndDisclaimerTextForPagedSurveys()
 
             if self.viewModel.highlightFirstQuestionSegment {
                 self.surveyBranchedBottomView?.bottomView.surveyIndicator.updateSelectedSegmentAppearance()
@@ -206,7 +236,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         }
 
         // Pre-set submit label to allocate space
-        self.submitView?.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
+        if let thankYouHtml = self.configureHTMLFont(text: self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage, apptentiveFont: .apptentiveSubmitStatusLabel.createUIFontMetricsForHTML(), alignment: .center) {
+            self.submitView?.submitLabel.attributedText = thankYouHtml
+            if (self.viewModel.thankYouMessage?.containsURL()) != nil {
+                self.submitView?.submitLabel.enableDataDetection()
+            }
+        } else {
+            self.submitView?.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
+        }
         self.tableView.backgroundColor = .apptentiveGroupedBackground
         self.tableView.backgroundView = self.backgroundView
         self.tableView.separatorColor = .apptentiveSeparator
@@ -243,9 +280,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         super.viewDidLayoutSubviews()
         DispatchQueue.main.async {
             self.updateHeaderFooterSize()
-            if self.viewModel.displayMode == .list {
-                self.tableView.tableHeaderView = self.introductionView
-            }
+            self.tableView.tableHeaderView = self.introductionView
             self.tableView.tableFooterView = self.submitView
         }
         //We can't capture the view's window in the viewDidLoad, which is needed when sizing the larger header.
@@ -360,9 +395,16 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         case (let choiceQuestion as SurveyViewModel.ChoiceQuestion, let choiceCell as SurveyChoiceCell):
             let choice = choiceQuestion.choices[indexPath.row]
+            //If we set the html label to the attributed text, and then set it with regular text afterwards, the html text gets retained so we need to set it to nil.
+            choiceCell.choiceLabel.attributedText = nil
+            if let htmlChoiceText = choice.htmlLabel {
+                choiceCell.choiceLabel.attributedText = htmlChoiceText
+                choiceCell.choiceLabel.textColor = .apptentiveChoiceLabel
+            } else {
+                choiceCell.choiceLabel.text = choice.label
+            }
 
-            choiceCell.choiceLabel.text = choice.label
-            choiceCell.accessibilityLabel = choice.label
+            choiceCell.accessibilityLabel = choice.label.removingHTMLTags()
             switch choiceQuestion.selectionStyle {
             case .radioButton:
                 choiceCell.buttonImageView.image = .apptentiveRadioButton
@@ -400,14 +442,24 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         let instructionsText = [question.requiredText, question.instructions].compactMap({ $0 }).joined(separator: " — ")
 
-        header.questionLabel.text = question.text
+        if let questionHtml = self.configureHTMLFont(text: question.text, apptentiveFont: .apptentiveQuestionLabel.createUIFontMetricsForHTML(), alignment: .left) {
+            header.questionLabel.attributedText = questionHtml
+            if question.text.containsURL() {
+                header.questionLabel.enableDataDetection()
+            }
+
+        } else {
+            header.questionLabel.text = question.text
+        }
+
         header.instructionsLabel.text = instructionsText
+
         header.instructionsLabel.isHidden = instructionsText.isEmpty
         header.questionLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveQuestionLabel
         header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveInstructionsLabel
 
         header.contentView.accessibilityTraits = .header
-        header.contentView.accessibilityLabel = question.accessibilityLabel
+        header.contentView.accessibilityLabel = question.accessibilityLabel.removingHTMLTags()
         header.contentView.isAccessibilityElement = true
 
         return header
@@ -520,7 +572,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     func surveyViewModelPageDidChange(_ viewModel: SurveyViewModel) {
-
         let oldSectionCount = self.tableView.numberOfSections
         let newSectionCount = viewModel.questions.count
 
@@ -539,8 +590,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.tableView.deleteSections(sectionsToDelete, with: .left)
         }
 
-        self.backgroundView?.textView.text = viewModel.introduction
-        self.configureIntroThankYouAndDisclaimerText()
+        self.configureIntroThankYouAndDisclaimerTextForPagedSurveys()
+
         self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(viewModel.advanceButtonText, for: .normal)
 
         if self.viewModel.surveyDidSendResponse {
@@ -771,34 +822,11 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     // MARK: - Private
 
-    private func configureIntroThankYouAndDisclaimerText() {
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = .center
-        let attributedText = NSMutableAttributedString()
-        if let introduction = self.viewModel.introduction {
-            let introductionString = NSAttributedString(
-                string: introduction,
-                attributes: [
-                    .font: UIFont.apptentiveQuestionLabel,
-                    .foregroundColor: UIColor.apptentiveSurveyIntroduction,
-                    .paragraphStyle: paragraph,
-
-                ])
-            attributedText.append(introductionString)
+    private func configureHTMLFont(text: String?, apptentiveFont: UIFont, alignment: HTMLTextAlignment) -> NSMutableAttributedString? {
+        if let text = text, text.containsHTML() {
+            return text.attributedString(withFont: apptentiveFont, alignment: alignment)
         }
-        attributedText.append(NSAttributedString(string: "\n"))
-        if let disclaimer = self.viewModel.disclaimerText {
-            let disclaimerString = NSAttributedString(
-                string: disclaimer,
-                attributes: [
-                    .font: UIFont.apptentiveDisclaimerLabel,
-                    .foregroundColor: UIColor.apptentiveDisclaimerLabel,
-                    .paragraphStyle: paragraph,
-                ])
-            attributedText.append(disclaimerString)
-        }
-
-        self.backgroundView?.textView.attributedText = attributedText
+        return nil
     }
 
     private var isUpdatingValidation = false
@@ -972,5 +1000,44 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         let fontMetrics = UIFontMetrics(forTextStyle: .body)
         let scaledApptentivePlaceholderFont = fontMetrics.scaledFont(for: UIFont.preferredFont(forTextStyle: .body))
         return scaledApptentivePlaceholderFont
+    }
+
+    private func configureIntroThankYouAndDisclaimerTextForPagedSurveys() {
+
+        let attributedText = NSMutableAttributedString()
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+
+        if let introHtml = self.configureHTMLFont(text: self.viewModel.introduction, apptentiveFont: .apptentiveQuestionLabel.createUIFontMetricsForHTML(), alignment: .center) {
+            introHtml.addAttribute(.foregroundColor, value: UIColor.apptentiveSurveyIntroduction, range: NSRange(location: 0, length: introHtml.length))
+            attributedText.append(introHtml)
+        } else if let introduction = self.viewModel.introduction {
+            let introductionString = NSAttributedString(
+                string: introduction,
+                attributes: [
+                    .font: UIFont.apptentiveQuestionLabel,
+                    .foregroundColor: UIColor.apptentiveSurveyIntroduction,
+                    .paragraphStyle: paragraph,
+
+                ])
+            attributedText.append(introductionString)
+        }
+
+        attributedText.append(NSAttributedString(string: "\n"))
+
+        if let disclaimerHtml = self.configureHTMLFont(text: self.viewModel.disclaimerText, apptentiveFont: .apptentiveDisclaimerLabel.createUIFontMetricsForHTML(), alignment: .center) {
+            disclaimerHtml.addAttribute(.foregroundColor, value: UIColor.apptentiveDisclaimerLabel, range: NSRange(location: 0, length: disclaimerHtml.length))
+            attributedText.append(disclaimerHtml)
+        } else if let disclaimer = self.viewModel.disclaimerText {
+            let disclaimerString = NSAttributedString(
+                string: disclaimer,
+                attributes: [
+                    .font: UIFont.apptentiveDisclaimerLabel,
+                    .foregroundColor: UIColor.apptentiveDisclaimerLabel,
+                    .paragraphStyle: paragraph,
+                ])
+            attributedText.append(disclaimerString)
+        }
+        self.backgroundView?.textView.attributedText = attributedText
     }
 }

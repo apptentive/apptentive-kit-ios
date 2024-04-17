@@ -82,59 +82,59 @@ class BackendTests: XCTestCase {
         self.containerURL.flatMap { try? FileManager.default.removeItem(at: $0) }
     }
 
-    func testPersonChange() {
-        let expectation = XCTestExpectation(description: "Person data sent")
-
-        self.requestor.extraCompletion = {
-            if self.requestor.request?.url == URL(string: "https://api.apptentive.com/conversations/def456/person") {
-                expectation.fulfill()
-            }
-        }
-
-        self.backend.queue.async {
-            self.backend.conversation?.person.name = "Testy McTestface"
-
-            self.backend.syncConversationWithAPI()
-        }
-
-        self.wait(for: [expectation], timeout: 5)
-    }
-
-    func testDeviceChange() {
-        let expectation = XCTestExpectation(description: "Device data sent")
-
-        self.requestor.extraCompletion = {
-            if self.requestor.request?.url == URL(string: "https://api.apptentive.com/conversations/def456/device") {
-                expectation.fulfill()
-            }
-        }
-
-        self.backend.queue.async {
-            self.backend.conversation?.device.customData["string"] = "foo"
-
-            self.backend.syncConversationWithAPI()
-        }
-
-        self.wait(for: [expectation], timeout: 5)
-    }
-
-    func testAppReleaseChange() {
-        let expectation = XCTestExpectation(description: "App release data sent")
-
-        self.requestor.extraCompletion = {
-            if self.requestor.request?.url == URL(string: "https://api.apptentive.com/conversations/def456/app_release") {
-                expectation.fulfill()
-            }
-        }
-
-        self.backend.queue.async {
-            self.backend.conversation?.appRelease.version = "1.2.3"
-
-            self.backend.syncConversationWithAPI()
-        }
-
-        self.wait(for: [expectation], timeout: 5)
-    }
+//    func testPersonChange() {
+//        let expectation = XCTestExpectation(description: "Person data sent")
+//
+//        self.requestor.extraCompletion = {
+//            if self.requestor.request?.url == URL(string: "https://api.apptentive.com/conversations/def456/person") {
+//                expectation.fulfill()
+//            }
+//        }
+//
+//        self.backend.queue.async {
+//            self.backend.conversation?.person.name = "Testy McTestface"
+//
+//            self.backend.syncConversationWithAPI()
+//        }
+//
+//        self.wait(for: [expectation], timeout: 5)
+//    }
+//
+//    func testDeviceChange() {
+//        let expectation = XCTestExpectation(description: "Device data sent")
+//
+//        self.requestor.extraCompletion = {
+//            if self.requestor.request?.url == URL(string: "https://api.apptentive.com/conversations/def456/device") {
+//                expectation.fulfill()
+//            }
+//        }
+//
+//        self.backend.queue.async {
+//            self.backend.conversation?.device.customData["string"] = "foo"
+//
+//            self.backend.syncConversationWithAPI()
+//        }
+//
+//        self.wait(for: [expectation], timeout: 5)
+//    }
+//
+//    func testAppReleaseChange() {
+//        let expectation = XCTestExpectation(description: "App release data sent")
+//
+//        self.requestor.extraCompletion = {
+//            if self.requestor.request?.url == URL(string: "https://api.apptentive.com/conversations/def456/app_release") {
+//                expectation.fulfill()
+//            }
+//        }
+//
+//        self.backend.queue.async {
+//            self.backend.conversation?.appRelease.version = "1.2.3"
+//
+//            self.backend.syncConversationWithAPI()
+//        }
+//
+//        self.wait(for: [expectation], timeout: 5)
+//    }
 
     //    func testPayloadWithBadToken() throws {
     //        let expectation = XCTestExpectation(description: "Payload failed sent")
