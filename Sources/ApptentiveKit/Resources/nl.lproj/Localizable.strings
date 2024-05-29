@@ -19,6 +19,12 @@
 /* The accessibility label for the attach button. */
 "MC Attach Button Accessibility Label" = "Bijlage toevoegen";
 
+/* The accessibility label for the close button for the web view. */
+"Web View Close Button Accessibility Label" = "Dichtbij";
+
+/* The accessibility hint for the close button for the web view. */
+"Web View Close Button Accessibility Hint" = "Sluit de webweergave";
+
 /* The accessibility hint for the close button. */
 "MC Close Button Accessibility Hint" = "Sluit Berichten.";
 

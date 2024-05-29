@@ -19,6 +19,12 @@
 /* The accessibility label for the attach button. */
 "MC Attach Button Accessibility Label" = "添付";
 
+/* The accessibility label for the close button for the web view. */
+"Web View Close Button Accessibility Label" = "近い";
+
+/* The accessibility hint for the close button for the web view. */
+"Web View Close Button Accessibility Hint" = "ビューを閉じる";
+
 /* The accessibility hint for the close button. */
 "MC Close Button Accessibility Hint" = "メッセージセンターを閉じる。";
 

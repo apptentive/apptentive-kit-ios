@@ -43,4 +43,17 @@ class SurveyBranchedUITests: XCTestCase {
         XCTAssertTrue(termsAndConditions.waitForExistence(timeout: 10))
     }
 
+    func testIntroAndDisclaimer() {
+        XCUIApplication().activate()
+        let tablesQuery = XCUIApplication().tables
+
+        tablesQuery.staticTexts["Survey-Building Experience"].tap()
+        if let introAndDisclaimerText = XCUIApplication().textViews["IntroDisclaimerTextView"].value as? String {
+            XCTAssertEqual(
+                introAndDisclaimerText,
+                "Please tell us about your experience with our survey builder.\nThe following questions will be used for general analytical use only. In addition, you will not be added to any mailing lists as a result of taking this survey. Proceeding to the survey implies that you understand and agree to provisions in this disclaimer."
+            )
+        }
+    }
+
 }

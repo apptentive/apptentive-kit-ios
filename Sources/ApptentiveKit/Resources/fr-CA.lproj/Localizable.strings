@@ -22,6 +22,12 @@
 /* The accessibility hint for the close button. */
 "MC Close Button Accessibility Hint" = "Fermer le Centre de messages.";
 
+/* The accessibility label for the close button for the web view. */
+"Web View Close Button Accessibility Label" = "Fermer";
+
+/* The accessibility hint for the close button for the web view. */
+"Web View Close Button Accessibility Hint" = "Ferme la vue Web";
+
 /* The accessibility label for the close button. */
 "MC Close Button Accessibility Label" = "Fermer";
 
