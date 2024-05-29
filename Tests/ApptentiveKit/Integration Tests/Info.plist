@@ -23,6 +23,6 @@
 	<key>CFBundleShortVersionString</key>
 	<string>$(APPTENTIVE_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>$(APPTENTIVE_BUILD)</string>
+	<string>0</string>
 </dict>
 </plist>
