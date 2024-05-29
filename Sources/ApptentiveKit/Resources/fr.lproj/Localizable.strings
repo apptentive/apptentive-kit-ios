@@ -13,12 +13,6 @@
 /* The accessibility hint for downloading attachments. */
 "Download Attachment Accessibility Hint" = "Toucher deux fois rapidement pour télécharger.";
 
-/* The accessibility label for the close button for the web view. */
-"Web View Close Button Accessibility Label" = "Fermer";
-
-/* The accessibility hint for the close button for the web view. */
-"Web View Close Button Accessibility Hint" = "Ferme la vue Web";
-
 /* The accessibility hint for the attach button. */
 "MC Attach Button Accessibility Hint" = "Joint une photo ou une capture d’écran";
 

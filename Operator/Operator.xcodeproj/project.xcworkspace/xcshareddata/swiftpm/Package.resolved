@@ -1,5 +1,4 @@
 {
-  "originHash" : "b7212b2333ac8e19610581b22ddd3052203f3f119bf578ecd7e8150067849376",
   "pins" : [
     {
       "identity" : "bluecryptor",
@@ -60,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Kitura/Swift-JWT/",
       "state" : {
-        "revision" : "f68ec28fbd90a651597e9e825ea7f315f8d52a1f",
-        "version" : "4.0.1"
+        "revision" : "08e02ff214c41df49bdd189ff837d68ba11c437b",
+        "version" : "4.0.0"
       }
     },
     {
@@ -69,10 +68,10 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-log.git",
       "state" : {
-        "revision" : "e97a6fcb1ab07462881ac165fdbb37f067e205d5",
-        "version" : "1.5.4"
+        "revision" : "32e8d724467f8fe623624570367e3d50c5638e46",
+        "version" : "1.5.2"
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

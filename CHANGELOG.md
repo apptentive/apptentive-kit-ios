@@ -1,16 +1,10 @@
-# 2024-05-29 - v6.8.0
-
-#### New Features
-
-- Advanced Customer Research support to show Alchemer long-form surveys through prompts
-
 # 2024-04-17 - v6.7.0
 
 #### New Features
 
-- Added rich text support through dashboard for Prompts and Surveys
+ - Added rich text support through dashboard for Prompts and Surveys
  
-#### Bugs Fixed
+#### Bugs Fixed:
 
 - Fixed a concurrency issue that could lead to a crash when an HTTP request is retried
 - Fixed an issue where the background of a Prompt or Love Dialog remained responsive to taps in Flutter

@@ -19,12 +19,6 @@
 /* The accessibility label for the attach button. */
 "MC Attach Button Accessibility Label" = "Allega";
 
-/* The accessibility label for the close button for the web view. */
-"Web View Close Button Accessibility Label" = "Chiudi";
-
-/* The accessibility hint for the close button for the web view. */
-"Web View Close Button Accessibility Hint" = "Chiude la visualizzazione Web";
-
 /* The accessibility hint for the close button. */
 "MC Close Button Accessibility Hint" = "Chiude il Centro messaggi.";
 

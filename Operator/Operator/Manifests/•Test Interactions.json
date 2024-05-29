@@ -153,26 +153,10 @@
       }
     },
     {
-      "id": "54ab3c537724c52af30000bb",
-      "type": "NavigateToLink",
-      "configuration": {
-        "url": "https://www.example.com",
-      }
-    },
-    {
       "id": "54ab3c537724c52af3000017",
       "type": "NavigateToLink",
       "configuration": {
-        "url": "https://www.apptentive.com",
-        "target": "self"
-      }
-    },
-    {
-      "id": "54ab3c537724c52af30000aa",
-      "type": "NavigateToLink",
-      "configuration": {
-        "url": "https://www.alchemer.com",
-        "target": "new"
+        "url": "http://www.apptentive.com"
       }
     },
     {
@@ -768,9 +752,7 @@
         "close_confirm_message": "Are you sure you want to discard this message?",
         "close_confirm_close_text": "Discard",
         "close_confirm_back_text": "Cancel",
-        "submit_text": "Submit",
-        "validation_error": "You done goofed.",
-        "required_text": "Mandatory",
+        "submit_text": "Submit"
       }
     },
     {

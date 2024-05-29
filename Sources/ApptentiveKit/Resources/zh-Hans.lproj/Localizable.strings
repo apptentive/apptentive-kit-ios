@@ -19,12 +19,6 @@
 /* The accessibility label for the attach button. */
 "MC Attach Button Accessibility Label" = "添加附件";
 
-/* The accessibility label for the close button for the web view. */
-"Web View Close Button Accessibility Label" = "关闭";
-
-/* The accessibility hint for the close button for the web view. */
-"Web View Close Button Accessibility Hint" = "关闭网页视图";
-
 /* The accessibility hint for the close button. */
 "MC Close Button Accessibility Hint" = "关闭消息中心。";
 

@@ -45,17 +45,8 @@ open class InteractionPresenter {
 
         case .navigateToLink(let configuration):
             let controller = NavigateToLinkController(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            if let viewController = controller.navigateToLink() {
-                completion(
-                    Result {
-                        try self.presentViewController(viewController) {
-                            controller.launch(success: true)
-                        }
-                    }
-                )
-            } else {
-                completion(.success(()))
-            }
+            controller.navigateToLink()
+            completion(.success(()))
 
         case .surveyV11(let configuration):
             let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)

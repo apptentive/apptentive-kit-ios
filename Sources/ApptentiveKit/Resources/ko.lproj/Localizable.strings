@@ -19,12 +19,6 @@
 /* The accessibility label for the attach button. */
 "MC Attach Button Accessibility Label" = "첨부";
 
-/* The accessibility label for the close button for the web view. */
-"Web View Close Button Accessibility Label" = "닫다";
-
-/* The accessibility hint for the close button for the web view. */
-"Web View Close Button Accessibility Hint" = "웹 보기를 닫습니다.";
-
 /* The accessibility hint for the close button. */
 "MC Close Button Accessibility Hint" = "메시지 센터를 닫습니다.";
 
