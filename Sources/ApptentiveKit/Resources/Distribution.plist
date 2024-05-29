@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>ApptentiveDistributionName</key>
-	<string>Source</string>
+	<string>Framework</string>
 	<key>CFBundleShortVersionString</key>
 	<string>6.8.0</string>
 	<key>CFBundleVersion</key>

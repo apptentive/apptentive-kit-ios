@@ -1,0 +1,108 @@
+{
+  "interactions": [
+    {
+      "id": "548cc5dd49f63bb5c2000001",
+      "type": "TextModal",
+      "configuration": {
+        "title": "Advance Customer Research - Web Links",
+        "body": "Test links.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "In-App Browser",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000042",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "System Browser",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "54a3437b7724c57cf6000042",
+      "type": "NavigateToLink",
+      "configuration": {
+        "url": "https://www.alchemer.com/",
+        "target": "self"
+      }
+    },
+    {
+      "id": "54a3437b7724c57cf6000043",
+      "type": "NavigateToLink",
+      "configuration": {
+        "url": "https://www.example.com/",
+        "target": "new"
+      }
+    },
+    {
+      "id": "548cc5dd49f63bb5c2f00001",
+      "type": "TextModal",
+      "configuration": {
+        "title": "Advance Customer Research - Mail/Tel",
+        "body": "Test links.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Mail",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6100042",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Tel",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6003043",
+                "criteria": {}
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "54a3437b7724c57cf6100042",
+      "type": "NavigateToLink",
+      "configuration": {
+        "url": "mailto:example@example.com",
+        "target": "new"
+      }
+    },
+    {
+      "id": "54a3437b7724c57cf6003043",
+      "type": "NavigateToLink",
+      "configuration": {
+        "url": "tel:1234567890",
+        "target": "new"
+      }
+    }
+  ],
+  "targets": {
+    "local#app#launch": [
+      {
+        "interaction_id": "548cc5dd49f63bb5c2000001",
+        "criteria": {}
+      }
+    ]
+  }
+}
