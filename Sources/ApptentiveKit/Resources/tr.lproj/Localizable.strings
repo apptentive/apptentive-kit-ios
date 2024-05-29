@@ -19,6 +19,12 @@
 /* The accessibility label for the attach button. */
 "MC Attach Button Accessibility Label" = "Ekle";
 
+/* The accessibility label for the close button for the web view. */
+"Web View Close Button Accessibility Label" = "Kapat";
+
+/* The accessibility hint for the close button for the web view. */
+"Web View Close Button Accessibility Hint" = "Web Görünümünü kapatır";
+
 /* The accessibility hint for the close button. */
 "MC Close Button Accessibility Hint" = "Mesaj Merkezini kapatır.";
 

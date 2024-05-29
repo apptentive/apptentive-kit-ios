@@ -34,6 +34,8 @@ class SurveyBackgroundView: UIView {
         self.textView.isScrollEnabled = true
         self.textView.backgroundColor = .apptentiveGroupedBackground
         self.textView.dataDetectorTypes = .all
+        self.textView.accessibilityIdentifier = "IntroDisclaimerTextView"
+        self.textView.isAccessibilityElement = true
 
         self.landscapeConstraints = [
             self.textView.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),

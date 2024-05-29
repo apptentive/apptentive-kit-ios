@@ -44,6 +44,7 @@
 		012CD43A29CE2C9E008909F6 /* ErrorResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012CD43929CE2C9E008909F6 /* ErrorResponse.swift */; };
 		012E1A452788CB25005F2CCA /* MessagesRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012E1A442788CB25005F2CCA /* MessagesRequestTests.swift */; };
 		012E1A472790FEFD005F2CCA /* MessageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012E1A462790FEFD005F2CCA /* MessageManagerTests.swift */; };
+		012EF75B2BE03B5100715BEA /* WebVewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012EF75A2BE03B5100715BEA /* WebVewController.swift */; };
 		0130E80C25D326CF004B2895 /* HTTPRequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0130E80B25D326CF004B2895 /* HTTPRequestRetrierTests.swift */; };
 		0130E81225D327B9004B2895 /* SpyRequestor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0130E81125D327B9004B2895 /* SpyRequestor.swift */; };
 		01324C5027E126BC00225B59 /* AutomatedMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01324C4F27E126BC00225B59 /* AutomatedMessageCell.swift */; };
@@ -318,6 +319,7 @@
 		012CD43929CE2C9E008909F6 /* ErrorResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorResponse.swift; sourceTree = "<group>"; };
 		012E1A442788CB25005F2CCA /* MessagesRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesRequestTests.swift; sourceTree = "<group>"; };
 		012E1A462790FEFD005F2CCA /* MessageManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageManagerTests.swift; sourceTree = "<group>"; };
+		012EF75A2BE03B5100715BEA /* WebVewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebVewController.swift; sourceTree = "<group>"; };
 		0130E80B25D326CF004B2895 /* HTTPRequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequestRetrierTests.swift; sourceTree = "<group>"; };
 		0130E81125D327B9004B2895 /* SpyRequestor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpyRequestor.swift; sourceTree = "<group>"; };
 		01324C4F27E126BC00225B59 /* AutomatedMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomatedMessageCell.swift; sourceTree = "<group>"; };
@@ -1073,6 +1075,7 @@
 		01ED6261257B01ED0023208C /* NavigateToLink */ = {
 			isa = PBXGroup;
 			children = (
+				012EF75A2BE03B5100715BEA /* WebVewController.swift */,
 				01ED6270257B0AA90023208C /* NavigateToLinkController.swift */,
 				01ED6262257B02050023208C /* NavigateToLinkConfiguration.swift */,
 			);
@@ -1457,6 +1460,7 @@
 				015F2AEC24CA2A94004B53E2 /* SurveySubmitView.swift in Sources */,
 				013D8EB924F5C99B005EC4D1 /* Backend.swift in Sources */,
 				0182080F2783B6C30010469D /* EngagementManifest+Placeholder.swift in Sources */,
+				012EF75B2BE03B5100715BEA /* WebVewController.swift in Sources */,
 				EF18B1BF2723104600F53D3A /* MessageListFooterView.swift in Sources */,
 				01E823102900C18400F2F827 /* TextModalConfiguration.swift in Sources */,
 				EFF97A5128D42CA4000C1F56 /* DialogViewController.swift in Sources */,

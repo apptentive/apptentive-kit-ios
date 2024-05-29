@@ -10,4 +10,20 @@ import Foundation
 
 struct NavigateToLinkConfiguration: Decodable {
     let url: URL
+    let modeConfiguration: Mode?
+
+    var mode: Mode {
+        self.modeConfiguration ?? .systemBrowser
+    }
+
+    // TODO: Update with final version of mode is selected
+    enum Mode: String, Decodable {
+        case systemBrowser = "new"
+        case inAppBrowser = "self"
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case url
+        case modeConfiguration = "target"
+    }
 }

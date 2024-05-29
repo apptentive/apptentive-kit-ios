@@ -26,7 +26,7 @@ let package = Package(
             resources: [
                 .copy("Resources/SwiftPM.txt"),
                 .copy("Resources/Distribution.plist"),
-                .copy("PrivacyInfo.xcprivacy")
+                .copy("Resources/PrivacyInfo.xcprivacy")
             ]
         ),
         .testTarget(
