@@ -299,10 +299,7 @@ extension UIColor {
 
     /// The tint/accent color to use for buttons and similar controls in Apptentive interaction UI.
     @objc public static var apptentiveTint: UIColor = {
-        if let windowScene = UIApplication.shared.connectedScenes
-            .first(where: { $0 is UIWindowScene }) as? UIWindowScene,
-            let tintColor = windowScene.windows.first?.tintColor
-        {
+        if #available(iOS 15.0, *) {
             return tintColor
         } else {
             return .systemBlue

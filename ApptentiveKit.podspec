@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name             = "ApptentiveKit"
-  spec.version          = "6.8.0"
+  spec.version          = "6.8.1"
   spec.summary          = "Apptentive Customer Communications SDK."
   spec.homepage         = "https://www.apptentive.com/"
   spec.license          = "BSD"
@@ -9,7 +9,7 @@ Pod::Spec.new do |spec|
   spec.platform         = :ios, "13.0"
   spec.source           = { :git => "https://github.com/apptentive/apptentive-kit-ios.git", :tag => "v#{spec.version}" }
   spec.source_files     = "Sources/ApptentiveKit/**/*.{h,swift}"
-  spec.resource_bundles = { "ApptentiveKitResources" => [ "Sources/ApptentiveKit/Resources/*.lproj", "Sources/ApptentiveKit/Resources/Media.xcassets", "Sources/ApptentiveKit/Resources/Distribution.plist" ] }
+  spec.resource_bundles = { "ApptentiveKitResources" => [ "Sources/ApptentiveKit/Resources/*.lproj", "Sources/ApptentiveKit/Resources/Media.xcassets", "Sources/ApptentiveKit/Resources/Distribution.plist", "Sources/ApptentiveKit/Resources/PrivacyInfo.xcprivacy" ] }
   spec.frameworks       = "StoreKit", "UIKit", "Foundation"
   spec.weak_frameworks  = "OSLog"
 end

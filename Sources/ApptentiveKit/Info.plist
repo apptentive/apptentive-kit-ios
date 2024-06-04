@@ -19,7 +19,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>$(APPTENTIVE_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>0</string>
+	<string>$(APPTENTIVE_BUILD)</string>
 	<key>Carthage</key>
 	<string>$(CARTHAGE)</string>
 </dict>
