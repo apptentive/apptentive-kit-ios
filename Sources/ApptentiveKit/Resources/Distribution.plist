@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>ApptentiveDistributionName</key>
-	<string>Framework</string>
+	<string>Source</string>
 	<key>CFBundleShortVersionString</key>
-	<string>6.8.0</string>
+	<string>6.8.1</string>
 	<key>CFBundleVersion</key>
 	<string>100</string>
 </dict>

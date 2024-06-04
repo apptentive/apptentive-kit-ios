@@ -1,3 +1,10 @@
+# 2024-06-04 v6.8.1
+
+#### Bugs Fixed
+
+- The privacy manifest is now included in the resource bundle for CocoaPods integrations
+- Fixed an issue where button labels could appear blank when increased contrast was enabled
+
 # 2024-05-29 - v6.8.0
 
 #### New Features
