@@ -46,8 +46,6 @@ class MessageManager {
         return messages
     }
 
-    static var thumbnailSize = CGSize(width: 44, height: 44)
-
     var messageManagerApptentiveDelegate: MessageManagerApptentiveDelegate?
     weak var delegate: MessageManagerDelegate? {
         didSet {
@@ -160,7 +158,7 @@ class MessageManager {
         }
     }
 
-    func addDraftAttachment(data: Data, name: String?, mediaType: String) throws -> URL {
+    func addDraftAttachment(data: Data, name: String?, mediaType: String, thumbnailSize: CGSize, thumbnailScale: CGFloat) throws -> URL {
         guard let attachmentManager = self.attachmentManager else {
             throw MessageError.missingAttachmentManager
         }
@@ -173,7 +171,7 @@ class MessageManager {
 
         self.messageList.draftMessage.attachments.append(newAttachment)
 
-        AttachmentManager.createThumbnail(of: Self.thumbnailSize, for: url) { result in
+        AttachmentManager.createThumbnail(of: thumbnailSize, scale: thumbnailScale, for: url) { result in
             if case .success(let image) = result, let thumbnailData = image.pngData() {
                 self.messageList.draftMessage.attachments[index].thumbnailData = thumbnailData
             }
@@ -182,7 +180,7 @@ class MessageManager {
         return url
     }
 
-    func addDraftAttachment(url: URL) throws -> URL {
+    func addDraftAttachment(url: URL, thumbnailSize: CGSize, thumbnailScale: CGFloat) throws -> URL {
         guard let attachmentManager = self.attachmentManager else {
             throw MessageError.missingAttachmentManager
         }
@@ -194,7 +192,7 @@ class MessageManager {
         let index = self.messageList.draftMessage.attachments.count
         self.messageList.draftMessage.attachments.append(newAttachment)
 
-        AttachmentManager.createThumbnail(of: Self.thumbnailSize, for: url) { result in
+        AttachmentManager.createThumbnail(of: thumbnailSize, scale: thumbnailScale, for: url) { result in
             if case .success(let image) = result, let thumbnailData = image.pngData() {
                 self.messageList.draftMessage.attachments[index].thumbnailData = thumbnailData
             }
@@ -213,7 +211,7 @@ class MessageManager {
         self.messageList.draftMessage.attachments.remove(at: index)
     }
 
-    func loadAttachment(at index: Int, in message: MessageList.Message, completion: @escaping (Result<URL, Error>) -> Void) {
+    func loadAttachment(at index: Int, in message: MessageList.Message, thumbnailSize: CGSize, thumbnailScale: CGFloat, completion: @escaping (Result<URL, Error>) -> Void) {
         guard let attachmentManager = self.attachmentManager else {
             return completion(.failure(MessageError.missingAttachmentManager))
         }
@@ -232,7 +230,7 @@ class MessageManager {
                     self.messageList.messages[messageIndex].attachments[index].storage = .cached(path: url.lastPathComponent)
 
                     if attachment.thumbnailData == nil {
-                        AttachmentManager.createThumbnail(of: Self.thumbnailSize, for: url) { result in
+                        AttachmentManager.createThumbnail(of: thumbnailSize, scale: thumbnailScale, for: url) { result in
                             if case .success(let image) = result, let thumbnailData = image.pngData() {
                                 self.messageList.messages[messageIndex].attachments[index].thumbnailData = thumbnailData
                             }

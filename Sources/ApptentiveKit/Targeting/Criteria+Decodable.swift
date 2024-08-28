@@ -47,7 +47,7 @@ extension ConditionalClause: Decodable {
 }
 
 extension ConditionalTest: Decodable {
-    init(parameter: AnyObject?) {
+    init(parameter: CriteriaParameter?) {
         self.conditionalOperator = .equals
         self.parameter = parameter
     }
@@ -92,15 +92,15 @@ private func decodeUnkeyedSubClauses(from decoder: Decoder) throws -> [CriteriaC
     return subClauses
 }
 
-private func decodeSimpleParameter(from container: SingleValueDecodingContainer) throws -> AnyObject? {
+private func decodeSimpleParameter(from container: SingleValueDecodingContainer) throws -> CriteriaParameter? {
     if let int = try? container.decode(Int.self) {
-        return int as AnyObject
+        return int
     } else if let double = try? container.decode(Double.self) {
-        return double as AnyObject
+        return double
     } else if let bool = try? container.decode(Bool.self) {
-        return bool as AnyObject
+        return bool
     } else if let string = try? container.decode(String.self) {
-        return string as AnyObject
+        return string
     } else if container.decodeNil() {
         return nil
     } else {
@@ -108,7 +108,7 @@ private func decodeSimpleParameter(from container: SingleValueDecodingContainer)
     }
 }
 
-private func decodeComplexParameter(from container: KeyedDecodingContainer<CriteriaCodingKeys>) throws -> AnyObject? {
+private func decodeComplexParameter(from container: KeyedDecodingContainer<CriteriaCodingKeys>) throws -> CriteriaParameter? {
     guard let type = try? container.decode(String.self, forKey: try CriteriaCodingKeys.key(for: "_type")) else {
         throw CriteriaDecodingError.invalidComplexParameter
     }
@@ -116,10 +116,10 @@ private func decodeComplexParameter(from container: KeyedDecodingContainer<Crite
     switch type {
     case "datetime":
         let secondsSince1970 = try container.decode(Double.self, forKey: try CriteriaCodingKeys.key(for: "sec"))
-        return Date(timeIntervalSince1970: secondsSince1970) as AnyObject
+        return Date(timeIntervalSince1970: secondsSince1970)
     case "version":
         let versionString = try container.decode(String.self, forKey: try CriteriaCodingKeys.key(for: "version"))
-        return Version(string: versionString) as AnyObject
+        return Version(string: versionString)
     default:
         throw CriteriaDecodingError.unrecognizedComplexParameter
     }

@@ -1,3 +1,12 @@
+/* The accessibility label for the refresh button for the web view. */
+"Web View Refresh Button Accessibility Label" = "새로고침";
+
+/* The accessibility hint for the refresh button for the web view. */
+"Web View Refresh Button Accessibility Hint" = "웹 뷰 새로고침";
+
+/* The action name for opening an accessibility action link. */
+"OpenLinkAction" = "%@ 열기";
+
 /* The button label for dismissing the attachment options alert. */
 "Attachment Options Cancel Button" = "취소";
 

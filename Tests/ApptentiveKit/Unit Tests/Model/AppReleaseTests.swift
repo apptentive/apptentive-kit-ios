@@ -13,10 +13,10 @@ import XCTest
 class AppReleaseTests: XCTestCase {
 
     func testMerge() {
-        let environment = MockEnvironment()
+        let dataProvider = MockDataProvider()
 
-        var appRelease1 = AppRelease(environment: environment)
-        var appRelease2 = AppRelease(environment: environment)
+        var appRelease1 = AppRelease(dataProvider: dataProvider)
+        var appRelease2 = AppRelease(dataProvider: dataProvider)
 
         appRelease2.version = "1"
 

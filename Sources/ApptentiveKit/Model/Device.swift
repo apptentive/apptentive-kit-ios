@@ -24,25 +24,25 @@ struct Device: Equatable, Codable {
     var advertisingIdentifier: UUID?
     var customData = CustomData()
 
-    /// Initializes a new device object with the values from the environment.
-    /// - Parameter environment: The environment to use for the initial values.
-    init(environment: DeviceEnvironment) {
-        self.uuid = environment.identifierForVendor
-        self.osName = environment.osName
-        self.osVersion = environment.osVersion
+    /// Initializes a new device object with the values from the data provider.
+    /// - Parameter dataProvider: The data provider to use for the initial values.
+    init(dataProvider: DeviceDataProviding) {
+        self.uuid = dataProvider.identifierForVendor
+        self.osName = dataProvider.osName
+        self.osVersion = dataProvider.osVersion
 
-        self.osBuild = environment.osBuild
-        self.hardware = environment.hardware
-        self.carrier = environment.carrier
+        self.osBuild = dataProvider.osBuild
+        self.hardware = dataProvider.hardware
+        self.carrier = dataProvider.carrier
 
-        self.contentSizeCategory = environment.contentSizeCategory.rawValue
-        self.localeRaw = environment.localeIdentifier
-        self.localeCountryCode = environment.localeRegionCode
-        self.localeLanguageCode = environment.preferredLocalization
+        self.contentSizeCategory = dataProvider.contentSizeCategory.rawValue
+        self.localeRaw = dataProvider.localeIdentifier
+        self.localeCountryCode = dataProvider.localeRegionCode
+        self.localeLanguageCode = dataProvider.preferredLocalization
 
-        self.utcOffset = environment.timeZoneSecondsFromGMT
+        self.utcOffset = dataProvider.timeZoneSecondsFromGMT
 
-        self.remoteNotificationDeviceToken = environment.remoteNotificationDeviceToken
+        self.remoteNotificationDeviceToken = dataProvider.remoteNotificationDeviceToken
     }
 
     var remoteNotificationDeviceToken: Data? {

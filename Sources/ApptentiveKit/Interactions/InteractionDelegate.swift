@@ -33,7 +33,7 @@ protocol UnreadMessageUpdating: AnyObject {
 
 /// Describes an object that can receive the MessageManager from the backend.
 protocol MessageProviding: AnyObject {
-    var messageManagerDelegate: MessageManagerDelegate? { get set }
+    func setMessageManagerDelegate(_ messageManagerDelegate: MessageManagerDelegate?)
     func getMessages(completion: @escaping ([MessageList.Message]) -> Void)
     func setDraftMessageBody(_ body: String?)
     func getDraftMessage(completion: @escaping (MessageList.Message) -> Void)

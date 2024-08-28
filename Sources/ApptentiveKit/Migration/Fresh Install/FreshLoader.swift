@@ -9,15 +9,11 @@
 import Foundation
 
 struct FreshLoader: Loader {
-    let containerURL: URL
-    let cacheURL: URL
-    let environment: GlobalEnvironment
+    let context: LoaderContext
     let newConversationPath: String
 
-    init(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) {
-        self.containerURL = containerURL
-        self.cacheURL = cacheURL
-        self.environment = environment
+    init(context: LoaderContext) {
+        self.context = context
         self.newConversationPath = UUID().uuidString
     }
 
@@ -30,16 +26,16 @@ struct FreshLoader: Loader {
     }
 
     func loadRoster() throws -> ConversationRoster {
-        try self.createDirectoryIfNeeded(containerURL: containerURL, fileManager: self.environment.fileManager)
-        try self.createDirectoryIfNeeded(containerURL: cacheURL, fileManager: self.environment.fileManager)
+        try self.createDirectoryIfNeeded(containerURL: self.context.containerURL, fileManager: self.context.fileManager)
+        try self.createDirectoryIfNeeded(containerURL: self.context.cacheURL, fileManager: self.context.fileManager)
 
         return ConversationRoster(active: .init(state: .anonymousPending, path: newConversationPath), loggedOut: [])
     }
 
     func loadConversation(for record: ConversationRoster.Record) throws -> Conversation {
-        try self.createDirectoryIfNeeded(containerURL: containerURL.appendingPathComponent(record.path), fileManager: self.environment.fileManager)
+        try self.createDirectoryIfNeeded(containerURL: self.context.containerURL.appendingPathComponent(record.path), fileManager: self.context.fileManager)
 
-        return Conversation(environment: self.environment)
+        return Conversation(dataProvider: self.context.dataProvider)
     }
 
     func loadPayloads() throws -> [Payload] {

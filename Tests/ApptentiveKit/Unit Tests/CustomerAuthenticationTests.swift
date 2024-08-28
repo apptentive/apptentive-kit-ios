@@ -33,13 +33,14 @@ class SpyPayloadSender: PayloadSending {
 }
 
 final class CustomerAuthenticationTests: XCTestCase {
-    var environment = MockEnvironment()
+    var dataProvider = MockDataProvider()
     var backend: Backend!
     var requestor: SpyRequestor!
-    var containerURL: URL?
+    var containerName: String = UUID().uuidString
     let backendDelegate = MockBackendDelegate()
     let jsonEncoder = JSONEncoder.apptentive
     let payloadSender = SpyPayloadSender()
+    let fileManager = FileManager.default
 
     class MockBackendDelegate: BackendDelegate {
         let environment: ApptentiveKit.GlobalEnvironment = MockEnvironment()
@@ -47,12 +48,12 @@ final class CustomerAuthenticationTests: XCTestCase {
         var resourceManager: ApptentiveKit.ResourceManager = ResourceManager(fileManager: MockFileManager(), requestor: SpyRequestor(responseData: Data()))
 
         func authenticationDidFail(with error: Error) {}
+        func updateProperties(with: Conversation) {}
+        func clearProperties() {}
     }
 
     override func setUpWithError() throws {
         try MockEnvironment.cleanContainerURL()
-
-        self.containerURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString)")
 
         self.requestor = SpyRequestor(responseData: Data())
     }
@@ -60,15 +61,15 @@ final class CustomerAuthenticationTests: XCTestCase {
     func createBackend(with roster: ConversationRoster) {
         let queue = DispatchQueue(label: "Test Queue")
         let messageManager = MessageManager(notificationCenter: NotificationCenter.default)
-        let conversation = Conversation(environment: self.environment)
-        let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://api.apptentive.com/")!, userAgent: "foo", languageCode: "de")
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
+        let conversation = Conversation(dataProvider: self.dataProvider)
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), queue: queue)
+        requestRetrier.client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://api.apptentive.com/")!, userAgent: "foo", languageCode: "de")
         let backendState = BackendState(isInForeground: true, isProtectedDataAvailable: false, roster: roster, fatalError: false)
 
         self.backend = Backend(
-            queue: queue, conversation: conversation, state: backendState, containerName: containerURL!.lastPathComponent, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), messageManager: messageManager,
+            queue: queue, conversation: conversation, state: backendState, containerName: containerName, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), requestor: self.requestor, messageManager: messageManager,
             requestRetrier: requestRetrier,
-            payloadSender: self.payloadSender, isDebugBuild: true)
+            payloadSender: self.payloadSender, dataProvider: self.dataProvider, fileManager: self.fileManager)
 
         self.backend.delegate = self.backendDelegate
     }
@@ -84,12 +85,12 @@ final class CustomerAuthenticationTests: XCTestCase {
 
         self.backend.queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+                try self.backend.protectedDataDidBecomeAvailable()
 
                 self.requestor.responseData = try JSONEncoder.apptentive.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
 
                 self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment,
+                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us,
                     completion: { _ in
                         expectation.fulfill()
                     })
@@ -109,16 +110,16 @@ final class CustomerAuthenticationTests: XCTestCase {
         let fakeEncryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
         let barbaraJWT =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
-        let containerURL = try self.backendDelegate.environment.applicationSupportURL().appendingPathComponent(self.backend.containerName)
+        let containerURL = try self.backend.containerURL
 
         self.backend.queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+                try self.backend.protectedDataDidBecomeAvailable()
 
                 self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
 
                 self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
+                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
                 ) { _ in
                     guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
                         XCTFail("Failed to move state to logged in")
@@ -152,11 +153,11 @@ final class CustomerAuthenticationTests: XCTestCase {
                             let encryptedConversationPath = plaintextConversationPath + ".encrypted"
                             let encryptedMessageListPath = plaintextMessageListPath + ".encrypted"
 
-                            XCTAssertFalse(self.backendDelegate.environment.fileManager.fileExists(atPath: plaintextConversationPath), "Unexpected plaintext Conversation file at \(plaintextConversationPath)")
-                            XCTAssertFalse(self.backendDelegate.environment.fileManager.fileExists(atPath: plaintextMessageListPath), "Unexpected plaintext Message List file at \(plaintextMessageListPath)")
+                            XCTAssertFalse(self.fileManager.fileExists(atPath: plaintextConversationPath), "Unexpected plaintext Conversation file at \(plaintextConversationPath)")
+                            XCTAssertFalse(self.fileManager.fileExists(atPath: plaintextMessageListPath), "Unexpected plaintext Message List file at \(plaintextMessageListPath)")
 
-                            XCTAssertTrue(self.backendDelegate.environment.fileManager.fileExists(atPath: encryptedConversationPath), "Missing encrypted Conversation file at \(encryptedConversationPath)")
-                            XCTAssertTrue(self.backendDelegate.environment.fileManager.fileExists(atPath: encryptedMessageListPath), "Missing encrypted Message List file at \(encryptedMessageListPath)")
+                            XCTAssertTrue(self.fileManager.fileExists(atPath: encryptedConversationPath), "Missing encrypted Conversation file at \(encryptedConversationPath)")
+                            XCTAssertTrue(self.fileManager.fileExists(atPath: encryptedMessageListPath), "Missing encrypted Message List file at \(encryptedMessageListPath)")
 
                             XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount, 1)
                             XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount, 1)
@@ -178,20 +179,22 @@ final class CustomerAuthenticationTests: XCTestCase {
 
     func testLoginFromLoggedOut() throws {
         let path = UUID().uuidString
+
         let fakeEncryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
-        try self.environment.fileManager.createDirectory(at: containerURL!.appendingPathComponent(path), withIntermediateDirectories: true)
 
         // Write a roster to load that has no active conversation and one logged-out one.
         let roster = ConversationRoster(active: nil, loggedOut: [.init(state: .loggedOut(id: "def456", subject: "Barbara"), path: path)])
-        try PropertyListEncoder().encode(roster).write(to: containerURL!.appendingPathComponent("Roster.B.abc.plist"))
 
         // Write a logged-out conversation record
-        var conversation = Conversation(environment: self.backendDelegate.environment)
+        var conversation = Conversation(dataProvider: self.dataProvider)
         conversation.person.emailAddress = "barb@example.com"
         let conversationData = try PropertyListEncoder().encode(conversation).encrypted(with: fakeEncryptionKey)
-        try conversationData.write(to: containerURL!.appendingPathComponent(path).appendingPathComponent("Conversation.B.plist.encrypted"))
 
         self.createBackend(with: .init(active: .init(state: .placeholder, path: "."), loggedOut: []))
+
+        try self.fileManager.createDirectory(at: self.backend.containerURL.appendingPathComponent(path), withIntermediateDirectories: true)
+        try PropertyListEncoder().encode(roster).write(to: self.backend.containerURL.appendingPathComponent("Roster.B.abc.plist"))
+        try conversationData.write(to: self.backend.containerURL.appendingPathComponent(path).appendingPathComponent("Conversation.B.plist.encrypted"))
 
         let registerExpectation = self.expectation(description: "Backend configured")
         let loginExpectation = self.expectation(description: "Backend logged in")
@@ -201,10 +204,10 @@ final class CustomerAuthenticationTests: XCTestCase {
 
         self.backend.queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+                try self.backend.protectedDataDidBecomeAvailable()
 
                 self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
+                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
                 ) { _ in
                     XCTAssertNil(self.backend.state.roster.active)
 
@@ -212,7 +215,7 @@ final class CustomerAuthenticationTests: XCTestCase {
 
                     self.requestor.responseData = try! jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey))
 
-                    self.backend.conversation?.person.emailAddress = "charlie@example.com"
+                    self.backend.setPersonEmailAddress("charlie@example.com")
                     XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0, 0)
                     XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount ?? 0, 0)
 
@@ -251,13 +254,14 @@ final class CustomerAuthenticationTests: XCTestCase {
 
     func testLoginFromNothing() throws {
         let path = UUID().uuidString
-        try self.environment.fileManager.createDirectory(at: containerURL!.appendingPathComponent(path), withIntermediateDirectories: true)
 
         // Write a roster to load that has no active conversation and one logged-out one.
         let roster = ConversationRoster(active: nil, loggedOut: [.init(state: .loggedOut(id: "def457", subject: "Charlie"), path: path)])
-        try PropertyListEncoder().encode(roster).write(to: containerURL!.appendingPathComponent("Roster.B.abc.plist"))
 
         self.createBackend(with: .init(active: .init(state: .placeholder, path: "."), loggedOut: []))
+
+        try self.fileManager.createDirectory(at: self.backend.containerURL.appendingPathComponent(path), withIntermediateDirectories: true)
+        try PropertyListEncoder().encode(roster).write(to: self.backend.containerURL.appendingPathComponent("Roster.B.abc.plist"))
 
         let registerExpectation = self.expectation(description: "Backend configured")
         let loginExpectation = self.expectation(description: "Backend logged in")
@@ -268,10 +272,10 @@ final class CustomerAuthenticationTests: XCTestCase {
 
         self.backend.queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+                try self.backend.protectedDataDidBecomeAvailable()
 
                 self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
+                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
                 ) { _ in
                     XCTAssertNil(self.backend.state.roster.active)
 
@@ -322,23 +326,23 @@ final class CustomerAuthenticationTests: XCTestCase {
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
 
         // Write something to the caches directory
-        let cachesURL = try self.backendDelegate.environment.cachesURL().appendingPathComponent(self.backend.containerName)
+        let cachesURL = try self.backend.cacheURL
         guard let imageURL = Bundle(for: Self.self).url(forResource: "2255A0CC-905B-4911-9448-16D801D31316#IMG_0004", withExtension: "jpeg", subdirectory: "A Data") else {
             throw TestError()
         }
-        try self.backendDelegate.environment.fileManager.createDirectory(at: cachesURL, withIntermediateDirectories: true)
-        try self.backendDelegate.environment.fileManager.copyItem(at: imageURL, to: cachesURL.appendingPathComponent("Test Attachment.jpeg"))
-        let cachedAttachments = try self.backendDelegate.environment.fileManager.contentsOfDirectory(atPath: cachesURL.path)
+        try self.fileManager.createDirectory(at: cachesURL, withIntermediateDirectories: true)
+        try self.fileManager.copyItem(at: imageURL, to: cachesURL.appendingPathComponent("Test Attachment.jpeg"))
+        let cachedAttachments = try self.fileManager.contentsOfDirectory(atPath: cachesURL.path)
         XCTAssertEqual(cachedAttachments.count, 1)
 
         self.backend.queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+                try self.backend.protectedDataDidBecomeAvailable()
 
                 self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
 
                 self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
+                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
                 ) { _ in
                     guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
                         XCTFail("Failed to move state to logged in")
@@ -391,7 +395,7 @@ final class CustomerAuthenticationTests: XCTestCase {
                                 return
                             }
 
-                            let cachedAttachments = try self.backendDelegate.environment.fileManager.contentsOfDirectory(atPath: cachesURL.path)
+                            let cachedAttachments = try self.fileManager.contentsOfDirectory(atPath: cachesURL.path)
                             XCTAssertEqual(cachedAttachments.count, 0, "\(cachedAttachments.count) files found in \(cachesURL.path), expected 0")
 
                             // Have to dig through payload queue to look for logout event since conversation no longer active at this point.
@@ -439,12 +443,12 @@ final class CustomerAuthenticationTests: XCTestCase {
 
         self.backend.queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+                try self.backend.protectedDataDidBecomeAvailable()
 
                 self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
 
                 self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
+                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
                 ) { _ in
                     guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
                         XCTFail("Failed to move state to logged in")
@@ -502,66 +506,66 @@ final class CustomerAuthenticationTests: XCTestCase {
         self.wait(for: [anonymousExpectation, loginExpectation, updateTokenExpectation], timeout: 5)
     }
 
-//    func testLogoutBeforeLoginComplete() {
-//        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
-//        self.requestor.delay = 0.5
-//
-//        let anonymousExpectation = self.expectation(description: "Backend configured")
-//        let logoutExpectation = self.expectation(description: "Backend failed to log in")
-//        let barbaraJWT =
-//            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
-//
-//        self.backend.queue.async {
-//            do {
-//                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
-//
-//                self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
-//
-//                self.backend.register(
-//                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
-//                ) { _ in
-//                    guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
-//                        XCTFail("Failed to move state to logged in")
-//                        return
-//                    }
-//
-//                    anonymousExpectation.fulfill()
-//
-//                    self.backend.logIn(with: barbaraJWT) { result in
-//                        if case .success = result {
-//                            XCTFail("Login request should not succeed if logOut() called before it finishes.")
-//                        }
-//
-//                        logoutExpectation.fulfill()
-//                    }
-//
-//                    do {
-//                        try self.backend.logOut()
-//
-//                        XCTAssertNil(self.backend.state.roster.active)
-//                        guard let loggedOutRecord = self.backend.state.roster.loggedOut.first else {
-//                            XCTFail("Expected an item in roster's list of logged-out records.")
-//                            return
-//                        }
-//
-//                        guard case .loggedOut(id: let id, subject: let subject) = loggedOutRecord.state else {
-//                            XCTFail("Expected record to be in logged-out state.")
-//                            return
-//                        }
-//
-//                        XCTAssertEqual(id, anonymousCredentials.id)
-//                        XCTAssertEqual(subject, "Barbara")
-//                    } catch {
-//                        // OK to get "not logged in" error here.
-//                    }
-//                }
-//            } catch let error {
-//                XCTFail(error.localizedDescription)
-//            }
-//        }
-//
-//        self.wait(for: [anonymousExpectation, logoutExpectation], timeout: 5)
-//    }
+    //    func testLogoutBeforeLoginComplete() {
+    //        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
+    //        self.requestor.delay = 0.5
+    //
+    //        let anonymousExpectation = self.expectation(description: "Backend configured")
+    //        let logoutExpectation = self.expectation(description: "Backend failed to log in")
+    //        let barbaraJWT =
+    //            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
+    //
+    //        self.backend.queue.async {
+    //            do {
+    //                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+    //
+    //                self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
+    //
+    //                self.backend.register(
+    //                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
+    //                ) { _ in
+    //                    guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
+    //                        XCTFail("Failed to move state to logged in")
+    //                        return
+    //                    }
+    //
+    //                    anonymousExpectation.fulfill()
+    //
+    //                    self.backend.logIn(with: barbaraJWT) { result in
+    //                        if case .success = result {
+    //                            XCTFail("Login request should not succeed if logOut() called before it finishes.")
+    //                        }
+    //
+    //                        logoutExpectation.fulfill()
+    //                    }
+    //
+    //                    do {
+    //                        try self.backend.logOut()
+    //
+    //                        XCTAssertNil(self.backend.state.roster.active)
+    //                        guard let loggedOutRecord = self.backend.state.roster.loggedOut.first else {
+    //                            XCTFail("Expected an item in roster's list of logged-out records.")
+    //                            return
+    //                        }
+    //
+    //                        guard case .loggedOut(id: let id, subject: let subject) = loggedOutRecord.state else {
+    //                            XCTFail("Expected record to be in logged-out state.")
+    //                            return
+    //                        }
+    //
+    //                        XCTAssertEqual(id, anonymousCredentials.id)
+    //                        XCTAssertEqual(subject, "Barbara")
+    //                    } catch {
+    //                        // OK to get "not logged in" error here.
+    //                    }
+    //                }
+    //            } catch let error {
+    //                XCTFail(error.localizedDescription)
+    //            }
+    //        }
+    //
+    //        self.wait(for: [anonymousExpectation, logoutExpectation], timeout: 5)
+    //    }
 
     func testLoginBeforeRegister() {
         self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
@@ -574,12 +578,12 @@ final class CustomerAuthenticationTests: XCTestCase {
 
         self.backend.queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+                try self.backend.protectedDataDidBecomeAvailable()
 
                 self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
 
                 self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
+                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
                 ) { _ in
                     anonymousExpectation.fulfill()
                 }
@@ -618,12 +622,12 @@ final class CustomerAuthenticationTests: XCTestCase {
 
         self.backend.queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+                try self.backend.protectedDataDidBecomeAvailable()
 
                 self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
 
                 self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment
+                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
                 ) { _ in
                     guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
                         XCTFail("Failed to move state to logged in")
@@ -683,13 +687,14 @@ final class CustomerAuthenticationTests: XCTestCase {
 
     func testLogoutWhileLoggedOut() throws {
         let path = UUID().uuidString
-        try self.environment.fileManager.createDirectory(at: containerURL!.appendingPathComponent(path), withIntermediateDirectories: true)
 
         // Write a roster to load that has no active conversation and one logged-out one.
         let roster = ConversationRoster(active: nil, loggedOut: [.init(state: .loggedOut(id: "def457", subject: "Charlie"), path: path)])
-        try PropertyListEncoder().encode(roster).write(to: containerURL!.appendingPathComponent("Roster.B.abc.plist"))
 
         self.createBackend(with: .init(active: .init(state: .placeholder, path: "."), loggedOut: []))
+
+        try self.fileManager.createDirectory(at: self.backend.containerURL.appendingPathComponent(path), withIntermediateDirectories: true)
+        try PropertyListEncoder().encode(roster).write(to: self.backend.containerURL.appendingPathComponent("Roster.B.abc.plist"))
 
         let registerExpectation = self.expectation(description: "Backend configured")
         let logoutFailureExpectation = self.expectation(description: "Backend failed to log out when not logged in")
@@ -700,9 +705,9 @@ final class CustomerAuthenticationTests: XCTestCase {
 
         self.backend.queue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: self.backendDelegate.environment)
+                try self.backend.protectedDataDidBecomeAvailable()
 
-                self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), environment: self.backendDelegate.environment) { _ in
+                self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us) { _ in
                     XCTAssertNil(self.backend.state.roster.active)
 
                     registerExpectation.fulfill()

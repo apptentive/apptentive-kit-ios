@@ -9,10 +9,7 @@
 import Foundation
 
 class LegacyLoader: NSObject, Loader, NSKeyedUnarchiverDelegate {
-    let containerURL: URL
-    let cacheURL: URL
-    let environment: GlobalEnvironment
-    let appCredentials: Apptentive.AppCredentials
+    let context: LoaderContext
 
     func unarchiver(_ unarchiver: NSKeyedUnarchiver, cannotDecodeObjectOfClassName name: String, originalClasses classNames: [String]) -> AnyClass? {
         print("Couldn't decode \(name)")
@@ -24,19 +21,16 @@ class LegacyLoader: NSObject, Loader, NSKeyedUnarchiverDelegate {
         return object
     }
 
-    required init(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) {
-        self.containerURL = containerURL
-        self.cacheURL = cacheURL
-        self.environment = environment
-        self.appCredentials = appCredentials
+    required init(context: LoaderContext) {
+        self.context = context
     }
 
     var rosterFileExists: Bool {
-        return self.environment.fileManager.fileExists(atPath: self.metadataURL.path)
+        return self.context.fileManager.fileExists(atPath: self.metadataURL.path)
     }
 
     func conversationFileExists(for record: ConversationRoster.Record) -> Bool {
-        return self.environment.fileManager.fileExists(atPath: self.conversationFileURL(for: record).path)
+        return self.context.fileManager.fileExists(atPath: self.conversationFileURL(for: record).path)
     }
 
     func loadRoster() throws -> ConversationRoster {
@@ -102,7 +96,7 @@ class LegacyLoader: NSObject, Loader, NSKeyedUnarchiverDelegate {
             legacyConversation = try NSKeyedUnarchiver.unarchivedObject(ofClass: LegacyConversation.self, from: conversationData)
         }
 
-        var newConversation = Conversation(environment: self.environment)
+        var newConversation = Conversation(dataProvider: self.context.dataProvider)
 
         // Copy over iteraction metrics if possible.
         if let legacyInteractions = legacyConversation?.engagement?.interactions {
@@ -139,7 +133,7 @@ class LegacyLoader: NSObject, Loader, NSKeyedUnarchiverDelegate {
     }
 
     func loadMessages(for record: ConversationRoster.Record) throws -> MessageList? {
-        try self.environment.fileManager.createDirectory(at: cacheURL, withIntermediateDirectories: true)
+        try self.context.fileManager.createDirectory(at: self.context.cacheURL, withIntermediateDirectories: true)
 
         // These are also complicated to migrate and can just be re-downloaded.
         return nil
@@ -163,15 +157,15 @@ class LegacyLoader: NSObject, Loader, NSKeyedUnarchiverDelegate {
     }
 
     private var metadataURL: URL {
-        return self.containerURL.appendingPathComponent("conversation-v1.meta")
+        return self.context.containerURL.appendingPathComponent("conversation-v1.meta")
     }
 
     private func conversationFileURL(for record: ConversationRoster.Record) -> URL {
-        return self.containerURL.appendingPathComponent(record.path).appendingPathComponent("conversation-v1.archive")
+        return self.context.containerURL.appendingPathComponent(record.path).appendingPathComponent("conversation-v1.archive")
     }
 
     private func messagesFileURL(for record: ConversationRoster.Record) -> URL {
-        return self.containerURL.appendingPathComponent(record.path).appendingPathComponent("messages-v1.archive")
+        return self.context.containerURL.appendingPathComponent(record.path).appendingPathComponent("messages-v1.archive")
     }
 }
 

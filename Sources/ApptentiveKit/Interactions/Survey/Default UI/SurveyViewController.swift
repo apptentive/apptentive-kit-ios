@@ -189,6 +189,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             if let introHtml = self.configureHTMLFont(text: self.viewModel.introduction, apptentiveFont: .apptentiveSurveyIntroductionLabel.createUIFontMetricsForHTML(), alignment: .center) {
                 self.introductionView?.textLabel.attributedText = introHtml
+                self.introductionView?.textLabel.addCustomAccessibilityActions()
                 self.introductionView?.textLabel.textColor = .apptentiveSurveyIntroduction
                 if (self.viewModel.introduction?.containsURL()) != nil {
                     self.introductionView?.textLabel.enableDataDetection()
@@ -444,6 +445,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
         if let questionHtml = self.configureHTMLFont(text: question.text, apptentiveFont: .apptentiveQuestionLabel.createUIFontMetricsForHTML(), alignment: .left) {
             header.questionLabel.attributedText = questionHtml
+            header.questionLabel.addCustomAccessibilityActions()
             if question.text.containsURL() {
                 header.questionLabel.enableDataDetection()
             }
@@ -459,6 +461,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         header.instructionsLabel.textColor = question.isMarkedAsInvalid ? .apptentiveError : .apptentiveInstructionsLabel
 
         header.contentView.accessibilityTraits = .header
+        header.contentView.accessibilityCustomActions = header.questionLabel.accessibilityCustomActions
         header.contentView.accessibilityLabel = question.accessibilityLabel.removingHTMLTags()
         header.contentView.isAccessibilityElement = true
 

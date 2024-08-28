@@ -13,7 +13,7 @@ extension DialogViewModel {
     public enum Image: Equatable {
         case none
         case loading(altText: String, layout: Layout)
-        case loaded(image: UIImage, acessibilityLabel: String, layout: Layout, maxHeight: CGFloat)
+        case loaded(image: UIImage, acessibilityLabel: String, layout: Layout)
 
         /// Describes the layout property of the image which will map to the UIImageView's content mode.
         public enum Layout: String {

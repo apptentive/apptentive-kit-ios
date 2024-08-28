@@ -105,44 +105,35 @@ struct AppRelease: Equatable, Codable {
     var sdkDistributionVersion: Version?
 
     /// Initializes a new app release with the specified environment.
-    /// - Parameter environment: The `Environment` object used to set initial values.
-    init(environment: AppEnvironment) {
-        if let infoDictionary = environment.infoDictionary {
-            self.bundleIdentifier = infoDictionary["CFBundleIdentifier"] as? String
+    /// - Parameter dataProvider: The data provider used to set initial values.
+    init(dataProvider: AppDataProviding) {
+        self.bundleIdentifier = dataProvider.bundleIdentifier
+        self.version = dataProvider.version
+        self.build = dataProvider.build
+        self.deploymentTarget = dataProvider.deploymentTarget
+        self.compiler = dataProvider.compiler
+        self.platformBuild = dataProvider.platformBuild
+        self.platformName = dataProvider.platformName
+        self.platformVersion = dataProvider.platformVersion
+        self.sdkBuild = dataProvider.sdkBuild
+        self.sdkName = dataProvider.sdkName
+        self.xcode = dataProvider.xcode
+        self.xcodeBuild = dataProvider.xcodeBuild
 
-            if let versionString = infoDictionary["CFBundleShortVersionString"] as? String {
-                self.version = Version(string: versionString)
-            }
-
-            if let buildString = infoDictionary["CFBundleVersion"] as? String {
-                self.build = Version(string: buildString)
-            }
-
-            self.deploymentTarget = infoDictionary["MinimumOSVersion"] as? String
-            self.compiler = infoDictionary["DTCompiler"] as? String
-            self.platformBuild = infoDictionary["DTPlatformBuild"] as? String
-            self.platformName = infoDictionary["DTPlatformName"] as? String
-            self.platformVersion = infoDictionary["DTPlatformVersion"] as? String
-            self.sdkBuild = infoDictionary["DTSDKBuild"] as? String
-            self.sdkName = infoDictionary["DTSDKName"] as? String
-            self.xcode = infoDictionary["DTXcode"] as? String
-            self.xcodeBuild = infoDictionary["DTXcodeBuild"] as? String
-        }
-
-        if let appStoreReceiptURL = environment.appStoreReceiptURL, let _ = try? Data(contentsOf: appStoreReceiptURL) {
+        if let appStoreReceiptURL = dataProvider.appStoreReceiptURL, let _ = try? Data(contentsOf: appStoreReceiptURL) {
             self.hasAppStoreReceipt = true
         }
 
-        self.isDebugBuild = environment.isDebugBuild
+        self.isDebugBuild = dataProvider.isDebugBuild
 
-        self.sdkVersion = environment.sdkVersion
+        self.sdkVersion = dataProvider.sdkVersion
 
         self.sdkProgrammingLanguage = "Swift"
         self.sdkAuthorName = "Apptentive, Inc."
         self.sdkPlatform = "iOS"
-        self.isOverridingStyles = environment.isOverridingStyles
-        self.sdkDistributionName = environment.distributionName
-        self.sdkDistributionVersion = environment.distributionVersion
+        self.isOverridingStyles = dataProvider.isOverridingStyles
+        self.sdkDistributionName = dataProvider.distributionName
+        self.sdkDistributionVersion = dataProvider.distributionVersion
     }
 
     /// Merges a newer app release object into the current one.

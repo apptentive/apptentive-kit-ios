@@ -13,8 +13,7 @@ extension Apptentive: UNUserNotificationCenterDelegate {
     /// - Parameter tokenData: The remote notification device token passed into `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`.
     @objc public func setRemoteNotificationDeviceToken(_ tokenData: Data) {
         self.backendQueue.async {
-            self.backend.conversation?.device.remoteNotificationDeviceToken = tokenData
-            self.environment.remoteNotificationDeviceToken = tokenData
+            self.backend.setRemoteNotificationDeviceToken(tokenData)
         }
     }
 
@@ -139,7 +138,7 @@ extension Apptentive: UNUserNotificationCenterDelegate {
 
     private func fetchMessages(completion: @escaping (UIBackgroundFetchResult) -> Void) {
         self.backendQueue.async {
-            self.backend.messageFetchCompletionHandler = { fetchResult in
+            self.backend.setMessageFetchCompletionHandler { fetchResult in
                 completion(fetchResult)
             }
         }

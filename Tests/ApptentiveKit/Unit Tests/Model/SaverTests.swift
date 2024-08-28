@@ -13,19 +13,20 @@ import XCTest
 final class SaverTests: XCTestCase {
 
     func testPlaintextConversationSaving() throws {
-        let environment = MockEnvironment()
-        let conversation = Conversation(environment: environment)
+        let dataProvider = MockDataProvider()
+        let conversation = Conversation(dataProvider: dataProvider)
         let record = ConversationRoster.Record(state: .placeholder, path: UUID().uuidString)
+        let fileManager = FileManager.default
 
-        let containerURL = try environment.applicationSupportURL().appendingPathComponent(record.path)
-        let saver = EncryptedPropertyListSaver<Conversation>(containerURL: containerURL, filename: "Conversation.B", fileManager: environment.fileManager, encryptionKey: nil)
-        try environment.fileManager.createDirectory(at: containerURL, withIntermediateDirectories: true)
+        let containerURL = URL(fileURLWithPath: "/tmp").appendingPathComponent(record.path)
+        let saver = EncryptedPropertyListSaver<Conversation>(containerURL: containerURL, filename: "Conversation.B", fileManager: fileManager, encryptionKey: nil)
+        try fileManager.createDirectory(at: containerURL, withIntermediateDirectories: true)
 
         try saver.save(conversation)
 
         let conversationFileURL = containerURL.appendingPathComponent("Conversation.B.plist")
 
-        XCTAssertTrue(environment.fileManager.fileExists(atPath: conversationFileURL.path))
+        XCTAssertTrue(fileManager.fileExists(atPath: conversationFileURL.path))
 
         let data = try Data(contentsOf: conversationFileURL)
 
@@ -36,19 +37,20 @@ final class SaverTests: XCTestCase {
     }
 
     func testEncryptedConversationSaving() throws {
-        let environment = MockEnvironment()
-        let conversation = Conversation(environment: environment)
+        let dataProvider = MockDataProvider()
+        let conversation = Conversation(dataProvider: dataProvider)
         let record = ConversationRoster.Record(state: .placeholder, path: UUID().uuidString)
-        let containerURL = try environment.applicationSupportURL().appendingPathComponent(record.path)
+        let containerURL = URL(fileURLWithPath: "/tmp").appendingPathComponent(record.path)
         let encryptionKey = Data(base64Encoded: "DSVDTuA285GBnfWtZXDvhHDxwpQkF1wq9ycl4WX1QQg=")!
-        let saver = EncryptedPropertyListSaver<Conversation>(containerURL: containerURL, filename: "Conversation.B", fileManager: environment.fileManager, encryptionKey: encryptionKey)
-        try environment.fileManager.createDirectory(at: containerURL, withIntermediateDirectories: true)
+        let fileManager = FileManager.default
+        let saver = EncryptedPropertyListSaver<Conversation>(containerURL: containerURL, filename: "Conversation.B", fileManager: fileManager, encryptionKey: encryptionKey)
+        try fileManager.createDirectory(at: containerURL, withIntermediateDirectories: true)
 
         try saver.save(conversation)
 
         let conversationFileURL = containerURL.appendingPathComponent("Conversation.B.plist.encrypted")
 
-        XCTAssertTrue(environment.fileManager.fileExists(atPath: conversationFileURL.path))
+        XCTAssertTrue(fileManager.fileExists(atPath: conversationFileURL.path))
 
         XCTAssertThrowsError(try PropertyListDecoder().decode(Conversation.self, from: Data(contentsOf: conversationFileURL)), "Should not be able to decode encrypted conversation") { error in
             if case Swift.DecodingError.dataCorrupted = error {

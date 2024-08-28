@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import SwiftJWT
 
 class JWTViewController: UITableViewController {
     @IBOutlet weak var expiryDatePicker: UIDatePicker!
@@ -21,15 +20,16 @@ class JWTViewController: UITableViewController {
 
     var jwt: String {
         get throws {
-            // It seems weird that we would use the UTF-8 value of the string version of the secret as the key, but whatevs.
+            // It seems weird that we would use the UTF-8 value of the string version of the secret as the key, but here we are.
             guard let subject = self.jwtSubject, let secretString = self.signingSecret, let secret = secretString.data(using: .utf8) else {
                 throw JWTBuilderError.badSecretOrSub
             }
 
-            var myJWT = JWT(header: .init(), claims: JWTClaims(sub: subject, exp: self.expiryDatePicker.date))
-            let signer = JWTSigner.hs512(key: secret)
+            let payload = JWT.Payload(issuer: "ClientTeam", expiry: self.expiryDatePicker.date, subject: subject, issuedAt: Date(), otherClaims: [:])
 
-            return try myJWT.sign(using: signer)
+            let jwt = JWT(header: JWT.Header(algorithm: .hmacSHA512, type: .jwt), payload: payload)
+
+            return try jwt.signed(with: secret)
         }
     }
 
@@ -43,20 +43,6 @@ class JWTViewController: UITableViewController {
                 self.loginButtonItem.title = "Refresh"
                 self.jwtSubject = subject
             }
-        }
-    }
-
-    struct JWTClaims: Claims {
-        let sub: String
-        let exp: Date
-        let iat: Date
-        let iss: String
-
-        init(sub: String, exp: Date) {
-            self.sub = sub
-            self.exp = exp
-            self.iat = Date()
-            self.iss = "ClientTeam"
         }
     }
 
@@ -83,7 +69,6 @@ class JWTViewController: UITableViewController {
         if let signingSecret = self.signingSecret {
             self.secretStatusLabel.text = signingSecret.prefix(4) + "…" + signingSecret.suffix(4)
         }
-
     }
 
     override func viewDidAppear(_ animated: Bool) {

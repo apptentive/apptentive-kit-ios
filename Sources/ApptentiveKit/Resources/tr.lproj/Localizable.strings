@@ -1,3 +1,12 @@
+/* The accessibility label for the refresh button for the web view. */
+"Web View Refresh Button Accessibility Label" = "Yenile";
+
+/* The accessibility hint for the refresh button for the web view. */
+"Web View Refresh Button Accessibility Hint" = "Web görünümünü yeniler";
+
+/* The action name for opening an accessibility action link. */
+"OpenLinkAction" = "%@ aç";
+
 /* The button label for dismissing the attachment options alert. */
 "Attachment Options Cancel Button" = "İptal et";
 

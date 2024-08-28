@@ -38,13 +38,13 @@ struct CurrentLoader: Loader {
 
     static let loaderChain: [Loader.Type] = [CurrentLoader.self, ALoader.self, Beta3Loader.self, LegacyLoader.self, FreshLoader.self]
 
-    static func loadLatestVersion(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment, completion: @escaping (Loader) throws -> Void) {
+    static func loadLatestVersion(context: LoaderContext, loadingBlock: @escaping (Loader) throws -> ConversationRoster) throws -> ConversationRoster {
         for LoaderType in Self.loaderChain {
-            let loader = LoaderType.init(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment)
+            let loader = LoaderType.init(context: context)
 
             do {
                 if loader.rosterFileExists {
-                    try completion(loader)
+                    let result = try loadingBlock(loader)
 
                     do {
                         try loader.cleanUpRoster()
@@ -52,21 +52,25 @@ struct CurrentLoader: Loader {
                         ApptentiveLogger.default.error("Error removing extraneous files for version \(String(describing: LoaderType)): \(error)")
                     }
 
-                    return
+                    return result
                 }
             } catch let error {
                 ApptentiveLogger.default.error("Error loading conversation from version \(String(describing: LoaderType)): \(error)")
             }
         }
+
+        throw ApptentiveError.internalInconsistency
     }
 
-    static func loadLatestVersion(for record: ConversationRoster.Record, containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment, completion: @escaping (Loader) throws -> Void) {
+    static func loadLatestVersion(
+        for record: ConversationRoster.Record, context: LoaderContext, loadingBlock: @escaping (Loader) throws -> Void
+    ) throws {
         for LoaderType in Self.loaderChain {
-            let loader = LoaderType.init(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment)
+            let loader = LoaderType.init(context: context)
 
             do {
                 if loader.conversationFileExists(for: record) {
-                    try completion(loader)
+                    try loadingBlock(loader)
 
                     do {
                         try loader.cleanUp(for: record)
@@ -80,25 +84,23 @@ struct CurrentLoader: Loader {
                 ApptentiveLogger.default.error("Error loading conversation from version \(String(describing: LoaderType)): \(error)")
             }
         }
+
+        throw ApptentiveError.internalInconsistency
     }
 
-    let containerURL: URL
-    let appCredentials: Apptentive.AppCredentials
-    let environment: GlobalEnvironment
+    let context: LoaderContext
     let decoder = PropertyListDecoder()
 
-    init(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) {
-        self.containerURL = containerURL
-        self.appCredentials = appCredentials
-        self.environment = environment
+    init(context: LoaderContext) {
+        self.context = context
     }
 
     var rosterFileExists: Bool {
-        return self.environment.fileManager.fileExists(atPath: self.conversationRosterURL.path)
+        return self.context.fileManager.fileExists(atPath: self.conversationRosterURL.path)
     }
 
     func conversationFileExists(for record: ConversationRoster.Record) -> Bool {
-        return self.environment.fileManager.fileExists(atPath: self.conversationFileURL(for: record).path)
+        return self.context.fileManager.fileExists(atPath: self.conversationFileURL(for: record).path)
     }
 
     func loadRoster() throws -> ConversationRoster {
@@ -148,11 +150,11 @@ struct CurrentLoader: Loader {
     }
 
     private var conversationRosterURL: URL {
-        return self.containerURL.appendingPathComponent(Self.rosterFilename(for: self.appCredentials)).appendingPathExtension(Self.fileExtension)
+        return self.context.containerURL.appendingPathComponent(Self.rosterFilename(for: self.context.appCredentials)).appendingPathExtension(Self.fileExtension)
     }
 
     private func conversationFileURL(for record: ConversationRoster.Record) -> URL {
-        let result = self.containerURL.appendingPathComponent(Self.conversationFilePath(for: record))
+        let result = self.context.containerURL.appendingPathComponent(Self.conversationFilePath(for: record))
 
         if let _ = record.encryptionKey {
             return result.appendingPathExtension("encrypted")
@@ -162,11 +164,11 @@ struct CurrentLoader: Loader {
     }
 
     private var payloadsFileURL: URL {
-        return self.containerURL.appendingPathComponent(Self.payloadsFilename(for: self.appCredentials)).appendingPathExtension(Self.fileExtension)
+        return self.context.containerURL.appendingPathComponent(Self.payloadsFilename(for: self.context.appCredentials)).appendingPathExtension(Self.fileExtension)
     }
 
     private func messagesFileURL(for record: ConversationRoster.Record) -> URL {
-        let result = self.containerURL.appendingPathComponent(Self.messagesFilePath(for: record))
+        let result = self.context.containerURL.appendingPathComponent(Self.messagesFilePath(for: record))
 
         if let _ = record.encryptionKey {
             return result.appendingPathExtension("encrypted")
@@ -176,10 +178,10 @@ struct CurrentLoader: Loader {
     }
 
     private var payloadsFileExists: Bool {
-        return self.environment.fileManager.fileExists(atPath: self.payloadsFileURL.path)
+        return self.context.fileManager.fileExists(atPath: self.payloadsFileURL.path)
     }
 
     private func messagesFileExists(for record: ConversationRoster.Record) -> Bool {
-        return self.environment.fileManager.fileExists(atPath: self.messagesFileURL(for: record).path)
+        return self.context.fileManager.fileExists(atPath: self.messagesFileURL(for: record).path)
     }
 }

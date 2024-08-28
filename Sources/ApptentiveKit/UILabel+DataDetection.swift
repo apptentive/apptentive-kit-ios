@@ -52,4 +52,31 @@ extension UILabel {
         let glyphRange = layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
         return layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
     }
+
+    func addCustomAccessibilityActions() {
+        var customActions: [UIAccessibilityCustomAction] = []
+
+        attributedText?.enumerateAttribute(.link, in: NSRange(location: 0, length: attributedText?.length ?? 0), options: []) { (value, range, _) in
+            if let link = value as? URL {
+
+                let actionFormat = NSLocalizedString("OpenLinkAction", bundle: .apptentive, value: "Open %@ link", comment: "Action name format for opening a link")
+                let actionName = String(format: actionFormat, link.absoluteString)
+                let customAction = UIAccessibilityCustomAction(name: actionName, target: self, selector: #selector(handleLink(_:)))
+                customActions.append(customAction)
+            }
+        }
+
+        accessibilityCustomActions = customActions.isEmpty ? nil : customActions
+    }
+
+    @objc private func handleLink(_ action: UIAccessibilityCustomAction) -> Bool {
+
+        if let urlString = action.name.components(separatedBy: " ").last,
+            let url = URL(string: urlString)
+        {
+            UIApplication.shared.open(url)
+            return true
+        }
+        return false
+    }
 }

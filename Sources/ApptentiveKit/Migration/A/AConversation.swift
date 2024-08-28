@@ -40,8 +40,8 @@ struct ADevice: Decodable {
     var advertisingIdentifier: UUID?
     var customData = CustomData()
 
-    func currentDevice(with environment: DeviceEnvironment) -> Device {
-        var device = Device(environment: environment)
+    func currentDevice(with dataProvider: DeviceDataProviding) -> Device {
+        var device = Device(dataProvider: dataProvider)
 
         device.uuid = self.uuid
         device.osName = self.osName

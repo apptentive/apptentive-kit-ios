@@ -10,7 +10,7 @@ import Foundation
 
 @objc(ApptentiveEngagement)
 class LegacyEngagement: NSObject, NSSecureCoding {
-    static var supportsSecureCoding = true
+    static let supportsSecureCoding = true
 
     let interactions: [String: LegacyCount]
     let codePoints: [String: LegacyCount]

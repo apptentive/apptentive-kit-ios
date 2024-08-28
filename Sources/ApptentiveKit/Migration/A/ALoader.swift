@@ -18,33 +18,28 @@ struct ALoader: Loader {
     ///
     /// Note that when loading common files, this is set to the top-level container directory.
     /// When loading files for a particular record, it is set to the record's subdirectory.
-    let containerURL: URL
-
-    let appCredentials: Apptentive.AppCredentials
-    let environment: GlobalEnvironment
+    let context: LoaderContext
     let decoder = PropertyListDecoder()
     let newConversationPath: String
 
-    init(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) {
-        self.containerURL = containerURL
-        self.appCredentials = appCredentials
-        self.environment = environment
+    init(context: LoaderContext) {
+        self.context = context
         self.newConversationPath = UUID().uuidString
     }
 
     var rosterFileExists: Bool {
-        return self.environment.fileManager.fileExists(atPath: self.commonConversationFileURL.path)
+        return self.context.fileManager.fileExists(atPath: self.commonConversationFileURL.path)
     }
 
     func conversationFileExists(for record: ConversationRoster.Record) -> Bool {
-        return self.environment.fileManager.fileExists(atPath: self.conversationFileURL.path)
+        return self.context.fileManager.fileExists(atPath: self.conversationFileURL.path)
     }
 
     func loadRoster() throws -> ConversationRoster {
         let data = try Data(contentsOf: self.commonConversationFileURL)
         let aConversation = try self.decoder.decode(AConversation.self, from: data)
 
-        guard self.appCredentials == aConversation.appCredentials else {
+        guard self.context.appCredentials == aConversation.appCredentials else {
             ApptentiveLogger.default.warning("App credentials for the existing conversation do not match. Creating a new conversation.")
             throw LoaderError.mismatchedAppCredentials
         }
@@ -63,16 +58,16 @@ struct ALoader: Loader {
         let data = try Data(contentsOf: self.conversationFileURL)
         let aConversation = try self.decoder.decode(AConversation.self, from: data)
 
-        var conversation = Conversation(environment: self.environment)
+        var conversation = Conversation(dataProvider: self.context.dataProvider)
         conversation.appRelease = aConversation.appRelease
         conversation.person = aConversation.person
-        conversation.device = aConversation.device.currentDevice(with: self.environment)
+        conversation.device = aConversation.device.currentDevice(with: self.context.dataProvider)
         conversation.codePoints = aConversation.codePoints
         conversation.interactions = aConversation.interactions
         conversation.random = aConversation.random
 
         // Create directory that migrated conversation will be saved to.
-        try self.environment.fileManager.createDirectory(atPath: self.containerURL.appendingPathComponent(record.path).path, withIntermediateDirectories: true)
+        try self.context.fileManager.createDirectory(atPath: self.context.containerURL.appendingPathComponent(record.path).path, withIntermediateDirectories: true)
 
         return conversation
     }
@@ -90,7 +85,7 @@ struct ALoader: Loader {
                 let movedAttachments = aPayload.attachments.map { (attachment) -> Payload.Attachment in
                     switch attachment.contents {
                     case .file(let url):
-                        let movedURL = self.containerURL.appendingPathComponent(url.lastPathComponent)
+                        let movedURL = self.context.containerURL.appendingPathComponent(url.lastPathComponent)
                         return Payload.Attachment(parameterName: attachment.parameterName, contentType: attachment.contentType, filename: attachment.filename, contents: .file(movedURL))
 
                     case .data(_):
@@ -118,44 +113,44 @@ struct ALoader: Loader {
         // No roster file to clean up.
 
         if self.payloadsFileExists {
-            try self.environment.fileManager.removeItem(at: self.payloadsFileURL)
+            try self.context.fileManager.removeItem(at: self.payloadsFileURL)
         }
     }
 
     func cleanUp(for record: ConversationRoster.Record) throws {
         if self.conversationFileExists(for: record) {
-            try self.environment.fileManager.removeItem(at: self.conversationFileURL)
+            try self.context.fileManager.removeItem(at: self.conversationFileURL)
         }
 
         if self.messagesFileExists {
-            try self.environment.fileManager.removeItem(at: self.messagesFileURL)
+            try self.context.fileManager.removeItem(at: self.messagesFileURL)
         }
     }
 
     private var commonConversationFileURL: URL {
         // We don't have a roster in this version, so check for a conversation at the top level.
-        return self.containerURL.appendingPathComponent(Self.conversationFilename).appendingPathExtension(Self.fileExtension)
+        return self.context.containerURL.appendingPathComponent(Self.conversationFilename).appendingPathExtension(Self.fileExtension)
     }
 
     private var conversationFileURL: URL {
         // Have to move up one level because A conversations are stored in the root of the container directory, and `containerURL` has new path segment already in it.
-        return self.containerURL.appendingPathComponent(Self.conversationFilename).appendingPathExtension(Self.fileExtension)
+        return self.context.containerURL.appendingPathComponent(Self.conversationFilename).appendingPathExtension(Self.fileExtension)
     }
 
     private var payloadsFileURL: URL {
-        return self.containerURL.appendingPathComponent(Self.payloadsFilename).appendingPathExtension(Self.fileExtension)
+        return self.context.containerURL.appendingPathComponent(Self.payloadsFilename).appendingPathExtension(Self.fileExtension)
     }
 
     private var messagesFileURL: URL {
         // Have to move up one level because A conversations are stored in the root of the container directory, and `containerURL` has new path segment already in it.
-        return self.containerURL.appendingPathComponent(Self.messagesFilename).appendingPathExtension(Self.fileExtension)
+        return self.context.containerURL.appendingPathComponent(Self.messagesFilename).appendingPathExtension(Self.fileExtension)
     }
 
     private var payloadsFileExists: Bool {
-        return self.environment.fileManager.fileExists(atPath: self.payloadsFileURL.path)
+        return self.context.fileManager.fileExists(atPath: self.payloadsFileURL.path)
     }
 
     private var messagesFileExists: Bool {
-        return self.environment.fileManager.fileExists(atPath: self.messagesFileURL.path)
+        return self.context.fileManager.fileExists(atPath: self.messagesFileURL.path)
     }
 }

@@ -9,20 +9,21 @@
 import Foundation
 import UIKit
 
-/// Describes an object that can provide an environment and an interaction presenter.
+/// Protocol adopted by `Apptentive` for communication from backend to frontend.
 protocol BackendDelegate: AnyObject {
-    var environment: GlobalEnvironment { get }
     var interactionPresenter: InteractionPresenter { get }
     var resourceManager: ResourceManager { get }
 
     func authenticationDidFail(with error: Swift.Error)
+
+    func updateProperties(with conversation: Conversation)
+    func clearProperties()
 }
 
 /// The backend includes internal top-level methods used by the SDK.
 ///
 /// It is implemented as a separate class from `Apptentive` to help enforce the main queue/background queue separation.
 class Backend: PayloadAuthenticationDelegate {
-
     /// The private background queue used for executing methods in this class.
     let queue: DispatchQueue
 
@@ -46,7 +47,7 @@ class Backend: PayloadAuthenticationDelegate {
     /// the temporary conversation is merged into the saved conversation. This allows the SDK to function
     /// regardless of the order in which `load(containerURL:fileManager:)` and `connect(appCredentials:baseURL:completion:)`
     /// are called.
-    var conversation: Conversation? {
+    private(set) var conversation: Conversation? {
         didSet {
             if self.conversation != oldValue {
                 self.conversationNeedsSaving = true
@@ -76,39 +77,47 @@ class Backend: PayloadAuthenticationDelegate {
     /// A Message Manager object which is initialized on launch.
     let messageManager: MessageManager
 
-    /// A completion handler that is called when a message fetch completes.
-    var messageFetchCompletionHandler: ((UIBackgroundFetchResult) -> Void)? {
-        didSet {
-            if let anonymousCredentials = self.state.anonymousCredentials, self.messageFetchCompletionHandler != nil {
-                self.messageManager.forceMessageDownload = true
+    /// The name of the Application Support subdirectory where Apptentive files are stored.
+    let containerName: String
 
-                self.getMessagesIfNeeded(with: anonymousCredentials)
-            }
+    /// Returns the URL to use for storing persistent files (in Application Support).
+    var containerURL: URL {
+        get throws {
+            let parent = try self.fileManager.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            return parent.appendingPathComponent(self.containerName)
         }
     }
 
-    /// The name of the Application Support subdirectory where Apptentive files are stored.
-    let containerName: String
+    /// Returns the URL to use for storing cache files (may be removed by the system).
+    var cacheURL: URL {
+        get throws {
+            let parent = try self.fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            return parent.appendingPathComponent(self.containerName)
+        }
+    }
+
+    /// The object implementing `HTTPRequesting` that should be used for HTTP requests.
+    let requestor: HTTPRequesting
 
     /// Initializes a new backend instance.
     /// - Parameters:
     ///   - queue: The dispatch queue on which the backend instance should run.
-    ///   - environment: The environment object used to initialize the conversation.
-    ///   - baseURL: The URL where the Apptentive API is based.
-    ///   - requestor: An object conforming to HTTPRequesting to use to make HTTP requests.
+    ///   - dataProvider: The `ConversationDataProviding` object used to initialize a new conversation.
+    ///   - requestor: The `HTTPRequesting` object to use for making API requests.
     ///   - containerName: The name of the container directory in Application Support and Caches.
-    convenience init(queue: DispatchQueue, environment: GlobalEnvironment, baseURL: URL, requestor: HTTPRequesting, containerName: String) {
-        let conversation = Conversation(environment: environment)
+    convenience init(queue: DispatchQueue, dataProvider: ConversationDataProviding, requestor: HTTPRequesting, containerName: String) {
+        let conversation = Conversation(dataProvider: dataProvider)
         let targeter = Targeter(engagementManifest: EngagementManifest.placeholder)
         let messageManager = MessageManager(notificationCenter: NotificationCenter.default)
-        let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: environment.sdkVersion), languageCode: environment.preferredLocalization)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), client: client, queue: queue)
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), queue: queue)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let roster = ConversationRoster(active: .init(state: .placeholder, path: "placeholder"), loggedOut: [])
         let state = BackendState(isInForeground: false, isProtectedDataAvailable: false, roster: roster, fatalError: false)
+        let fileManager = FileManager.default
 
         self.init(
-            queue: queue, conversation: conversation, state: state, containerName: containerName, targeter: targeter, messageManager: messageManager, requestRetrier: requestRetrier, payloadSender: payloadSender, isDebugBuild: environment.isDebugBuild)
+            queue: queue, conversation: conversation, state: state, containerName: containerName, targeter: targeter, requestor: requestor, messageManager: messageManager, requestRetrier: requestRetrier, payloadSender: payloadSender,
+            dataProvider: dataProvider, fileManager: fileManager)
     }
 
     /// This initializer intended for testing only.
@@ -118,38 +127,47 @@ class Backend: PayloadAuthenticationDelegate {
     ///   - state: The initial state of the backend object.
     ///   - containerName: The name of the container directory in Application Support and Caches.
     ///   - targeter: The targeter to use to determine if events should show an interaction.
+    ///   - requestor: The `HTTPRequesting` object to use for making API requests.
     ///   - messageManager: The message manager to use to manage messages for Message Center.
     ///   - requestRetrier: The Apptentive API request retrier to use to send API requests.
     ///   - payloadSender: The payload sender to use to send updates to the API.
-    ///   - isDebugBuild: Indicates if in debug mode received from the ConversationEnvironment.
-    init(queue: DispatchQueue, conversation: Conversation, state: BackendState, containerName: String, targeter: Targeter, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSending, isDebugBuild: Bool) {
+    ///   - dataProvider: The `ConversationDataProviding` object used to initialize new conversations.
+    ///   - fileManager: A `FileManager` used to manipulate files.
+    init(
+        queue: DispatchQueue, conversation: Conversation, state: BackendState, containerName: String, targeter: Targeter, requestor: HTTPRequesting, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSending,
+        dataProvider: ConversationDataProviding, fileManager: FileManager
+    ) {
         self.queue = queue
         self.conversation = conversation
         self.state = state
         self.containerName = containerName
         self.targeter = targeter
+        self.requestor = requestor
         self.messageManager = messageManager
         self.requestRetrier = requestRetrier
         self.payloadSender = payloadSender
-        self.isDebugBuild = isDebugBuild
+        self.dataProvider = dataProvider
+        self.fileManager = fileManager
         self.jsonEncoder = JSONEncoder.apptentive
 
         self.payloadSender.authenticationDelegate = self
         self.jsonEncoder.dateEncodingStrategy = .secondsSince1970
     }
 
-    deinit {
-        self.housekeepingTimer?.setEventHandler(handler: nil)
-        self.housekeepingTimer?.cancel()
-        self.housekeepingTimer?.resume()
+    func setDelegate(_ delegate: (BackendDelegate & MessageManagerApptentiveDelegate)?) {
+        self.delegate = delegate
+        self.messageManager.messageManagerApptentiveDelegate = delegate
     }
 
     /// Connects the backend to the Apptentive API.
     /// - Parameters:
     ///   - appCredentials: The App Key and App Signature to use when communicating with the Apptentive API
-    ///   - environment: An object implementing the `GlobalEnvironment` protocol.
+    ///   - region: A `Region` object specifying the server to use for API requests.
     ///   - completion: A completion handler to be called when conversation credentials are loaded/retrieved, or when loading/retrieving fails.
-    func register(appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
+    func register(appCredentials: Apptentive.AppCredentials, region: Apptentive.Region, completion: @escaping (Result<ConnectionType, Error>) -> Void) {
+        let client = HTTPClient(requestor: self.requestor, baseURL: region.apiBaseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: self.dataProvider.sdkVersion), languageCode: self.dataProvider.preferredLocalization)
+        self.requestRetrier.client = client
+
         self.registerCompletion = completion
         self.state.appCredentials = appCredentials
     }
@@ -157,9 +175,8 @@ class Backend: PayloadAuthenticationDelegate {
     /// Sets up access to persistent storage and loads any previously-saved conversation data if needed.
     ///
     /// This method may be called multiple times if the device is locked with the app in the foreground and then unlocked.
-    /// - Parameter environment: An object implementing the `GlobalEnvironment` protocol.
     /// - Throws: An error if the conversation file exists but can't be read, or if the saved conversation can't be merged with the in-memory conversation.
-    func protectedDataDidBecomeAvailable(environment: GlobalEnvironment) throws {
+    func protectedDataDidBecomeAvailable() throws {
         self.state.isProtectedDataAvailable = true
     }
 
@@ -170,16 +187,16 @@ class Backend: PayloadAuthenticationDelegate {
         self.state.isProtectedDataAvailable = false
     }
 
-    func willEnterForeground(environment: GlobalEnvironment) {
+    func willEnterForeground() {
         self.state.isInForeground = true
     }
 
-    func didEnterBackground(environment: GlobalEnvironment) {
+    func didEnterBackground() {
         self.state.isInForeground = false
     }
 
     func invalidateEngagementManifestForDebug() {
-        if self.isDebugBuild {
+        if self.dataProvider.isDebugBuild {
             self.invalidateEngagementManifest()
         }
     }
@@ -200,7 +217,47 @@ class Backend: PayloadAuthenticationDelegate {
         }
     }
 
-    // MARK: - Methods called from Apptentive+InteractionDelegate on backend queue
+    // MARK: - Methods/Properties accessed by Apptentive object
+
+    func setPersonName(_ personName: String?) {
+        self.conversation?.person.name = personName
+    }
+
+    func setPersonEmailAddress(_ personEmailAddress: String?) {
+        self.conversation?.person.emailAddress = personEmailAddress
+    }
+
+    func setMParticleID(_ mParticleID: String?) {
+        self.conversation?.person.mParticleID = mParticleID
+    }
+
+    func setPersonCustomData(_ personCustomData: CustomData) {
+        self.conversation?.person.customData = personCustomData
+    }
+
+    func setDeviceCustomData(_ deviceCustomData: CustomData) {
+        self.conversation?.device.customData = deviceCustomData
+    }
+
+    func setDistributionName(_ distributionName: String?) {
+        self.conversation?.appRelease.sdkDistributionName = distributionName
+        self.dataProvider.distributionName = distributionName
+    }
+
+    func setDistributionVersion(_ distributionVersion: String?) {
+        self.conversation?.appRelease.sdkDistributionVersion = distributionVersion.flatMap { Version(string: $0) }
+        self.dataProvider.distributionVersion = distributionVersion.flatMap { Version(string: $0) }
+    }
+
+    func setRemoteNotificationDeviceToken(_ tokenData: Data) {
+        self.conversation?.device.remoteNotificationDeviceToken = tokenData
+        self.dataProvider.remoteNotificationDeviceToken = tokenData
+    }
+
+    func setIsOverridingStyles() {
+        self.conversation?.appRelease.isOverridingStyles = true
+        self.dataProvider.isOverridingStyles = true
+    }
 
     /// Engages an event.
     ///
@@ -345,6 +402,73 @@ class Backend: PayloadAuthenticationDelegate {
         self.messageManager.addQueuedMessage(message, with: payload.identifier)
     }
 
+    /// Sets a completion handler that is called when a message fetch completes.
+    func setMessageFetchCompletionHandler(_ messageFetchCompletion: (@Sendable (UIBackgroundFetchResult) -> Void)?) {
+        self.messageFetchCompletion = messageFetchCompletion
+
+        if let anonymousCredentials = self.state.anonymousCredentials, self.messageFetchCompletion != nil {
+            self.messageManager.forceMessageDownload = true
+
+            self.getMessagesIfNeeded(with: anonymousCredentials)
+        }
+    }
+
+    func setMessageCenterCustomData(_ customData: CustomData) {
+        self.messageManager.customData = customData
+    }
+
+    func setMessageManagerDelegate(_ delegate: MessageManagerDelegate?) {
+        self.messageManager.delegate = delegate
+    }
+
+    func setDraftMessageBody(_ body: String?) {
+        self.messageManager.draftMessage.body = body
+    }
+
+    func getDraftMessage(completion: @escaping (MessageList.Message) -> Void) {
+        completion(self.messageManager.draftMessage)
+    }
+
+    func setAutomatedMessageBody(_ body: String?) {
+        self.messageManager.setAutomatedMessageBody(body)
+    }
+
+    func prepareAutomatedMessageForSending() throws -> MessageList.Message? {
+        return try self.messageManager.prepareAutomatedMessageForSending()
+    }
+
+    func prepareDraftMessageForSending() throws -> (MessageList.Message, CustomData?) {
+        return try self.messageManager.prepareDraftMessageForSending()
+    }
+
+    func addDraftAttachment(data: Data, name: String?, mediaType: String, thumbnailSize: CGSize, thumbnailScale: CGFloat) throws -> URL {
+        return try self.messageManager.addDraftAttachment(data: data, name: name, mediaType: mediaType, thumbnailSize: thumbnailSize, thumbnailScale: thumbnailScale)
+    }
+
+    func addDraftAttachment(url: URL, thumbnailSize: CGSize, thumbnailScale: CGFloat) throws -> URL {
+        return try self.messageManager.addDraftAttachment(url: url, thumbnailSize: thumbnailSize, thumbnailScale: thumbnailScale)
+    }
+
+    func removeDraftAttachment(at index: Int) throws {
+        try self.messageManager.removeDraftAttachment(at: index)
+    }
+
+    func loadAttachment(at index: Int, in message: MessageList.Message, thumbnailSize: CGSize, thumbnailScale: CGFloat, completion: @escaping (Result<URL, Error>) -> Void) {
+        self.messageManager.loadAttachment(at: index, in: message, thumbnailSize: thumbnailSize, thumbnailScale: thumbnailScale, completion: completion)
+    }
+
+    func url(for attachment: MessageList.Message.Attachment) -> URL? {
+        return self.messageManager.attachmentManager?.url(for: attachment)
+    }
+
+    func updateReadMessage(with messageNonce: String) throws {
+        try self.messageManager.updateReadMessage(with: messageNonce)
+    }
+
+    var messages: [MessageList.Message] {
+        return self.messageManager.messages
+    }
+
     /// Checks if the event can trigger an interaction.
     /// - Parameters:
     ///  - event: The event used to check if it can trigger an interaction.
@@ -372,10 +496,6 @@ class Backend: PayloadAuthenticationDelegate {
                 throw ApptentiveError.loginCalledBeforeRegister
             }
 
-            guard let environment = self.delegate?.environment else {
-                throw ApptentiveError.internalInconsistency
-            }
-
             let activeConversationState = self.state.roster.active?.state
             let loggedOutConversationID = self.state.roster.loggedOutRecord(with: jwtSubject)?.id
 
@@ -389,7 +509,7 @@ class Backend: PayloadAuthenticationDelegate {
                         completion(
                             Result {
                                 try self.state.roster.logInLoggedOutRecord(with: jwtSubject, token: token, encryptionKey: sessionResponse.encryptionKey)
-                                try self.saveRoster()
+                                try self.saveRoster(self.state.roster)
                             })
 
                     case .failure(let error):
@@ -400,7 +520,7 @@ class Backend: PayloadAuthenticationDelegate {
             case (.none, .none):
                 ApptentiveLogger.default.debug("Logging in new conversation with subject \(jwtSubject).")
 
-                let conversation = Conversation(environment: environment)
+                let conversation = Conversation(dataProvider: dataProvider)
                 self.postConversation(conversation, with: PendingAPICredentials(appCredentials: appCredentials), token: token) { result in
                     switch result {
                     case .success(let conversationResponse):
@@ -408,7 +528,7 @@ class Backend: PayloadAuthenticationDelegate {
                         completion(
                             Result {
                                 try self.state.roster.createLoggedInRecord(with: jwtSubject, id: conversationResponse.id, token: token, encryptionKey: conversationResponse.encryptionKey)
-                                try self.saveRoster()
+                                try self.saveRoster(self.state.roster)
                             })
 
                     case .failure(let error):
@@ -425,7 +545,7 @@ class Backend: PayloadAuthenticationDelegate {
                         completion(
                             Result {
                                 try self.state.roster.logInAnonymousRecord(with: jwtSubject, token: token, encryptionKey: sessionResponse.encryptionKey)
-                                try self.saveRoster()
+                                try self.saveRoster(self.state.roster)
                             })
 
                     case .failure(let error):
@@ -460,7 +580,7 @@ class Backend: PayloadAuthenticationDelegate {
 
             try self.payloadSender.send(.logout(with: self.payloadContext), persistEagerly: true)
             try self.state.roster.logOutActiveConversation()
-            try self.saveRoster()
+            try self.saveRoster(self.state.roster)
         } else {
             throw ApptentiveError.notLoggedIn
         }
@@ -474,7 +594,7 @@ class Backend: PayloadAuthenticationDelegate {
 
             ApptentiveLogger.default.debug("Updating JWT for logged-in conversation with subject \(jwtSubject).")
             try self.state.roster.updateLoggedInRecord(with: token, matching: jwtSubject)
-            try self.saveRoster()
+            try self.saveRoster(self.state.roster)
 
             completion(.success(()))
         } catch let error {
@@ -495,7 +615,7 @@ class Backend: PayloadAuthenticationDelegate {
                 self.lastSyncedConversation = postedConversation
                 let result: Result<ConnectionType, Error> = Result {
                     try self.state.roster.registerAnonymousRecord(with: conversationResponse.id, token: conversationResponse.token)
-                    try self.saveRoster()
+                    try self.saveRoster(self.state.roster)
                     return ConnectionType.new
                 }
                 self.registerCompletion?(result)
@@ -510,7 +630,7 @@ class Backend: PayloadAuthenticationDelegate {
         }
     }
 
-    var state: BackendState {
+    private(set) var state: BackendState {
         didSet {
             if self.state.summary != oldValue.summary {
                 self.handleTransition((from: oldValue.summary, to: self.state.summary))
@@ -528,7 +648,9 @@ class Backend: PayloadAuthenticationDelegate {
 
     private let payloadSender: PayloadSending
 
-    private let isDebugBuild: Bool
+    private var dataProvider: ConversationDataProviding
+
+    private var fileManager: FileManager
 
     private var configuration: Configuration? {
         didSet {
@@ -548,37 +670,39 @@ class Backend: PayloadAuthenticationDelegate {
     /// Whether the conversation has changes that need to be saved to persistent storage.
     private var conversationNeedsSaving: Bool = false
 
-    /// A timer that periodically runs a task to save the conversation and payload sender.
-    private var housekeepingTimer: DispatchSourceTimer?
-
-    /// A flag indicating whether the housekeeping timer is active.
-    private var housekeepingTimerIsActive = false
+    /// A repeating task that periodically runs a task to save the conversation and payload sender.
+    private var housekeepingTask: Task<Void, Error>?
 
     /// The version of the conversation that was last sent to the API.
     private var lastSyncedConversation: Conversation?
 
     private var registerCompletion: ((Result<ConnectionType, Error>) -> Void)?
 
+    private var messageFetchCompletion: ((UIBackgroundFetchResult) -> Void)?
+
     private func handleTransition(_ transition: (from: BackendState.Summary, to: BackendState.Summary)) {
         ApptentiveLogger.default.debug("Backend state transition \(String(describing: transition))")
 
         do {
-            guard let environment = self.delegate?.environment else {
-                throw ApptentiveError.internalInconsistency
+            if transition.to == .waiting {
+                return
             }
 
-            let containerURL = try Self.containerDirectoryURL(with: containerName, environment: environment)
-            let cacheURL = try Self.cacheDirectoryURL(with: containerName, environment: environment)
+            let containerURL = try self.containerURL
+            let cacheURL = try self.cacheURL
 
             switch transition {
             case (from: .waiting, to: .loading(let appCredentials)), (from: .backgrounded, to: .loading(let appCredentials)):
-                try self.createCommonSavers(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment)
-                self.loadCommonFiles(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment)
+                try self.createCommonSavers(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
+                let roster = try self.loadCommonFiles(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
 
-                if let activeRecord = self.state.roster.active {
-                    try createRecordSavers(for: activeRecord, containerURL: containerURL, environment: environment)
-                    self.loadRecordFiles(for: activeRecord, containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment)
+                if let activeRecord = roster.active {
+                    try createRecordSavers(for: activeRecord, containerURL: containerURL)
+                    try self.loadRecordFiles(for: activeRecord, containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
+                    self.syncFrontendVariables()
                 }
+
+                self.state.roster = roster
 
             case (from: .loading, to: .posting(let pendingCredentials)):
                 try self.startAnonymousConversation(with: pendingCredentials)
@@ -590,7 +714,7 @@ class Backend: PayloadAuthenticationDelegate {
                 self.registerCompletion = nil
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: nil)
-                self.startHousekeepingTimer()
+                self.startHousekeepingTask()
 
             case (from: .loading, to: .anonymous(let payloadCredentials)):
                 self.startSession()
@@ -599,18 +723,20 @@ class Backend: PayloadAuthenticationDelegate {
                 self.registerCompletion = nil
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: nil)
-                self.startHousekeepingTimer()
+                self.startHousekeepingTask()
 
             case (from: .loading, to: .loggedIn(let payloadCredentials, let encryptionContext)):
                 self.registerCompletion?(.success(.cached))
                 self.registerCompletion = nil
                 self.startSession()
+                self.syncFrontendVariables()
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: encryptionContext)
-                self.startHousekeepingTimer()
+                self.startHousekeepingTask()
 
             case (from: .loading, to: .loggedOut):
                 self.conversation = nil
+                self.clearFrontendVariables()
                 self.registerCompletion?(.success(.cached))
                 self.registerCompletion = nil
 
@@ -619,10 +745,10 @@ class Backend: PayloadAuthenticationDelegate {
                     throw ApptentiveError.internalInconsistency
                 }
 
-                try self.createRecordSavers(for: activeRecord, containerURL: containerURL, environment: environment)
+                try self.createRecordSavers(for: activeRecord, containerURL: containerURL)
                 try self.saveConversation()
                 try self.messageManager.saveMessages()
-                try self.removePlaintextFiles(in: containerURL, for: activeRecord, environment: environment)
+                try self.removePlaintextFiles(in: containerURL, for: activeRecord)
                 try self.payloadSender.updateCredentials(payloadCredentials, for: activeRecord.path, encryptionContext: encryptionContext)
 
                 self.engage(event: .login, completion: nil)
@@ -632,16 +758,18 @@ class Backend: PayloadAuthenticationDelegate {
                     throw ApptentiveError.internalInconsistency
                 }
 
-                try self.createRecordSavers(for: activeRecord, containerURL: containerURL, environment: environment)
-                self.loadRecordFiles(for: activeRecord, containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment)
-                self.resumeHousekeepingTimer()
+                try self.createRecordSavers(for: activeRecord, containerURL: containerURL)
+                try self.loadRecordFiles(for: activeRecord, containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
+                self.startHousekeepingTask()
 
                 self.startSession()
+                self.syncFrontendVariables()
                 self.engage(event: .login, completion: nil)
 
             case (from: .loggedIn, to: .loggedOut):
-                self.suspendHousekeepingTimer()
+                self.cancelHousekeepingTask()
                 self.conversation = nil
+                self.clearFrontendVariables()
                 try self.messageManager.deleteCachedMessages()
                 self.invalidateEngagementManifest()
 
@@ -653,42 +781,37 @@ class Backend: PayloadAuthenticationDelegate {
                 try self.payloadSender.updateCredentials(payloadCredentials, for: activeRecord.path, encryptionContext: encryptionContext)
 
             case (from: .backgrounded, to: .anonymous), (from: .backgrounded, to: .loggedIn):
+                try self.unlockIfNeeded()
                 self.startSession()
                 self.payloadSender.resume()
-                self.resumeHousekeepingTimer()
+                self.startHousekeepingTask()
 
             case (from: .anonymous, to: .backgrounded), (from: .loggedIn, to: .backgrounded):
-                environment.startBackgroundTask()
+                self.startBackgroundTask()
                 self.endSession()
 
                 self.syncConversationWithAPI()
 
                 self.payloadSender.drain {
                     DispatchQueue.main.async {
-                        environment.endBackgroundTask()
+                        self.endBackgroundTask()
                     }
                 }
 
-                self.suspendHousekeepingTimer()
+                self.cancelHousekeepingTask()
                 self.saveToPersistentStorageIfNeeded()
 
             case (from: _, to: .backgrounded):
                 break  // Allowed state transition, no action.
 
             case (from: .backgrounded, to: _):
-                break  // Allowed state transition, no action.
+                try self.unlockIfNeeded()
 
             case (from: .locked, to: _):
-                if let appCredentials = self.state.appCredentials, state.isProtectedDataAvailable {
-                    try self.createCommonSavers(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment)
-
-                    if let activeRecord = self.state.roster.active {
-                        try self.createRecordSavers(for: activeRecord, containerURL: containerURL, environment: environment)
-                    }
-                }
+                try self.unlockIfNeeded()
 
             case (from: _, to: .locked):
-                self.suspendHousekeepingTimer()
+                self.cancelHousekeepingTask()
                 self.destroySavers()
 
             default:
@@ -713,35 +836,72 @@ class Backend: PayloadAuthenticationDelegate {
         self.sessionID = nil
     }
 
-    private func createCommonSavers(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) throws {
-        self.rosterSaver = PropertyListSaver<ConversationRoster>(containerURL: containerURL, filename: CurrentLoader.rosterFilename(for: appCredentials), fileManager: environment.fileManager)
-        self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename(for: appCredentials), fileManager: environment.fileManager)
-        self.messageManager.attachmentManager = AttachmentManager(fileManager: environment.fileManager, requestor: URLSession.shared, cacheContainerURL: cacheURL, savedContainerURL: containerURL)
+    private func unlockIfNeeded() throws {
+        if let appCredentials = self.state.appCredentials, state.isProtectedDataAvailable, self.rosterSaver == nil {
+            try self.createCommonSavers(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
+
+            if let activeRecord = self.state.roster.active {
+                try self.createRecordSavers(for: activeRecord, containerURL: containerURL)
+            }
+        }
     }
 
-    private func loadCommonFiles(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) {
-        CurrentLoader.loadLatestVersion(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment) { loader in
+    private var backgroundTaskIdentifier: UIBackgroundTaskIdentifier?
+
+    private func startBackgroundTask() {
+        #if canImport(UIKit)
+            self.backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask(withName: "com.apptentive.feedback") {
+                self.endBackgroundTask()
+            }
+
+            ApptentiveLogger.default.debug("Started background task with ID \(String(describing: self.backgroundTaskIdentifier)).")
+        #endif
+    }
+
+    private func endBackgroundTask() {
+        guard let backgroundTaskIdentifier = self.backgroundTaskIdentifier else {
+            return apptentiveCriticalError("Expected to have background task identifier.")
+        }
+
+        UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
+        ApptentiveLogger.default.debug("Ended background task with ID \(String(describing: self.backgroundTaskIdentifier)).")
+    }
+
+    private func createCommonSavers(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials) throws {
+        self.rosterSaver = PropertyListSaver<ConversationRoster>(containerURL: containerURL, filename: CurrentLoader.rosterFilename(for: appCredentials), fileManager: self.fileManager)
+        self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename(for: appCredentials), fileManager: self.fileManager)
+        self.messageManager.attachmentManager = AttachmentManager(fileManager: self.fileManager, requestor: URLSession.shared, cacheContainerURL: cacheURL, savedContainerURL: containerURL)
+    }
+
+    private func loadCommonFiles(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials) throws -> ConversationRoster {
+        let context = LoaderContext(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, dataProvider: self.dataProvider, fileManager: self.fileManager)
+
+        let result = try CurrentLoader.loadLatestVersion(context: context) { loader in
             let roster = try loader.loadRoster()
             try self.payloadSender.load(from: loader)
 
-            self.state.roster = roster
-
             // Save any data that might have been migrated
-            try self.saveRoster()
+            try self.saveRoster(roster)
             try self.payloadSender.savePayloadsIfNeeded()
+
+            return roster
         }
 
         self.delegate?.resourceManager.prefetchContainerURL = containerURL.appendingPathComponent(CurrentLoader.resourceDirectoryName(for: appCredentials))
+
+        return result
     }
 
-    private func createRecordSavers(for record: ConversationRoster.Record, containerURL: URL, environment: GlobalEnvironment) throws {
+    private func createRecordSavers(for record: ConversationRoster.Record, containerURL: URL) throws {
         let recordContainerURL = containerURL.appendingPathComponent(record.path)
-        self.conversationSaver = EncryptedPropertyListSaver<Conversation>(containerURL: recordContainerURL, filename: CurrentLoader.conversationFilename, fileManager: environment.fileManager, encryptionKey: record.encryptionKey)
-        self.messageManager.saver = MessageManager.createSaver(containerURL: recordContainerURL, filename: CurrentLoader.messagesFilename, fileManager: environment.fileManager, encryptionKey: record.encryptionKey)
+        self.conversationSaver = EncryptedPropertyListSaver<Conversation>(containerURL: recordContainerURL, filename: CurrentLoader.conversationFilename, fileManager: self.fileManager, encryptionKey: record.encryptionKey)
+        self.messageManager.saver = MessageManager.createSaver(containerURL: recordContainerURL, filename: CurrentLoader.messagesFilename, fileManager: self.fileManager, encryptionKey: record.encryptionKey)
     }
 
-    private func loadRecordFiles(for activeRecord: ConversationRoster.Record, containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) {
-        CurrentLoader.loadLatestVersion(for: activeRecord, containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, environment: environment) { loader in
+    private func loadRecordFiles(for activeRecord: ConversationRoster.Record, containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials) throws {
+        let context = LoaderContext(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, dataProvider: self.dataProvider, fileManager: self.fileManager)
+
+        try CurrentLoader.loadLatestVersion(for: activeRecord, context: context) { loader in
             try self.loadConversation(from: loader, for: activeRecord)
             try self.messageManager.load(from: loader, for: activeRecord)
 
@@ -750,15 +910,15 @@ class Backend: PayloadAuthenticationDelegate {
         }
     }
 
-    private func removePlaintextFiles(in containerURL: URL, for activeRecord: ConversationRoster.Record, environment: GlobalEnvironment) throws {
+    private func removePlaintextFiles(in containerURL: URL, for activeRecord: ConversationRoster.Record) throws {
         let plaintextConversationFileURL = containerURL.appendingPathComponent(CurrentLoader.conversationFilePath(for: activeRecord))
-        if environment.fileManager.fileExists(atPath: plaintextConversationFileURL.path) {
-            try environment.fileManager.removeItem(at: plaintextConversationFileURL)
+        if self.fileManager.fileExists(atPath: plaintextConversationFileURL.path) {
+            try self.fileManager.removeItem(at: plaintextConversationFileURL)
         }
 
         let plaintextMessageListFileURL = containerURL.appendingPathComponent(CurrentLoader.messagesFilePath(for: activeRecord))
-        if environment.fileManager.fileExists(atPath: plaintextMessageListFileURL.path) {
-            try environment.fileManager.removeItem(at: plaintextMessageListFileURL)
+        if self.fileManager.fileExists(atPath: plaintextMessageListFileURL.path) {
+            try self.fileManager.removeItem(at: plaintextMessageListFileURL)
         }
     }
 
@@ -905,12 +1065,12 @@ class Backend: PayloadAuthenticationDelegate {
     ///
     /// Would be private but needs to be internal for testing.
     /// - Throws: An error if the saver is nil.
-    internal func saveRoster() throws {
+    internal func saveRoster(_ roster: ConversationRoster) throws {
         guard let saver = self.rosterSaver else {
             throw ApptentiveError.internalInconsistency
         }
 
-        try saver.save(self.state.roster)
+        try saver.save(roster)
     }
 
     /// Saves the conversation to persistent storage if marked as dirty.
@@ -930,36 +1090,44 @@ class Backend: PayloadAuthenticationDelegate {
 
     // MARK: Housekeeping timer
 
-    private func startHousekeepingTimer() {
-        let housekeepingTimer = DispatchSource.makeTimerSource(flags: [], queue: self.queue)
-        housekeepingTimer.schedule(deadline: .now(), repeating: .seconds(10), leeway: .seconds(1))
-        housekeepingTimer.setEventHandler { [weak self] in
-            ApptentiveLogger.default.debug("Running periodic housekeeping task")
-            self?.syncConversationWithAPI()
-            self?.saveToPersistentStorageIfNeeded()
-        }
+    private func startHousekeepingTask() {
+        if self.housekeepingTask == nil {
+            self.housekeepingTask = Task {
+                repeat {
+                    ApptentiveLogger.default.debug("Running periodic housekeeping task")
+                    self.syncConversationWithAPI()
+                    self.saveToPersistentStorageIfNeeded()
 
-        housekeepingTimer.resume()
-
-        self.housekeepingTimer = housekeepingTimer
-        self.housekeepingTimerIsActive = true
-    }
-
-    private func resumeHousekeepingTimer() {
-        if let housekeepingTimer = self.housekeepingTimer {
-            if !housekeepingTimerIsActive {
-                housekeepingTimer.resume()
-                self.housekeepingTimerIsActive = true
+                    try? await Task.sleep(nanoseconds: 10 * UInt64(1E9))
+                } while !Task.isCancelled
+                self.housekeepingTask = nil
             }
-        } else {
-            self.startHousekeepingTimer()
         }
     }
 
-    private func suspendHousekeepingTimer() {
-        if housekeepingTimerIsActive {
-            self.housekeepingTimer?.suspend()
-            self.housekeepingTimerIsActive = false
+    private func cancelHousekeepingTask() {
+        self.housekeepingTask?.cancel()
+    }
+
+    // MARK: - Frontend
+
+    func syncFrontendVariables() {
+        guard let conversation = self.conversation, let delegate = self.delegate else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            delegate.updateProperties(with: conversation)
+        }
+    }
+
+    func clearFrontendVariables() {
+        guard let delegate = self.delegate else {
+            return
+        }
+
+        DispatchQueue.main.async {
+            delegate.clearProperties()
         }
     }
 
@@ -985,21 +1153,21 @@ class Backend: PayloadAuthenticationDelegate {
     /// Retrieves a message list from the Apptentive API.
     internal func getMessagesIfNeeded(with credentials: AnonymousAPICredentials) {
         if self.messageManager.messagesNeedDownloading {
-            self.requestRetrier.startUnlessUnderway(ApptentiveAPI.getMessages(with: credentials, afterMessageWithID: self.messageManager.lastDownloadedMessageID, pageSize: self.isDebugBuild ? "5" : nil), identifier: "get messages") {
+            self.requestRetrier.startUnlessUnderway(ApptentiveAPI.getMessages(with: credentials, afterMessageWithID: self.messageManager.lastDownloadedMessageID, pageSize: self.dataProvider.isDebugBuild ? "5" : nil), identifier: "get messages") {
                 (result: Result<MessagesResponse, Error>) in
                 switch result {
                 case .success(let messagesResponse):
                     ApptentiveLogger.default.debug("Message List received.")
 
                     let didReceiveNewMessages = self.messageManager.update(with: messagesResponse)
-                    self.messageFetchCompletionHandler?(didReceiveNewMessages ? .newData : .noData)
+                    self.messageFetchCompletion?(didReceiveNewMessages ? .newData : .noData)
 
                 case .failure(let error):
                     ApptentiveLogger.network.error("Failed to download message list: \(error)")
-                    self.messageFetchCompletionHandler?(.failed)
+                    self.messageFetchCompletion?(.failed)
                 }
 
-                self.messageFetchCompletionHandler = nil
+                self.messageFetchCompletion = nil
             }
         }
     }
@@ -1043,14 +1211,6 @@ class Backend: PayloadAuthenticationDelegate {
                 }
             }
         }
-    }
-
-    private static func containerDirectoryURL(with containerName: String, environment: GlobalEnvironment) throws -> URL {
-        return try environment.applicationSupportURL().appendingPathComponent(containerName)
-    }
-
-    private static func cacheDirectoryURL(with containerName: String, environment: GlobalEnvironment) throws -> URL {
-        return try environment.cachesURL().appendingPathComponent(containerName)
     }
 
     static let urlSessionConfiguration: URLSessionConfiguration = {

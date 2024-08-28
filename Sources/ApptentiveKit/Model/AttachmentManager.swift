@@ -176,8 +176,8 @@ class AttachmentManager: AttachmentURLProviding {
     }
 
     // Note: completion may be called multiple times.
-    static func createThumbnail(of size: CGSize, for url: URL, completion: @escaping (Result<UIImage, Error>) -> Void) {
-        let request = QLThumbnailGenerator.Request(fileAt: url, size: size, scale: UIScreen.main.scale, representationTypes: .all)
+    static func createThumbnail(of size: CGSize, scale: CGFloat, for url: URL, completion: @escaping (Result<UIImage, Error>) -> Void) {
+        let request = QLThumbnailGenerator.Request(fileAt: url, size: size, scale: scale, representationTypes: .all)
 
         QLThumbnailGenerator.shared.generateRepresentations(for: request) { (thumbnail, type, error) in
             DispatchQueue.main.async {

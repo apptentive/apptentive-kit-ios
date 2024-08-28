@@ -1,0 +1,78 @@
+{
+  "interactions": [
+    {
+      "id": "548cc5dd49f63bb5c2000001",
+      "type": "TextModal",
+      "configuration": {
+          "title": "40% Random Threshold",
+           "body": "Should always show in debug mode.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "id": "548cc5dd49f63bb5c2000002",
+      "type": "TextModal",
+      "configuration": {
+          "title": "60% Random Threshold",
+           "body": "Should never show in debug mode.",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000044",
+                "criteria": {}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ]
+      }
+    }
+  ],
+  "targets": {
+    "local#app#debug_show_never": [
+      {
+        "interaction_id": "548cc5dd49f63bb5c2000002",
+        "criteria": {
+          "random/548cc5dd49f63bb5c2000002/percent": {
+              "$gte": 60
+          }
+        }
+      }
+    ],
+    "local#app#debug_show_always": [
+      {
+        "interaction_id": "548cc5dd49f63bb5c2000001",
+        "criteria": {
+          "random/548cc5dd49f63bb5c2000001/percent": {
+              "$gte": 40
+          }
+        }
+      }
+    ]
+  }
+}

@@ -29,11 +29,12 @@ class HTTPRequestRetrierTests: XCTestCase {
 
         let retryPolicy = HTTPRetryPolicy(initialDelay: 1.0, multiplier: 1.0, useJitter: false)
         let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://www.example.com")!, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
-        self.requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
+        self.requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
+        self.requestRetrier.client = client
     }
 
     func testStart() {
-        let conversation = Conversation(environment: MockEnvironment())
+        let conversation = Conversation(dataProvider: MockDataProvider())
         let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
         let expect = self.expectation(description: "create conversation")
@@ -56,7 +57,7 @@ class HTTPRequestRetrierTests: XCTestCase {
     func testStartUnlessUnderway() {
         self.requestor.delay = 1.0
 
-        let conversation = Conversation(environment: MockEnvironment())
+        let conversation = Conversation(dataProvider: MockDataProvider())
         let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
         let expect = self.expectation(description: "create conversation")
@@ -81,7 +82,7 @@ class HTTPRequestRetrierTests: XCTestCase {
     }
 
     func testRetryOnConnectionError() {
-        let conversation = Conversation(environment: MockEnvironment())
+        let conversation = Conversation(dataProvider: MockDataProvider())
         let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
         let expect1 = self.expectation(description: "create conversation")
@@ -111,7 +112,7 @@ class HTTPRequestRetrierTests: XCTestCase {
     }
 
     func testNoRetryOnClientError() {
-        let conversation = Conversation(environment: MockEnvironment())
+        let conversation = Conversation(dataProvider: MockDataProvider())
         let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
         let expect1 = self.expectation(description: "create conversation")
@@ -152,7 +153,7 @@ class HTTPRequestRetrierTests: XCTestCase {
     }
 
     func testNoRetryOnUnauthorizedError() {
-        let conversation = Conversation(environment: MockEnvironment())
+        let conversation = Conversation(dataProvider: MockDataProvider())
         let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
         let expect1 = self.expectation(description: "create conversation")

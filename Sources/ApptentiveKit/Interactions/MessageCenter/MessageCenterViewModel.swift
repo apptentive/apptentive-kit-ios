@@ -96,7 +96,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// The size at which to generate thumbnails for attachments.
     public var thumbnailSize = CGSize(width: 44, height: 44) {
         didSet {
-            MessageManager.thumbnailSize = self.thumbnailSize
+            CGSize.apptentiveThumbnail = self.thumbnailSize
         }
     }
 
@@ -582,7 +582,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.attachmentOptionsImagesButton = NSLocalizedString("Attachment Options Images Button", bundle: .apptentive, value: "Images", comment: "The button label for the files attachment option.")
         self.attachmentOptionsCancelButton = NSLocalizedString("Attachment Options Cancel Button", bundle: .apptentive, value: "Cancel", comment: "The button label for dismissing the attachment options alert.")
 
-        self.interactionDelegate.messageManagerDelegate = self
+        self.interactionDelegate.setMessageManagerDelegate(self)
         self.interactionDelegate.setAutomatedMessageBody(configuration.automatedMessage?.body)
 
         self.interactionDelegate.getMessages { messages in
@@ -597,7 +597,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.emailAddress = self.interactionDelegate.personEmailAddress
         self.validateProfile()
 
-        MessageManager.thumbnailSize = self.thumbnailSize
+        CGSize.apptentiveThumbnail = self.thumbnailSize
     }
 
     // Notifies the delegate of inserted, updated, deleted, and moved indexPaths, and inserted and removed sections.

@@ -13,10 +13,10 @@ import XCTest
 class ConversationTests: XCTestCase {
 
     func testMerge() throws {
-        let environment = MockEnvironment()
+        let dataProvider = MockDataProvider()
 
-        let conversation1 = Conversation(environment: environment)
-        var conversation2 = Conversation(environment: environment)
+        let conversation1 = Conversation(dataProvider: dataProvider)
+        var conversation2 = Conversation(dataProvider: dataProvider)
 
         conversation2.person.name = "Testy McTesterson"
         conversation2.appRelease.version = "2"
@@ -33,9 +33,9 @@ class ConversationTests: XCTestCase {
     }
 
     func testCoding() throws {
-        let environment = MockEnvironment()
+        let dataProvider = MockDataProvider()
 
-        var conversation = Conversation(environment: environment)
+        var conversation = Conversation(dataProvider: dataProvider)
 
         conversation.interactions.record(
             .answered([

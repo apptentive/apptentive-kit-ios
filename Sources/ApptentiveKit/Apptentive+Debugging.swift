@@ -17,6 +17,16 @@ extension Apptentive {
         return Self.engagementManifestURL
     }
 
+    public enum ConversationState: String {
+        case none = "None"
+        case placeholder = "Placeholder"
+        case anonymousPending = "Anonymous Pending"
+        case legacyPending = "Legacy Pending"
+        case anonymous = "Anonymous"
+        case loggedIn = "Logged In"
+        case loggedOut = "Logged Out"
+    }
+
     /// Overrides the API-provided engagement manifest with one from the specified URL.
     /// - Parameters:
     ///   - url: The (file) URL of the manifest to load.
@@ -29,7 +39,7 @@ extension Apptentive {
 
                     let engagementManifest = try JSONDecoder.apptentive.decode(EngagementManifest.self, from: manifestData)
 
-                    self.backend.targeter.localEngagementManifest = engagementManifest
+                    self.backend.setLocalEngagementManifest(engagementManifest)
                     self.resourceManager.prefetchResources(at: engagementManifest.prefetch ?? [])
 
                     DispatchQueue.main.async {
@@ -42,7 +52,7 @@ extension Apptentive {
                     }
                 }
             } else {
-                self.backend.targeter.localEngagementManifest = nil
+                self.backend.setLocalEngagementManifest(nil)
 
                 DispatchQueue.main.async {
                     Self.engagementManifestURL = nil
@@ -56,7 +66,7 @@ extension Apptentive {
     /// - Parameter completion: A completion handler that is called with the list of interaction items.
     public func getInteractionList(_ completion: @escaping ([InteractionListItem]) -> Void) {
         self.backendQueue.async {
-            let interactionItems = self.backend.targeter.activeManifest.interactions
+            let interactionItems = self.backend.getInteractions()
                 .map({ InteractionListItem(id: $0.id, displayName: $0.displayName, typeName: $0.typeName) })
 
             DispatchQueue.main.async {
@@ -71,7 +81,7 @@ extension Apptentive {
     ///   - completion: A completion handler that is called with the result of attempting to present the interaction.
     public func presentInteraction(with id: String, completion: @escaping (Result<Void, Error>) -> Void) {
         self.backendQueue.async {
-            if let interaction = self.backend.targeter.interactionIndex[id] {
+            if let interaction = self.backend.getInteraction(with: id) {
                 DispatchQueue.main.async {
                     self.interactionPresenter.presentInteraction(interaction, completion: completion)
                 }
@@ -116,7 +126,7 @@ extension Apptentive {
     /// - Parameter completion: A completion handler that is called with the list of events.
     public func getEventList(_ completion: @escaping ([String]) -> Void) {
         self.backendQueue.async {
-            let targetedEvents = self.backend.targeter.activeManifest.targets.keys
+            let targetedEvents = self.backend.getTargets()
                 .filter({ $0.hasPrefix("local#app#") })
                 .compactMap({ $0.split(separator: "#").last?.removingPercentEncoding })
 
@@ -128,49 +138,54 @@ extension Apptentive {
 
     /// Queries information about the current connection to the Apptentive API.
     /// - Parameter completion: A completion handler that is called with the result of the query.
-    public func getConnectionInfo(_ completion: @escaping (_ state: String?, _ id: String?, _ token: String?, _ subject: String?, _ buttonLabel: String?) -> Void) {
+    public func getConnectionInfo(_ completion: @escaping (_ state: ConversationState, _ id: String?, _ token: String?) -> Void) {
         self.backendQueue.async {
-            var stateString = "No Active Conversation"
-            var subjectString: String? = nil
-            var idString: String? = nil
-            var buttonLabel: String? = nil
-            var tokenString: String? = nil
-
-            switch self.backend.state.roster.active?.state {
-            case .placeholder:
-                stateString = "Placeholder"
-
-            case .anonymousPending:
-                stateString = "Anonymous Pending"
-
-            case .legacyPending(let legacyToken):
-                tokenString = legacyToken
-                stateString = "Legacy Pending"
-
-            case .anonymous(let credentials):
-                idString = credentials.id
-                tokenString = credentials.token
-                stateString = "Anonymous"
-                buttonLabel = "Log In"
-
-            case .loggedIn(let credentials, let subject, encryptionKey: _):
-                idString = credentials.id
-                tokenString = credentials.token
-                subjectString = subject
-                stateString = "Logged In"
-                buttonLabel = "Log Out"
-
-            default:
-                idString = nil
-                subjectString = nil
-                stateString = "Logged Out"
-                buttonLabel = "Log In"
-            }
+            let conversationState = self.backend.getState()
 
             DispatchQueue.main.async {
-                completion(stateString, idString, tokenString, subjectString, buttonLabel)
+                switch conversationState {
+                case .placeholder:
+                    completion(.placeholder, nil, nil)
+
+                case .anonymousPending:
+                    completion(.anonymousPending, nil, nil)
+
+                case .legacyPending:
+                    completion(.legacyPending, nil, nil)
+
+                case .anonymous(let credentials):
+                    completion(.anonymous, credentials.id, credentials.token)
+
+                case .loggedIn(let credentials, _, _):
+                    completion(.loggedIn, credentials.id, credentials.token)
+
+                default:
+                    completion(.loggedOut, nil, nil)
+                }
             }
         }
+    }
+}
+
+extension Backend {
+    func setLocalEngagementManifest(_ localEngagementManifest: EngagementManifest?) {
+        self.targeter.localEngagementManifest = localEngagementManifest
+    }
+
+    func getInteractions() -> [Interaction] {
+        return self.targeter.activeManifest.interactions
+    }
+
+    func getInteraction(with id: String) -> Interaction? {
+        return self.targeter.interactionIndex[id]
+    }
+
+    func getTargets() -> [String] {
+        return Array(self.targeter.activeManifest.targets.keys)
+    }
+
+    func getState() -> ConversationRoster.Record.State? {
+        return self.state.roster.active?.state
     }
 }
 

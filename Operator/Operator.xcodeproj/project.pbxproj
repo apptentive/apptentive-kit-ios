@@ -16,6 +16,7 @@
 		015D3CC6296F7B1400D666CE /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; };
 		015D3CC7296F7B1400D666CE /* ApptentiveKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */; };
+		0167CA1F2C0ECE3800FA1B29 /* JWT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0167CA1E2C0ECE3800FA1B29 /* JWT.swift */; };
 		0176156925D1D48700BB85C6 /* DataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0176156825D1D48700BB85C6 /* DataTableViewController.swift */; };
 		018B099A24577B15007450EA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018B099924577B15007450EA /* AppDelegate.swift */; };
 		018B09A324577B15007450EA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 018B09A124577B15007450EA /* Main.storyboard */; };
@@ -30,7 +31,6 @@
 		01C060B4251E48EC006B4B30 /* AddEventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C060B3251E48EC006B4B30 /* AddEventCell.swift */; };
 		01CBA936282B2E7500614A24 /* Manifests in Resources */ = {isa = PBXBuildFile; fileRef = 01CBA930282B2E7500614A24 /* Manifests */; };
 		01CBA938282B34AB00614A24 /* ManifestsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CBA937282B34AB00614A24 /* ManifestsViewController.swift */; };
-		01E53AAF29C122FD009182BF /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = 01E53AAE29C122FD009182BF /* SwiftJWT */; };
 		EF5F380D25C3725D007F823E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EF5F380F25C3725D007F823E /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
@@ -135,6 +135,7 @@
 		0144DA7929BFE854006018AE /* ConnectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionViewController.swift; sourceTree = "<group>"; };
 		0144DA8029C118E4006018AE /* JWTViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JWTViewController.swift; sourceTree = "<group>"; };
 		015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionsViewController.swift; sourceTree = "<group>"; };
+		0167CA1E2C0ECE3800FA1B29 /* JWT.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWT.swift; sourceTree = "<group>"; };
 		0176156825D1D48700BB85C6 /* DataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTableViewController.swift; sourceTree = "<group>"; };
 		018B099624577B15007450EA /* Operator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Operator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		018B099924577B15007450EA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -185,7 +186,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01E53AAF29C122FD009182BF /* SwiftJWT in Frameworks */,
 				015D3CC6296F7B1400D666CE /* ApptentiveKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -227,6 +227,7 @@
 				0116CEA027EA8A0600186CC1 /* CustomDataDataSource.swift */,
 				0144DA7929BFE854006018AE /* ConnectionViewController.swift */,
 				0144DA8029C118E4006018AE /* JWTViewController.swift */,
+				0167CA1E2C0ECE3800FA1B29 /* JWT.swift */,
 				01C021A225DDF54600547059 /* Data Tab */,
 				EF5F381C25C3B2D8007F823E /* Localization */,
 				01C060B3251E48EC006B4B30 /* AddEventCell.swift */,
@@ -297,7 +298,6 @@
 			);
 			name = Operator;
 			packageProductDependencies = (
-				01E53AAE29C122FD009182BF /* SwiftJWT */,
 			);
 			productName = Operator;
 			productReference = 018B099624577B15007450EA /* Operator.app */;
@@ -351,7 +351,6 @@
 			);
 			mainGroup = 018B098D24577B15007450EA;
 			packageReferences = (
-				01E53AAD29C122FD009182BF /* XCRemoteSwiftPackageReference "Swift-JWT" */,
 			);
 			productRefGroup = 018B099724577B15007450EA /* Products */;
 			projectDirPath = "";
@@ -434,6 +433,7 @@
 				01A26B8025DDF610002EFA74 /* DeviceDataSource.swift in Sources */,
 				01C060B4251E48EC006B4B30 /* AddEventCell.swift in Sources */,
 				0144DA8129C118E4006018AE /* JWTViewController.swift in Sources */,
+				0167CA1F2C0ECE3800FA1B29 /* JWT.swift in Sources */,
 				0116CE9A27EA895D00186CC1 /* CustomDataViewController.swift in Sources */,
 				01A26B7E25DDF5D4002EFA74 /* PersonDataSource.swift in Sources */,
 				01A26B7725DDF5C9002EFA74 /* CustomCells.swift in Sources */,
@@ -829,25 +829,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		01E53AAD29C122FD009182BF /* XCRemoteSwiftPackageReference "Swift-JWT" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Kitura/Swift-JWT/";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		01E53AAE29C122FD009182BF /* SwiftJWT */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 01E53AAD29C122FD009182BF /* XCRemoteSwiftPackageReference "Swift-JWT" */;
-			productName = SwiftJWT;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 018B098E24577B15007450EA /* Project object */;
 }

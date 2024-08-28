@@ -180,7 +180,7 @@ class ApptentiveAPITests: XCTestCase {
 
     func testCreateConversation() throws {
         let baseURL = URL(string: "http://example.com")!
-        let conversation = Conversation(environment: MockEnvironment())
+        let conversation = Conversation(dataProvider: MockDataProvider())
         let requestor = SpyRequestor(responseData: try JSONEncoder.apptentive.encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789", encryptionKey: nil)))
 
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
@@ -213,10 +213,11 @@ class ApptentiveAPITests: XCTestCase {
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
         payloadSender.authenticationDelegate = appCredentialsProvider
+        requestRetrier.client = client
 
         let surveyResponse = SurveyResponse(surveyID: "789", questionResponses: ["1": .answered([Answer.freeform("foo")])])
 
@@ -243,10 +244,11 @@ class ApptentiveAPITests: XCTestCase {
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
         payloadSender.authenticationDelegate = appCredentialsProvider
+        requestRetrier.client = client
 
         let event = Event(name: "Foobar")
 
@@ -273,10 +275,11 @@ class ApptentiveAPITests: XCTestCase {
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
         payloadSender.authenticationDelegate = appCredentialsProvider
+        requestRetrier.client = client
 
         var customData = CustomData()
         customData["foo"] = "bar"
@@ -308,17 +311,18 @@ class ApptentiveAPITests: XCTestCase {
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
         payloadSender.authenticationDelegate = appCredentialsProvider
+        requestRetrier.client = client
 
         var customData = CustomData()
         customData["foo"] = "bar"
         customData["number"] = 2
         customData["bool"] = false
 
-        var device = Device(environment: MockEnvironment())
+        var device = Device(dataProvider: MockDataProvider())
         device.customData = customData
 
         let expectation = XCTestExpectation()
@@ -344,12 +348,13 @@ class ApptentiveAPITests: XCTestCase {
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
         payloadSender.authenticationDelegate = appCredentialsProvider
+        requestRetrier.client = client
 
-        let appRelease = AppRelease(environment: MockEnvironment())
+        let appRelease = AppRelease(dataProvider: MockDataProvider())
 
         let expectation = XCTestExpectation()
 
@@ -374,10 +379,11 @@ class ApptentiveAPITests: XCTestCase {
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
         let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, client: client, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
         payloadSender.authenticationDelegate = appCredentialsProvider
+        requestRetrier.client = client
 
         var customData = CustomData()
         customData["foo"] = "bar"
