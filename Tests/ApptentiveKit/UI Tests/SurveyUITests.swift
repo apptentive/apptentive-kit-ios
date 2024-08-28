@@ -38,6 +38,8 @@ class SurveyUITests: XCTestCase {
         tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["5A"] /*[[".cells.staticTexts[\"5A\"]",".staticTexts[\"5A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
         tablesQuery /*@START_MENU_TOKEN@*/.staticTexts["6A"] /*[[".cells.staticTexts[\"6A\"]",".staticTexts[\"6A\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
 
+        XCUIApplication().swipeUp()
+
         let textField = tablesQuery.textFields["6"]
         textField.tap()
         textField.typeText("Foo\n")

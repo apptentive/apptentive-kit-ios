@@ -144,7 +144,7 @@ public class DialogViewModel {
             switch result {
             case .success(let image):
                 let layout = DialogViewModel.Image.Layout(rawValue: configurationImage.layout) ?? .fullWidth
-                self.image = .loaded(image: image, acessibilityLabel: configurationImage.altText, layout: layout, maxHeight: self.maxHeight(with: self.maxHeight))
+                self.image = .loaded(image: image, acessibilityLabel: configurationImage.altText, layout: layout)
             case .failure(let error):
                 ApptentiveLogger.interaction.error("Error retrieving image from \(configurationImage.url): \(error)")
             }
@@ -164,12 +164,6 @@ public class DialogViewModel {
 
     private var prepareForPresentationCompletion: (() -> Void)? = nil
     private static let preloadTimeout = 2
-
-    private func maxHeight(with maxHeight: Int) -> CGFloat {
-        let portraitHeight = UIScreen.main.bounds.height
-        let safeAreaInsets = UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0
-        return (CGFloat(maxHeight) / 100) * (portraitHeight - safeAreaInsets)
-    }
 
     private static func buildTextModalAction(action: TextModalConfiguration.Action, position: Int, interaction: Interaction, interactionDelegate: DialogInteractionDelegate) -> DialogViewModel.Action {
         return DialogViewModel.Action(

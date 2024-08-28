@@ -9,7 +9,7 @@
 import Foundation
 
 protocol Loader {
-    init(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment)
+    init(context: LoaderContext)
 
     var rosterFileExists: Bool { get }
     func conversationFileExists(for record: ConversationRoster.Record) -> Bool
@@ -21,6 +21,14 @@ protocol Loader {
 
     func cleanUpRoster() throws
     func cleanUp(for record: ConversationRoster.Record) throws
+}
+
+struct LoaderContext {
+    let containerURL: URL
+    let cacheURL: URL
+    let appCredentials: Apptentive.AppCredentials
+    let dataProvider: ConversationDataProviding
+    let fileManager: FileManager
 }
 
 enum LoaderError: Swift.Error, LocalizedError {

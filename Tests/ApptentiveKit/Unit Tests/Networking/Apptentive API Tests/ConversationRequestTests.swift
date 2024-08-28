@@ -17,7 +17,7 @@ import XCTest
 
 class ConversationRequestTests: XCTestCase {
     func testConversationEncoding() throws {
-        let conversation = Conversation(environment: MockEnvironment())
+        let conversation = Conversation(dataProvider: MockDataProvider())
         let conversationRequest = ConversationRequest(conversation: conversation, token: nil)
 
         let conversationRequestJSON = try JSONEncoder.apptentive.encode(conversationRequest)

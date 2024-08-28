@@ -19,7 +19,7 @@ class HTTPRequestRetrier: HTTPRequestStarting {
     var retryPolicy: HTTPRetryPolicy
 
     /// The HTTP client to use for requests.
-    let client: HTTPClient
+    var client: HTTPClient?
 
     /// The queue to use for calling completion handlers.
     let dispatchQueue: DispatchQueue
@@ -30,11 +30,9 @@ class HTTPRequestRetrier: HTTPRequestStarting {
     /// Creates a new request retrier.
     /// - Parameters:
     ///   - retryPolicy: The policy to use for retrying requests.
-    ///   - client: The HTTP client to use for requests.
     ///   - queue: The queue to use for calling completion handlers.
-    internal init(retryPolicy: HTTPRetryPolicy, client: HTTPClient, queue: DispatchQueue) {
+    internal init(retryPolicy: HTTPRetryPolicy, queue: DispatchQueue) {
         self.retryPolicy = retryPolicy
-        self.client = client
         self.dispatchQueue = queue
 
         self.requests = [String: RequestWrapper]()
@@ -48,7 +46,11 @@ class HTTPRequestRetrier: HTTPRequestStarting {
     func start<T: Decodable>(_ builder: HTTPRequestBuilding, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
         let wrapper = RequestWrapper(endpoint: builder)
 
-        let request = self.client.request(builder) { (result: Result<T, Error>) in
+        guard let client = self.client else {
+            return completion(.failure(ApptentiveError.internalInconsistency))
+        }
+
+        let request = client.request(builder) { (result: Result<T, Error>) in
             self.dispatchQueue.async {
                 self.processResult(result, identifier: identifier, completion: completion)
             }
@@ -109,7 +111,11 @@ class HTTPRequestRetrier: HTTPRequestStarting {
                         return
                     }
 
-                    wrapper.request = self.client.request(
+                    guard let client = self.client else {
+                        return completion(.failure(ApptentiveError.internalInconsistency))
+                    }
+
+                    wrapper.request = client.request(
                         wrapper.endpoint,
                         completion: { (result: Result<T, Error>) in
                             self.dispatchQueue.async {

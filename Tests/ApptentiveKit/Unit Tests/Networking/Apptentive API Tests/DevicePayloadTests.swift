@@ -24,9 +24,9 @@ class DevicePayloadTests: XCTestCase {
     override func setUpWithError() throws {
         self.payloadContext = Payload.Context(tag: ".", credentials: .header(id: "abc", token: "123"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: nil)
         self.encryptedPayloadContext = Payload.Context(tag: "abc123", credentials: .embedded(id: "abc"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: .init(encryptionKey: encryptionKey, embeddedToken: "123"))
-        let environment = MockEnvironment()
+        let dataProvider = MockDataProvider()
 
-        self.device = Device(environment: environment)
+        self.device = Device(dataProvider: dataProvider)
 
         self.device.customData["string"] = "foo"
         self.device.customData["number"] = 42

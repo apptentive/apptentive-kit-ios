@@ -32,7 +32,9 @@ extension Apptentive {
             self.distributionVersion = distributionVersion
         }
 
-        self.register(with: .init(key: configuration.apptentiveKey, signature: configuration.apptentiveSignature)) { result in
+        let region = configuration.baseURL.flatMap({ Region(apiBaseURL: $0) }) ?? .us
+
+        self.register(with: .init(key: configuration.apptentiveKey, signature: configuration.apptentiveSignature), region: region) { result in
             switch result {
             case .success:
                 completion?(true)
@@ -581,7 +583,6 @@ public class ApptentiveConfiguration: NSObject {
     @objc public var shouldSanitizeLogMessages: Bool = true
 
     /// The server URL to use for API calls. Should only be used for testing.
-    @available(*, deprecated, message: "This property is ignored. Use the designated initializer for 'Apptentive' to set this.")
     @objc public var baseURL: URL? = nil
 
     /// The name of the distribution that includes the Apptentive SDK. For example "Cordova".

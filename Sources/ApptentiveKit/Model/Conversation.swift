@@ -8,8 +8,6 @@
 
 import Foundation
 
-typealias ConversationEnvironment = DeviceEnvironment & AppEnvironment
-
 /// A object describing the state of the SDK, used for targeting and overall state management.
 struct Conversation: Equatable, Codable {
 
@@ -31,12 +29,12 @@ struct Conversation: Equatable, Codable {
     /// The values used for determining whether a conversation is part of a random sample.
     var random: Random
 
-    /// Initializes a conversation with the specified environment.
-    /// - Parameter environment: The environment used to create the initial app release and device values.
-    init(environment: ConversationEnvironment) {
-        self.appRelease = AppRelease(environment: environment)
+    /// Initializes a conversation with the specified data provider.
+    /// - Parameter dataProvider: The data provider used to create the initial app release and device values.
+    init(dataProvider: ConversationDataProviding) {
+        self.appRelease = AppRelease(dataProvider: dataProvider)
         self.person = Person()
-        self.device = Device(environment: environment)
+        self.device = Device(dataProvider: dataProvider)
         self.codePoints = EngagementMetrics()
         self.interactions = EngagementMetrics()
         self.random = Random()

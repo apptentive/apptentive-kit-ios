@@ -16,7 +16,7 @@ class TargetingStateTests: XCTestCase {
     var conversation: Conversation!
 
     override func setUp() {
-        self.conversation = Conversation(environment: MockEnvironment())
+        self.conversation = Conversation(dataProvider: MockDataProvider())
     }
 
     func testApplicationVersion() throws {
@@ -255,7 +255,5 @@ class TargetingStateTests: XCTestCase {
     func testRandomPercent() throws {
         XCTAssertEqual(try self.conversation.value(for: "random/percent") as? Double, 50)
         XCTAssertEqual(try self.conversation.value(for: "random/xyz/percent") as? Double, 50)
-
-        XCTAssertEqual(self.conversation.random.values["xyz"], 0.5)
     }
 }

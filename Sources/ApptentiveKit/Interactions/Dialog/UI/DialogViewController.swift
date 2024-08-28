@@ -89,14 +89,14 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
 
     public func dialogViewModel(_: DialogViewModel, didLoadImage imageData: DialogViewModel.Image) {
         switch imageData {
-        case .loaded(let image, let accessibilityLabel, let layout, let maxHeight):
+        case .loaded(let image, let accessibilityLabel, let layout):
             self.dialogView.headerImageAlternateLabel.text = nil
             self.dialogView.headerImageView.image = image
             self.dialogView.headerImageView.accessibilityLabel = accessibilityLabel
             self.dialogView.headerImageView.isAccessibilityElement = true
             self.dialogView.headerImageView.contentMode = layout.contentMode(for: self.traitCollection)
             self.dialogView.imageInset = layout.imageInset
-            self.updateAspectRatioConstraintAndMaxHeight(image: image, maxWidth: DialogViewController.widthConstant, maxHeight: maxHeight, contentMode: layout.contentMode(for: self.traitCollection))
+            self.updateAspectRatioConstraintAndMaxHeight(image: image, layout: layout)
             self.dialogView.headerImage = nil  // Don't show UIAppearance-based image
 
         case .loading(let altText, let layout):
@@ -116,19 +116,21 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
     }
 
     // MARK: Private
-    private func updateAspectRatioConstraintAndMaxHeight(image: UIImage, maxWidth: CGFloat, maxHeight: CGFloat, contentMode: UIView.ContentMode) {
+    private func updateAspectRatioConstraintAndMaxHeight(image: UIImage, layout: DialogViewModel.Image.Layout) {
+        let maxWidth = DialogViewController.widthConstant
+        let maxHeight = self.view.bounds.height - self.view.safeAreaInsets.top - self.view.safeAreaInsets.bottom
         let aspectRatio = max(image.size.width, 1) / max(image.size.height, 1)
         let height = max(maxWidth, 1) / aspectRatio
 
         self.dialogView.headerImageViewAspectConstraint = self.dialogView.headerImageView.heightAnchor.constraint(equalTo: self.dialogView.headerImageView.widthAnchor, multiplier: 1.0 / aspectRatio)
         self.dialogView.headerImageViewAspectConstraint.priority = .defaultLow
 
-        var fitPriority: UILayoutPriority = (contentMode == .scaleAspectFit) ? .defaultHigh : .defaultLow
+        var fitPriority: UILayoutPriority = (layout == .fullWidth) ? .defaultHigh : .defaultLow
 
         //If the image is too wide for a center/left/right alignment we set its alignment to fit and retain the image inset to avoid the image being cropped.
         let horizontalMargin = self.dialogView.headerImageView.layoutMargins.left + self.dialogView.headerImageView.layoutMargins.right
         let verticalMargin = self.dialogView.headerImageView.layoutMargins.top + self.dialogView.headerImageView.layoutMargins.bottom
-        if image.size.width + horizontalMargin > DialogViewController.widthConstant && (contentMode == .left || contentMode == .right || contentMode == .center) {
+        if image.size.width + horizontalMargin > DialogViewController.widthConstant && (layout == .leading || layout == .trailing || layout == .center) {
             if (image.size.height + verticalMargin) > maxHeight {
                 self.dialogView.imageInset = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
             } else {
@@ -190,17 +192,11 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
     }
 
     private func configureButtonAxis() {
-
-        if self.viewModel.dialogType == .textModal && self.viewModel.actions.count > 2 {
+        if self.viewModel.actions.count > 2 {
             self.dialogView.buttonStackView.axis = .vertical
         } else {
-            self.viewModel.actions.forEach { action in
-                if action.label.count > 13 {
-                    self.dialogView.buttonStackView.axis = .vertical
-                } else {
-                    self.dialogView.buttonStackView.axis = .horizontal
-                }
-            }
+            let hasLongLabel = self.viewModel.actions.contains { $0.label.count > 13 }
+            self.dialogView.buttonStackView.axis = hasLongLabel ? .vertical : .horizontal
         }
     }
 

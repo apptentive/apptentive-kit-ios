@@ -9,28 +9,26 @@
 import Foundation
 
 struct Beta3Loader: Loader {
-    let containerURL: URL
-    let environment: GlobalEnvironment
+    let context: LoaderContext
 
-    init(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials, environment: GlobalEnvironment) {
-        self.containerURL = containerURL
-        self.environment = environment
+    init(context: LoaderContext) {
+        self.context = context
     }
 
     var rosterFileExists: Bool {
-        return self.environment.fileManager.fileExists(atPath: self.commonConversationFileURL.path)
+        return self.context.fileManager.fileExists(atPath: self.commonConversationFileURL.path)
     }
 
     func conversationFileExists(for record: ConversationRoster.Record) -> Bool {
-        return self.environment.fileManager.fileExists(atPath: self.conversationFileURL.path)
+        return self.context.fileManager.fileExists(atPath: self.conversationFileURL.path)
     }
 
     var payloadsFileExists: Bool {
-        return self.environment.fileManager.fileExists(atPath: self.payloadsFileURL.path)
+        return self.context.fileManager.fileExists(atPath: self.payloadsFileURL.path)
     }
 
     var messagesFileExists: Bool {
-        return self.environment.fileManager.fileExists(atPath: self.messagesFileURL.path)
+        return self.context.fileManager.fileExists(atPath: self.messagesFileURL.path)
     }
 
     func loadRoster() throws -> ConversationRoster {
@@ -55,33 +53,33 @@ struct Beta3Loader: Loader {
 
     func cleanUpRoster() throws {
         if self.payloadsFileExists {
-            try self.environment.fileManager.removeItem(at: self.payloadsFileURL)
+            try self.context.fileManager.removeItem(at: self.payloadsFileURL)
         }
     }
 
     func cleanUp(for record: ConversationRoster.Record) throws {
         if self.conversationFileExists(for: record) {
-            try self.environment.fileManager.removeItem(at: self.conversationFileURL)
+            try self.context.fileManager.removeItem(at: self.conversationFileURL)
         }
 
         if self.messagesFileExists {
-            try self.environment.fileManager.removeItem(at: self.messagesFileURL)
+            try self.context.fileManager.removeItem(at: self.messagesFileURL)
         }
     }
 
     private var commonConversationFileURL: URL {
-        return self.containerURL.appendingPathComponent("Conversation.plist")
+        return self.context.containerURL.appendingPathComponent("Conversation.plist")
     }
 
     private var conversationFileURL: URL {
-        return self.containerURL.appendingPathComponent("Conversation.plist")
+        return self.context.containerURL.appendingPathComponent("Conversation.plist")
     }
 
     private var payloadsFileURL: URL {
-        return self.containerURL.appendingPathComponent("PayloadQueue.plist")
+        return self.context.containerURL.appendingPathComponent("PayloadQueue.plist")
     }
 
     private var messagesFileURL: URL {
-        return self.containerURL.appendingPathComponent("MessageList.plist")
+        return self.context.containerURL.appendingPathComponent("MessageList.plist")
     }
 }

@@ -82,10 +82,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ApptentiveDelegate {
             return
         }
 
-        self.apptentive = Apptentive(apiBaseURL: url)
+        self.apptentive = Apptentive.shared
         self.apptentive?.delegate = self
 
-        self.apptentive?.register(with: .init(key: key, signature: signature), completion: completion)
+        let region = Apptentive.Region(apiBaseURL: url)
+
+        self.apptentive?.register(with: .init(key: key, signature: signature), region: region, completion: completion)
     }
 
     func authenticationDidFail(with error: Error) {

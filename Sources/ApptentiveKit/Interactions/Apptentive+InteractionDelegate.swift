@@ -84,11 +84,11 @@ extension Apptentive {
         self.backendQueue.async {
             completion(
                 Result(catching: {
-                    if let automatedMessage = try self.backend.messageManager.prepareAutomatedMessageForSending() {
+                    if let automatedMessage = try self.backend.prepareAutomatedMessageForSending() {
                         try self.backend.sendMessage(automatedMessage)
                     }
 
-                    let (message, customData) = try self.backend.messageManager.prepareDraftMessageForSending()
+                    let (message, customData) = try self.backend.prepareDraftMessageForSending()
                     try self.backend.sendMessage(message, with: customData)
                 }))
         }
@@ -104,59 +104,54 @@ extension Apptentive {
         }
     }
 
-    var messageManagerDelegate: MessageManagerDelegate? {
-        get {
-            var result: MessageManagerDelegate?
-
-            self.backendQueue.sync {
-                result = self.backend.messageManager.delegate
-            }
-
-            return result
-        }
-        set {
-            self.backendQueue.async {
-                self.backend.messageManager.delegate = newValue
-            }
+    func setMessageManagerDelegate(_ messageManagerDelegate: MessageManagerDelegate?) {
+        self.backendQueue.async {
+            self.backend.setMessageManagerDelegate(messageManagerDelegate)
         }
     }
 
     func setDraftMessageBody(_ body: String?) {
         self.backendQueue.async {
-            self.backend.messageManager.draftMessage.body = body
+            self.backend.setDraftMessageBody(body)
         }
     }
 
     func getDraftMessage(completion: @escaping (MessageList.Message) -> Void) {
         self.backendQueue.async {
-            completion(self.backend.messageManager.draftMessage)
+            self.backend.getDraftMessage(completion: completion)
         }
     }
 
     func setAutomatedMessageBody(_ body: String?) {
         self.backendQueue.async {
-            self.backend.messageManager.setAutomatedMessageBody(body)
+            self.backend.setAutomatedMessageBody(body)
         }
     }
 
     // MARK: AttachmentManaging
 
     func addDraftAttachment(data: Data, name: String?, mediaType: String, completion: (Result<URL, Error>) -> Void) {
+        let thumbnailSize = CGSize.apptentiveThumbnail
+        let thumbnailScale = CGFloat.apptentiveThumbnailScale
+
         // This has to block until the file is created to work with the file/photo picker API
         self.backendQueue.sync {
             completion(
                 Result(catching: {
-                    try self.backend.messageManager.addDraftAttachment(data: data, name: name, mediaType: mediaType)
+                    try self.backend.addDraftAttachment(data: data, name: name, mediaType: mediaType, thumbnailSize: thumbnailSize, thumbnailScale: thumbnailScale)
                 }))
         }
     }
 
     func addDraftAttachment(url: URL, completion: (Result<URL, Error>) -> Void) {
+        let thumbnailSize = CGSize.apptentiveThumbnail
+        let thumbnailScale = CGFloat.apptentiveThumbnailScale
+
         // This has to block until the file is created to work with the file/photo picker API
         self.backendQueue.sync {
             completion(
                 Result(catching: {
-                    try self.backend.messageManager.addDraftAttachment(url: url)
+                    try self.backend.addDraftAttachment(url: url, thumbnailSize: thumbnailSize, thumbnailScale: thumbnailScale)
                 }))
         }
     }
@@ -165,22 +160,21 @@ extension Apptentive {
         self.backendQueue.sync {
             completion(
                 Result(catching: {
-                    try self.backend.messageManager.removeDraftAttachment(at: index)
+                    try self.backend.removeDraftAttachment(at: index)
                 }))
         }
     }
 
     func urlForAttachment(at index: Int, in message: MessageList.Message) -> URL? {
-        guard let attachmentManager = self.backend.messageManager.attachmentManager else {
-            return nil
-        }
-
-        return attachmentManager.url(for: message.attachments[index])
+        return self.backend.url(for: message.attachments[index])
     }
 
     func loadAttachment(at index: Int, in message: MessageList.Message, completion: @escaping (Result<URL, Error>) -> Void) {
+        let thumbnailSize = CGSize.apptentiveThumbnail
+        let thumbnailScale = CGFloat.apptentiveThumbnailScale
+
         self.backendQueue.async {
-            self.backend.messageManager.loadAttachment(at: index, in: message, completion: completion)
+            self.backend.loadAttachment(at: index, in: message, thumbnailSize: thumbnailSize, thumbnailScale: thumbnailScale, completion: completion)
         }
     }
 
@@ -189,7 +183,7 @@ extension Apptentive {
     func markMessageAsRead(_ nonce: String) {
         self.backendQueue.async {
             do {
-                try self.backend.messageManager.updateReadMessage(with: nonce)
+                try self.backend.updateReadMessage(with: nonce)
             } catch {
                 ApptentiveLogger.default.error("Error updating read message in backend.")
             }

@@ -39,118 +39,23 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     @objc public var theme: UITheme = .apptentive
 
     /// The name of the person using the app, if available.
-    @objc public var personName: String? {
-        get {
-            var personName: String?
-
-            self.backendQueue.sync {
-                personName = self.backend.conversation?.person.name
-            }
-
-            return personName
-        }
-        set {
-            let personName = newValue
-
-            ApptentiveLogger.default.debug("Setting person name to “\(personName)”.")
-
-            self.backendQueue.async {
-                self.backend.conversation?.person.name = personName
-            }
-        }
-    }
+    @objc @BackendSync public var personName: String?
 
     /// The email address of the person using the app, if available.
-    @objc public var personEmailAddress: String? {
-        get {
-            var personEmailAddress: String?
-
-            self.backendQueue.sync {
-                personEmailAddress = self.backend.conversation?.person.emailAddress
-            }
-
-            return personEmailAddress
-        }
-        set {
-            let personEmailAddress = newValue
-
-            ApptentiveLogger.default.debug("Setting person email address to “\(personEmailAddress)”.")
-
-            self.backendQueue.async {
-                self.backend.conversation?.person.emailAddress = personEmailAddress
-            }
-        }
-    }
+    @objc @BackendSync public var personEmailAddress: String?
 
     /// The string used by the mParticle integration to identify the current user.
-    @objc public var mParticleID: String? {
-        get {
-            var mParticleID: String?
-
-            self.backendQueue.sync {
-                mParticleID = self.backend.conversation?.person.mParticleID
-            }
-
-            return mParticleID
-        }
-        set {
-            let mParticleID = newValue
-
-            ApptentiveLogger.default.debug("Setting person mParticle ID to “\(mParticleID)”.")
-
-            self.backendQueue.async {
-                self.backend.conversation?.person.mParticleID = mParticleID
-            }
-        }
-    }
+    @objc @BackendSync public var mParticleID: String?
 
     /// The custom data assocated with the person using the app.
     ///
     /// Supported types are `String`, `Bool`, and numbers.
-    public var personCustomData: CustomData {
-        get {
-            var personCustomData = CustomData()
-
-            self.backendQueue.sync {
-                personCustomData = self.backend.conversation?.person.customData ?? CustomData()
-            }
-
-            return personCustomData
-        }
-        set {
-            let personCustomData = newValue
-
-            ApptentiveLogger.default.debug("Setting person custom data to \(String(describing: personCustomData)).")
-
-            self.backendQueue.async {
-                self.backend.conversation?.person.customData = personCustomData
-            }
-        }
-    }
+    @BackendSync public var personCustomData: CustomData
 
     /// The custom data associated with the device running the app.
     ///
     /// Supported types are `String`, `Bool`, and numbers.
-    public var deviceCustomData: CustomData {
-        get {
-            var deviceCustomData = CustomData()
-
-            self.backendQueue.sync {
-                deviceCustomData = self.backend.conversation?.device.customData ?? CustomData()
-            }
-
-            return deviceCustomData
-        }
-        set {
-            let deviceCustomData = newValue
-
-            ApptentiveLogger.default.debug("Setting device custom data to \(String(describing: deviceCustomData)).")
-
-            self.backendQueue.async {
-                self.backend.conversation?.device.customData = deviceCustomData
-            }
-        }
-    }
+    @BackendSync public var deviceCustomData: CustomData
 
     /// The number of unread messages in message center.
     @objc dynamic public var unreadMessageCount = 0
@@ -163,22 +68,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// This property is not intended to be set by apps using the SDK, but
     /// should be set by projects that re-package the SDK for distribution
     /// as part of e.g. a cross-platform app framework.
-    @objc public var distributionName: String? {
-        get {
-            var result: String?
-
-            self.backendQueue.sync {
-                result = self.backend.conversation?.appRelease.sdkDistributionName
-            }
-
-            return result
-        }
-        set {
-            self.backendQueue.async {
-                self.backend.conversation?.appRelease.sdkDistributionName = newValue
-            }
-        }
-    }
+    @objc @BackendSync public var distributionName: String?
 
     /// The version of the distribution for this SDK instance (not for app use).
     ///
@@ -187,22 +77,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// development framework.
     ///
     /// This property is not intended to be set by apps using the SDK.
-    @objc public var distributionVersion: String? {
-        get {
-            var result: String?
-
-            self.backendQueue.sync {
-                result = self.backend.conversation?.appRelease.sdkDistributionVersion?.versionString
-            }
-
-            return result
-        }
-        set {
-            self.backendQueue.async {
-                self.backend.conversation?.appRelease.sdkDistributionVersion = newValue.flatMap { Version(string: $0) }
-            }
-        }
-    }
+    @objc @BackendSync public var distributionVersion: String?
 
     /// Indicates a theme that will be applied to Apptentive UI.
     @objc public enum UITheme: Int {
@@ -216,15 +91,16 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// Provides the SDK with the credentials necessary to connect to the Apptentive API.
     /// - Parameters:
     ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
+    ///   - region: The region to use when making API requests (defaults to `.us`).
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
-    public func register(with credentials: AppCredentials, completion: ((Result<Void, Error>) -> Void)? = nil) {
+    public func register(with credentials: AppCredentials, region: Region = .us, completion: ((Result<Void, Error>) -> Void)? = nil) {
         if case .apptentive = self.theme {
             ApptentiveLogger.interaction.info("Using Apptentive theme for interaction UI.")
             DispatchQueue.main.async {
-                self.applyApptentiveTheme()
+                Self.applyApptentiveTheme()
             }
         } else {
-            self.environment.isOverridingStyles = true
+            self.backend.setIsOverridingStyles()
         }
 
         if !self.environment.isTesting {
@@ -236,7 +112,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
 
         self.backendQueue.async {
-            self.backend.register(appCredentials: credentials, environment: self.environment) { result in
+            self.backend.register(appCredentials: credentials, region: region) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let connectionType):
@@ -281,6 +157,24 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             self.key = key
             self.signature = signature
         }
+    }
+
+    /// Specifies which server should host data associated with the host app.
+    public struct Region {
+
+        /// Creates a new Region object with the specified API base URL.
+        ///
+        /// This initializer should only be used for testing. Use one of the static properties of this struct for production apps.
+        /// - Parameter apiBaseURL: The URL that the SDK will use as a base for its API requests.
+        public init(apiBaseURL: URL) {
+            self.apiBaseURL = apiBaseURL
+        }
+
+        internal let apiBaseURL: URL
+
+        /// The region for data that should be hosted in the United States of America (default).
+        // swift-format-ignore
+        public static let us = Region(apiBaseURL: URL(string: "https://api.apptentive.com/")!)
     }
 
     /// Engages the specified event, using the view controller (if any) as the presenting view controller for any interactions.
@@ -355,7 +249,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData?, completion: ((Result<Bool, Error>) -> Void)? = nil) {
         if let customData = customData {
             self.backendQueue.async {
-                self.backend.messageManager.customData = customData
+                self.backend.setMessageCenterCustomData(customData)
             }
         }
 
@@ -566,17 +460,8 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
     }
 
-    /// Creates a new Apptentive SDK object using the specified URL to communicate with the Apptentive API.
-    ///
-    /// This should only be used for testing the SDK against a server other than the production Apptentive API server.
-    /// - Parameter apiBaseURL: The URL to use to communicate with the Apptentive API.
-    public convenience init(apiBaseURL: URL) {
-        self.init(baseURL: apiBaseURL)
-    }
-
     // MARK: - Internal
 
-    let baseURL: URL
     let backendQueue: DispatchQueue
     let backend: Backend
     var environment: GlobalEnvironment
@@ -589,23 +474,31 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
         Self.alreadyInitialized = true
 
-        // swift-format-ignore
-        self.baseURL = baseURL ?? URL(string: "https://api.apptentive.com/")!
-        self.backendQueue = backendQueue ?? DispatchQueue(label: "com.apptentive.backend", qos: .default, autoreleaseFrequency: .workItem)
+        let backendQueue = backendQueue ?? DispatchQueue(label: "com.apptentive.backend", qos: .default, autoreleaseFrequency: .workItem)
+        self.backendQueue = backendQueue
         self.environment = environment ?? Environment()
+        let dataProvider = ConversationDataProvider()
         let containerName = containerDirectory ?? "com.apptentive.feedback"
         let requestor = URLSession(configuration: Backend.urlSessionConfiguration)
-        self.backend = Backend(queue: self.backendQueue, environment: self.environment, baseURL: self.baseURL, requestor: requestor, containerName: containerName)
+        let backend = Backend(queue: self.backendQueue, dataProvider: dataProvider, requestor: requestor, containerName: containerName)
+        self.backend = backend
 
         self.interactionPresenter = InteractionPresenter()
         self.resourceManager = ResourceManager(fileManager: self.environment.fileManager, requestor: requestor)
 
+        self._personName = BackendSync(value: nil, queue: backendQueue, updateMethod: backend.setPersonName)
+        self._personEmailAddress = BackendSync(value: nil, queue: backendQueue, updateMethod: backend.setPersonEmailAddress)
+        self._mParticleID = BackendSync(value: nil, queue: backendQueue, updateMethod: backend.setMParticleID)
+        self._personCustomData = BackendSync(value: CustomData(), queue: backendQueue, updateMethod: backend.setPersonCustomData)
+        self._deviceCustomData = BackendSync(value: CustomData(), queue: backendQueue, updateMethod: backend.setDeviceCustomData)
+        self._distributionName = BackendSync(value: nil, queue: backendQueue, updateMethod: backend.setDistributionName)
+        self._distributionVersion = BackendSync(value: nil, queue: backendQueue, updateMethod: backend.setDistributionVersion)
+
         super.init()
 
         self.environment.delegate = self
-        self.backend.delegate = self
+        self.backend.setDelegate(self)
         self.interactionPresenter.delegate = self
-        self.backend.messageManager.messageManagerApptentiveDelegate = self
 
         if self.environment.isInForeground {
             self.applicationWillEnterForeground(self.environment)
@@ -615,7 +508,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             self.protectedDataDidBecomeAvailable(self.environment)
         }
 
-        ApptentiveLogger.default.info("Apptentive SDK Version \(self.environment.sdkVersion.versionString) Initialized.")
+        ApptentiveLogger.default.info("Apptentive SDK Version \(dataProvider.sdkVersion.versionString) Initialized.")
     }
 
     static var alreadyInitialized = false
@@ -625,7 +518,7 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     func protectedDataDidBecomeAvailable(_ environment: GlobalEnvironment) {
         self.backendQueue.async {
             do {
-                try self.backend.protectedDataDidBecomeAvailable(environment: environment)
+                try self.backend.protectedDataDidBecomeAvailable()
             } catch let error {
                 ApptentiveLogger.default.error("Unable to start Backend: \(error).")
                 apptentiveCriticalError("Unable to start Backend: \(error)")
@@ -641,13 +534,13 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     func applicationWillEnterForeground(_ environment: GlobalEnvironment) {
         self.backendQueue.async {
-            self.backend.willEnterForeground(environment: environment)
+            self.backend.willEnterForeground()
         }
     }
 
     func applicationDidEnterBackground(_ environment: GlobalEnvironment) {
         self.backendQueue.async {
-            self.backend.didEnterBackground(environment: environment)
+            self.backend.didEnterBackground()
         }
     }
 
@@ -661,6 +554,33 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         self.delegate?.authenticationDidFail(with: error)
     }
 
+    // MARK: BackendDelegate
+
+    func clearProperties() {
+        self._personName.value = nil
+        self._personEmailAddress.value = nil
+        self._mParticleID.value = nil
+        self._personCustomData.value = CustomData()
+        self._deviceCustomData.value = CustomData()
+    }
+
+    func updateProperties(with conversation: Conversation) {
+        self._personName.value = conversation.person.name
+        self._personEmailAddress.value = conversation.person.emailAddress
+        self._mParticleID.value = conversation.person.mParticleID
+
+        var mergedPersonCustomData = conversation.person.customData
+        mergedPersonCustomData.merge(with: self.personCustomData)
+        self._personCustomData.value = mergedPersonCustomData
+
+        var mergedDeviceCustomData = conversation.device.customData
+        mergedDeviceCustomData.merge(with: self.deviceCustomData)
+        self._deviceCustomData.value = mergedDeviceCustomData
+
+        self._distributionName.value = conversation.appRelease.sdkDistributionName
+        self._distributionVersion.value = conversation.appRelease.sdkDistributionVersion?.versionString
+    }
+
     // MARK: - Private
 
     private func sendMessage(_ message: MessageList.Message) {
@@ -669,6 +589,27 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
                 try self.backend.sendMessage(message)
             } catch let error {
                 ApptentiveLogger.default.error("Error sending message: \(error)")
+            }
+        }
+    }
+
+    // MARK: - Property Wrappers
+
+    @propertyWrapper public struct BackendSync<T> {
+        var value: T
+        let queue: DispatchQueue
+        let updateMethod: (T) -> Void
+
+        public var wrappedValue: T {
+            get {
+                return value
+            }
+            set {
+                self.value = newValue
+                let updateMethodCopy = self.updateMethod
+                self.queue.async {
+                    updateMethodCopy(newValue)
+                }
             }
         }
     }

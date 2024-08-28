@@ -12,7 +12,7 @@ import XCTest
 
 class DeviceTests: XCTestCase {
     func testCustomData() {
-        var device = Device(environment: MockEnvironment())
+        var device = Device(dataProvider: MockDataProvider())
 
         device.customData["string"] = "string"
         device.customData["number"] = 5
@@ -26,10 +26,10 @@ class DeviceTests: XCTestCase {
     }
 
     func testMerge() {
-        let environment = Environment()
+        let dataProvider = MockDataProvider()
 
-        var device1 = Device(environment: environment)
-        var device2 = Device(environment: environment)
+        var device1 = Device(dataProvider: dataProvider)
+        var device2 = Device(dataProvider: dataProvider)
 
         device1.customData["foo"] = "bar"
         device2.customData["foo"] = "baz"
@@ -42,12 +42,12 @@ class DeviceTests: XCTestCase {
     }
 
     func testPushToken() {
-        var environment = MockEnvironment()
+        var dataProvider = MockDataProvider()
 
         let tokenData = Data(hexString: "06e78d0d5604079bc0a642c19c26983d85a30b40613840501274087cd96415bf")!
-        environment.remoteNotificationDeviceToken = tokenData
+        dataProvider.remoteNotificationDeviceToken = tokenData
 
-        let device = Device(environment: environment)
+        let device = Device(dataProvider: dataProvider)
 
         XCTAssertEqual(device.integrationConfiguration, ["apptentive_push": ["token": tokenData]])
     }

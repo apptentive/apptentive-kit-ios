@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import SwiftJWT
+import ApptentiveKit
 
 class ConnectionViewController: UITableViewController {
 
@@ -29,15 +29,9 @@ class ConnectionViewController: UITableViewController {
     @IBOutlet weak var sdkDistributionLabel: UILabel!
     @IBOutlet weak var sdkVersionLabel: UILabel!
 
-    var buttonMode: ButtonMode = .notAvailable
     var currentSubject: String?
+    var currentState: Apptentive.ConversationState = .none
     let dateFormatter = DateFormatter()
-
-    enum ButtonMode {
-        case logIn
-        case logOut
-        case notAvailable
-    }
 
     override func viewDidLoad() {
         self.refreshConnectionInfo()
@@ -55,67 +49,84 @@ class ConnectionViewController: UITableViewController {
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let navigationController = segue.destination as? UINavigationController, let jwtViewController = navigationController.viewControllers.first as? JWTViewController {
-            if let subject = self.currentSubject {
-                jwtViewController.mode = .refresh(subject: subject)
+            if let currentSubject = self.currentSubject, self.currentState == .loggedIn {
+                jwtViewController.mode = .refresh(subject: currentSubject)
             } else {
                 jwtViewController.mode = .logIn
             }
         }
     }
 
+    override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { suggestedActions in
+            let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in
+                if let cell = tableView.cellForRow(at: indexPath) {
+                    UIPasteboard.general.string = cell.detailTextLabel?.text
+                }
+            }
+            return UIMenu(title: "", children: [copyAction])
+        }
+        return configuration
+    }
 
     func refreshConnectionInfo() {
-        self.apptentive.getConnectionInfo { state, id, token, _, buttonLabel in
-            self.conversationStateLabel.text = state ?? "N/A"
+        self.apptentive.getConnectionInfo { state, id, token in
+            self.currentState = state
+
+            self.conversationStateLabel.text = state.rawValue
             self.conversationIDLabel.text = id ?? "N/A"
             self.conversationTokenLabel.text = token ?? "N/A"
 
             if let token = token,
-               let secretString = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_JWT_SECRET") as? String,
-               let secret = secretString.data(using: .utf8),
-               let jwt = try? JWT<JWTViewController.JWTClaims>(jwtString: token, verifier: .hs512(key: secret)) {
-                self.conversationSubjectLabel.text = jwt.claims.sub
-                self.currentSubject = jwt.claims.sub
-                self.conversationExpiryLabel.text = jwt.claims.exp.flatMap { self.dateFormatter.string(from: $0) } ?? "N/A"
+               let jwt = try? JWT(string: token) {
+                self.conversationSubjectLabel.text = jwt.payload.subject
+                self.currentSubject = jwt.payload.subject
+                self.conversationExpiryLabel.text = jwt.payload.expiry.flatMap { self.dateFormatter.string(from: $0) } ?? "N/A"
             } else {
                 self.conversationSubjectLabel.text = "N/A"
                 self.conversationExpiryLabel.text = "N/A"
             }
 
-            if let buttonLabel = buttonLabel {
-                self.conversationActionButton.setTitle(buttonLabel, for: .normal)
-                self.conversationActionButton.isEnabled = true
-
-                if buttonLabel == "Log In" {
-                    self.buttonMode = .logIn
-                } else if buttonLabel == "Log Out" {
-                    self.buttonMode = .logOut
-                } else {
-                    self.buttonMode = .notAvailable
-                }
-
-                self.refreshTokenButton.isEnabled = self.currentSubject != nil
-            } else {
+            switch state {
+            case .none, .placeholder, .anonymousPending, .legacyPending:
                 self.conversationActionButton.setTitle("N/A", for: .normal)
                 self.conversationActionButton.isEnabled = false
-                self.buttonMode = .notAvailable
                 self.refreshTokenButton.isEnabled = false
+                break
+
+            case .anonymous:
+                self.conversationActionButton.setTitle("Log In", for: .normal)
+                self.conversationActionButton.isEnabled = true
+                self.refreshTokenButton.isEnabled = false
+                break
+
+            case .loggedIn:
+                self.conversationActionButton.setTitle("Log Out", for: .normal)
+                self.conversationActionButton.isEnabled = true
+                self.refreshTokenButton.isEnabled = true
+                break
+
+            case .loggedOut:
+                self.conversationActionButton.setTitle("Log In", for: .normal)
+                self.conversationActionButton.isEnabled = true
+                self.refreshTokenButton.isEnabled = false
+                break
             }
         }
     }
 
 
     @IBAction func logInOrOut(_ sender: Any) {
-        switch self.buttonMode {
-        case .logIn:
+        switch self.currentState {
+        case .anonymous, .loggedOut:
             self.performSegue(withIdentifier: "PresentJWTBuilder", sender: self)
 
-        case .logOut:
+        case .loggedIn:
             self.apptentive.logOut() { (_: Result<Void, Error>) in }
             self.refreshConnectionInfo()
             self.currentSubject = nil
 
-        case .notAvailable:
+        default:
             break
         }
     }
@@ -131,7 +142,7 @@ class ConnectionViewController: UITableViewController {
                 return
             }
             do {
-                if self.currentSubject != nil {
+                if self.currentState == .loggedIn {
                     try self.apptentive.updateToken(jwtBuilder.jwt) { result in
                         switch result{
                         case .success:
@@ -141,9 +152,13 @@ class ConnectionViewController: UITableViewController {
                             let alertController = UIAlertController(title: "JWT Update Error", message: error.localizedDescription, preferredStyle: .alert)
                             alertController.addAction(.init(title: "OK", style: .default))
                             self.present(alertController, animated: true)
+                            self.refreshConnectionInfo()
                         }
                     }
                 } else {
+                    self.conversationActionButton.setTitle("Logging In…", for: .normal)
+                    self.conversationActionButton.isEnabled = false
+
                     try self.apptentive.logIn(with: jwtBuilder.jwt) { result in
                         switch result {
                         case .success:
@@ -153,6 +168,7 @@ class ConnectionViewController: UITableViewController {
                             let alertController = UIAlertController(title: "Login Error", message: error.localizedDescription, preferredStyle: .alert)
                             alertController.addAction(.init(title: "OK", style: .default))
                             self.present(alertController, animated: true)
+                            self.refreshConnectionInfo()
                         }
                     }
                 }

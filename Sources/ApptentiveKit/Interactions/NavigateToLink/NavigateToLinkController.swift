@@ -17,6 +17,8 @@ class NavigateToLinkController {
     let interactionDelegate: NavigateToLinkInteractionDelegate
     public let closeButtonAccessibilityLabel: String
     public let closeButtonAccessibilityHint: String
+    public let refreshButtonAccessibilityLabel: String
+    public let refreshButtonAccessibilityHint: String
 
     init(configuration: NavigateToLinkConfiguration, interaction: Interaction, interactionDelegate: NavigateToLinkInteractionDelegate) {
         self.configuration = configuration
@@ -26,6 +28,8 @@ class NavigateToLinkController {
         self.closeButtonAccessibilityLabel = NSLocalizedString("Web View Close Button Accessibility Label", bundle: .apptentive, value: "Close", comment: "The accessibility label for the close button.")
 
         self.closeButtonAccessibilityHint = NSLocalizedString("Web View Close Button Accessibility Hint", bundle: .apptentive, value: "Closes Web View", comment: "The accessibility hint for the close button.")
+        self.refreshButtonAccessibilityLabel = NSLocalizedString("Web View Refresh Button Accessibility Label", bundle: .apptentive, value: "Refresh", comment: "The accessibility label for the refresh button.")
+        self.refreshButtonAccessibilityHint = NSLocalizedString("Web View Refresh Button Accessibility Hint", bundle: .apptentive, value: "Refresh Web View", comment: "The accessibility hint for the refresh button.")
     }
 
     func navigateToLink() -> UIViewController? {

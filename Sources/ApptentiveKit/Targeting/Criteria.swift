@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents the basic unit of criteria, a clause that evalutes to either true or false (or throws) based on the supplied state.
-protocol CriteriaClause {
+protocol CriteriaClause: Sendable {
     func isSatisfied(for state: TargetingState) throws -> Bool
 }
 
@@ -81,14 +81,23 @@ struct ConditionalClause: CriteriaClause {
     }
 }
 
+protocol CriteriaParameter: Sendable {}
+
+extension Double: CriteriaParameter {}
+extension Bool: CriteriaParameter {}
+extension String: CriteriaParameter {}
+extension Date: CriteriaParameter {}
+extension Int: CriteriaParameter {}
+extension Version: CriteriaParameter {}
+
 /// Represents a conditional test, in which a parameter is evaluated using an operator against a field value.
-struct ConditionalTest {
+struct ConditionalTest: Sendable {
 
     /// The operator to use when comparing the value to the parameter.
     let conditionalOperator: ConditionalOperator
 
     /// The parameter against which to compaire the value.
-    let parameter: AnyObject?
+    let parameter: CriteriaParameter?
 
     /// Whether the test passes given the field and state.
     /// - Parameters:
@@ -161,7 +170,7 @@ enum ConditionalOperator: String {
     ///   - value: The value to be compared against the parameter.
     ///   - parameter: The parameter to be compared against the value.
     /// - Returns: The result of the operation.
-    func evaluate(_ value: Any?, with parameter: AnyObject?) -> Bool {
+    func evaluate(_ value: Any?, with parameter: CriteriaParameter?) -> Bool {
         switch (self, value, parameter) {
 
         // Existential set (interaction response) operators
@@ -195,6 +204,10 @@ enum ConditionalOperator: String {
             return value > Date(timeIntervalSinceNow: parameter)
         case (.before, let value as Date, let parameter as TimeInterval):
             return value < Date(timeIntervalSinceNow: parameter)
+        case (.after, let value as Date, let parameter as Int):
+            return value > Date(timeIntervalSinceNow: TimeInterval(parameter))
+        case (.before, let value as Date, let parameter as Int):
+            return value < Date(timeIntervalSinceNow: TimeInterval(parameter))
 
         // Equality operators
         case (.equals, let value as Bool, let parameter as Bool):
@@ -241,6 +254,10 @@ enum ConditionalOperator: String {
             return compare(value, with: parameter)
         case (_, let value as Int, let parameter as Double):
             return compare(Double(value), with: parameter)
+        case (_, let value as Int, let parameter as Int):
+            return compare(value, with: parameter)
+        case (_, let value as Double, let parameter as Int):
+            return compare(value, with: Double(parameter))
         case (_, let value as Date, let parameter as Date):
             return compare(value, with: parameter)
         case (_, let value as Version, let parameter as Version):

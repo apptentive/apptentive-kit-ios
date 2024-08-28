@@ -10,7 +10,7 @@ import Foundation
 
 @objc(ApptentiveConversationMetadata)
 class LegacyConversationMetadata: NSObject, NSSecureCoding {
-    static var supportsSecureCoding = true
+    static let supportsSecureCoding = true
 
     let items: [LegacyConversationMetadataItem]
 

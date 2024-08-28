@@ -1,3 +1,12 @@
+/* The accessibility label for the refresh button for the web view. */
+"Web View Refresh Button Accessibility Label" = "刷新";
+
+/* The accessibility hint for the refresh button for the web view. */
+"Web View Refresh Button Accessibility Hint" = "刷新网页视图";
+
+/* The action name for opening an accessibility action link. */
+"OpenLinkAction" = "打开 %@";
+
 /* The button label for dismissing the attachment options alert. */
 "Attachment Options Cancel Button" = "取消";
 

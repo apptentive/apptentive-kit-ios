@@ -10,24 +10,29 @@ import UIKit
 
 extension Apptentive {
     /// This callback will set the default cross-platform Apptentive look for Apptentive UI.
-    func applyApptentiveTheme() {
-        // UIAppearance-based overrides
-
+    static func applyApptentiveTheme() {
         let bundle = Bundle.apptentive
         guard let barTintColor = UIColor(named: "barTint", in: bundle, compatibleWith: nil),
             let barForegroundColor = UIColor(named: "barForeground", in: bundle, compatibleWith: nil),
-            let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil),
-            let apptentiveRangeControlBorder = UIColor(named: "apptentiveRangeControlBorder", in: bundle, compatibleWith: nil),
-            let imageNotSelectedColor = UIColor(named: "imageNotSelected", in: bundle, compatibleWith: nil),
-            let textInputBorderColor = UIColor(named: "textInputBorder", in: bundle, compatibleWith: nil),
-            let textInputColor = UIColor(named: "textInput", in: bundle, compatibleWith: nil),
+            let surveyGreeting = UIColor(named: "surveyGreetingText", in: bundle, compatibleWith: nil),
+            let question = UIColor(named: "question", in: bundle, compatibleWith: nil),
             let instructionsLabelColor = UIColor(named: "instructionsLabel", in: bundle, compatibleWith: nil),
+            let error = UIColor(named: "apptentiveError", in: bundle, compatibleWith: nil),
+            let surveyImageChoice = UIColor(named: "surveyImageChoice", in: bundle, compatibleWith: nil),
+            let imageNotSelectedColor = UIColor(named: "imageNotSelected", in: bundle, compatibleWith: nil),
             let choiceLabelColor = UIColor(named: "choiceLabel", in: bundle, compatibleWith: nil),
+            let textInputBorderColor = UIColor(named: "textInputBorder", in: bundle, compatibleWith: nil),
+            let textInputBorderSelected = UIColor(named: "textInputBorderSelected", in: bundle, compatibleWith: nil),
+            let textInputBackgroundColor = UIColor(named: "textInputBackground", in: bundle, compatibleWith: nil),
+            let textInputColor = UIColor(named: "textInput", in: bundle, compatibleWith: nil),
+            let textInputPlaceholder = UIColor(named: "textInputPlaceholder", in: bundle, compatibleWith: nil),
+            let buttonTintColor = UIColor(named: "buttonTint", in: bundle, compatibleWith: nil),
+            let unselectedSurveyIndicatorColor = UIColor(named: "unselectedSurveyIndicator", in: bundle, compatibleWith: nil),
+            let apptentiveRangeControlBorder = UIColor(named: "apptentiveRangeControlBorder", in: bundle, compatibleWith: nil),
             let apptentiveGroupPrimaryColor = UIColor(named: "apptentiveGroupPrimary", in: bundle, compatibleWith: nil),
             let apptentiveGroupSecondaryColor = UIColor(named: "apptentiveGroupSecondary", in: bundle, compatibleWith: nil),
-            let textInputBackgroundColor = UIColor(named: "textInputBackground", in: bundle, compatibleWith: nil),
             let termsOfServiceColor = UIColor(named: "termsOfService", in: bundle, compatibleWith: nil),
-            let question = UIColor(named: "question", in: bundle, compatibleWith: nil),
+            let disclaimerColor = UIColor(named: "disclaimer", in: bundle, compatibleWith: nil),
             let messageBubbleInboundColor = UIColor(named: "messageBubbleInbound", in: bundle, compatibleWith: nil),
             let messageLabelInboundColor = UIColor(named: "messageLabelInbound", in: bundle, compatibleWith: nil),
             let messageBubbleOutboundColor = UIColor(named: "messageBubbleOutbound", in: bundle, compatibleWith: nil),
@@ -35,15 +40,8 @@ extension Apptentive {
             let dialogSeparator = UIColor(named: "dialogSeparator", in: bundle, compatibleWith: nil),
             let dialogText = UIColor(named: "dialogText", in: bundle, compatibleWith: nil),
             let dialogButtonText = UIColor(named: "dialogButtonText", in: bundle, compatibleWith: nil),
-            let unselectedSurveyIndicatorColor = UIColor(named: "unselectedSurveyIndicator", in: bundle, compatibleWith: nil),
-            let surveyGreeting = UIColor(named: "surveyGreetingText", in: bundle, compatibleWith: nil),
-            let surveyImageChoice = UIColor(named: "surveyImageChoice", in: bundle, compatibleWith: nil),
             let attachmentDeleteButton = UIColor(named: "attachmentDeleteButton", in: bundle, compatibleWith: nil),
-            let error = UIColor(named: "apptentiveError", in: bundle, compatibleWith: nil),
-            let textInputPlaceholder = UIColor(named: "textInputPlaceholder", in: bundle, compatibleWith: nil),
-            let textInputBorderSelected = UIColor(named: "textInputBorderSelected", in: bundle, compatibleWith: nil),
-            let rangeNotSelectedSegmentBackground = UIColor(named: "rangeNotSelectedSegmentBackground", in: bundle, compatibleWith: nil),
-            let disclaimerColor = UIColor(named: "disclaimer", in: bundle, compatibleWith: nil)
+            let rangeNotSelectedSegmentBackground = UIColor(named: "rangeNotSelectedSegmentBackground", in: bundle, compatibleWith: nil)
         else {
             apptentiveCriticalError("Unable to locate color asset(s).")
             return
@@ -104,45 +102,43 @@ extension Apptentive {
         // Apptentive UIKit extensions overrides
         UITableView.Style.apptentive = .grouped
 
+        UIColor.apptentiveSurveyIntroduction = surveyGreeting
+        UIColor.apptentiveQuestionLabel = question
         UIColor.apptentiveInstructionsLabel = instructionsLabelColor
+        UIColor.apptentiveError = error
+        UIColor.apptentiveImageSelected = surveyImageChoice
         UIColor.apptentiveImageNotSelected = imageNotSelectedColor
-        UIColor.apptentiveTextInputBorder = textInputBorderColor
-        UIColor.apptentiveTextInput = textInputColor
         UIColor.apptentiveChoiceLabel = choiceLabelColor
+        UIColor.apptentiveTextInputBorder = textInputBorderColor
+        UIColor.apptentiveTextInputBorderSelected = textInputBorderSelected
+        UIColor.apptentiveTextInputBackground = textInputBackgroundColor
+        UIColor.apptentiveTextInput = textInputColor
+        UIColor.apptentiveTextInputPlaceholder = textInputPlaceholder
+        UIColor.apptentiveSelectedSurveyIndicatorSegment = buttonTintColor
+        UIColor.apptentiveUnselectedSurveyIndicatorSegment = unselectedSurveyIndicatorColor
+        UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
         UIColor.apptentiveGroupedBackground = apptentiveGroupPrimaryColor
         UIColor.apptentiveSecondaryGroupedBackground = apptentiveGroupSecondaryColor
         UIColor.apptentiveSeparator = apptentiveGroupPrimaryColor
-        UIColor.apptentiveTextInputBackground = textInputBackgroundColor
         UIColor.apptentiveSubmitButton = buttonTintColor
-        UIColor.apptentiveQuestionLabel = question
+        UIColor.apptentiveBranchedSurveyFooter = barTintColor
+        UIColor.apptentiveDisclaimerLabel = disclaimerColor
+        UIColor.apptentiveTermsOfServiceLabel = termsOfServiceColor
+
+        UIColor.apptentiveMessageCenterGreetingTitle = surveyGreeting
+        UIColor.apptentiveMessageCenterGreetingBody = question
         UIColor.apptentiveMessageBubbleInbound = messageBubbleInboundColor
         UIColor.apptentiveMessageBubbleOutbound = messageBubbleOutboundColor
         UIColor.apptentiveMessageLabelOutbound = termsOfServiceColor
         UIColor.apptentiveMessageLabelInbound = messageLabelInboundColor
         UIColor.apptentiveMessageCenterTextInputBorder = messageTextInputBorderColor
-        UIColor.apptentiveSelectedSurveyIndicatorSegment = buttonTintColor
-        UIColor.apptentiveUnselectedSurveyIndicatorSegment = unselectedSurveyIndicatorColor
-        UIColor.apptentiveBranchedSurveyFooter = barTintColor
-        UIColor.apptentiveSurveyIntroduction = surveyGreeting
-        UIColor.apptentiveImageSelected = surveyImageChoice
-        UIColor.apptentiveMessageCenterBackground = apptentiveGroupPrimaryColor
-        UIColor.apptentiveMessageCenterComposeBoxBackground = apptentiveGroupPrimaryColor
-        UIColor.apptentiveMessageCenterGreetingTitle = surveyGreeting
-        UIColor.apptentiveMessageCenterGreetingBody = question
-        UIColor.apptentiveMessageCenterStatus = textInputColor
-        UIColor.apptentiveMessageCenterTextInputBorder = textInputBorderColor
         UIColor.apptentiveMessageCenterTextInputBackground = textInputBackgroundColor
         UIColor.apptentiveMessageCenterTextInput = textInputColor
-        UIColor.apptentiveAttachmentRemoveButton = attachmentDeleteButton
-        UIColor.apptentiveError = error
-        UIColor.apptentiveTextInputPlaceholder = textInputPlaceholder
         UIColor.apptentiveMessageCenterTextInputPlaceholder = textInputPlaceholder
-        UIColor.apptentiveTextInputBorderSelected = textInputBorderSelected
-        UIColor.apptentiveDisclaimerLabel = disclaimerColor
-
-        UIColor.apptentiveRangeControlBorder = apptentiveRangeControlBorder
-
-        UIColor.apptentiveTermsOfServiceLabel = termsOfServiceColor
+        UIColor.apptentiveMessageCenterBackground = apptentiveGroupPrimaryColor
+        UIColor.apptentiveMessageCenterComposeBoxBackground = apptentiveGroupPrimaryColor
+        UIColor.apptentiveMessageCenterStatus = textInputColor
+        UIColor.apptentiveAttachmentRemoveButton = attachmentDeleteButton
 
         UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .body)
         UIFont.apptentiveChoiceLabel = .preferredFont(forTextStyle: .body)
@@ -154,16 +150,8 @@ extension Apptentive {
         DialogView.appearance().backgroundColor = apptentiveGroupPrimaryColor
 
         UIBarButtonItem.apptentiveClose = {
-            let systemClose: UIBarButtonItem = {
-
-                return UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
-
-            }()
-
-            let closeImage: UIImage? = {
-                return .apptentiveImage(named: "xmark")
-            }()
-
+            let systemClose = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
+            let closeImage = UIImage.apptentiveImage(named: "xmark")
             let result = UIBarButtonItem(image: closeImage, landscapeImagePhone: closeImage, style: .plain, target: nil, action: nil)
 
             result.accessibilityLabel = systemClose.accessibilityLabel
@@ -176,7 +164,7 @@ extension Apptentive {
         UIButton.apptentiveClose?.tintColor = .white
     }
 
-    private func image(with color: UIColor?) -> UIImage? {
+    private static func image(with color: UIColor?) -> UIImage? {
         let rect = CGRect(x: 0.0, y: 0.0, width: 1.0, height: 1.0)
         UIGraphicsBeginImageContext(rect.size)
         let context = UIGraphicsGetCurrentContext()

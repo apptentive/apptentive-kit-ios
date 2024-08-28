@@ -35,7 +35,7 @@ class NavigateToLinkControllerTests: XCTestCase {
 
         XCTAssertEqual(self.controller?.configuration.url, url)
 
-        self.controller?.navigateToLink()
+        let _ = self.controller?.navigateToLink()
 
         XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#NavigateToLink#navigate")
         XCTAssertEqual(self.spyInteractionDelegate?.openedURL, url)
@@ -54,7 +54,7 @@ class NavigateToLinkControllerTests: XCTestCase {
         XCTAssertEqual(self.controller?.configuration.url, url)
         self.spyInteractionDelegate?.shouldURLOpeningSucceed = false
 
-        self.controller?.navigateToLink()
+        let _ = self.controller?.navigateToLink()
 
         XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#NavigateToLink#navigate")
         XCTAssertEqual(self.spyInteractionDelegate?.openedURL, url)

@@ -388,7 +388,7 @@ class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
     }
 }
 
-class MockNotificationCenter: NotificationCenter {
+class MockNotificationCenter: NotificationCenter, @unchecked Sendable {
     var postedNotifications = [Notification]()
 
     override func post(name aName: NSNotification.Name, object anObject: Any?, userInfo aUserInfo: [AnyHashable: Any]? = nil) {

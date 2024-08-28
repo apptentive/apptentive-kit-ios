@@ -1,3 +1,14 @@
+# 2024-08-28 v6.8.2
+
+#### Bugs Fixed
+
+- Fix an issue where the SDK could fail to resume after the device is unlocked
+- Improve button layout in Prompts with long button labels
+- Mitigate possibility of a crash when uploading a photo or video to an Alchemer Survey
+- Ensure links in Alchemer Surveys shown on mobile are opened in the system browser
+- Allow Alchemer Surveys to follow device orientation
+- Improve accessibility with Prompts and Surveys containing rich content images and text
+
 # 2024-06-04 v6.8.1
 
 #### Bugs Fixed

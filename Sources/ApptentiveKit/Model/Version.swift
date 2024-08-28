@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Version: Equatable, Comparable, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, CustomDebugStringConvertible, Codable {
+struct Version: Equatable, Comparable, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, CustomDebugStringConvertible, Codable, Sendable {
     /// The major version of the version object, corresponding to the first integer.
 
     /// Set to nil if the version is initialized with a non-conforming string.

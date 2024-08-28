@@ -94,8 +94,12 @@ class SpyInteractionDelegate: InteractionDelegate {
     func markMessageAsRead(_ nonce: String) {
     }
 
+    func setMessageManagerDelegate(_ messageManagerDelegate: (any ApptentiveKit.MessageManagerDelegate)?) {
+        self.messageManagerDelegate = messageManagerDelegate
+    }
+
     func loadAttachmentDataFromDisk() throws -> [Data] {
-        let fileURL = try self.environment.applicationSupportURL().appendingPathComponent(MockEnvironment.containerName)
+        let fileURL = URL(fileURLWithPath: "/tmp").appendingPathComponent(MockEnvironment.containerName)
         let fileList = try self.environment.fileManager.contentsOfDirectory(atPath: fileURL.path)
         var attachmentURLs: [URL] = []
         fileList.forEach({
@@ -124,7 +128,7 @@ class SpyInteractionDelegate: InteractionDelegate {
         }
 
         do {
-            let fileURL = try self.environment.applicationSupportURL().appendingPathComponent(MockEnvironment.containerName).appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
+            let fileURL = URL(fileURLWithPath: "/tmp").appendingPathComponent(MockEnvironment.containerName).appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
             try data.write(to: fileURL, options: [.atomic])
         } catch {
             ApptentiveLogger.default.error("Error retrieving application support url or saving attachment to disk: \(error)")
@@ -141,7 +145,7 @@ class SpyInteractionDelegate: InteractionDelegate {
             fileExtension = String(mediaType.suffix(3))
         }
         do {
-            let fileURL = try self.environment.applicationSupportURL().appendingPathComponent(MockEnvironment.containerName).appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
+            let fileURL = URL(fileURLWithPath: "/tmp").appendingPathComponent(MockEnvironment.containerName).appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
             try self.environment.fileManager.removeItem(at: fileURL)
         } catch {
             ApptentiveLogger.default.error("Error retrieving application support url or deleting attachment to disk: \(error)")
