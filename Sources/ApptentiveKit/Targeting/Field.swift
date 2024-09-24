@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Represents a `/`-delimited array of substrings along with an index into the array.
+/// Represents a /-delimited array of substrings along with an index into the array.
 struct Field: ExpressibleByStringLiteral {
 
     /// The full field name.

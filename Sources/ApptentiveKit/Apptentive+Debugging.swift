@@ -214,6 +214,9 @@ extension Interaction {
         case .surveyV12(let configuration):
             return configuration.title
 
+        case .initiator:
+            return "Initiator"
+
         case .notImplemented:
             return "Not Implemented"
 

@@ -49,7 +49,8 @@ struct Interaction: Decodable {
 
             case "MessageCenter":
                 self.configuration = .messageCenter(try container.decode(MessageCenterConfiguration.self, forKey: .configuration))
-
+            case "Initiator":
+                self.configuration = .initiator
             default:
                 let typeName = self.typeName
                 ApptentiveLogger.interaction.warning("Interaction of type \(typeName) is not implemented.")
@@ -79,6 +80,7 @@ struct Interaction: Decodable {
         case textModal(TextModalConfiguration)
         case messageCenter(MessageCenterConfiguration)
         case surveyV12(SurveyConfiguration)
+        case initiator
         case notImplemented
         case failedDecoding
     }

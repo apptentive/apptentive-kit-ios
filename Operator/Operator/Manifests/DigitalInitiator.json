@@ -1,0 +1,20 @@
+{
+  "interactions": [
+      {
+        "id":  "initiator",
+        "display_type": null,
+        "type": "Initiator",
+        "version": 1,
+        "api_version": 15,
+        "configuration": {}
+      }
+  ],
+  "targets": {
+    "com.apptentive#initiator#launch": [
+      {
+        "interaction_id": "548cc5dd49f63bb5c2000001",
+        "criteria": {}
+      }
+    ]
+  }
+}

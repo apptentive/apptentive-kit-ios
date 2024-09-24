@@ -154,6 +154,12 @@ class Backend: PayloadAuthenticationDelegate {
         self.jsonEncoder.dateEncodingStrategy = .secondsSince1970
     }
 
+    deinit {
+        self.housekeepingTimer?.setEventHandler(handler: nil)
+        self.housekeepingTimer?.cancel()
+        self.housekeepingTimer?.resume()
+    }
+
     func setDelegate(_ delegate: (BackendDelegate & MessageManagerApptentiveDelegate)?) {
         self.delegate = delegate
         self.messageManager.messageManagerApptentiveDelegate = delegate
@@ -670,8 +676,11 @@ class Backend: PayloadAuthenticationDelegate {
     /// Whether the conversation has changes that need to be saved to persistent storage.
     private var conversationNeedsSaving: Bool = false
 
-    /// A repeating task that periodically runs a task to save the conversation and payload sender.
-    private var housekeepingTask: Task<Void, Error>?
+    /// A timer that periodically runs a task to save the conversation and payload sender.
+    private var housekeepingTimer: DispatchSourceTimer?
+
+    /// A flag indicating whether the housekeeping timer is active.
+    private var housekeepingTimerIsActive = false
 
     /// The version of the conversation that was last sent to the API.
     private var lastSyncedConversation: Conversation?
@@ -714,7 +723,7 @@ class Backend: PayloadAuthenticationDelegate {
                 self.registerCompletion = nil
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: nil)
-                self.startHousekeepingTask()
+                self.startHousekeepingTimer()
 
             case (from: .loading, to: .anonymous(let payloadCredentials)):
                 self.startSession()
@@ -723,7 +732,7 @@ class Backend: PayloadAuthenticationDelegate {
                 self.registerCompletion = nil
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: nil)
-                self.startHousekeepingTask()
+                self.startHousekeepingTimer()
 
             case (from: .loading, to: .loggedIn(let payloadCredentials, let encryptionContext)):
                 self.registerCompletion?(.success(.cached))
@@ -732,7 +741,7 @@ class Backend: PayloadAuthenticationDelegate {
                 self.syncFrontendVariables()
 
                 try self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", encryptionContext: encryptionContext)
-                self.startHousekeepingTask()
+                self.startHousekeepingTimer()
 
             case (from: .loading, to: .loggedOut):
                 self.conversation = nil
@@ -760,14 +769,14 @@ class Backend: PayloadAuthenticationDelegate {
 
                 try self.createRecordSavers(for: activeRecord, containerURL: containerURL)
                 try self.loadRecordFiles(for: activeRecord, containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
-                self.startHousekeepingTask()
+                self.resumeHousekeepingTimer()
 
                 self.startSession()
                 self.syncFrontendVariables()
                 self.engage(event: .login, completion: nil)
 
             case (from: .loggedIn, to: .loggedOut):
-                self.cancelHousekeepingTask()
+                self.suspendHousekeepingTimer()
                 self.conversation = nil
                 self.clearFrontendVariables()
                 try self.messageManager.deleteCachedMessages()
@@ -784,7 +793,7 @@ class Backend: PayloadAuthenticationDelegate {
                 try self.unlockIfNeeded()
                 self.startSession()
                 self.payloadSender.resume()
-                self.startHousekeepingTask()
+                self.resumeHousekeepingTimer()
 
             case (from: .anonymous, to: .backgrounded), (from: .loggedIn, to: .backgrounded):
                 self.startBackgroundTask()
@@ -798,7 +807,7 @@ class Backend: PayloadAuthenticationDelegate {
                     }
                 }
 
-                self.cancelHousekeepingTask()
+                self.suspendHousekeepingTimer()
                 self.saveToPersistentStorageIfNeeded()
 
             case (from: _, to: .backgrounded):
@@ -811,7 +820,7 @@ class Backend: PayloadAuthenticationDelegate {
                 try self.unlockIfNeeded()
 
             case (from: _, to: .locked):
-                self.cancelHousekeepingTask()
+                self.suspendHousekeepingTimer()
                 self.destroySavers()
 
             default:
@@ -1090,23 +1099,37 @@ class Backend: PayloadAuthenticationDelegate {
 
     // MARK: Housekeeping timer
 
-    private func startHousekeepingTask() {
-        if self.housekeepingTask == nil {
-            self.housekeepingTask = Task {
-                repeat {
-                    ApptentiveLogger.default.debug("Running periodic housekeeping task")
-                    self.syncConversationWithAPI()
-                    self.saveToPersistentStorageIfNeeded()
+    private func startHousekeepingTimer() {
+        let housekeepingTimer = DispatchSource.makeTimerSource(flags: [], queue: self.queue)
+        housekeepingTimer.schedule(deadline: .now(), repeating: .seconds(10), leeway: .seconds(1))
+        housekeepingTimer.setEventHandler { [weak self] in
+            ApptentiveLogger.default.debug("Running periodic housekeeping task")
+            self?.syncConversationWithAPI()
+            self?.saveToPersistentStorageIfNeeded()
+        }
 
-                    try? await Task.sleep(nanoseconds: 10 * UInt64(1E9))
-                } while !Task.isCancelled
-                self.housekeepingTask = nil
+        housekeepingTimer.resume()
+
+        self.housekeepingTimer = housekeepingTimer
+        self.housekeepingTimerIsActive = true
+    }
+
+    private func resumeHousekeepingTimer() {
+        if let housekeepingTimer = self.housekeepingTimer {
+            if !housekeepingTimerIsActive {
+                housekeepingTimer.resume()
+                self.housekeepingTimerIsActive = true
             }
+        } else {
+            self.startHousekeepingTimer()
         }
     }
 
-    private func cancelHousekeepingTask() {
-        self.housekeepingTask?.cancel()
+    private func suspendHousekeepingTimer() {
+        if housekeepingTimerIsActive {
+            self.housekeepingTimer?.suspend()
+            self.housekeepingTimerIsActive = false
+        }
     }
 
     // MARK: - Frontend
