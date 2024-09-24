@@ -1,4 +1,10 @@
-# 2024-08-28 v6.8.2
+# 2024-09-24 - 6.9.0
+
+#### New Features
+
+- Added support for Alchemer Workflow initiation from the SDK
+
+# 2024-08-28 - 6.8.2
 
 #### Bugs Fixed
 
@@ -9,20 +15,20 @@
 - Allow Alchemer Surveys to follow device orientation
 - Improve accessibility with Prompts and Surveys containing rich content images and text
 
-# 2024-06-04 v6.8.1
+# 2024-06-04 - 6.8.1
 
 #### Bugs Fixed
 
 - The privacy manifest is now included in the resource bundle for CocoaPods integrations
 - Fixed an issue where button labels could appear blank when increased contrast was enabled
 
-# 2024-05-29 - v6.8.0
+# 2024-05-29 - 6.8.0
 
 #### New Features
 
 - Advanced Customer Research support to show Alchemer long-form surveys through prompts
 
-# 2024-04-17 - v6.7.0
+# 2024-04-17 - 6.7.0
 
 #### New Features
 

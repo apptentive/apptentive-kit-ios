@@ -78,6 +78,10 @@ open class InteractionPresenter {
 
         case .failedDecoding:
             completion(.failure(InteractionPresenterError.decodingFailed(interaction.typeName, interaction.id)))
+
+        case .initiator:
+            completion(.success(()))
+            self.launchInitiator(interaction: interaction)
         }
 
         self.presentedInteraction = interaction
@@ -217,6 +221,10 @@ open class InteractionPresenter {
         dismissEvent.userInfo = .dismissCause(.init(cause: "notification"))
 
         self.delegate?.engage(event: dismissEvent)
+    }
+
+    private func launchInitiator(interaction: Interaction) {
+        self.delegate?.engage(event: .launch(from: interaction))
     }
 
     /// Walks up the view controller hierarchy to find any ancestors that are being dismissed, and returns that ancestor's parent, or nil if no parents are being dismissed.

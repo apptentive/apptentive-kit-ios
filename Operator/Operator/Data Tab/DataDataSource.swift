@@ -13,10 +13,13 @@ class DataDataSource: NSObject, UITableViewDataSource {
     var isEditing = false
     let apptentive: Apptentive
     static let editRowReuseIdentifiers = ["Add String", "Add Number", "Add Boolean"]
+    let numberFormatter = NumberFormatter()
 
     init(_ apptentive: Apptentive) {
         self.apptentive = apptentive
         super.init()
+
+        self.numberFormatter.numberStyle = .decimal
     }
 
     func setEditing(_ editing: Bool, for tableView: UITableView) {
@@ -77,7 +80,7 @@ class DataDataSource: NSObject, UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: "Display", for: indexPath)
 
             let key = self.keys[indexPath.row]
-            let value: String = {
+            let value: String? = {
                 switch self.customData[key] {
                 case let string as String:
                     return string
@@ -86,10 +89,10 @@ class DataDataSource: NSObject, UITableViewDataSource {
                     return bool ? "true" : "false"
 
                 case let int as Int:
-                    return String(int)
+                    return self.numberFormatter.string(from: NSNumber(value: int))
 
                 case let double as Double:
-                    return String(double)
+                    return self.numberFormatter.string(from: NSNumber(value: double))
 
                 default:
                     return "<Unkown Type>"
@@ -132,7 +135,12 @@ class DataDataSource: NSObject, UITableViewDataSource {
                 self.customData[key] = cell.stringTextField.text
 
             case let cell as AddNumberCell:
-                self.customData[key] = Double(cell.numberTextField.text ?? "")
+                let doubleValue = cell.numberTextField.text.flatMap { self.numberFormatter.number(from: $0) }?.doubleValue
+                if let maybeInt = doubleValue, floor(maybeInt) == maybeInt {
+                    self.customData[key] = Int(maybeInt)
+                } else {
+                    self.customData[key] = doubleValue
+                }
 
             case let cell as AddBooleanCell:
                 self.customData[key] = cell.booleanSwitch.isOn

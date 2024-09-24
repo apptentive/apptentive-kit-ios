@@ -217,6 +217,7 @@
 		EF2B2A672A97F3D3007926E4 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EF2B2A662A969653007926E4 /* PrivacyInfo.xcprivacy */; };
 		EF4B13D52878BB530090CCF0 /* SurveyConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B13D42878BB530090CCF0 /* SurveyConfiguration.swift */; };
 		EF4B13DD287E35690090CCF0 /* SurveyBranchedViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B13DC287E35690090CCF0 /* SurveyBranchedViewModelTests.swift */; };
+		EF59056A2C62A38A00525C03 /* InitiatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5905692C62A38A00525C03 /* InitiatorTests.swift */; };
 		EF5A7EEE294146720024395D /* Data+Encryption.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A7EED294146720024395D /* Data+Encryption.swift */; };
 		EF61A6102BC1C3FD00C6C879 /* UILabel+DataDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61A60F2BC1C3FD00C6C879 /* UILabel+DataDetection.swift */; };
 		EF69E0BC258962DA00FA0636 /* SurveyRangeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF69E0BB258962DA00FA0636 /* SurveyRangeCell.swift */; };
@@ -524,6 +525,7 @@
 		EF2B2A662A969653007926E4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Sources/ApptentiveKit/Resources/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT; };
 		EF4B13D42878BB530090CCF0 /* SurveyConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyConfiguration.swift; sourceTree = "<group>"; };
 		EF4B13DC287E35690090CCF0 /* SurveyBranchedViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyBranchedViewModelTests.swift; sourceTree = "<group>"; };
+		EF5905692C62A38A00525C03 /* InitiatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitiatorTests.swift; sourceTree = "<group>"; };
 		EF5A7EED294146720024395D /* Data+Encryption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Encryption.swift"; sourceTree = "<group>"; };
 		EF61A60F2BC1C3FD00C6C879 /* UILabel+DataDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+DataDetection.swift"; sourceTree = "<group>"; };
 		EF69E0BB258962DA00FA0636 /* SurveyRangeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyRangeCell.swift; sourceTree = "<group>"; };
@@ -697,6 +699,7 @@
 				0165B7D725804341001DF54E /* AppleRatingDialogControllerTests.swift */,
 				019E79072575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift */,
 				01ED6276257B0F0E0023208C /* NavigateToLinkControllerTests.swift */,
+				EF5905692C62A38A00525C03 /* InitiatorTests.swift */,
 				013D8DE024EEFA13005EC4D1 /* SurveyViewModelTests.swift */,
 				EF4B13DC287E35690090CCF0 /* SurveyBranchedViewModelTests.swift */,
 				EF1306CE26F18C1B00837F2A /* MessageCenterViewModelTests.swift */,
@@ -1627,6 +1630,7 @@
 				019E79082575ACB5006BD412 /* EnjoymentDialogViewModelTests.swift in Sources */,
 				0118DD6E26FB79AC00037E0E /* MessagePayloadTests.swift in Sources */,
 				0165B7EA25804388001DF54E /* AppleRatingDialogControllerTests.swift in Sources */,
+				EF59056A2C62A38A00525C03 /* InitiatorTests.swift in Sources */,
 				015D6BC9250AC0AC00372759 /* AppReleaseTests.swift in Sources */,
 				014F460126E1A8D70055D5D4 /* PayloadSenderTests.swift in Sources */,
 				015D6BCD250AC0AC00372759 /* ConversationTests.swift in Sources */,

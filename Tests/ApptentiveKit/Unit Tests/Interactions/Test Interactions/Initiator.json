@@ -1,0 +1,8 @@
+{
+  "id":  "initiator",
+  "display_type": null,
+  "type": "Initiator",
+  "version": 1,
+  "api_version": 15,
+  "configuration": {}
+}
