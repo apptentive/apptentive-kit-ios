@@ -1,3 +1,13 @@
+# 2024-12-04 - 6.9.1
+
+#### Bugs Fixed
+
+- Corrected display of certain characters (e.g. "&") in Surveys
+- Fixed several keyboard navigation issues in Surveys
+- Fixed several cosmetic issues in Surveys
+- Restored ability for an app to override Prompt/Love Dialog fonts
+- Adjusted default font weight of Prompt and Love Dialog title label to match system alert
+
 # 2024-09-24 - 6.9.0
 
 #### New Features
