@@ -30,7 +30,7 @@ class TextModalViewModelTests: XCTestCase {
     }
 
     func testTextModal() {
-        XCTAssertEqual(viewModel.title, "<span style=\"font-weight:bold;\">Message Title</span>")
+        XCTAssertEqual(viewModel.title, "Message Title")
         XCTAssertEqual(viewModel.message, "Message content.")
         XCTAssertEqual(viewModel.actions[0].label, "Message Center")
         XCTAssertEqual(viewModel.actions[1].label, "Survey")

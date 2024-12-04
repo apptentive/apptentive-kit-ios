@@ -163,9 +163,7 @@ extension SurveyViewModel {
             }
 
             init(choice: SurveyConfiguration.Question.Choice) {
-                if choice.value.containsHTML() {
-                    self.htmlLabel = choice.value.attributedString(withFont: .apptentiveChoiceLabel.createUIFontMetricsForHTML(), alignment: .left)
-                }
+                self.htmlLabel = choice.value.attributedString(withFont: .apptentiveChoiceLabel.createUIFontMetricsForHTML(), alignment: .left)
                 self.label = choice.value
                 self.id = choice.id
                 self.placeholderText = choice.placeholderText

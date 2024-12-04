@@ -233,7 +233,7 @@ enum ConditionalOperator: String {
         case (.notEquals, let value as String, let parameter as String):
             return value.trimmedAndLowercased() != parameter.trimmedAndLowercased()
         case (.notEquals, _ as Date, _ as Date):
-            return false
+            return true
         case (.notEquals, nil, nil):
             return false
         case (.notEquals, nil, _):

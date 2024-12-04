@@ -92,7 +92,7 @@ public class DialogViewModel {
         self.interaction = interaction
         self.interactionDelegate = interactionDelegate
         self.dialogType = .textModal
-        self.title = configuration.title?.boldHTMLSpan()
+        self.title = configuration.title
         self.message = configuration.body
         self.isMessageHidden = self.message == nil || self.message?.isEmpty == true
         self.isTitleHidden = self.title == nil || self.title?.isEmpty == true

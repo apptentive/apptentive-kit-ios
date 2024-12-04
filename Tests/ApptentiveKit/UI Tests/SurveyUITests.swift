@@ -169,7 +169,8 @@ class SurveyUITests: XCTestCase {
         tablesQuery.staticTexts["Survey"].tap()
         let toolbar = XCUIApplication().toolbars
         let termsOfServiceBarButtonItem = toolbar.buttons["Terms and Conditions"]
-        XCTAssertTrue(termsOfServiceBarButtonItem.exists, "The ToS button is not showing.")
+        let exists = termsOfServiceBarButtonItem.waitForExistence(timeout: 1)
+        XCTAssertTrue(exists, "The ToS button is not showing.")
         termsOfServiceBarButtonItem.tap()
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
         XCTAssertTrue(safari.wait(for: .runningForeground, timeout: 5))

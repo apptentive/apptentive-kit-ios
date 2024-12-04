@@ -30,6 +30,9 @@ class SurveySubmitView: UIView {
         self.submitButton.titleLabel?.adjustsFontForContentSizeCategory = true
         self.submitButton.layer.borderWidth = .apptentiveButtonBorderWidth
         self.submitButton.layer.borderColor = UIColor.apptentiveSubmitButtonBorder.cgColor
+        self.submitButton.layer.shadowOpacity = 1.0
+        self.submitButton.layer.shadowRadius = 3.0
+        self.submitButton.layer.shadowOffset = .zero
         self.submitButton.setTitleColor(.apptentiveSubmitButtonTitle, for: .normal)
 
         self.submitButton.translatesAutoresizingMaskIntoConstraints = false
@@ -71,6 +74,14 @@ class SurveySubmitView: UIView {
             self.disclaimerLabel.trailingAnchor.constraint(equalTo: self.readableContentGuide.trailingAnchor),
             self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.disclaimerLabel.bottomAnchor, multiplier: 5.0),
         ])
+    }
+
+    override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
+        let submitButtonDidFocus = context.nextFocusedItem === self.submitButton
+
+        coordinator.addCoordinatedAnimations {
+            self.submitButton.layer.shadowColor = submitButtonDidFocus ? UIColor.systemBlue.cgColor : UIColor.clear.cgColor
+        }
     }
 
     override func layoutSubviews() {

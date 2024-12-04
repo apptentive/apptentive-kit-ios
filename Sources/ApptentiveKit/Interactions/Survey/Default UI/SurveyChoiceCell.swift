@@ -54,10 +54,10 @@ class SurveyChoiceCell: UITableViewCell {
 
         self.buttonImageView.translatesAutoresizingMaskIntoConstraints = false
         self.buttonImageView.adjustsImageSizeForAccessibilityContentSizeCategory = true
-
         self.buttonImageView.preferredSymbolConfiguration = .init(textStyle: .body, scale: .large)
-
         self.buttonImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        self.buttonImageView.setContentCompressionResistancePriority(.required, for: .vertical)
+        self.buttonImageView.contentMode = .scaleAspectFill
         self.contentView.addSubview(self.buttonImageView)
 
         self.choiceLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -74,12 +74,6 @@ class SurveyChoiceCell: UITableViewCell {
         let textIndentingConstraint = self.choiceLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 60)
         textIndentingConstraint.priority = .defaultHigh
 
-        let imageYConstraint: NSLayoutConstraint = {
-
-            return self.buttonImageView.firstBaselineAnchor.constraint(equalTo: self.choiceLabel.firstBaselineAnchor)
-
-        }()
-
         NSLayoutConstraint.activate([
             self.choiceLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 12),
             self.choiceLabel.leadingAnchor.constraint(greaterThanOrEqualTo: self.contentView.leadingAnchor, constant: 60),
@@ -88,9 +82,10 @@ class SurveyChoiceCell: UITableViewCell {
             self.contentView.bottomAnchor.constraint(greaterThanOrEqualTo: self.choiceLabel.bottomAnchor, constant: 12),
 
             self.buttonImageView.leadingAnchor.constraint(greaterThanOrEqualToSystemSpacingAfter: self.contentView.leadingAnchor, multiplier: 1),
-            self.choiceLabel.leadingAnchor.constraint(greaterThanOrEqualToSystemSpacingAfter: self.buttonImageView.trailingAnchor, multiplier: 1),
-            imageYConstraint,
+            self.buttonImageView.firstBaselineAnchor.constraint(equalTo: self.choiceLabel.firstBaselineAnchor),
             imageCenteringConstraint,
+
+            self.choiceLabel.leadingAnchor.constraint(greaterThanOrEqualToSystemSpacingAfter: self.buttonImageView.trailingAnchor, multiplier: 1),
         ])
     }
 }

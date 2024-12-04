@@ -33,7 +33,11 @@ extension ConditionalClause: Decodable {
 
         self.field = try Field(string: parentKey)
 
-        if let container = try? decoder.container(keyedBy: CriteriaCodingKeys.self) {
+        if let container = try? decoder.container(keyedBy: ComplexParameterCodingKeys.self), let complexParameter = try? decodeComplexParameter(from: container) {
+            // Shorthand version of a single equality test, e.g. `{ ..., "path/to/field": "parameter", ... }`
+            // (with complex parameter, e.g. time or version)
+            self.conditionalTests = [ConditionalTest(parameter: complexParameter)]
+        } else if let container = try? decoder.container(keyedBy: CriteriaCodingKeys.self) {
             self.conditionalTests = try container.allKeys.map { key in
                 return try container.decode(ConditionalTest.self, forKey: key)
             }
@@ -53,13 +57,17 @@ extension ConditionalTest: Decodable {
     }
 
     init(from decoder: Decoder) throws {
-        guard let parentKey = decoder.codingPath.last, let conditionalOperator = ConditionalOperator(rawValue: parentKey.stringValue) else {
+        guard let parentKey = decoder.codingPath.last else {
+            throw CriteriaDecodingError.unrecognizedConditionalOperator
+        }
+
+        guard let conditionalOperator = ConditionalOperator(rawValue: parentKey.stringValue) else {
             throw CriteriaDecodingError.unrecognizedConditionalOperator
         }
 
         self.conditionalOperator = conditionalOperator
 
-        if let container = try? decoder.container(keyedBy: CriteriaCodingKeys.self) {
+        if let container = try? decoder.container(keyedBy: ComplexParameterCodingKeys.self) {
             self.parameter = try decodeComplexParameter(from: container)
         } else if let container = try? decoder.singleValueContainer() {
             self.parameter = try decodeSimpleParameter(from: container)
@@ -108,20 +116,18 @@ private func decodeSimpleParameter(from container: SingleValueDecodingContainer)
     }
 }
 
-private func decodeComplexParameter(from container: KeyedDecodingContainer<CriteriaCodingKeys>) throws -> CriteriaParameter? {
-    guard let type = try? container.decode(String.self, forKey: try CriteriaCodingKeys.key(for: "_type")) else {
+private func decodeComplexParameter(from container: KeyedDecodingContainer<ComplexParameterCodingKeys>) throws -> CriteriaParameter? {
+    guard let type: ComplexParameterType = try? container.decode(ComplexParameterType.self, forKey: .type) else {
         throw CriteriaDecodingError.invalidComplexParameter
     }
 
     switch type {
-    case "datetime":
-        let secondsSince1970 = try container.decode(Double.self, forKey: try CriteriaCodingKeys.key(for: "sec"))
+    case .datetime:
+        let secondsSince1970 = try container.decode(Double.self, forKey: .seconds)
         return Date(timeIntervalSince1970: secondsSince1970)
-    case "version":
-        let versionString = try container.decode(String.self, forKey: try CriteriaCodingKeys.key(for: "version"))
+    case .version:
+        let versionString = try container.decode(String.self, forKey: .version)
         return Version(string: versionString)
-    default:
-        throw CriteriaDecodingError.unrecognizedComplexParameter
     }
 }
 
@@ -144,6 +150,17 @@ private struct CriteriaCodingKeys: CodingKey {
 
         return key
     }
+}
+
+private enum ComplexParameterCodingKeys: String, CodingKey {
+    case seconds = "sec"
+    case version
+    case type = "_type"
+}
+
+private enum ComplexParameterType: String, Decodable {
+    case datetime
+    case version
 }
 
 enum CriteriaDecodingError: Error {
