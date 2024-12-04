@@ -29,15 +29,8 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
         self.view.backgroundColor = .init(white: 0, alpha: 0.4)
         self.view.isOpaque = false
 
-        if self.viewModel.dialogType == .textModal {
-            let scaledTitleFont = UIFontMetrics(forTextStyle: .headline).scaledFont(for: self.dialogView.titleFont)
-            let scaledMessageFont = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: self.dialogView.messageFont)
-            self.dialogView.titleTextView.attributedText = self.viewModel.title?.attributedString(withFont: scaledTitleFont, alignment: .center)
-            self.dialogView.messageTextView.attributedText = self.viewModel.message?.attributedString(withFont: scaledMessageFont, alignment: .center)
-        } else {
-            self.dialogView.titleTextView.text = self.viewModel.title
-            self.dialogView.messageTextView.text = self.viewModel.message
-        }
+        self.dialogView.titleLabel.html = self.viewModel.title
+        self.dialogView.messageLabel.html = self.viewModel.message
 
         self.view.addSubview(dialogView)
 
@@ -112,6 +105,7 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
             self.dialogView.headerImageView.image = nil
             self.dialogView.headerImageView.accessibilityLabel = nil
             self.dialogView.headerImageView.isAccessibilityElement = false
+            self.dialogView.headerImageView.isHidden = true
         }
     }
 
@@ -144,12 +138,12 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
         self.dialogView.headerImageViewHeightConstraint.priority = fitPriority
 
         if self.dialogView.isMessageHidden && !self.dialogView.isTitleHidden {
-            self.dialogView.headerImageViewBottomConstraint = self.dialogView.titleTextView.topAnchor.constraint(equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.messageBottomConstraintConstant)
-            self.dialogView.titleBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.titleTextView.lastBaselineAnchor, constant: self.dialogView.messageBottomConstraintConstant)
+            self.dialogView.headerImageViewBottomConstraint = self.dialogView.titleLabel.topAnchor.constraint(equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.messageBottomConstraintConstant)
+            self.dialogView.titleBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.titleLabel.lastBaselineAnchor, constant: self.dialogView.messageBottomConstraintConstant)
         } else if self.dialogView.isTitleHidden && !self.dialogView.isMessageHidden {
-            self.dialogView.headerImageViewBottomConstraint = self.dialogView.messageTextView.topAnchor.constraint(
+            self.dialogView.headerImageViewBottomConstraint = self.dialogView.messageLabel.topAnchor.constraint(
                 equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.topSpacingIdealConstraintConstant - self.dialogView.messageBottomConstraintConstant)
-            self.dialogView.messageBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.messageTextView.lastBaselineAnchor, constant: self.dialogView.messageBottomConstraintConstant)
+            self.dialogView.messageBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.messageLabel.lastBaselineAnchor, constant: self.dialogView.messageBottomConstraintConstant)
         } else if self.dialogView.isTitleHidden && self.dialogView.isMessageHidden {
             self.dialogView.headerImageViewBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.imageInset.bottom)
         }

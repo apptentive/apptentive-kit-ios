@@ -39,19 +39,6 @@ extension String {
         return nil
     }
 
-    func containsHTML() -> Bool {
-        let pattern = "<[^>]+>"
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
-            return false
-        }
-        let range = NSRange(location: 0, length: self.utf16.count)
-        if let _ = regex.firstMatch(in: self, options: [], range: range) {
-            return true
-        } else {
-            return false
-        }
-    }
-
     func containsURL() -> Bool {
         let pattern = "(?i)\\b((?:https?|ftp)://\\S+|www\\.\\S+|(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}(?:/\\S*)?|tel:\\S+|mailto:\\S+)"
         let regex = try? NSRegularExpression(pattern: pattern, options: [])
@@ -66,9 +53,5 @@ extension String {
         let range = NSRange(location: 0, length: self.utf16.count)
         let strippedString = regex.stringByReplacingMatches(in: self, options: [], range: range, withTemplate: "")
         return strippedString
-    }
-
-    func boldHTMLSpan() -> String {
-        return "<span style=\"font-weight:bold;\">\(self)</span>"
     }
 }

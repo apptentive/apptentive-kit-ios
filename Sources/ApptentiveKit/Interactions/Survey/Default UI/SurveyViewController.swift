@@ -66,6 +66,8 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     var firstResponderCell: UITableViewCell?
 
+    var focusEnvironment: UIFocusEnvironment?
+
     enum FooterMode {
         case submitButton
         case thankYou
@@ -86,7 +88,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             case .thankYou:
                 if let thankYouHtml = self.configureHTMLFont(text: self.viewModel.thankYouMessage, apptentiveFont: .apptentiveSubmitStatusLabel.createUIFontMetricsForHTML(), alignment: .center) {
                     self.submitView?.submitLabel.attributedText = thankYouHtml
-                    if (self.viewModel.thankYouMessage?.containsURL()) != nil {
+                    if self.viewModel.thankYouMessage?.containsURL() == true {
                         self.submitView?.submitLabel.enableDataDetection()
                     }
                 } else {
@@ -96,8 +98,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 viewToShow = self.submitView?.submitLabel
 
             case .validationError:
-
-                self.submitView?.submitLabel.text = self.viewModel.validationErrorMessage
+                self.submitView?.submitLabel.attributedText = NSAttributedString(string: self.viewModel.validationErrorMessage)
                 self.submitView?.submitLabel.textColor = .apptentiveError
                 viewToShow = self.submitView?.submitLabel
 
@@ -125,15 +126,16 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     init(viewModel: SurveyViewModel) {
         self.viewModel = viewModel
-        self.backgroundView = SurveyBackgroundView(frame: .zero)
 
         switch viewModel.displayMode {
         case .list:
+            self.backgroundView = nil
             self.introductionView = SurveyIntroductionView(frame: .zero)
             self.submitView = SurveySubmitView(frame: .zero)
             self.surveyBranchedBottomView = nil
 
         case .paged:
+            self.backgroundView = SurveyBackgroundView(frame: .zero)
             self.introductionView = nil
             self.submitView = nil
 
@@ -167,7 +169,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             if let disclaimerHtml = self.configureHTMLFont(text: self.viewModel.disclaimerText, apptentiveFont: .apptentiveDisclaimerLabel.createUIFontMetricsForHTML(), alignment: .center) {
                 self.submitView?.disclaimerLabel.attributedText = disclaimerHtml
                 self.submitView?.disclaimerLabel.textColor = .apptentiveDisclaimerLabel
-                if (self.viewModel.disclaimerText?.containsURL()) != nil {
+                if self.viewModel.disclaimerText?.containsURL() == true {
                     self.submitView?.disclaimerLabel.enableDataDetection()
                 }
 
@@ -177,12 +179,9 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
             self.submitView?.submitButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
-            // Pre-set submit label to allocate space
+            // Pre-set submit label to allocate space (include formatting in case bold text makes it longer)
             if let thankYouHtml = self.configureHTMLFont(text: self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage, apptentiveFont: .apptentiveSubmitStatusLabel.createUIFontMetricsForHTML(), alignment: .center) {
                 self.submitView?.submitLabel.attributedText = thankYouHtml
-                if (self.viewModel.thankYouMessage?.containsURL()) != nil {
-                    self.submitView?.submitLabel.enableDataDetection()
-                }
             } else {
                 self.submitView?.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
             }
@@ -191,7 +190,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 self.introductionView?.textLabel.attributedText = introHtml
                 self.introductionView?.textLabel.addCustomAccessibilityActions()
                 self.introductionView?.textLabel.textColor = .apptentiveSurveyIntroduction
-                if (self.viewModel.introduction?.containsURL()) != nil {
+                if self.viewModel.introduction?.containsURL() == true {
                     self.introductionView?.textLabel.enableDataDetection()
                 }
             } else {
@@ -222,6 +221,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.surveyBranchedBottomView?.bottomView.nextButton.addTarget(self, action: #selector(submitSurvey), for: .touchUpInside)
 
             self.configureIntroThankYouAndDisclaimerTextForPagedSurveys()
+            self.backgroundView?.isHidden = !self.viewModel.isIntroPage
 
             if self.viewModel.highlightFirstQuestionSegment {
                 self.surveyBranchedBottomView?.bottomView.surveyIndicator.updateSelectedSegmentAppearance()
@@ -236,15 +236,6 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.navigationItem.rightBarButtonItem?.action = #selector(cancelSurvey)
         }
 
-        // Pre-set submit label to allocate space
-        if let thankYouHtml = self.configureHTMLFont(text: self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage, apptentiveFont: .apptentiveSubmitStatusLabel.createUIFontMetricsForHTML(), alignment: .center) {
-            self.submitView?.submitLabel.attributedText = thankYouHtml
-            if (self.viewModel.thankYouMessage?.containsURL()) != nil {
-                self.submitView?.submitLabel.enableDataDetection()
-            }
-        } else {
-            self.submitView?.submitLabel.text = self.viewModel.thankYouMessage ?? self.viewModel.validationErrorMessage
-        }
         self.tableView.backgroundColor = .apptentiveGroupedBackground
         self.tableView.backgroundView = self.backgroundView
         self.tableView.separatorColor = .apptentiveSeparator
@@ -294,6 +285,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     override var prefersStatusBarHidden: Bool {
         return false
+    }
+
+    override var preferredFocusEnvironments: [any UIFocusEnvironment] {
+        if let focusEnvironment {
+            return [focusEnvironment]
+        } else {
+            return []
+        }
     }
 
     // MARK: - Table view data source
@@ -542,7 +541,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
 
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         if let firstInvalidQuestionIndex = self.viewModel.invalidQuestionIndexes.min() {
-            UIAccessibility.post(notification: .layoutChanged, argument: self.tableView.headerView(forSection: firstInvalidQuestionIndex))
+            self.focusQuestion(at: firstInvalidQuestionIndex)
         }
     }
 
@@ -593,6 +592,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.tableView.deleteSections(sectionsToDelete, with: .left)
         }
 
+        self.backgroundView?.isHidden = !self.viewModel.isIntroPage && !self.viewModel.isSuccessPage
         self.configureIntroThankYouAndDisclaimerTextForPagedSurveys()
 
         self.surveyBranchedBottomView?.bottomView.nextButton.setTitle(viewModel.advanceButtonText, for: .normal)
@@ -603,7 +603,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         } else if let selectedSegmentIndex = self.viewModel.currentSelectedSegmentIndex {
             self.surveyBranchedBottomView?.bottomView.surveyIndicator.currentSelectedSetIndex = selectedSegmentIndex
 
-            UIAccessibility.post(notification: .screenChanged, argument: self.tableView.headerView(forSection: 0))
+            self.focusQuestion(at: 0)
         }
     }
 
@@ -785,6 +785,14 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             self.keyboardWillDisappear()
         }
 
+        // Provide way of un-selecting checkbox for other choice (return with no text entered).
+        let indexPath = self.indexPath(forTag: textField.tag)
+        if let choiceQuestion = self.viewModel.questions[indexPath.section] as? SurveyViewModel.ChoiceQuestion {
+            if textField.text?.isEmpty != false && choiceQuestion.selectionStyle == .checkbox && choiceQuestion.choices[indexPath.row].isSelected {
+                choiceQuestion.toggleChoice(at: indexPath.row)
+            }
+        }
+
         self.firstResponderIndexPath = nil
         textField.layer.borderColor = UIColor.apptentiveTextInputBorder.cgColor
     }
@@ -826,7 +834,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     // MARK: - Private
 
     private func configureHTMLFont(text: String?, apptentiveFont: UIFont, alignment: HTMLTextAlignment) -> NSMutableAttributedString? {
-        if let text = text, text.containsHTML() {
+        if let text = text {
             return text.attributedString(withFont: apptentiveFont, alignment: alignment)
         }
         return nil
@@ -879,15 +887,12 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
             } else if let navigationController = self.navigationController {
                 navigationController.setToolbarHidden(false, animated: true)
 
-                let horizontalInset = (navigationController.toolbar.bounds.width - navigationController.toolbar.readableContentGuide.layoutFrame.width) / 2
-
                 let button = UIButton()
                 button.setAttributedTitle(.init(string: termsText, attributes: [.underlineStyle: 1]), for: .normal)
                 button.titleLabel?.numberOfLines = 0
                 button.titleLabel?.font = .apptentiveTermsOfServiceLabel
                 button.titleLabel?.textColor = .apptentiveTermsOfServiceLabel
                 button.titleLabel?.textAlignment = .center
-                button.titleEdgeInsets = .init(top: 0, left: horizontalInset, bottom: 0, right: horizontalInset)
 
                 button.addTarget(self, action: #selector(openTermsAndConditions), for: .touchUpInside)
 
@@ -987,12 +992,29 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
         self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 
+    private func focusQuestion(at index: Int) {
+        if !UIAccessibility.isVoiceOverRunning {
+            if self.tableView.numberOfSections > index {
+                if self.tableView.numberOfRows(inSection: index) > 0 {
+                    self.focusEnvironment = self.tableView.cellForRow(at: [index, 0])
+                } else {
+                    self.focusEnvironment = self.tableView.headerView(forSection: index)
+                }
+                self.surveyBranchedBottomView?.bottomView.focusEnvironment = self.focusEnvironment
+            }
+            self.surveyBranchedBottomView?.bottomView.setNeedsFocusUpdate()
+            self.setNeedsFocusUpdate()
+        }
+
+        UIAccessibility.post(notification: .layoutChanged, argument: self.tableView.headerView(forSection: index))
+    }
+
     private func scrollToFirstInvalidQuestion() {
         if let firstInvalidQuestionIndex = self.viewModel.invalidQuestionIndexes.min() {
             let visibleRect = CGRect(origin: self.tableView.contentOffset, size: self.tableView.bounds.size).inset(by: self.tableView.contentInset)
 
             if visibleRect.contains(self.tableView.rectForHeader(inSection: firstInvalidQuestionIndex)) {
-                UIAccessibility.post(notification: .layoutChanged, argument: self.tableView.headerView(forSection: firstInvalidQuestionIndex))
+                self.focusQuestion(at: firstInvalidQuestionIndex)
             } else {
                 self.tableView.scrollToRow(at: IndexPath(row: 0, section: firstInvalidQuestionIndex), at: .middle, animated: true)
             }
@@ -1006,19 +1028,19 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
     }
 
     private func configureIntroThankYouAndDisclaimerTextForPagedSurveys() {
-
         let attributedText = NSMutableAttributedString()
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .center
 
-        if let introHtml = self.configureHTMLFont(text: self.viewModel.introduction, apptentiveFont: .apptentiveQuestionLabel.createUIFontMetricsForHTML(), alignment: .center) {
+        let descriptionFont: UIFont = self.viewModel.isIntroPage ? .apptentiveSurveyIntroductionLabel : .apptentiveSubmitStatusLabel
+        if let introHtml = self.configureHTMLFont(text: self.viewModel.introduction, apptentiveFont: descriptionFont.createUIFontMetricsForHTML(), alignment: .center) {
             introHtml.addAttribute(.foregroundColor, value: UIColor.apptentiveSurveyIntroduction, range: NSRange(location: 0, length: introHtml.length))
             attributedText.append(introHtml)
         } else if let introduction = self.viewModel.introduction {
             let introductionString = NSAttributedString(
                 string: introduction,
                 attributes: [
-                    .font: UIFont.apptentiveQuestionLabel,
+                    .font: descriptionFont,
                     .foregroundColor: UIColor.apptentiveSurveyIntroduction,
                     .paragraphStyle: paragraph,
 
@@ -1041,6 +1063,7 @@ class SurveyViewController: UITableViewController, UITextFieldDelegate, UITextVi
                 ])
             attributedText.append(disclaimerString)
         }
+
         self.backgroundView?.textView.attributedText = attributedText
     }
 }

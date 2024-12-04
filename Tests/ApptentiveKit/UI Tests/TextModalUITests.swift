@@ -19,10 +19,12 @@ class TextModalUITests: XCTestCase {
         let tablesQuery = XCUIApplication().tables
 
         tablesQuery.staticTexts["TextModal"].tap()
-        if let titleText = XCUIApplication().textViews["DialogTitleText"].value as? String, let messageText = XCUIApplication().textViews["DialogMessageText"].value as? String {
-            XCTAssertEqual(titleText, "Message Title")
-            XCTAssertEqual(messageText, "Message content.")
-        }
+
+        let titleText = XCUIApplication().staticTexts["DialogTitleText"].label
+        let messageText = XCUIApplication().staticTexts["DialogMessageText"].label
+
+        XCTAssertEqual(titleText, "Message Title")
+        XCTAssertEqual(messageText, "Message content.")
 
         XCTAssertTrue(XCUIApplication().images["DialogHeaderImageView"].exists)
         XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Disney Logo")
@@ -41,10 +43,10 @@ class TextModalUITests: XCTestCase {
         let tablesQuery = XCUIApplication().tables
 
         tablesQuery.staticTexts["TextModal - Title Only"].tap()
-        if let titleText = XCUIApplication().textViews["DialogTitleText"].value as? String {
-            XCTAssertEqual(titleText, "Message Title")
-            XCTAssertFalse(XCUIApplication().textViews["DialogMessageText"].exists)
-        }
+        let titleText = XCUIApplication().staticTexts["DialogTitleText"].label
+
+        XCTAssertEqual(titleText, "Message Title")
+        XCTAssertFalse(XCUIApplication().textViews["DialogMessageText"].exists)
 
         XCTAssertFalse(XCUIApplication().images["DialogHeaderImageView"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Message Center"].exists)
@@ -63,10 +65,10 @@ class TextModalUITests: XCTestCase {
         let tablesQuery = XCUIApplication().tables
 
         tablesQuery.staticTexts["TextModal - Message Only"].tap()
-        if let messageText = XCUIApplication().textViews["DialogMessageText"].value as? String {
-            XCTAssertEqual(messageText, "Message content.")
-            XCTAssertFalse(XCUIApplication().textViews["DialogTitleText"].exists)
-        }
+        let messageText = XCUIApplication().staticTexts["DialogMessageText"].label
+
+        XCTAssertEqual(messageText, "Message content.")
+        XCTAssertFalse(XCUIApplication().textViews["DialogTitleText"].exists)
 
         XCTAssertFalse(XCUIApplication().images["DialogHeaderImageView"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Message Center"].exists)
@@ -105,10 +107,10 @@ class TextModalUITests: XCTestCase {
         let tablesQuery = XCUIApplication().tables
 
         tablesQuery.staticTexts["TextModal - Image w/ Only Body"].tap()
-        if let messageText = XCUIApplication().textViews["DialogMessageText"].value as? String {
-            XCTAssertFalse(XCUIApplication().textViews["DialogTitleText"].exists)
-            XCTAssertEqual(messageText, "Message content.")
-        }
+        let messageText = XCUIApplication().staticTexts["DialogMessageText"].label
+
+        XCTAssertFalse(XCUIApplication().textViews["DialogTitleText"].exists)
+        XCTAssertEqual(messageText, "Message content.")
 
         XCTAssertTrue(XCUIApplication().images["DialogHeaderImageView"].exists)
         XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Disney Logo")
@@ -127,10 +129,10 @@ class TextModalUITests: XCTestCase {
         let tablesQuery = XCUIApplication().tables
 
         tablesQuery.staticTexts["TextModal - Image w/ Only Title"].tap()
-        if let titleText = XCUIApplication().textViews["DialogTitleText"].value as? String {
-            XCTAssertFalse(XCUIApplication().textViews["DialogMessageText"].exists)
-            XCTAssertEqual(titleText, "Message Title")
-        }
+        let titleText = XCUIApplication().staticTexts["DialogTitleText"].label
+
+        XCTAssertFalse(XCUIApplication().staticTexts["DialogMessageText"].exists)
+        XCTAssertEqual(titleText, "Message Title")
 
         XCTAssertTrue(XCUIApplication().images["DialogHeaderImageView"].exists)
         XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Disney Logo")
@@ -150,10 +152,8 @@ class TextModalUITests: XCTestCase {
 
         tablesQuery.staticTexts["TextModal - No Image/No Title/No Body"].tap()
 
-        if let titleText = XCUIApplication().textViews["DialogTitleText"].value as? String, let messageText = XCUIApplication().textViews["DialogMessageText"].value as? String {
-            XCTAssertTrue(titleText.isEmpty)
-            XCTAssertTrue(messageText.isEmpty)
-        }
+        XCTAssertFalse(XCUIApplication().staticTexts["DialogTitleText"].exists)
+        XCTAssertFalse(XCUIApplication().staticTexts["DialogMessageText"].exists)
 
         XCTAssertFalse(XCUIApplication().images["DialogHeaderImageView"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Message Center"].exists)

@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import WebKit
+@preconcurrency import WebKit
 
 class WebViewController: UIViewController, WKNavigationDelegate {
     let webView: WKWebView

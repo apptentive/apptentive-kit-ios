@@ -66,8 +66,8 @@ public class DialogView: UIView {
     let headerImageAlternateLabel: UILabel
     let textScrollView: UIScrollView
     let textContentView: UIView
-    let titleTextView: UITextView
-    let messageTextView: UITextView
+    let titleLabel: HTMLLabel
+    let messageLabel: HTMLLabel
     let gradientView: GradientView
     let mainSeparator: UIVisualEffectView
     var buttonSeparators = [UIVisualEffectView]()
@@ -99,7 +99,7 @@ public class DialogView: UIView {
 
     var isMessageHidden = false {
         didSet {
-            self.messageTextView.isHidden = self.isMessageHidden
+            self.messageLabel.isHidden = self.isMessageHidden
             self.titleBottomConstraint.isActive = self.isMessageHidden
             self.messageBottomConstraint.isActive = !self.isMessageHidden
         }
@@ -107,7 +107,7 @@ public class DialogView: UIView {
 
     var isTitleHidden = false {
         didSet {
-            self.titleTextView.isHidden = self.isTitleHidden
+            self.titleLabel.isHidden = self.isTitleHidden
             self.messageBottomConstraint.isActive = self.isTitleHidden
             self.titleBottomConstraint.isActive = !self.isTitleHidden
         }
@@ -124,8 +124,8 @@ public class DialogView: UIView {
         self.headerImageAlternateLabel = UILabel()
         self.textScrollView = UIScrollView()
         self.textContentView = UIView()
-        self.titleTextView = UITextView()
-        self.messageTextView = UITextView()
+        self.titleLabel = HTMLLabel()
+        self.messageLabel = HTMLLabel()
         self.gradientView = GradientView()
         self.mainSeparator = Self.buildSeparatorView(with: self.blurEffect)
         self.buttonStackView = UIStackView()
@@ -143,11 +143,11 @@ public class DialogView: UIView {
     // swift-format-ignore
     public override func didMoveToWindow() {
         super.didMoveToWindow()
-        if self.dialogType == .enjoymentDialog {
-            self.titleTextView.font = self.titleFont
-        }
-        self.titleTextView.textColor = self.titleTextColor
-        self.messageTextView.textColor = self.messageTextColor
+        self.titleLabel.font = self.titleFont
+        self.titleLabel.textColor = self.titleTextColor
+
+        self.messageLabel.font = self.messageFont
+        self.messageLabel.textColor = self.messageTextColor
 
         self.mainSeparator.backgroundColor = self.separatorColor
 
@@ -250,7 +250,6 @@ public class DialogView: UIView {
         // Cutting corners
 
         self.layer.cornerCurve = .continuous
-
         self.layer.masksToBounds = true
 
         self.headerImageView.contentMode = .scaleAspectFit
@@ -261,6 +260,9 @@ public class DialogView: UIView {
         self.buttonStackView.alignment = .center
         self.buttonStackView.distribution = .fillEqually
 
+        self.titleLabel.textStyle = .headline
+        self.messageLabel.textStyle = .footnote
+
         self.setConstraints()
     }
 
@@ -268,28 +270,25 @@ public class DialogView: UIView {
         self.textScrollView.addSubview(self.textContentView)
 
         self.textContentView.addSubview(self.headerImageView)
-        self.textContentView.addSubview(self.titleTextView)
-        self.textContentView.addSubview(self.messageTextView)
+        self.textContentView.addSubview(self.titleLabel)
+        self.textContentView.addSubview(self.messageLabel)
         self.textContentView.addSubview(self.headerImageAlternateLabel)
 
-        self.titleTextView.textAlignment = .center
-        self.titleTextView.adjustsFontForContentSizeCategory = true
-        self.titleTextView.isEditable = false
-        self.titleTextView.backgroundColor = .clear
-        self.titleTextView.isScrollEnabled = false
-        self.titleTextView.dataDetectorTypes = .all
-        self.titleTextView.textContainerInset = UIEdgeInsets(top: 3, left: 0, bottom: 0, right: 0)
-        self.titleTextView.accessibilityIdentifier = "DialogTitleText"
-        self.titleTextView.isAccessibilityElement = true
-        self.messageTextView.dataDetectorTypes = .all
-        self.messageTextView.isScrollEnabled = false
-        self.messageTextView.isEditable = false
-        self.messageTextView.backgroundColor = .clear
-        self.messageTextView.textAlignment = .center
-        self.messageTextView.adjustsFontForContentSizeCategory = true
-        self.messageTextView.textContainerInset = UIEdgeInsets(top: 3, left: 0, bottom: 0, right: 0)
-        self.messageTextView.accessibilityIdentifier = "DialogMessageText"
-        self.messageTextView.isAccessibilityElement = true
+        self.titleLabel.textAlignment = .center
+        self.titleLabel.adjustsFontForContentSizeCategory = true
+        self.titleLabel.backgroundColor = .clear
+        self.titleLabel.enableDataDetection()
+        self.titleLabel.accessibilityIdentifier = "DialogTitleText"
+        self.titleLabel.isAccessibilityElement = true
+        self.titleLabel.numberOfLines = 0
+
+        self.messageLabel.backgroundColor = .clear
+        self.messageLabel.textAlignment = .center
+        self.messageLabel.adjustsFontForContentSizeCategory = true
+        self.messageLabel.enableDataDetection()
+        self.messageLabel.accessibilityIdentifier = "DialogMessageText"
+        self.messageLabel.isAccessibilityElement = true
+        self.messageLabel.numberOfLines = 0
 
         self.headerImageAlternateLabel.numberOfLines = 0
         self.headerImageAlternateLabel.textAlignment = .center
@@ -333,26 +332,25 @@ public class DialogView: UIView {
     }
 
     private func setScrollViewConstraints() {
-
         self.textScrollView.translatesAutoresizingMaskIntoConstraints = false
         self.textContentView.translatesAutoresizingMaskIntoConstraints = false
         self.headerImageView.translatesAutoresizingMaskIntoConstraints = false
         self.headerImageAlternateLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.titleTextView.translatesAutoresizingMaskIntoConstraints = false
-        self.messageTextView.translatesAutoresizingMaskIntoConstraints = false
+        self.titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.messageLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let textSpacingIdealConstraint = self.messageTextView.firstBaselineAnchor.constraint(equalTo: self.titleTextView.lastBaselineAnchor, constant: 20)
+        let textSpacingIdealConstraint = self.messageLabel.firstBaselineAnchor.constraint(equalTo: self.titleLabel.lastBaselineAnchor, constant: 20)
         textSpacingIdealConstraint.priority = UILayoutPriority(746)
-        let textSpacingMinConstraint = self.messageTextView.firstBaselineAnchor.constraint(greaterThanOrEqualTo: self.titleTextView.lastBaselineAnchor, constant: 17)
-        let textSpacingMaxConstraint = self.messageTextView.firstBaselineAnchor.constraint(lessThanOrEqualTo: self.titleTextView.lastBaselineAnchor, constant: 20)
+        let textSpacingMinConstraint = self.messageLabel.firstBaselineAnchor.constraint(greaterThanOrEqualTo: self.titleLabel.lastBaselineAnchor, constant: 17)
+        let textSpacingMaxConstraint = self.messageLabel.firstBaselineAnchor.constraint(lessThanOrEqualTo: self.titleLabel.lastBaselineAnchor, constant: 20)
         textSpacingMaxConstraint.priority = UILayoutPriority(999)
 
-        self.topSpacingIdealConstraint = self.titleTextView.firstBaselineAnchor.constraint(greaterThanOrEqualTo: self.headerImageView.bottomAnchor, constant: self.topSpacingIdealConstraintConstant)
+        self.topSpacingIdealConstraint = self.titleLabel.firstBaselineAnchor.constraint(greaterThanOrEqualTo: self.headerImageView.bottomAnchor, constant: self.topSpacingIdealConstraintConstant)
         self.topSpacingIdealConstraint.priority = UILayoutPriority(748)
 
-        self.topSpacingMinConstraint = self.titleTextView.firstBaselineAnchor.constraint(greaterThanOrEqualTo: self.headerImageView.bottomAnchor, constant: self.topSpacingMinConstraintConstant)
+        self.topSpacingMinConstraint = self.titleLabel.firstBaselineAnchor.constraint(greaterThanOrEqualTo: self.headerImageView.bottomAnchor, constant: self.topSpacingMinConstraintConstant)
         self.topSpacingMinConstraint.priority = UILayoutPriority(999)
-        self.topSpacingMaxConstraint = self.titleTextView.firstBaselineAnchor.constraint(lessThanOrEqualTo: self.headerImageView.bottomAnchor, constant: self.topSpacingMaxConstraintConstant)
+        self.topSpacingMaxConstraint = self.titleLabel.firstBaselineAnchor.constraint(lessThanOrEqualTo: self.headerImageView.bottomAnchor, constant: self.topSpacingMaxConstraintConstant)
         self.topSpacingMaxConstraint.priority = UILayoutPriority(749)
 
         let heightExpanderConstraint = self.textScrollView.heightAnchor.constraint(equalTo: self.textContentView.heightAnchor)
@@ -360,22 +358,22 @@ public class DialogView: UIView {
 
         self.titleBottomConstraint =
             self.dialogType == .enjoymentDialog
-            ? self.textContentView.bottomAnchor.constraint(equalTo: self.titleTextView.lastBaselineAnchor, constant: self.messageBottomConstraintConstant)
-            : self.textContentView.bottomAnchor.constraint(equalTo: self.messageTextView.lastBaselineAnchor, constant: self.titleBottomConstraintConstant)
+            ? self.textContentView.bottomAnchor.constraint(equalTo: self.titleLabel.lastBaselineAnchor, constant: self.messageBottomConstraintConstant)
+            : self.textContentView.bottomAnchor.constraint(equalTo: self.messageLabel.lastBaselineAnchor, constant: self.titleBottomConstraintConstant)
 
         if self.dialogType == .textModal && self.isMessageHidden && !self.isTitleHidden && self.dialogContainsImage == false {
-            self.textContentView.bottomAnchor.constraint(equalTo: self.titleTextView.lastBaselineAnchor, constant: self.messageBottomConstraintConstant).isActive = true
+            self.textContentView.bottomAnchor.constraint(equalTo: self.titleLabel.lastBaselineAnchor, constant: self.messageBottomConstraintConstant).isActive = true
         } else if self.dialogType == .textModal && self.isTitleHidden && !self.isMessageHidden && self.dialogContainsImage == false {
-            self.messageTextView.topAnchor.constraint(equalTo: self.textContentView.topAnchor, constant: self.messageBottomConstraintConstant).isActive = true
+            self.messageLabel.topAnchor.constraint(equalTo: self.textContentView.topAnchor, constant: self.messageBottomConstraintConstant).isActive = true
         }
 
-        self.messageBottomConstraint = self.textContentView.bottomAnchor.constraint(equalTo: self.messageTextView.lastBaselineAnchor, constant: self.messageBottomConstraintConstant)
+        self.messageBottomConstraint = self.textContentView.bottomAnchor.constraint(equalTo: self.messageLabel.lastBaselineAnchor, constant: self.messageBottomConstraintConstant)
 
         self.headerImageViewHeightConstraint = self.headerImageView.heightAnchor.constraint(equalToConstant: 0)
         self.headerImageViewTopConstraint = self.headerImageView.topAnchor.constraint(equalTo: self.textContentView.topAnchor)
         self.headerImageViewLeadingConstraint = self.headerImageView.leadingAnchor.constraint(equalTo: self.textContentView.leadingAnchor)
         self.headerImageViewTrailingConstraint = self.textContentView.trailingAnchor.constraint(equalTo: self.headerImageView.trailingAnchor)
-        self.headerImageViewBottomConstraint = self.titleTextView.topAnchor.constraint(equalTo: self.headerImageView.bottomAnchor)
+        self.headerImageViewBottomConstraint = self.titleLabel.topAnchor.constraint(equalTo: self.headerImageView.bottomAnchor)
 
         NSLayoutConstraint.activate([
             self.textContentView.topAnchor.constraint(equalTo: self.textScrollView.topAnchor),
@@ -396,16 +394,16 @@ public class DialogView: UIView {
             self.headerImageAlternateLabel.heightAnchor.constraint(equalTo: self.headerImageView.heightAnchor, multiplier: 1),
 
             self.topSpacingIdealConstraint, topSpacingMinConstraint, topSpacingMaxConstraint,
-            self.titleTextView.topAnchor.constraint(greaterThanOrEqualTo: self.headerImageView.bottomAnchor),
+            self.titleLabel.topAnchor.constraint(greaterThanOrEqualTo: self.headerImageView.bottomAnchor),
             self.titleBottomConstraint,
-            self.titleTextView.centerXAnchor.constraint(equalTo: self.textContentView.centerXAnchor),
-            self.titleTextView.widthAnchor.constraint(equalTo: self.textContentView.widthAnchor, constant: -32),
+            self.titleLabel.centerXAnchor.constraint(equalTo: self.textContentView.centerXAnchor),
+            self.titleLabel.widthAnchor.constraint(equalTo: self.textContentView.widthAnchor, constant: -32),
 
             textSpacingIdealConstraint, textSpacingMinConstraint, textSpacingMaxConstraint,
-            self.messageTextView.topAnchor.constraint(greaterThanOrEqualTo: self.titleTextView.bottomAnchor),
+            self.messageLabel.topAnchor.constraint(greaterThanOrEqualTo: self.titleLabel.bottomAnchor),
 
-            self.messageTextView.centerXAnchor.constraint(equalTo: self.textContentView.centerXAnchor),
-            self.messageTextView.widthAnchor.constraint(equalTo: self.textContentView.widthAnchor, constant: -32),
+            self.messageLabel.centerXAnchor.constraint(equalTo: self.textContentView.centerXAnchor),
+            self.messageLabel.widthAnchor.constraint(equalTo: self.textContentView.widthAnchor, constant: -32),
 
             self.messageBottomConstraint,
         ])

@@ -8,18 +8,8 @@
 
 import Foundation
 
-class LegacyLoader: NSObject, Loader, NSKeyedUnarchiverDelegate {
+class LegacyLoader: NSObject, Loader {
     let context: LoaderContext
-
-    func unarchiver(_ unarchiver: NSKeyedUnarchiver, cannotDecodeObjectOfClassName name: String, originalClasses classNames: [String]) -> AnyClass? {
-        print("Couldn't decode \(name)")
-        return NSString.self
-    }
-
-    func unarchiver(_ unarchiver: NSKeyedUnarchiver, didDecode object: Any?) -> Any? {
-        print("Did decode \(String(describing: object))")
-        return object
-    }
 
     required init(context: LoaderContext) {
         self.context = context

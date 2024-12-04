@@ -17,6 +17,7 @@ class SurveyBranchedBottomView: UIView {
     var stackView: UIStackView
     var stackViewHeightConstraint: NSLayoutConstraint
     var surveyIndicator: SurveyIndicator
+    var focusEnvironment: UIFocusEnvironment?
 
     override init(frame: CGRect) {
         self.surveyIndicator = SurveyIndicator(frame: frame)
@@ -116,6 +117,10 @@ class SurveyBranchedBottomView: UIView {
         self.stackView.axis = .vertical
         self.stackView.distribution = .fillEqually
         self.stackView.setContentHuggingPriority(.defaultHigh, for: .vertical)
+    }
+
+    override var preferredFocusEnvironments: [any UIFocusEnvironment] {
+        return [self.focusEnvironment ?? self.nextButton]
     }
 
     private func setConstraints() {

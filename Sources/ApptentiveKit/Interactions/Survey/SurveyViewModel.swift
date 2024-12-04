@@ -237,6 +237,16 @@ public class SurveyViewModel {
         return self.currentPage.pageIndicatorValue
     }
 
+    /// Whether the current page is the introduction page.
+    public var isIntroPage: Bool {
+        return self.currentPageID == self.introPageID
+    }
+
+    /// Whether the current page is the success/thank-you page.
+    public var isSuccessPage: Bool {
+        return self.currentPageID == self.successPageID
+    }
+
     /// Registers that the survey was launched.
     public func launch() {
         self.interactionDelegate.engage(event: .launch(from: self.interaction))

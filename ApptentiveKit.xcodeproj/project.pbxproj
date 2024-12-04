@@ -99,6 +99,7 @@
 		015F2AE124C9FEBF004B53E2 /* SurveyMultiLineCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AE024C9FEBF004B53E2 /* SurveyMultiLineCell.swift */; };
 		015F2AEA24CA2A88004B53E2 /* SurveyIntroductionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */; };
 		015F2AEC24CA2A94004B53E2 /* SurveySubmitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */; };
+		0160D4D12CE3D8A600DAA426 /* HTMLLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0160D4D02CE3D8A600DAA426 /* HTMLLabel.swift */; };
 		01634A47299EAAF100F6F1B6 /* JWT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01634A46299EAAF100F6F1B6 /* JWT.swift */; };
 		01634A49299EBBBA00F6F1B6 /* JWTTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01634A48299EBBBA00F6F1B6 /* JWTTests.swift */; };
 		01645BC1278621C0003A0614 /* MessagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01645BC0278621C0003A0614 /* MessagesResponse.swift */; };
@@ -376,6 +377,7 @@
 		015F2AE024C9FEBF004B53E2 /* SurveyMultiLineCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyMultiLineCell.swift; sourceTree = "<group>"; };
 		015F2AE924CA2A88004B53E2 /* SurveyIntroductionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyIntroductionView.swift; sourceTree = "<group>"; };
 		015F2AEB24CA2A94004B53E2 /* SurveySubmitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveySubmitView.swift; sourceTree = "<group>"; };
+		0160D4D02CE3D8A600DAA426 /* HTMLLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLLabel.swift; sourceTree = "<group>"; };
 		01634A46299EAAF100F6F1B6 /* JWT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JWT.swift; sourceTree = "<group>"; };
 		01634A48299EBBBA00F6F1B6 /* JWTTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JWTTests.swift; sourceTree = "<group>"; };
 		01645BC0278621C0003A0614 /* MessagesResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagesResponse.swift; sourceTree = "<group>"; };
@@ -841,6 +843,7 @@
 		018A908D247EFFC7004577EB /* Interactions */ = {
 			isa = PBXGroup;
 			children = (
+				0160D4D02CE3D8A600DAA426 /* HTMLLabel.swift */,
 				018A9099247F09D4004577EB /* Interaction.swift */,
 				015F2A9E24C7A460004B53E2 /* InteractionPresenter.swift */,
 				01E823082900C18400F2F827 /* EnjoymentDialog */,
@@ -1469,6 +1472,7 @@
 				017481ED27ADC9B000FE020B /* AttachmentView.swift in Sources */,
 				01ED6263257B02050023208C /* NavigateToLinkConfiguration.swift in Sources */,
 				EF61A6102BC1C3FD00C6C879 /* UILabel+DataDetection.swift in Sources */,
+				0160D4D12CE3D8A600DAA426 /* HTMLLabel.swift in Sources */,
 				01659FD129B932CA00F84643 /* APayload.swift in Sources */,
 				017230FA253673AA0095AEAA /* Version.swift in Sources */,
 				01634A47299EAAF100F6F1B6 /* JWT.swift in Sources */,
