@@ -281,10 +281,12 @@ class Backend: PayloadAuthenticationDelegate {
             ApptentiveLogger.engagement.info("No active conversation (logged out).")
         }
 
-        do {
-            try self.payloadSender.send(Payload(wrapping: event, with: self.payloadContext), persistEagerly: false)
-        } catch let error {
-            ApptentiveLogger.default.error("Unable to enqueue event payload: \(error).")
+        if self.configuration?.enableMetrics == true || event.vendor == "com.apptentive" || self.dataProvider.isDebugBuild {
+            do {
+                try self.payloadSender.send(Payload(wrapping: event, with: self.payloadContext), persistEagerly: false)
+            } catch let error {
+                ApptentiveLogger.default.error("Unable to enqueue event payload: \(error).")
+            }
         }
 
         self.conversation?.codePoints.invoke(for: event.codePointName)
