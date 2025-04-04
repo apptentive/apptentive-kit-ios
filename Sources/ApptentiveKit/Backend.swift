@@ -287,6 +287,8 @@ class Backend: PayloadAuthenticationDelegate {
             } catch let error {
                 ApptentiveLogger.default.error("Unable to enqueue event payload: \(error).")
             }
+        } else {
+            ApptentiveLogger.default.info("Metrics not enabled: Skip sending of app-engaged event payload.")
         }
 
         self.conversation?.codePoints.invoke(for: event.codePointName)
