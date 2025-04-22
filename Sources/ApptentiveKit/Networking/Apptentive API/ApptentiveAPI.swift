@@ -129,7 +129,7 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     /// - Parameter credentials: The conversation for which to retrieve the message list.
     /// - Returns: A struct describing the HTTP request to be performed.
     static func getConfiguration(with credentials: AnonymousAPICredentials) -> Self {
-        return Self(credentials: credentials, path: "configuration", method: .get)
+        return Self(credentials: credentials, path: "configuration", queryItems: [.init(name: "k", value: "v")], method: .get)
     }
 
     // MARK: - HTTPEndpoint
