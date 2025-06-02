@@ -120,7 +120,8 @@ struct AppRelease: Equatable, Codable {
         self.xcode = dataProvider.xcode
         self.xcodeBuild = dataProvider.xcodeBuild
 
-        if let appStoreReceiptURL = dataProvider.appStoreReceiptURL, let _ = try? Data(contentsOf: appStoreReceiptURL) {
+        let appStoreReceiptExists = (try? dataProvider.appStoreReceiptURL.flatMap { try Data(contentsOf: $0) }) != nil
+        if dataProvider.apsEnvironment == "production" || appStoreReceiptExists {
             self.hasAppStoreReceipt = true
         }
 
