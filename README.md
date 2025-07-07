@@ -1,6 +1,6 @@
 ---
 
-**This branch is being shared for early access to our next major SDK version and is a work in progress. The code is not production-ready and we strongly recommend against using this in production apps at this time.**
+## This branch is being shared for early access to our next major SDK version and is a work in progress. The code is not production-ready and we strongly recommend against using this in production apps at this time.
 
 ---
 
