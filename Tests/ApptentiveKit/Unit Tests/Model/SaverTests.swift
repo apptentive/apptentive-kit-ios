@@ -6,13 +6,13 @@
 //  Copyright © 2023 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-final class SaverTests: XCTestCase {
-
-    func testPlaintextConversationSaving() throws {
+struct SaverTests {
+    @Test func testPlaintextConversationSaving() throws {
         let dataProvider = MockDataProvider()
         let conversation = Conversation(dataProvider: dataProvider)
         let record = ConversationRoster.Record(state: .placeholder, path: UUID().uuidString)
@@ -26,17 +26,19 @@ final class SaverTests: XCTestCase {
 
         let conversationFileURL = containerURL.appendingPathComponent("Conversation.B.plist")
 
-        XCTAssertTrue(fileManager.fileExists(atPath: conversationFileURL.path))
+        #expect(fileManager.fileExists(atPath: conversationFileURL.path))
 
         let data = try Data(contentsOf: conversationFileURL)
 
         let decoder = PropertyListDecoder()
         let _ = try decoder.decode(Conversation.self, from: data)
 
-        try MockEnvironment.cleanContainerURL()
+        Task {
+            try await MockEnvironment.cleanContainerURL()
+        }
     }
 
-    func testEncryptedConversationSaving() throws {
+    @Test func testEncryptedConversationSaving() throws {
         let dataProvider = MockDataProvider()
         let conversation = Conversation(dataProvider: dataProvider)
         let record = ConversationRoster.Record(state: .placeholder, path: UUID().uuidString)
@@ -50,20 +52,18 @@ final class SaverTests: XCTestCase {
 
         let conversationFileURL = containerURL.appendingPathComponent("Conversation.B.plist.encrypted")
 
-        XCTAssertTrue(fileManager.fileExists(atPath: conversationFileURL.path))
+        #expect(fileManager.fileExists(atPath: conversationFileURL.path))
 
-        XCTAssertThrowsError(try PropertyListDecoder().decode(Conversation.self, from: Data(contentsOf: conversationFileURL)), "Should not be able to decode encrypted conversation") { error in
-            if case Swift.DecodingError.dataCorrupted = error {
-                // all good
-            } else {
-                XCTFail("Expected decoding error")
-            }
+        #expect(throws: Swift.DecodingError.self, "Should not be able to decode encrypted conversation") {
+            try PropertyListDecoder().decode(Conversation.self, from: Data(contentsOf: conversationFileURL))
         }
 
         let data = try Data(contentsOf: conversationFileURL).decrypted(with: encryptionKey)
         let decoder = PropertyListDecoder()
         let _ = try decoder.decode(Conversation.self, from: data)
 
-        try MockEnvironment.cleanContainerURL()
+        Task {
+            try await MockEnvironment.cleanContainerURL()
+        }
     }
 }

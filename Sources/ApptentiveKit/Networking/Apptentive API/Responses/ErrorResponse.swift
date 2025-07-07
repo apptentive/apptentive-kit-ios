@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ErrorResponse: Codable {
+struct ErrorResponse: Codable, Sendable {
     let error: String?
     let errorType: AuthenticationFailureReason?
 

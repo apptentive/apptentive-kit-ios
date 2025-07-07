@@ -1,3 +1,9 @@
+---
+
+**This branch is being shared for early access to our next major SDK version and is a work in progress. The code is not production-ready and we strongly recommend against using this in production apps at this time.**
+
+---
+
 # ApptentiveKit
 
 ApptentiveKit lets you integrate your iPhone and iPad apps with Apptentive's customer communications platform. 
@@ -55,3 +61,4 @@ Our client code is completely [open source](LICENSE.txt), and we welcome contrib
 ## Reporting Issues
 
 If you experience an issue with the Apptentive SDK, please [open a GitHub issue](https://github.com/apptentive/apptentive-kit-ios/issues?direction=desc&sort=created&state=open).
+ 

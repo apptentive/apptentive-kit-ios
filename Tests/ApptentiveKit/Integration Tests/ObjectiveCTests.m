@@ -34,13 +34,20 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     configuration.logLevel = ApptentiveLogLevelDebug;
     configuration.shouldSanitizeLogMessages = true;
+    configuration.baseURL = [NSURL URLWithString:@"https://example.com"];
+    configuration.distributionName = @"Test Distro";
+    configuration.distributionVersion = @"1.2.3";
 
     XCTAssertEqualObjects(configuration.apptentiveKey, self.key);
     XCTAssertEqualObjects(configuration.apptentiveSignature, self.signature);
     XCTAssertEqual(configuration.logLevel, ApptentiveLogLevelDebug);
     XCTAssertEqual(configuration.shouldSanitizeLogMessages, true);
+    XCTAssertEqual(configuration.distributionName, @"Test Distro");
+    XCTAssertEqual(configuration.distributionVersion, @"1.2.3");
 
-    [Apptentive registerWithConfiguration:configuration];
+    Apptentive.shared.theme = 0;
+
+    [Apptentive.shared registerWithConfiguration:configuration completion:^(BOOL success){}];
 #pragma clang diagnostic pop
 }
 

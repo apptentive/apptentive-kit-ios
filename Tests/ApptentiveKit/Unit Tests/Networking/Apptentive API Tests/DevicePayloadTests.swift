@@ -6,11 +6,12 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class DevicePayloadTests: XCTestCase {
+struct DevicePayloadTests {
     var device: Device!
     let propertyListEncoder = PropertyListEncoder()
     let propertyListDecoder = PropertyListDecoder()
@@ -21,7 +22,7 @@ class DevicePayloadTests: XCTestCase {
     let encryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
     var encryptedPayloadContext: Payload.Context!
 
-    override func setUpWithError() throws {
+    init() throws {
         self.payloadContext = Payload.Context(tag: ".", credentials: .header(id: "abc", token: "123"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: nil)
         self.encryptedPayloadContext = Payload.Context(tag: "abc123", credentials: .embedded(id: "abc"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: .init(encryptionKey: encryptionKey, embeddedToken: "123"))
         let dataProvider = MockDataProvider()
@@ -33,19 +34,17 @@ class DevicePayloadTests: XCTestCase {
         self.device.customData["bool"] = true
 
         self.device.remoteNotificationDeviceToken = Data(hexString: "80e17e3c13928e3a77aea742c7f94bd0966ae227b0f3a55ae6fc0a5e992f922b31e44f163ab2daeaa8df0048dc4744a4257b0c7b2d42a8570a3efc84f7c7797d50658f1a9a9b5936cbf87047c30a7057")
-
-        super.setUp()
     }
 
-    func testSerialization() throws {
+    @Test func testSerialization() throws {
         let testPayload = try Payload(wrapping: self.device, with: self.payloadContext)
         let encodedPayloadData = try self.propertyListEncoder.encode(testPayload)
         let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
 
-        XCTAssertEqual(testPayload, decodedPayload)
+        #expect(testPayload == decodedPayload)
     }
 
-    func testEncoding() throws {
+    @Test func testEncoding() throws {
         let testPayload = try Payload(wrapping: self.device, with: self.payloadContext)
         let expectedEncodedContent = """
             {
@@ -100,7 +99,7 @@ class DevicePayloadTests: XCTestCase {
         try checkRequestHeading(for: testPayload, decoder: self.jsonDecoder, expectedMethod: .put, expectedPathSuffix: "device")
     }
 
-    func testEncryptedEncoding() throws {
+    @Test func testEncryptedEncoding() throws {
         let encryptedTestPayload = try Payload(wrapping: self.device, with: self.encryptedPayloadContext)
 
         let expectedEncodedContent = """

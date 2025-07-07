@@ -6,20 +6,21 @@
 //  Copyright © 2023 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Testing
+import UIKit
 
 @testable import ApptentiveKit
 
-final class PayloadTests: XCTestCase {
+struct PayloadTests {
 
-    func testParseParameters() throws {
-        XCTAssertEqual(try Payload.parseParameters(from: "multipart/mixed;boundary=abc123"), ["boundary": "abc123"])
-        XCTAssertEqual(try Payload.parseParameters(from: "multipart/mixed;boundary=\"abc123\""), ["boundary": "abc123"])
-        XCTAssertEqual(try Payload.parseParameters(from: "multipart/mixed; boundary=abc123"), ["boundary": "abc123"])
-        XCTAssertEqual(try Payload.parseParameters(from: "multipart/mixed; boundary=\"abc123\""), ["boundary": "abc123"])
+    @Test func testParseParameters() throws {
+        #expect(try Payload.parseParameters(from: "multipart/mixed;boundary=abc123") == ["boundary": "abc123"])
+        #expect(try Payload.parseParameters(from: "multipart/mixed;boundary=\"abc123\"") == ["boundary": "abc123"])
+        #expect(try Payload.parseParameters(from: "multipart/mixed; boundary=abc123") == ["boundary": "abc123"])
+        #expect(try Payload.parseParameters(from: "multipart/mixed; boundary=\"abc123\"") == ["boundary": "abc123"])
     }
 
-    func testUpdateCredentialsInPlaintextSinglePart() throws {
+    @Test func testUpdateCredentialsInPlaintextSinglePart() throws {
         let messageNonce = UUID().uuidString
 
         let jsonEncoder = JSONEncoder.apptentive
@@ -31,10 +32,10 @@ final class PayloadTests: XCTestCase {
 
         try payload.updateCredentials(.header(id: "abc", token: "456"), using: jsonEncoder, decoder: jsonDecoder, encryptionContext: nil)
 
-        XCTAssertEqual(payload.credentials, .header(id: "abc", token: "456"))
+        #expect(payload.credentials == .header(id: "abc", token: "456"))
     }
 
-    func testUpdateCredentialsInEncryptedSinglePart() throws {
+    @Test func testUpdateCredentialsInEncryptedSinglePart() throws {
         let encryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
         let messageNonce = UUID().uuidString
 
@@ -50,21 +51,20 @@ final class PayloadTests: XCTestCase {
         let parts = try Payload.parseBodyData(of: payload, using: jsonDecoder, encryptionKey: encryptionKey)
 
         guard let jsonObject = parts[0] as? Payload.JSONObject else {
-            XCTFail("Expected first part to be JSON object")
-            return
+            throw TestError(reason: "Expected first part to be JSON object")
         }
 
-        XCTAssertEqual(jsonObject.embeddedToken, "456")
+        #expect(jsonObject.embeddedToken == "456")
     }
 
-    func testUpdateCredentialsInPlaintextMultipart() throws {
+    @Test func testUpdateCredentialsInPlaintextMultipart() throws {
         let messageNonce = UUID().uuidString
 
         let jsonEncoder = JSONEncoder.apptentive
         let jsonDecoder = JSONDecoder.apptentive
 
-        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: type(of: self)), compatibleWith: nil)!
-        let image2 = UIImage(named: "dog", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
+        let image2 = UIImage(named: "dog", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
 
         let data1 = image1.pngData()!
         let data2 = image2.jpegData(compressionQuality: 0.5)!
@@ -78,18 +78,18 @@ final class PayloadTests: XCTestCase {
 
         try payload.updateCredentials(.header(id: "abc", token: "456"), using: jsonEncoder, decoder: jsonDecoder, encryptionContext: nil)
 
-        XCTAssertEqual(payload.credentials, .header(id: "abc", token: "456"))
+        #expect(payload.credentials == .header(id: "abc", token: "456"))
     }
 
-    func testUpdateCredentialsInEncryptedMultipart() throws {
+    @Test func testUpdateCredentialsInEncryptedMultipart() throws {
         let encryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
         let messageNonce = UUID().uuidString
 
         let jsonEncoder = JSONEncoder.apptentive
         let jsonDecoder = JSONDecoder.apptentive
 
-        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: type(of: self)), compatibleWith: nil)!
-        let image2 = UIImage(named: "dog", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
+        let image2 = UIImage(named: "dog", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
 
         let data1 = image1.pngData()!
         let data2 = image2.jpegData(compressionQuality: 0.5)!
@@ -106,14 +106,13 @@ final class PayloadTests: XCTestCase {
         let parts = try Payload.parseBodyData(of: payload, using: jsonDecoder, encryptionKey: encryptionKey)
 
         guard let jsonObject = parts[0] as? Payload.JSONObject else {
-            XCTFail("Expected first part to be JSON object")
-            return
+            throw TestError(reason: "Expected first part to be JSON object")
         }
 
-        XCTAssertEqual(jsonObject.embeddedToken, "456")
+        #expect(jsonObject.embeddedToken == "456")
     }
 
-    func testConvertToEncryptedSinglePart() throws {
+    @Test func testConvertToEncryptedSinglePart() throws {
         let encryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
         let messageNonce = UUID().uuidString
 
@@ -129,22 +128,21 @@ final class PayloadTests: XCTestCase {
         let parts = try Payload.parseBodyData(of: payload, using: jsonDecoder, encryptionKey: encryptionKey)
 
         guard let jsonObject = parts[0] as? Payload.JSONObject else {
-            XCTFail("Expected first part to be JSON object")
-            return
+            throw TestError(reason: "Expected first part to be JSON object")
         }
 
-        XCTAssertEqual(jsonObject.embeddedToken, "456")
+        #expect(jsonObject.embeddedToken == "456")
     }
 
-    func testConvertToEncryptedMultipart() throws {
+    @Test func testConvertToEncryptedMultipart() throws {
         let encryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
         let messageNonce = UUID().uuidString
 
         let jsonEncoder = JSONEncoder.apptentive
         let jsonDecoder = JSONDecoder.apptentive
 
-        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: type(of: self)), compatibleWith: nil)!
-        let image2 = UIImage(named: "dog", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
+        let image2 = UIImage(named: "dog", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
 
         let data1 = image1.pngData()!
         let data2 = image2.jpegData(compressionQuality: 0.5)!
@@ -161,10 +159,9 @@ final class PayloadTests: XCTestCase {
         let parts = try Payload.parseBodyData(of: payload, using: jsonDecoder, encryptionKey: encryptionKey)
 
         guard let jsonObject = parts[0] as? Payload.JSONObject else {
-            XCTFail("Expected first part to be JSON object")
-            return
+            throw TestError(reason: "Expected first part to be JSON object")
         }
 
-        XCTAssertEqual(jsonObject.embeddedToken, "456")
+        #expect(jsonObject.embeddedToken == "456")
     }
 }

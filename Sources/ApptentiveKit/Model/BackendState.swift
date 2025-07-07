@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct BackendState: Equatable {
+struct BackendState: Equatable, Sendable {
     var isInForeground: Bool
     var isProtectedDataAvailable: Bool
     var appCredentials: Apptentive.AppCredentials?

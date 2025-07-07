@@ -6,79 +6,38 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Testing
+import UIKit
 
 @testable import ApptentiveKit
 
-class InteractionPresenterTests: XCTestCase {
+struct InteractionPresenterTests {
     var interactionPresenter: InteractionPresenter?
 
-    override func setUp() {
+    @MainActor init() {
         self.interactionPresenter = FakeInteractionPresenter()
         self.interactionPresenter?.delegate = SpyInteractionDelegate()
     }
 
-    func testShowAppleRatingDialog() throws {
+    @Test func testShowAppleRatingDialog() async throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "AppleRatingDialog")
 
-        let expectation = self.expectation(description: "Interaction presented")
-
-        self.interactionPresenter?.presentInteraction(interaction) { result in
-            if case .failure(let error) = result {
-                XCTFail(error.localizedDescription)
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 10)
+        try await self.interactionPresenter?.presentInteraction(interaction)
     }
 
-    func testPresentEnjoymentDialog() throws {
-        let expectation = self.expectation(description: "Interaction presented")
-
-        self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "EnjoymentDialog")) { result in
-            if case .failure(let error) = result {
-                XCTFail(error.localizedDescription)
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 10)
+    @Test func testPresentEnjoymentDialog() async throws {
+        try await self.presentInteraction(InteractionTestHelpers.loadInteraction(named: "EnjoymentDialog"))
     }
 
-    func testPresentSurvey() throws {
-        let expectation = self.expectation(description: "Interaction presented")
-
-        self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "Survey")) { result in
-            if case .failure(let error) = result {
-                XCTFail(error.localizedDescription)
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 10)
+    @Test func testPresentSurvey() async throws {
+        try await self.presentInteraction(InteractionTestHelpers.loadInteraction(named: "Survey"))
     }
 
-    func testPresentTextModal() throws {
-        let expectation = self.expectation(description: "Interaction presented")
-
-        self.presentInteraction(try InteractionTestHelpers.loadInteraction(named: "TextModal")) { result in
-            if case .failure(let error) = result {
-                XCTFail(error.localizedDescription)
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 10)
+    @Test func testPresentTextModal() async throws {
+        try await self.presentInteraction(InteractionTestHelpers.loadInteraction(named: "TextModal"))
     }
 
-    func testPresentUnimplemented() throws {
-        let expectation = self.expectation(description: "Interaction presented")
-
+    @Test func testPresentUnimplemented() async throws {
         let fakeInteractionString = """
                     {
                     "id": "abc123",
@@ -87,108 +46,77 @@ class InteractionPresenterTests: XCTestCase {
             """
 
         guard let fakeInteractionData = fakeInteractionString.data(using: .utf8) else {
-            return XCTFail("Unable to encode test fake interaction string")
+            throw TestError(reason: "Unable to encode test fake interaction string")
         }
 
         let fakeInteraction = try JSONDecoder.apptentive.decode(Interaction.self, from: fakeInteractionData)
 
-        self.presentInteraction(fakeInteraction) { result in
-            if case .success = result {
-                XCTFail("Should have an unimplemented error.")
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 10)
-    }
-
-    func testDismssPresentedInteraction() throws {
-        let interaction = try InteractionTestHelpers.loadInteraction(named: "TextModal")
-        let presentingViewController = FakePresentingViewController()
-
-        let expectation = self.expectation(description: "Interaction presented")
-
-        self.interactionPresenter?.presentInteraction(interaction, from: presentingViewController) { result in
-            if case .failure(let error) = result {
-                XCTFail(error.localizedDescription)
-            }
-
-            DispatchQueue.main.async {
-                guard let presentedViewController = presentingViewController.fakePresentedViewController as? FakePresentedViewController else {
-                    return XCTFail("No presented view controller, or is not fake presented view controller.")
-                }
-
-                self.interactionPresenter?.dismissPresentedViewController(animated: true)
-
-                XCTAssertTrue(presentedViewController.didDismiss)
-
-                let spyInteractionDelegate = self.interactionPresenter?.delegate as! SpyInteractionDelegate
-                XCTAssertEqual(spyInteractionDelegate.engagedEvent?.codePointName, "com.apptentive#TextModal#cancel")
-                XCTAssertEqual(spyInteractionDelegate.engagedEvent?.userInfo, EventUserInfo.dismissCause(.init(cause: "notification")))
-
-                expectation.fulfill()
-            }
-        }
-
-        self.wait(for: [expectation], timeout: 10)
-    }
-
-    func testNoPresentingViewController() throws {
-        let interaction = try InteractionTestHelpers.loadInteraction(named: "TextModal")
-
         guard let interactionPresenter = self.interactionPresenter as? FakeInteractionPresenter else {
-            return XCTFail("interactionPresenter is nil or not a FakeInteractionPresenter")
+            throw TestError(reason: "interactionPresenter is nil or not a FakeInteractionPresenter")
         }
 
-        let expectation = self.expectation(description: "Interaction not presented")
-
-        interactionPresenter.presentInteraction(interaction, from: nil) { result in
-            if case .success = result {
-                XCTFail()
-            }
-
-            expectation.fulfill()
+        await #expect(throws: InteractionPresenterError.self) {
+            try await interactionPresenter.presentInteraction(fakeInteraction, from: nil)
         }
-
-        self.wait(for: [expectation], timeout: 10)
     }
 
-    class FakeInteractionPresenter: InteractionPresenter {
+    @Test func testDismssPresentedInteraction() async throws {
+        let interaction = try InteractionTestHelpers.loadInteraction(named: "TextModal")
+        let presentingViewController = await FakePresentingViewController()
+
+        try await self.interactionPresenter?.presentInteraction(interaction, from: presentingViewController)
+
+        let presentedViewController = try await #require(presentingViewController.fakePresentedViewController as? FakePresentedViewController)
+
+        await self.interactionPresenter?.dismissPresentedViewController(animated: true)
+
+        let didDismiss = await presentedViewController.didDismiss
+        #expect(didDismiss)
+
+        let spyInteractionDelegate = await self.interactionPresenter?.delegate as! SpyInteractionDelegate
+        await #expect(spyInteractionDelegate.engagedEvent?.codePointName == "com.apptentive#TextModal#cancel")
+        await #expect(spyInteractionDelegate.engagedEvent?.userInfo == EventUserInfo.dismissCause(.init(cause: "notification")))
+    }
+
+    @Test func testNoPresentingViewController() async throws {
+        let interaction = try InteractionTestHelpers.loadInteraction(named: "TextModal")
+
+        let interactionPresenter = try #require(self.interactionPresenter as? FakeInteractionPresenter)
+
+        await #expect(throws: InteractionPresenterError.noPresentingViewController) {
+            try await interactionPresenter.presentInteraction(interaction, from: nil)
+        }
+    }
+
+    @MainActor class FakeInteractionPresenter: InteractionPresenter {
         var viewModel: AnyObject?
 
-        override func presentSurvey(with surveyViewModel: SurveyViewModel) throws {
+        override func presentSurvey(with surveyViewModel: SurveyViewModel) async throws {
 
             self.viewModel = surveyViewModel
 
             let fakeSurveyViewController = FakePresentedViewController()
             fakeSurveyViewController.view.tag = 333
 
-            try self.presentViewController(fakeSurveyViewController)
+            try await self.presentViewController(fakeSurveyViewController)
         }
 
-        override func presentEnjoymentDialog(with viewModel: DialogViewModel) throws {
+        override func presentEnjoymentDialog(with viewModel: DialogViewModel) async throws {
             self.viewModel = viewModel
 
             let fakeAlertController = FakePresentedViewController()
             fakeAlertController.view.tag = 333
 
-            try self.presentViewController(fakeAlertController)
+            try await self.presentViewController(fakeAlertController)
         }
 
-        override func presentTextModal(with viewModel: DialogViewModel, completion: @escaping (Result<Void, Error>) -> Void) {
+        override func presentTextModal(with viewModel: DialogViewModel) async throws {
             self.viewModel = viewModel
 
             let fakeAlertController = FakePresentedViewController()
             fakeAlertController.view.tag = 333
 
-            do {
-                try self.presentViewController(fakeAlertController)
-
-                completion(.success(()))
-            } catch let error {
-                completion(.failure(error))
-            }
+            try await self.presentViewController(fakeAlertController)
         }
     }
 
@@ -206,6 +134,9 @@ class InteractionPresenterTests: XCTestCase {
 
         override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
             self.fakePresentedViewController = viewControllerToPresent
+            Task {
+                completion?()
+            }
         }
 
         override var isViewLoaded: Bool {
@@ -227,23 +158,19 @@ class InteractionPresenterTests: XCTestCase {
         }
     }
 
-    private func presentInteraction(_ interaction: Interaction, completion: @escaping (Result<Void, Error>) -> Void) {
+    @MainActor private func presentInteraction(_ interaction: Interaction) async throws {
         guard let interactionPresenter = self.interactionPresenter as? FakeInteractionPresenter else {
-            return completion(.failure(NSError(domain: "interactionPresenter is nil or not a FakeInteractionPresenter", code: 123)))
+            throw NSError(domain: "interactionPresenter is nil or not a FakeInteractionPresenter", code: 123)
         }
 
         let viewController = FakePresentingViewController()
 
-        interactionPresenter.presentInteraction(interaction, from: viewController) { result in
-            if case .failure(let error) = result {
-                return completion(.failure(error))
-            }
+        try await interactionPresenter.presentInteraction(interaction, from: viewController)
 
-            XCTAssertNotNil(interactionPresenter.viewModel)
-            XCTAssertEqual(viewController, interactionPresenter.presentingViewController)
-            XCTAssertEqual(viewController.fakePresentedViewController?.view.tag, 333)
-
-            completion(.success(()))
+        await MainActor.run {
+            #expect(interactionPresenter.viewModel != nil)
+            #expect(viewController == interactionPresenter.presentingViewController)
+            #expect(viewController.fakePresentedViewController?.view.tag == 333)
         }
     }
 }

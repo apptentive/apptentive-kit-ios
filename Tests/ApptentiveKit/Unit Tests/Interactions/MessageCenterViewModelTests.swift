@@ -6,105 +6,95 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import Foundation
-import XCTest
+import Testing
+import UIKit
 
 @testable import ApptentiveKit
 
-class MessageCenterViewModelTests: XCTestCase {
-    var environment = MockEnvironment()
-    var viewModel: MessageCenterViewModel!
-    var spyInteractionDelegate: SpyInteractionDelegate?
-    var spyDelegate: SpyViewModelDelegate?
+@MainActor struct MessageCenterViewModelTests {
+    var environment: MockEnvironment
+    var viewModel: MessageCenterViewModel
+    var spyInteractionDelegate: SpyInteractionDelegate
+    var spyDelegate: SpyViewModelDelegate
 
-    override func setUpWithError() throws {
+    init() throws {
+        self.environment = MockEnvironment()
         try MockEnvironment.cleanContainerURL()
 
         let interaction = try InteractionTestHelpers.loadInteraction(named: "MessageCenter")
         guard case let Interaction.InteractionConfiguration.messageCenter(configuration) = interaction.configuration else {
-            return XCTFail("Unable to create view model")
+            throw TestError(reason: "Unexpected interaction type")
         }
         self.spyInteractionDelegate = SpyInteractionDelegate()
-        self.viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate!)
+        self.viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate)
 
         self.spyDelegate = SpyViewModelDelegate()
         self.viewModel.delegate = self.spyDelegate
     }
 
-    func testMesssageCenterStrings() {
-        XCTAssertEqual(self.viewModel.headingTitle, "Message Center")
-        XCTAssertEqual(self.viewModel.branding, "Powered By Apptentive")
-        XCTAssertEqual(self.viewModel.composerTitle, "New Message")
-        XCTAssertEqual(self.viewModel.composerSendButtonTitle, "Send")
-        XCTAssertEqual(self.viewModel.composerAttachButtonTitle, "Attach")
-        XCTAssertEqual(self.viewModel.composerPlaceholderText, "Please leave detailed feedback")
-        XCTAssertEqual(self.viewModel.composerCloseConfirmBody, "Are you sure you want to discard this message?")
-        XCTAssertEqual(self.viewModel.composerCloseDiscardButtonTitle, "Discard")
-        XCTAssertEqual(self.viewModel.composerCloseCancelButtonTitle, "Cancel")
-        XCTAssertEqual(self.viewModel.greetingTitle, "Hello!")
-        XCTAssertEqual(self.viewModel.greetingBody, "We'd love to get feedback from you on our app. The more details you can provide, the better.")
-        XCTAssertEqual(self.viewModel.greetingImageURL, URL(string: "https://dfuvhehs12k8c.cloudfront.net/assets/app-icon/music.png"))
-        XCTAssertEqual(self.viewModel.statusBody, "We will respond to your message soon.")
+    @Test func testMesssageCenterStrings() async throws {
+        #expect(self.viewModel.headingTitle == "Message Center")
+        #expect(self.viewModel.branding == "Powered By Apptentive")
+        #expect(self.viewModel.composerTitle == "New Message")
+        #expect(self.viewModel.composerSendButtonTitle == "Send")
+        #expect(self.viewModel.composerAttachButtonTitle == "Attach")
+        #expect(self.viewModel.composerPlaceholderText == "Please leave detailed feedback")
+        #expect(self.viewModel.composerCloseConfirmBody == "Are you sure you want to discard this message?")
+        #expect(self.viewModel.composerCloseDiscardButtonTitle == "Discard")
+        #expect(self.viewModel.composerCloseCancelButtonTitle == "Cancel")
+        #expect(self.viewModel.greetingTitle == "Hello!")
+        #expect(self.viewModel.greetingBody == "We'd love to get feedback from you on our app. The more details you can provide, the better.")
+        #expect(self.viewModel.greetingImageURL == URL(string: "https://dfuvhehs12k8c.cloudfront.net/assets/app-icon/music.png"))
+        #expect(self.viewModel.statusBody == "We will respond to your message soon.")
 
-        XCTAssertEqual(self.spyInteractionDelegate?.automatedMessageBody, "We're sorry to hear that you don't love FooApp! Is there anything we could do to make it better?")
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
+
+        #expect(self.spyInteractionDelegate.automatedMessageBody == "We're sorry to hear that you don't love FooApp! Is there anything we could do to make it better?")
     }
 
-    func testLaunchEvent() {
+    @Test func testLaunchEvent() {
         self.viewModel.launch()
 
-        XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#MessageCenter#launch")
+        #expect(self.spyInteractionDelegate.engagedEvent?.codePointName == "com.apptentive#MessageCenter#launch")
     }
 
-    func testCancelEvent() {
+    @Test func testCancelEvent() {
         self.viewModel.cancel()
 
-        XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#MessageCenter#cancel")
+        #expect(self.spyInteractionDelegate.engagedEvent?.codePointName == "com.apptentive#MessageCenter#cancel")
     }
 
-    func testReadEvent() {
-        let expectation = XCTestExpectation()
+    @Test func testReadEvent() async throws {
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
 
-        // Messages are loaded asynchronously, so have to give that time to happen.
-        DispatchQueue.main.async {
-            self.viewModel.markMessageAsRead(at: .init(row: 0, section: 0))
+        self.viewModel.markMessageAsRead(at: .init(row: 0, section: 0))
 
-            XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.userInfo, .messageInfo(.init(id: "abc")))
-
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 1.0)
+        #expect(self.spyInteractionDelegate.engagedEvent?.userInfo == .messageInfo(.init(id: "abc")))
     }
 
-    func testListView() {
-        let expectation = XCTestExpectation()
+    @Test func testListView() async throws {
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
 
-        // Messages are loaded asynchronously, so have to give that time to happen.
-        DispatchQueue.main.async {
-            XCTAssertEqual(self.viewModel.numberOfMessageGroups, 1)
-            XCTAssertEqual(self.viewModel.numberOfMessagesInGroup(at: 0), 1)
-
-            let message = self.viewModel.message(at: .init(row: 0, section: 0))
-            XCTAssertEqual(message.body, "Test Body")
-
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 1.0)
+        try #require(self.viewModel.numberOfMessageGroups > 0)
+        #expect(self.viewModel.numberOfMessagesInGroup(at: 0) == 1)
+        #expect(self.viewModel.message(at: [0, 0]).body == "Test Body")
     }
 
     // TODO: Test Draft Editing Methods
 
-    func testSendMessage() {
+    @Test func testSendMessage() async throws {
         self.viewModel.draftMessageBody = "Test Message"
 
-        self.viewModel.sendMessage()
+        // Setting draft message on interaction delegate is async but awkward to expose as such.
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
 
-        XCTAssertEqual(self.spyInteractionDelegate?.sentMessage?.body, "Test Message")
-        XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#MessageCenter#send")
+        try await self.viewModel.sendMessage()
+
+        #expect(self.spyInteractionDelegate.sentMessage?.body == "Test Message")
+        #expect(self.spyInteractionDelegate.engagedEvent?.codePointName == "com.apptentive#MessageCenter#send")
     }
 
-    func testDiffSections() {
+    @Test func testDiffSections() {
         // Using example from https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/TableView_iPhone/ManageInsertDeleteRow/ManageInsertDeleteRow.html#//apple_ref/doc/uid/TP40007451-CH10-SW20
         let oldStates = ["Arizona", "California", "Delaware", "New Jersey", "Washington"]
         var states = oldStates
@@ -128,11 +118,11 @@ class MessageCenterViewModelTests: XCTestCase {
 
         let (deleteIndexes, insertIndexes) = MessageCenterViewModel.diffSortedCollection(from: oldStates, to: states)
 
-        XCTAssertEqual(deleteIndexes, expectedDeleteIndexes)
-        XCTAssertEqual(insertIndexes, expectedInsertIndexes)
+        #expect(deleteIndexes == expectedDeleteIndexes)
+        #expect(insertIndexes == expectedInsertIndexes)
     }
 
-    func testDiffRows() {
+    @Test func testDiffRows() {
         let message1 = MessageCenterViewModel.Message(
             nonce: "1", direction: .sentFromDashboard(.unread(messageID: "id100")), isAutomated: false, attachments: [], sender: nil, body: "One", sentDate: Date(timeIntervalSinceNow: 12 * 60 * 60), statusText: "100", accessibilityLabel: "",
             accessibilityHint: "")
@@ -172,41 +162,41 @@ class MessageCenterViewModelTests: XCTestCase {
 
         self.viewModel.update(from: oldGroupedMessages, to: newGroupedMessages)
 
-        XCTAssertEqual(self.spyDelegate?.deletedRows, [IndexPath(row: 2, section: 0)])  // Deletes are relative to old groupings
-        XCTAssertEqual(self.spyDelegate?.updatedRows, [IndexPath(row: 0, section: 1)])  // Updates are relative to new groupings
-        XCTAssertEqual(self.spyDelegate?.insertedRows, [IndexPath(row: 1, section: 2), IndexPath(row: 3, section: 2)])  // Inserts are relative to new groupings
+        #expect(self.spyDelegate.deletedRows == [IndexPath(row: 2, section: 0)])  // Deletes are relative to old groupings
+        #expect(self.spyDelegate.updatedRows == [IndexPath(row: 0, section: 1)])  // Updates are relative to new groupings
+        #expect(self.spyDelegate.insertedRows == [IndexPath(row: 1, section: 2), IndexPath(row: 3, section: 2)])  // Inserts are relative to new groupings
     }
 
-    func testSettingEmail() {
-        self.viewModel?.emailAddress = "test email"
-        XCTAssertNil(self.spyInteractionDelegate?.personEmailAddress)
+    @Test func testSettingEmail() {
+        self.viewModel.emailAddress = "test email"
+        #expect(self.spyInteractionDelegate.personEmailAddress == nil)
 
-        self.viewModel?.commitProfileEdits()
-        XCTAssertEqual(self.spyInteractionDelegate?.personEmailAddress, "test email")
+        self.viewModel.commitProfileEdits()
+        #expect(self.spyInteractionDelegate.personEmailAddress == "test email")
 
-        self.viewModel?.emailAddress = "fake email"
+        self.viewModel.emailAddress = "fake email"
         self.viewModel.cancelProfileEdits()
-        XCTAssertEqual(self.viewModel?.emailAddress, "test email")
+        #expect(self.viewModel.emailAddress == "test email")
 
-        self.viewModel?.emailAddress = " "
-        self.viewModel?.commitProfileEdits()
-        XCTAssertNil(self.spyInteractionDelegate?.personEmailAddress)
+        self.viewModel.emailAddress = " "
+        self.viewModel.commitProfileEdits()
+        #expect(self.spyInteractionDelegate.personEmailAddress == nil)
     }
 
-    func testSettingName() {
-        self.viewModel?.name = "name"
-        XCTAssertNil(self.spyInteractionDelegate?.personName)
+    @Test func testSettingName() {
+        self.viewModel.name = "name"
+        #expect(self.spyInteractionDelegate.personName == nil)
 
-        self.viewModel?.commitProfileEdits()
-        XCTAssertEqual(self.spyInteractionDelegate?.personName, "name")
+        self.viewModel.commitProfileEdits()
+        #expect(self.spyInteractionDelegate.personName == "name")
 
-        self.viewModel?.name = "fake name"
+        self.viewModel.name = "fake name"
         self.viewModel.cancelProfileEdits()
-        XCTAssertEqual(self.viewModel?.name, "name")
+        #expect(self.viewModel.name == "name")
 
-        self.viewModel?.name = " "
-        self.viewModel?.commitProfileEdits()
-        XCTAssertNil(self.spyInteractionDelegate?.personName)
+        self.viewModel.name = " "
+        self.viewModel.commitProfileEdits()
+        #expect(self.spyInteractionDelegate.personName == nil)
     }
 
     class SpyViewModelDelegate: MessageCenterViewModelDelegate {

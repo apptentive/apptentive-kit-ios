@@ -1,0 +1,193 @@
+{
+  "interactions": [
+    {
+      "id": "548cc5dd49f63bb5c2000001",
+      "type": "TextModal",
+      "configuration": {
+        "title": "Image, Title, and Body",
+        "body": "Body",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {
+}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://www.alchemer.com/wp-content/uploads/2024/07/Alchemer_wspace.png",
+          "layout": "full_width",
+          "alt_text": "Alchemer Logo",
+          "scale": 2
+        }
+      }
+    },
+    {
+      "id": "548cc5dd49f63bb5c2000002",
+      "type": "TextModal",
+      "configuration": {
+        "title": "Image &amp; Title",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {
+}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://www.alchemer.com/wp-content/uploads/2024/07/Alchemer_wspace.png",
+          "layout": "full_width",
+          "alt_text": "Alchemer Logo",
+          "scale": 2
+        }
+      }
+    },
+    {
+      "id": "548cc5dd49f63bb5c2000003",
+      "type": "TextModal",
+      "configuration": {
+        "body": "Image &amp; Body",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {
+}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ],
+        "image": {
+          "url": "https://www.alchemer.com/wp-content/uploads/2024/07/Alchemer_wspace.png",
+          "layout": "full_width",
+          "alt_text": "Alchemer Logo",
+          "scale": 2
+        }
+      }
+    },
+    {
+      "id": "548cc5dd49f63bb5c2000011",
+      "type": "TextModal",
+      "configuration": {
+        "title": "Title and Body",
+        "body": "Body",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {
+}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "id": "548cc5dd49f63bb5c2000012",
+      "type": "TextModal",
+      "configuration": {
+        "title": "Title Only",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {
+}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ]
+      }
+    },
+    {
+      "id": "548cc5dd49f63bb5c2000013",
+      "type": "TextModal",
+      "configuration": {
+        "body": "Body Only",
+        "actions": [
+          {
+            "id": "action_id_1",
+            "label": "Redeem",
+            "action": "interaction",
+            "invokes": [
+              {
+                "interaction_id": "54a3437b7724c57cf6000043",
+                "criteria": {
+}
+              }
+            ]
+          },
+          {
+            "id": "action_id_2",
+            "label": "Dismiss",
+            "action": "dismiss"
+          }
+        ]
+      }
+    }
+  ],
+  "targets": {
+    "local#app#launch": [
+      {
+        "interaction_id": "548cc5dd49f63bb5c2000001",
+        "criteria": {
+          "interactions/548cc5dd49f63bb5c2000001/invokes/total": 0
+        }
+      }
+    ]
+  },
+  "prefetch": [
+    "https://www.alchemer.com/wp-content/uploads/2024/07/Alchemer_wspace.png"
+  ]
+}

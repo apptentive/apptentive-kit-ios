@@ -12,7 +12,7 @@ extension JSONDecoder {
     static let apptentive: JSONDecoder = {
         let decoder = JSONDecoder()
 
-        func decodeHexData(_ decoder: Decoder) throws -> Data {
+        let decodeHexData: @Sendable (_ decoder: Decoder) throws -> Data = { decoder in
             let container = try decoder.singleValueContainer()
             let stringValue = try container.decode(String.self)
             guard let hexData = Data(hexString: stringValue) else {
@@ -33,7 +33,7 @@ extension JSONEncoder {
     static let apptentive: JSONEncoder = {
         let encoder = JSONEncoder()
 
-        func encodeHexData(_ data: Data, _ encoder: Encoder) throws {
+        let encodeHexData: @Sendable (_ data: Data, _ encoder: Encoder) throws -> Void = { (data, encoder) in
             var container = encoder.singleValueContainer()
             try container.encode(data.hexString)
         }

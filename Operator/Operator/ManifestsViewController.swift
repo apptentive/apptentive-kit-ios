@@ -60,14 +60,15 @@ class ManifestsViewController: UITableViewController {
             selectedManifestURL = self.manifestURLs[indexPath.row]
         }
 
-        self.apptentive.loadEngagementManifest(at: selectedManifestURL) { result in
-            if case .success = result {
-                tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-                self.selectedIndex = indexPath.section == 0 ? nil : indexPath.row
+        Task {
+            defer {
+                tableView.deselectRow(at: indexPath, animated: true)
             }
 
-            tableView.deselectRow(at: indexPath, animated: true)
-            
+            try await self.apptentive.loadEngagementManifest(at: selectedManifestURL)
+            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+            self.selectedIndex = indexPath.section == 0 ? nil : indexPath.row
+
             self.performSegue(withIdentifier: "doneChoosing", sender: self)
         }
     }

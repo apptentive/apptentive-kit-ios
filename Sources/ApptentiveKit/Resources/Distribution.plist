@@ -5,8 +5,8 @@
 	<key>ApptentiveDistributionName</key>
 	<string>Source</string>
 	<key>CFBundleShortVersionString</key>
-	<string>6.9.1</string>
+	<string>7.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>100</string>
+	<string>1</string>
 </dict>
 </plist>

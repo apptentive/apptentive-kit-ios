@@ -9,7 +9,7 @@
 import Foundation
 
 /// Describes an object that can supply credentials for accessing the Apptentive API.
-protocol APICredentialsProviding {
+protocol APICredentialsProviding: Sendable {
 
     /// The headers to include with an API request for this type of credential.
     var headers: [String: String] { get }

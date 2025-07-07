@@ -15,10 +15,10 @@ import Foundation
 struct SurveyConfiguration: Decodable {
     let title: String
     let name: String?
-    let introduction: String?
-    let successMessage: String?
+    let introduction: AttributedString?
+    let successMessage: AttributedString?
     let shouldShowSuccessMessage: Bool
-    let validationError: String
+    let validationError: AttributedString
     let requiredText: String
     let closeConfirmationTitle: String
     let closeConfirmationMessage: String
@@ -29,7 +29,28 @@ struct SurveyConfiguration: Decodable {
     let renderAs: RenderAs
     let introButtonTitle: String?
     let successButtonTitle: String?
-    let disclaimerText: String?
+    let disclaimerText: AttributedString?
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.title = try container.decode(String.self, forKey: .title)
+        self.name = try container.decodeIfPresent(String.self, forKey: .name)
+        self.introduction = try container.apptentiveDecodeHTMLIfPresent(forKey: .introduction)
+        self.successMessage = try container.apptentiveDecodeHTMLIfPresent(forKey: .successMessage)
+        self.shouldShowSuccessMessage = try container.decode(Bool.self, forKey: .shouldShowSuccessMessage)
+        self.validationError = try container.apptentiveDecodeHTML(forKey: .validationError)
+        self.requiredText = try container.decode(String.self, forKey: .requiredText)
+        self.closeConfirmationTitle = try container.decode(String.self, forKey: .closeConfirmationTitle)
+        self.closeConfirmationMessage = try container.decode(String.self, forKey: .closeConfirmationMessage)
+        self.closeConfirmationCloseButtonTitle = try container.decode(String.self, forKey: .closeConfirmationCloseButtonTitle)
+        self.closeConfirmationBackButtonTitle = try container.decode(String.self, forKey: .closeConfirmationBackButtonTitle)
+        self.termsAndConditions = try container.decodeIfPresent(SurveyConfiguration.TermsAndConditions.self, forKey: .termsAndConditions)
+        self.questionSets = try container.decode([SurveyConfiguration.QuestionSet].self, forKey: .questionSets)
+        self.renderAs = try container.decode(SurveyConfiguration.RenderAs.self, forKey: .renderAs)
+        self.introButtonTitle = try container.decodeIfPresent(String.self, forKey: .introButtonTitle)
+        self.successButtonTitle = try container.decodeIfPresent(String.self, forKey: .successButtonTitle)
+        self.disclaimerText = try container.apptentiveDecodeHTMLIfPresent(forKey: .disclaimerText)
+    }
 
     enum CodingKeys: String, CodingKey {
         case title
@@ -58,7 +79,7 @@ struct SurveyConfiguration: Decodable {
 
     struct Question: Decodable {
         let id: String
-        let text: String
+        let text: AttributedString
         let type: QuestionType
         let errorMessage: String
         let required: Bool?
@@ -75,6 +96,29 @@ struct SurveyConfiguration: Decodable {
         let rangeMax: Int?
         let rangeMinText: String?
         let rangeMaxText: String?
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            self.id = try container.decode(String.self, forKey: .id)
+            self.text = try container.apptentiveDecodeHTML(forKey: .text)
+            self.type = try container.decode(QuestionType.self, forKey: .type)
+            self.errorMessage = try container.decode(String.self, forKey: .errorMessage)
+            self.required = try container.decodeIfPresent(Bool.self, forKey: .required)
+
+            self.instructions = try container.decodeIfPresent(String.self, forKey: .instructions)
+            self.answerChoices = try container.decodeIfPresent([Choice].self, forKey: .answerChoices)
+            self.minSelections = try container.decodeIfPresent(Int.self, forKey: .minSelections)
+            self.maxSelections = try container.decodeIfPresent(Int.self, forKey: .maxSelections)
+
+            self.multiline = try container.decodeIfPresent(Bool.self, forKey: .multiline)
+            self.placeholderText = try container.decodeIfPresent(String.self, forKey: .placeholderText)
+
+            self.rangeMin = try container.decodeIfPresent(Int.self, forKey: .rangeMin)
+            self.rangeMax = try container.decodeIfPresent(Int.self, forKey: .rangeMax)
+            self.rangeMinText = try container.decodeIfPresent(String.self, forKey: .rangeMinText)
+            self.rangeMaxText = try container.decodeIfPresent(String.self, forKey: .rangeMaxText)
+        }
 
         enum CodingKeys: String, CodingKey {
             case id
@@ -105,10 +149,20 @@ struct SurveyConfiguration: Decodable {
 
         struct Choice: Decodable {
             let id: String
-            let value: String
+            let value: AttributedString
             let type: ChoiceType?
 
             let placeholderText: String?
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+
+                self.id = try container.decode(String.self, forKey: .id)
+                self.value = try container.apptentiveDecodeHTML(forKey: .value)
+                self.type = try container.decodeIfPresent(ChoiceType.self, forKey: .type)
+
+                self.placeholderText = try container.decodeIfPresent(String.self, forKey: .placeholderText)
+            }
 
             enum CodingKeys: String, CodingKey {
                 case id

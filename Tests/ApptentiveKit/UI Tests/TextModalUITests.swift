@@ -8,7 +8,7 @@
 
 import XCTest
 
-class TextModalUITests: XCTestCase {
+@MainActor class TextModalUITests: XCTestCase {
     override func setUp() {
         let app = XCUIApplication()
         app.launchArguments = ["-layerSpeed", "500"]
@@ -89,6 +89,8 @@ class TextModalUITests: XCTestCase {
 
         XCTAssertFalse(XCUIApplication().textViews["DialogMessageText"].exists)
         XCTAssertFalse(XCUIApplication().textViews["DialogTitleText"].exists)
+
+        let _ = XCUIApplication().images["DialogHeaderImageView"].waitForExistence(timeout: 5)
 
         XCTAssertTrue(XCUIApplication().images["DialogHeaderImageView"].exists)
         XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Disney Logo")

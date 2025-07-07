@@ -9,7 +9,7 @@
 import UIKit
 @preconcurrency import WebKit
 
-class WebViewController: UIViewController, WKNavigationDelegate {
+final class WebViewController: UIViewController, WKNavigationDelegate {
     let webView: WKWebView
     let spinner: UIActivityIndicatorView
     let viewModel: NavigateToLinkController
@@ -113,7 +113,7 @@ class WebViewController: UIViewController, WKNavigationDelegate {
         self.spinner.stopAnimating()
     }
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
         if let url = navigationAction.request.url {
             if url.absoluteString.contains("survey.alchemer.com") || url.absoluteString.contains("#sg-gotoerror") {
                 decisionHandler(.allow)

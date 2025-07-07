@@ -21,20 +21,22 @@ import Foundation
 #endif
 
 /// The portions of the Environment that provide access to platform features.
-protocol GlobalEnvironment {
-    var fileManager: FileManager { get }
+@MainActor protocol GlobalEnvironment {
+    var fileManager: FileManaging { get }
     var isInForeground: Bool { get }
     var isProtectedDataAvailable: Bool { get }
     var delegate: EnvironmentDelegate? { get set }
-    var isTesting: Bool { get }
     var appDisplayName: String { get }
 
-    func requestReview(completion: @escaping (Bool) -> Void)
-    func open(_ url: URL, completion: @escaping (Bool) -> Void)
+    func requestReview() async throws -> Bool
+    func open(_ url: URL) async -> Bool
+
+    var userNotificationCenterDelegateConfigured: Bool { get }
+    func postLocalNotification(title: String, body: String, userInfo: [AnyHashable: Any], sound: UNNotificationSound)
 }
 
 /// Allows the Environment to communicate changes.
-protocol EnvironmentDelegate: AnyObject {
+@MainActor protocol EnvironmentDelegate: AnyObject {
 
     /// Notifies the receiver that access to protected data (from the encrypted filesystem) is now available.
     /// - Parameter environment: The environment calling the method.
@@ -61,10 +63,10 @@ protocol EnvironmentDelegate: AnyObject {
 /// Provides access to platform, device, and operating system information.
 ///
 /// Allows these values to be injected as a dependency to aid in testing.
-class Environment: GlobalEnvironment {
+@MainActor final class Environment: GlobalEnvironment {
 
     /// The file manager that should be used when interacting with the filesystem.
-    let fileManager: FileManager
+    let fileManager: FileManaging
 
     /// Whether the app has access to the encrypted filesystem.
     var isProtectedDataAvailable: Bool
@@ -74,9 +76,6 @@ class Environment: GlobalEnvironment {
 
     /// Whether the application is in the foreground.
     var isInForeground: Bool
-
-    /// Checks the environment to see if testing is taking place.
-    var isTesting: Bool
 
     /// The delegate to notify when aspects of the environment change.
     weak var delegate: EnvironmentDelegate?
@@ -97,8 +96,6 @@ class Environment: GlobalEnvironment {
 
         self.appDisplayName = possibleDisplayNames.compactMap { $0 }.first ?? "App"
 
-        self.isTesting = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-
         #if canImport(UIKit)
             self.isProtectedDataAvailable = UIApplication.shared.isProtectedDataAvailable
             self.isInForeground = UIApplication.shared.applicationState != .background
@@ -118,46 +115,74 @@ class Environment: GlobalEnvironment {
         #endif
     }
 
+    private var ratingDialogDidShow = false
+
     /// Requests a review using `SKStoreReviewController`.
     ///
     /// If no review window appears within 1 second of the request, assume the request was denied.
-    /// - Parameter completion: Called with a value indicating whether the review request was shown.
-    func requestReview(completion: @escaping (Bool) -> Void) {
-        #if canImport(StoreKit)
-            var didShow = false
+    /// - Returns: A value indicating whether the review request was shown.
+    /// - Throws: An error if requesting the review fails.
+    func requestReview() async throws -> Bool {
+        self.ratingDialogDidShow = false
 
+        #if canImport(StoreKit)
             // Prepare to observe when a window appears.
             NotificationCenter.default.addObserver(forName: UIWindow.didBecomeVisibleNotification, object: nil, queue: nil) { (notification) in
                 if let object = notification.object, String(describing: type(of: object)).hasPrefix("SKStoreReview") {
                     // If the window looks store-review-related, note that the system showed the review request.
-                    didShow = true
+                    Task { @MainActor in
+                        self.ratingDialogDidShow = true
+                    }
                 }
             }
 
             // Request a review.
-            SKStoreReviewController.requestReview()
-
-            // Wait up to 1 second for the review window to appear before giving up.
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
-                NotificationCenter.default.removeObserver(self, name: UIWindow.didBecomeVisibleNotification, object: nil)
-
-                completion(didShow)
+            if let activeScene = UIApplication.shared.firstActiveScene {
+                SKStoreReviewController.requestReview(in: activeScene)
+            } else {
+                throw ApptentiveError.internalInconsistency
             }
-        #else
-            completion(false)
+
+            // Wait 1 second to give window a chance to appear.
+            try await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
         #endif
+
+        return self.ratingDialogDidShow
     }
 
     /// Asks the system to open the specified URL.
-    /// - Parameters:
-    ///   - url: The URL to open.
-    ///   - completion: Called with a value indicating whether the URL was successfully opened.
-    func open(_ url: URL, completion: @escaping (Bool) -> Void) {
+    /// - Parameter url: The URL to open.
+    /// - Returns: A value indicating whether the URL was successfully opened.
+    func open(_ url: URL) async -> Bool {
         #if canImport(UIKit)
-            UIApplication.shared.open(url, options: [:], completionHandler: completion)
+            return await UIApplication.shared.open(url)
         #else
-            completion(false)
+            return false
         #endif
+    }
+
+    var userNotificationCenterDelegateConfigured: Bool {
+        if let delegate = UNUserNotificationCenter.current().delegate, delegate.responds(to: #selector(UNUserNotificationCenterDelegate.userNotificationCenter(_:didReceive:withCompletionHandler:))) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    func postLocalNotification(title: String, body: String, userInfo: [AnyHashable: Any], sound: UNNotificationSound) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.userInfo = userInfo
+        content.sound = sound
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: "com.apptentive", content: content, trigger: trigger)
+
+        Task {
+            try await UNUserNotificationCenter.current().add(request)
+        }
+
     }
 
     #if canImport(UIKit)

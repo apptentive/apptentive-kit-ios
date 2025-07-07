@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol Loader {
+protocol Loader: Sendable {
     init(context: LoaderContext)
 
     var rosterFileExists: Bool { get }
@@ -23,7 +23,7 @@ protocol Loader {
     func cleanUp(for record: ConversationRoster.Record) throws
 }
 
-struct LoaderContext {
+struct LoaderContext: @unchecked Sendable {
     let containerURL: URL
     let cacheURL: URL
     let appCredentials: Apptentive.AppCredentials

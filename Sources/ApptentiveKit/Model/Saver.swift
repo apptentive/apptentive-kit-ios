@@ -74,7 +74,7 @@ class PropertyListSaver<T: Codable>: Saver<T> {
 }
 
 /// A concrete subclass of `Saver` that saves data in Property List (plist) format.
-class EncryptedPropertyListSaver<T: Codable>: PropertyListSaver<T> {
+final class EncryptedPropertyListSaver<T: Codable>: PropertyListSaver<T> {
     var encryptionKey: Data?
 
     init(containerURL: URL, filename: String, fileManager: FileManager, encryptionKey: Data?) {

@@ -6,13 +6,14 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import PhotosUI
+import OSLog
+@preconcurrency import PhotosUI
 import QuickLook
 import UIKit
 
 class MessageCenterViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate,
     PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate,
-    QLPreviewControllerDelegate, QLPreviewControllerDataSource, UITextFieldDelegate
+    @preconcurrency QLPreviewControllerDelegate, QLPreviewControllerDataSource, UITextFieldDelegate
 {
     private let viewModel: MessageCenterViewModel
     private let headerView: GreetingHeaderView
@@ -110,8 +111,8 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.headerView.greetingTitleLabel.text = self.viewModel.greetingTitle
         self.headerView.greetingBodyText.text = self.viewModel.greetingBody
 
-        self.viewModel.getGreetingImage { [weak self] (image) in
-            self?.headerView.brandingImageView.image = image
+        Task {
+            self.headerView.brandingImageView.image = try await self.viewModel.getGreetingImage()
         }
 
         self.profileView.nameTextField.text = self.viewModel.name
@@ -122,7 +123,6 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.profileView.emailTextField.text = self.viewModel.emailAddress
         self.profileView.emailTextField.attributedPlaceholder = NSAttributedString(string: self.viewModel.profileEmailPlaceholder, attributes: [NSAttributedString.Key.foregroundColor: UIColor.apptentiveMessageCenterTextInputPlaceholder])
-        self.profileView.emailTextField.accessibilityLabel = self.viewModel.editProfileEmailPlaceholder
         self.profileView.emailTextField.addTarget(self, action: #selector(textFieldChanged(_:)), for: .editingChanged)
         self.profileView.emailTextField.delegate = self
 
@@ -246,10 +246,12 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
             receivedCell.messageText.accessibilityHint = message.accessibilityHint
             receivedCell.dateLabel.text = message.statusText
             receivedCell.senderLabel.text = message.sender?.name
-            self.viewModel.getProfilePhoto(for: indexPath)
             receivedCell.attachmentStackView.isHidden = message.attachments.count == 0
             self.updateStackView(receivedCell.attachmentStackView, with: message, at: indexPath)
             receivedCell.accessibilityElements = [receivedCell.senderLabel, receivedCell.messageText, receivedCell.attachmentStackView, receivedCell.dateLabel]
+            self.profilePhotoTasks[indexPath] = Task {
+                receivedCell.profileImageView.image = try await self.viewModel.getProfilePhoto(for: indexPath)
+            }
 
         case (.sentFromDevice, let sentCell as MessageSentCell):
             sentCell.messageText.isHidden = message.body?.isEmpty != false
@@ -276,6 +278,11 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         self.viewModel.markMessageAsRead(at: indexPath)
+    }
+
+    override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        self.profilePhotoTasks[indexPath]?.cancel()
+        self.profilePhotoTasks[indexPath] = nil
     }
 
     // MARK: - Text Field Delegate
@@ -328,9 +335,15 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         picker.dismiss(animated: true, completion: nil)
         self.lastFocusedControl = self.composeView.attachmentButton
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            self.viewModel.addImageAttachment(image, name: nil)
+            Task {
+                do {
+                    try await self.viewModel.addImageAttachment(image, name: nil)
+                } catch let error {
+                    Logger.messages.error("Unable to add attachment: \(error).")
+                }
+            }
         } else {
-            ApptentiveLogger.messages.error("UIImagePickerController failed to provide picked image.")
+            Logger.messages.error("UIImagePickerController failed to provide picked image.")
         }
     }
 
@@ -348,15 +361,21 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         for result in results {
             result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
                 if let error = error {
-                    ApptentiveLogger.messages.debug("Error selecting images from PHPicker: \(error).")
+                    Logger.messages.debug("Error selecting images from PHPicker: \(error).")
                 }
 
                 guard let image = object as? UIImage else {
-                    ApptentiveLogger.messages.error("PHPickerViewController failed to provide picked image.")
+                    Logger.messages.error("PHPickerViewController failed to provide picked image.")
                     return
                 }
 
-                self.viewModel.addImageAttachment(image, name: result.itemProvider.suggestedName)
+                Task {
+                    do {
+                        try await self.viewModel.addImageAttachment(image, name: result.itemProvider.suggestedName)
+                    } catch let error {
+                        Logger.messages.error("Unable to add attachment: \(error).")
+                    }
+                }
             }
         }
     }
@@ -367,7 +386,13 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         controller.dismiss(animated: true)
         self.lastFocusedControl = self.composeView.attachmentButton
         self.setNeedsFocusUpdate()
-        self.viewModel.addFileAttachment(at: url)
+        Task {
+            do {
+                try await self.viewModel.addFileAttachment(at: url)
+            } catch let error {
+                Logger.messages.error("Unable to add attachment: \(error).")
+            }
+        }
     }
 
     func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
@@ -440,6 +465,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.updateProfileEditButton()
 
         DispatchQueue.main.async {
+            // Give the reload time to take effect.
             self.scrollToRelevantMessage(true)
         }
     }
@@ -474,34 +500,6 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         }
     }
 
-    func postAccessibilityNotification(for indexPath: IndexPath) {
-        let argument: UIView = {
-            switch self.tableView.cellForRow(at: indexPath) {
-            case let receivedCell as MessageReceivedCell:
-                return receivedCell.messageText
-
-            case let sentCell as MessageSentCell:
-                return sentCell.messageText
-
-            case let automatedCell as AutomatedMessageCell:
-                return automatedCell.messageText
-
-            case .none:
-                return self.tableView
-
-            default:
-                apptentiveCriticalError("Expected sent, received, or automated message cell")
-                return self.tableView
-            }
-        }()
-
-        // Notify when a new message arrives.
-        UIAccessibility.post(notification: .screenChanged, argument: argument)
-
-        // The previous call gets overridden when first loading, so make sure to re-post in viewDidAppear.
-        self.accessibilityArgument = argument
-    }
-
     func messageCenterViewModelDraftMessageDidUpdate(_: MessageCenterViewModel) {
         self.composeView.textView.text = self.viewModel.draftMessageBody
         self.composeView.textViewDidChange()
@@ -513,42 +511,13 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.composeView.sendButton.isEnabled = viewModel.canSendMessage
     }
 
-    func messageCenterViewModel(_: MessageCenterViewModel, didFailToRemoveAttachmentAt index: Int, with error: Error) {
-        ApptentiveLogger.messages.error("Unable to remove attachment at index \(index): \(error).")
-    }
-
-    func messageCenterViewModel(_: MessageCenterViewModel, didFailToAddAttachmentWith error: Error) {
-        ApptentiveLogger.messages.error("Unable to add attachment: \(error).")
-    }
-
-    func messageCenterViewModel(_: MessageCenterViewModel, didFailToSendMessageWith error: Error) {
-        ApptentiveLogger.messages.error("Unable to send message: \(error).")
-    }
-
-    func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFinishAt index: Int, inMessageAt indexPath: IndexPath) {
-        self.tableView.reloadRows(at: [indexPath], with: .fade)
-    }
-
-    func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error) {
-        ApptentiveLogger.messages.error("Unable to download attachment #\(index) in row \(indexPath.row) of section \(indexPath.section).")
-        self.tableView.reloadRows(at: [indexPath], with: .fade)
-    }
-
-    func messageCenterViewModel(_: MessageCenterViewModel, profilePhoto: UIImage, didDownloadFor indexPath: IndexPath) {
-        guard let receivedCell = self.tableView.cellForRow(at: indexPath) as? MessageReceivedCell else {
-            return
-        }
-
-        receivedCell.profileImageView.image = profilePhoto
-    }
-
     // MARK: - Notifications
 
     @objc func keyboardWillShow(_ notification: Notification) {
         guard let keyboardRect = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
             let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
         else {
-            ApptentiveLogger.messages.warning("Expected keyboard frame in notification")
+            Logger.messages.warning("Expected keyboard frame in notification")
             return
         }
 
@@ -584,19 +553,31 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     @objc func sendMessage() {
         self.viewModel.commitProfileEdits()
 
-        self.viewModel.sendMessage()
+        Task {
+            do {
+                try await self.viewModel.sendMessage()
 
-        self.composeView.textView.resignFirstResponder()
-        self.viewModel.draftMessageBody = nil
-        self.updateFooter()
+                self.composeView.textView.resignFirstResponder()
+                self.viewModel.draftMessageBody = nil
+                self.updateFooter()
 
-        self.navigationItem.leftBarButtonItem?.isEnabled = true
+                self.navigationItem.leftBarButtonItem?.isEnabled = true
+            } catch let error {
+                Logger.messages.error("Unable to send message: \(error).")
+            }
+        }
     }
 
     @objc func removeDraftAttachment(_ sender: UIButton) {
         let index = sender.superview?.tag ?? 0
 
-        self.viewModel.removeAttachment(at: index)
+        Task {
+            do {
+                try await self.viewModel.removeAttachment(at: index)
+            } catch let error {
+                Logger.messages.error("Unable to remove attachment at index \(index): \(error).")
+            }
+        }
     }
 
     @objc func downloadAttachment(_ sender: UITapGestureRecognizer) {
@@ -604,7 +585,15 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         let index = view?.tag ?? 0
         let indexPath = self.indexPath(forTag: view?.superview?.tag ?? 0)
 
-        self.viewModel.downloadAttachment(at: index, inMessageAt: indexPath)
+        Task {
+            do {
+                try await self.viewModel.downloadAttachment(at: index, inMessageAt: indexPath)
+            } catch let error {
+                Logger.messages.error("Unable to download attachment #\(index) in row \(indexPath.row) of section \(indexPath.section): \(error).")
+            }
+
+            self.tableView.reloadRows(at: [indexPath], with: .fade)
+        }
     }
 
     @objc func showAttachment(_ sender: UITapGestureRecognizer) {
@@ -664,6 +653,8 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     // I spent way to much time trying and failing to fix this the "right" way, hence this hack.
     private var footerSizeAdjustment: CGFloat = 0
 
+    private var profilePhotoTasks = [IndexPath: Task<Void, Error>]()
+
     private var composerIsInline: Bool {
         return self.isBigScreen && self.viewModel.numberOfMessageGroups == 0
     }
@@ -678,6 +669,34 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
     private func dismiss() {
         self.presentingViewController?.dismiss(animated: true, completion: nil)
+    }
+
+    private func postAccessibilityNotification(for indexPath: IndexPath) {
+        let argument: UIView = {
+            switch self.tableView.cellForRow(at: indexPath) {
+            case let receivedCell as MessageReceivedCell:
+                return receivedCell.messageText
+
+            case let sentCell as MessageSentCell:
+                return sentCell.messageText
+
+            case let automatedCell as AutomatedMessageCell:
+                return automatedCell.messageText
+
+            case .none:
+                return self.tableView
+
+            default:
+                apptentiveCriticalError("Expected sent, received, or automated message cell")
+                return self.tableView
+            }
+        }()
+
+        // Notify when a new message arrives.
+        UIAccessibility.post(notification: .screenChanged, argument: argument)
+
+        // The previous call gets overridden when first loading, so make sure to re-post in viewDidAppear.
+        self.accessibilityArgument = argument
     }
 
     private func updateProfileValidation(strict: Bool) {
@@ -859,15 +878,9 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
             UIAlertAction(
                 title: self.viewModel.attachmentOptionsFilesButton, style: .default,
                 handler: { _ in
-                    if #available(iOS 14.0, *) {
-                        let filePicker = UIDocumentPickerViewController(forOpeningContentTypes: self.viewModel.allUTTypes)
-                        filePicker.delegate = self
-                        self.present(filePicker, animated: true, completion: nil)
-                    } else {
-                        let filePicker = UIDocumentPickerViewController(documentTypes: self.viewModel.allFileTypes, in: .import)
-                        filePicker.delegate = self
-                        self.present(filePicker, animated: true, completion: nil)
-                    }
+                    let filePicker = UIDocumentPickerViewController(forOpeningContentTypes: self.viewModel.allUTTypes)
+                    filePicker.delegate = self
+                    self.present(filePicker, animated: true, completion: nil)
                 }))
 
         alertController.addAction(UIAlertAction(title: self.viewModel.attachmentOptionsCancelButton, style: .cancel, handler: nil))

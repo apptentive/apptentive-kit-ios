@@ -6,11 +6,22 @@
 //  Copyright © 2023 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class SpyPayloadSender: PayloadSending {
+actor SpyPayloadSender: PayloadSending {
+    func drain() async {}
+
+    func setAuthenticationDelegate(_ authenticationDelegate: any ApptentiveKit.PayloadAuthenticationDelegate) async {}
+
+    func makeSaver(containerURL: URL, filename: String) {}
+
+    func destroySaver() {}
+
+    func setAppCredentials(_ appCredentials: ApptentiveKit.Apptentive.AppCredentials?) async {}
+
     var queuedPayloads = [Payload]()
 
     func load(from loader: ApptentiveKit.Loader) throws {}
@@ -19,30 +30,34 @@ class SpyPayloadSender: PayloadSending {
         self.queuedPayloads.append(payload)
     }
 
-    func drain(completionHandler: @escaping () -> Void) {}
-
     func resume() {}
 
     func updateCredentials(_ credentials: PayloadStoredCredentials, for tag: String, encryptionContext: Payload.Context.EncryptionContext?) throws {}
 
     func savePayloadsIfNeeded() throws {}
-
-    var saver: ApptentiveKit.Saver<[ApptentiveKit.Payload]>?
-
-    var authenticationDelegate: PayloadAuthenticationDelegate?
 }
 
-final class CustomerAuthenticationTests: XCTestCase {
-    var dataProvider = MockDataProvider()
+actor CustomerAuthenticationTests {
+    let dataProvider = MockDataProvider()
     var backend: Backend!
-    var requestor: SpyRequestor!
-    var containerName: String = UUID().uuidString
-    let backendDelegate = MockBackendDelegate()
+    let requestor: SpyRequestor
+    let containerName: String = UUID().uuidString
+    let backendDelegate: MockBackendDelegate!
     let jsonEncoder = JSONEncoder.apptentive
     let payloadSender = SpyPayloadSender()
     let fileManager = FileManager.default
 
-    class MockBackendDelegate: BackendDelegate {
+    class MockBackendDelegate: BackendDelegate & MessageManagerApptentiveDelegate {
+        func prefetchResources(at: [URL]) {}
+
+        func setUnreadMessageCount(_ unreadMessageCount: Int) {
+            self.unreadMessageCount = unreadMessageCount
+        }
+
+        func setPrefetchContainerURL(_ prefetchContainerURL: URL?) {}
+
+        var unreadMessageCount: Int = 0
+
         let environment: ApptentiveKit.GlobalEnvironment = MockEnvironment()
         let interactionPresenter = InteractionPresenter()
         var resourceManager: ApptentiveKit.ResourceManager = ResourceManager(fileManager: MockFileManager(), requestor: SpyRequestor(responseData: Data()))
@@ -52,132 +67,102 @@ final class CustomerAuthenticationTests: XCTestCase {
         func clearProperties() {}
     }
 
-    override func setUpWithError() throws {
-        try MockEnvironment.cleanContainerURL()
+    init() async throws {
+        self.backendDelegate = await MockBackendDelegate()
+
+        try await MockEnvironment.cleanContainerURL()
 
         self.requestor = SpyRequestor(responseData: Data())
     }
 
-    func createBackend(with roster: ConversationRoster) {
-        let queue = DispatchQueue(label: "Test Queue")
+    func createBackend(with roster: ConversationRoster) async {
         let messageManager = MessageManager(notificationCenter: NotificationCenter.default)
         let conversation = Conversation(dataProvider: self.dataProvider)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), queue: queue)
-        requestRetrier.client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://api.apptentive.com/")!, userAgent: "foo", languageCode: "de")
+        let requestRetrier = HTTPRequestRetrier()
+        let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://api.apptentive.com/")!, userAgent: "foo", languageCode: "de")
         let backendState = BackendState(isInForeground: true, isProtectedDataAvailable: false, roster: roster, fatalError: false)
+        await requestRetrier.setClient(client)
 
         self.backend = Backend(
-            queue: queue, conversation: conversation, state: backendState, containerName: containerName, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), requestor: self.requestor, messageManager: messageManager,
+            conversation: conversation, state: backendState, containerName: containerName, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), requestor: self.requestor, messageManager: messageManager,
             requestRetrier: requestRetrier,
-            payloadSender: self.payloadSender, dataProvider: self.dataProvider, fileManager: self.fileManager)
+            payloadSender: self.payloadSender, dataProvider: self.dataProvider, fileManager: FileManager())
 
-        self.backend.delegate = self.backendDelegate
+        await self.backend.setDelegate(self.backendDelegate)
     }
 
-    override func tearDownWithError() throws {
-        //self.containerURL.flatMap { try? FileManager.default.removeItem(at: $0) }
+    @Test func testCreateAnonymous() async throws {
+        await self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
+
+        await self.backend.protectedDataDidBecomeAvailable()
+
+        await self.requestor.setResponseData(try JSONEncoder.apptentive.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil)))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
+
+        let _ = try await self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us)
     }
 
-    func testCreateAnonymous() {
-        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
+    @Test func testLoginFromAnonymous() async throws {
+        await self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
 
-        let expectation = self.expectation(description: "Backend configured")
-
-        self.backend.queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
-
-                self.requestor.responseData = try JSONEncoder.apptentive.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
-
-                self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us,
-                    completion: { _ in
-                        expectation.fulfill()
-                    })
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
-        }
-
-        self.wait(for: [expectation], timeout: 5)
-    }
-
-    func testLoginFromAnonymous() throws {
-        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
-
-        let anonymousExpectation = self.expectation(description: "Backend configured")
-        let loginExpectation = self.expectation(description: "Backend logged in")
         let fakeEncryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
         let barbaraJWT =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
-        let containerURL = try self.backend.containerURL
 
-        self.backend.queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
+        let containerURL = try await self.backend.containerURL
 
-                self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
+        await self.backend.protectedDataDidBecomeAvailable()
 
-                self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
-                ) { _ in
-                    guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
-                        XCTFail("Failed to move state to logged in")
-                        return
-                    }
+        await self.requestor.setResponseData(try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil)))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
 
-                    anonymousExpectation.fulfill()
-                    try! self.backend.sendMessage(.init(nonce: UUID().uuidString, body: "Hello"))
-
-                    self.requestor.responseData = try! self.jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey))
-                    XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0, 0)
-                    XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount, 1)
-
-                    self.backend.logIn(with: barbaraJWT) { result in
-
-                        switch result {
-                        case .success:
-                            guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = self.backend.state.roster.active?.state else {
-                                XCTFail("Failed to move state to logged in")
-                                return
-                            }
-
-                            XCTAssertEqual(encryptionKey, fakeEncryptionKey)
-                            XCTAssertEqual(subject, "Barbara")
-                            XCTAssertEqual(loggedInCredentials.token, barbaraJWT)
-                            XCTAssertEqual(loggedInCredentials.id, anonymousCredentials.id)
-
-                            let conversationContainerURL = containerURL.appendingPathComponent(self.backend.state.roster.active!.path)
-                            let plaintextConversationPath = conversationContainerURL.appendingPathComponent("Conversation.B.plist").path
-                            let plaintextMessageListPath = conversationContainerURL.appendingPathComponent("MessageList.B.plist").path
-                            let encryptedConversationPath = plaintextConversationPath + ".encrypted"
-                            let encryptedMessageListPath = plaintextMessageListPath + ".encrypted"
-
-                            XCTAssertFalse(self.fileManager.fileExists(atPath: plaintextConversationPath), "Unexpected plaintext Conversation file at \(plaintextConversationPath)")
-                            XCTAssertFalse(self.fileManager.fileExists(atPath: plaintextMessageListPath), "Unexpected plaintext Message List file at \(plaintextMessageListPath)")
-
-                            XCTAssertTrue(self.fileManager.fileExists(atPath: encryptedConversationPath), "Missing encrypted Conversation file at \(encryptedConversationPath)")
-                            XCTAssertTrue(self.fileManager.fileExists(atPath: encryptedMessageListPath), "Missing encrypted Message List file at \(encryptedMessageListPath)")
-
-                            XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount, 1)
-                            XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount, 1)
-
-                        case .failure(let error):
-                            XCTFail(error.localizedDescription)
-                        }
-
-                        loginExpectation.fulfill()
-                    }
-                }
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
+        let _ = try await self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us)
+        guard case .anonymous(credentials: let anonymousCredentials) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "Failed to move state to logged in")
         }
 
-        self.wait(for: [anonymousExpectation, loginExpectation], timeout: 5)
+        try! await self.backend.sendMessage(.init(nonce: UUID().uuidString, body: "Hello"))
+
+        await self.requestor.setResponseData(try! self.jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey)))
+        let loginCount = await self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0
+        let launchCount = await self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount
+
+        #expect(loginCount == 0)
+        #expect(launchCount == 1)
+
+        let _ = try await self.backend.logIn(with: barbaraJWT)
+        guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "Failed to move state to logged in")
+        }
+
+        #expect(encryptionKey == fakeEncryptionKey)
+        #expect(subject == "Barbara")
+        #expect(loggedInCredentials.token == barbaraJWT)
+        #expect(loggedInCredentials.id == anonymousCredentials.id)
+
+        let conversationContainerURL = containerURL.appendingPathComponent(await self.backend.state.roster.active!.path)
+        let plaintextConversationPath = conversationContainerURL.appendingPathComponent("Conversation.B.plist").path
+        let plaintextMessageListPath = conversationContainerURL.appendingPathComponent("MessageList.B.plist").path
+        let encryptedConversationPath = plaintextConversationPath + ".encrypted"
+        let encryptedMessageListPath = plaintextMessageListPath + ".encrypted"
+
+        // Give actor-based Message Manager time to do its thing
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
+
+        #expect(!self.fileManager.fileExists(atPath: plaintextConversationPath), "Unexpected plaintext Conversation file at \(plaintextConversationPath)")
+        #expect(!self.fileManager.fileExists(atPath: plaintextMessageListPath), "Unexpected plaintext Message List file at \(plaintextMessageListPath)")
+
+        #expect(self.fileManager.fileExists(atPath: encryptedConversationPath), "Missing encrypted Conversation file at \(encryptedConversationPath)")
+        #expect(self.fileManager.fileExists(atPath: encryptedMessageListPath), "Missing encrypted Message List file at \(encryptedMessageListPath)")
+
+        let loginCount2 = await self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0
+        let launchCount2 = await self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount
+
+        #expect(loginCount2 == 1)
+        #expect(launchCount2 == 1)
     }
 
-    func testLoginFromLoggedOut() throws {
+    @Test func testLoginFromLoggedOut() async throws {
         let path = UUID().uuidString
 
         let fakeEncryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
@@ -190,323 +175,230 @@ final class CustomerAuthenticationTests: XCTestCase {
         conversation.person.emailAddress = "barb@example.com"
         let conversationData = try PropertyListEncoder().encode(conversation).encrypted(with: fakeEncryptionKey)
 
-        self.createBackend(with: .init(active: .init(state: .placeholder, path: "."), loggedOut: []))
+        await self.createBackend(with: .init(active: .init(state: .placeholder, path: "."), loggedOut: []))
 
-        try self.fileManager.createDirectory(at: self.backend.containerURL.appendingPathComponent(path), withIntermediateDirectories: true)
-        try PropertyListEncoder().encode(roster).write(to: self.backend.containerURL.appendingPathComponent("Roster.B.abc.plist"))
-        try conversationData.write(to: self.backend.containerURL.appendingPathComponent(path).appendingPathComponent("Conversation.B.plist.encrypted"))
+        let containerURL = try await self.backend.containerURL
 
-        let registerExpectation = self.expectation(description: "Backend configured")
-        let loginExpectation = self.expectation(description: "Backend logged in")
+        try self.fileManager.createDirectory(at: containerURL.appendingPathComponent(path), withIntermediateDirectories: true)
+        try PropertyListEncoder().encode(roster).write(to: containerURL.appendingPathComponent("Roster.B.abc.plist"))
+        try conversationData.write(to: containerURL.appendingPathComponent(path).appendingPathComponent("Conversation.B.plist.encrypted"))
+
         let jsonEncoder = JSONEncoder.apptentive
         let barbaraJWT =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
 
-        self.backend.queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
+        await self.requestor.setResponseData(try! jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey)))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/sessions")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
 
-                self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
-                ) { _ in
-                    XCTAssertNil(self.backend.state.roster.active)
+        await self.backend.protectedDataDidBecomeAvailable()
 
-                    registerExpectation.fulfill()
+        let _ = try await self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us)
+        let active = await self.backend.state.roster.active
+        #expect(active == nil)
 
-                    self.requestor.responseData = try! jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey))
+        await self.backend.setPersonEmailAddress("charlie@example.com")
 
-                    self.backend.setPersonEmailAddress("charlie@example.com")
-                    XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0, 0)
-                    XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount ?? 0, 0)
+        let loginCount = await self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0
+        let launchCount = await self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount ?? 0
 
-                    self.backend.logIn(with: barbaraJWT) { result in
+        #expect(loginCount == 0)
+        #expect(launchCount == 0)
 
-                        switch result {
-                        case .success:
-                            guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = self.backend.state.roster.active?.state else {
-                                XCTFail("Failed to move state to logged in")
-                                return
-                            }
-
-                            XCTAssertEqual(encryptionKey, fakeEncryptionKey)
-                            XCTAssertEqual(subject, "Barbara")
-                            XCTAssertEqual(loggedInCredentials.token, barbaraJWT)
-                            XCTAssertEqual(loggedInCredentials.id, "def456")
-
-                            XCTAssertEqual(self.backend.conversation?.person.emailAddress, "barb@example.com")
-                            XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount, 1)
-                            XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount, 1)
-
-                        case .failure(let error):
-                            XCTFail(error.localizedDescription)
-                        }
-
-                        loginExpectation.fulfill()
-                    }
-                }
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
+        try await self.backend.logIn(with: barbaraJWT)
+        guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "Failed to move state to logged in")
         }
 
-        self.wait(for: [registerExpectation, loginExpectation], timeout: 5)
+        #expect(encryptionKey == fakeEncryptionKey)
+        #expect(subject == "Barbara")
+        #expect(loggedInCredentials.token == barbaraJWT)
+        #expect(loggedInCredentials.id == "def456")
+
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 10)
+
+        let personEmailAddress = await self.backend.conversation?.person.emailAddress
+        let loginCount2 = await self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0
+        let launchCount2 = await self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount
+
+        #expect(personEmailAddress == "barb@example.com")
+        #expect(loginCount2 == 1)
+        #expect(launchCount2 == 1)
     }
 
-    func testLoginFromNothing() throws {
+    @Test func testLoginFromNothing() async throws {
         let path = UUID().uuidString
 
         // Write a roster to load that has no active conversation and one logged-out one.
         let roster = ConversationRoster(active: nil, loggedOut: [.init(state: .loggedOut(id: "def457", subject: "Charlie"), path: path)])
 
-        self.createBackend(with: .init(active: .init(state: .placeholder, path: "."), loggedOut: []))
+        await self.createBackend(with: .init(active: .init(state: .placeholder, path: "."), loggedOut: []))
 
-        try self.fileManager.createDirectory(at: self.backend.containerURL.appendingPathComponent(path), withIntermediateDirectories: true)
-        try PropertyListEncoder().encode(roster).write(to: self.backend.containerURL.appendingPathComponent("Roster.B.abc.plist"))
-
-        let registerExpectation = self.expectation(description: "Backend configured")
-        let loginExpectation = self.expectation(description: "Backend logged in")
         let jsonEncoder = JSONEncoder.apptentive
         let fakeEncryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")
         let barbaraJWT =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
 
-        self.backend.queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
+        let containerURL = try await self.backend.containerURL
+        try self.fileManager.createDirectory(at: containerURL.appendingPathComponent(path), withIntermediateDirectories: true)
+        try PropertyListEncoder().encode(roster).write(to: containerURL.appendingPathComponent("Roster.B.abc.plist"))
 
-                self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
-                ) { _ in
-                    XCTAssertNil(self.backend.state.roster.active)
+        await self.backend.protectedDataDidBecomeAvailable()
 
-                    registerExpectation.fulfill()
+        let _ = try await self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us)
+        let active = await self.backend.state.roster.active
+        #expect(active == nil)
 
-                    self.requestor.responseData = try! jsonEncoder.encode(ConversationResponse(token: barbaraJWT, id: "def456", deviceID: "def", personID: "456", encryptionKey: fakeEncryptionKey))
-                    XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0, 0)
-                    XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount ?? 0, 0)
+        await self.requestor.setResponseData(try! jsonEncoder.encode(ConversationResponse(token: barbaraJWT, id: "def456", deviceID: "def", personID: "456", encryptionKey: fakeEncryptionKey)))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
 
-                    self.backend.logIn(with: barbaraJWT) { result in
-                        switch result {
-                        case .success:
-                            guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = self.backend.state.roster.active?.state else {
-                                XCTFail("Failed to move state to logged in")
-                                return
-                            }
+        let loginCount = await self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0
+        let launchCount = await self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount ?? 0
 
-                            XCTAssertEqual(encryptionKey, fakeEncryptionKey)
-                            XCTAssertEqual(subject, "Barbara")
-                            XCTAssertEqual(loggedInCredentials.token, barbaraJWT)
-                            XCTAssertEqual(loggedInCredentials.id, "def456")
-                            XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount, 1)
-                            XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount, 1)
+        #expect(loginCount == 0)
+        #expect(launchCount == 0)
 
-                        case .failure(let error):
-                            XCTFail(error.localizedDescription)
-                        }
-
-                        loginExpectation.fulfill()
-                    }
-                }
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
+        try await self.backend.logIn(with: barbaraJWT)
+        guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "Failed to move state to logged in")
         }
 
-        self.wait(for: [registerExpectation, loginExpectation], timeout: 5)
+        #expect(encryptionKey == fakeEncryptionKey)
+        #expect(subject == "Barbara")
+        #expect(loggedInCredentials.token == barbaraJWT)
+        #expect(loggedInCredentials.id == "def456")
+
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 10)
+
+        let loginCount2 = await self.backend.conversation?.codePoints["com.apptentive#app#login"]?.totalCount ?? 0
+        let launchCount2 = await self.backend.conversation?.codePoints["com.apptentive#app#launch"]?.totalCount ?? 0
+
+        #expect(loginCount2 == 1)
+        #expect(launchCount2 == 1)
     }
 
-    func testLogOut() throws {
-        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
+    @Test func testLogOut() async throws {
+        await self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
 
-        let anonymousExpectation = self.expectation(description: "Backend configured")
-        let loginExpectation = self.expectation(description: "Backend logged in")
-        let logoutExpectation = self.expectation(description: "Backend logged out")
         let fakeEncryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
         let barbaraJWT =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
 
         // Write something to the caches directory
-        let cachesURL = try self.backend.cacheURL
+        let cachesURL = try await self.backend.cacheURL
         guard let imageURL = Bundle(for: Self.self).url(forResource: "2255A0CC-905B-4911-9448-16D801D31316#IMG_0004", withExtension: "jpeg", subdirectory: "A Data") else {
-            throw TestError()
+            throw TestError(reason: nil)
         }
+
         try self.fileManager.createDirectory(at: cachesURL, withIntermediateDirectories: true)
         try self.fileManager.copyItem(at: imageURL, to: cachesURL.appendingPathComponent("Test Attachment.jpeg"))
         let cachedAttachments = try self.fileManager.contentsOfDirectory(atPath: cachesURL.path)
-        XCTAssertEqual(cachedAttachments.count, 1)
+        #expect(cachedAttachments.count == 1)
 
-        self.backend.queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
+        await self.backend.protectedDataDidBecomeAvailable()
 
-                self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
+        await self.requestor.setResponseData(try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil)))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
 
-                self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
-                ) { _ in
-                    guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
-                        XCTFail("Failed to move state to logged in")
-                        return
-                    }
+        let _ = try await self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us)
+        guard case .anonymous(credentials: let anonymousCredentials) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "Failed to move state to logged in")
+        }
 
-                    anonymousExpectation.fulfill()
+        await self.requestor.setResponseData(try! self.jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey)))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/sessions")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
 
-                    self.requestor.responseData = try! self.jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey))
+        try await self.backend.logIn(with: barbaraJWT)
+        guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "Failed to move state to logged in")
+        }
 
-                    self.backend.logIn(with: barbaraJWT) { result in
+        #expect(encryptionKey == fakeEncryptionKey)
+        #expect(subject == "Barbara")
+        #expect(loggedInCredentials.token == barbaraJWT)
+        #expect(loggedInCredentials.id == anonymousCredentials.id)
 
-                        switch result {
-                        case .success:
-                            guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = self.backend.state.roster.active?.state else {
-                                XCTFail("Failed to move state to logged in")
-                                return
-                            }
+        let logoutCount = await self.backend.conversation?.codePoints["com.apptentive#app#logout"]?.totalCount ?? 0
+        #expect(logoutCount == 0)
 
-                            XCTAssertEqual(encryptionKey, fakeEncryptionKey)
-                            XCTAssertEqual(subject, "Barbara")
-                            XCTAssertEqual(loggedInCredentials.token, barbaraJWT)
-                            XCTAssertEqual(loggedInCredentials.id, anonymousCredentials.id)
+        try await self.backend.logOut()
 
-                        case .failure(let error):
-                            XCTFail(error.localizedDescription)
-                        }
+        let active = await self.backend.state.roster.active
+        #expect(active == nil)
 
-                        XCTAssertEqual(self.backend.conversation?.codePoints["com.apptentive#app#logout"]?.totalCount ?? 0, 0)
+        let loggedOutRecord = try await #require(self.backend.state.roster.loggedOut.first)
 
-                        do {
-                            try self.backend.logOut()
+        guard case .loggedOut(id: let id, subject: let subject) = loggedOutRecord.state else {
+            throw TestError(reason: "Expected record to be in logged-out state.")
+        }
 
-                            XCTAssertNil(self.backend.state.roster.active)
-                            guard let loggedOutRecord = self.backend.state.roster.loggedOut.first else {
-                                XCTFail("Expected an item in roster's list of logged-out records.")
-                                return
-                            }
+        #expect(id == anonymousCredentials.id)
+        #expect(subject == "Barbara")
 
-                            guard case .loggedOut(id: let id, subject: let subject) = loggedOutRecord.state else {
-                                XCTFail("Expected record to be in logged-out state.")
-                                return
-                            }
+        let _ = try await #require(self.payloadSender.queuedPayloads.first(where: { $0.method == HTTPMethod.delete }))
 
-                            XCTAssertEqual(id, anonymousCredentials.id)
-                            XCTAssertEqual(subject, "Barbara")
+        // Give actor-based Message Manager time to do its thing
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
 
-                            guard let _ = self.payloadSender.queuedPayloads.first(where: { $0.method == HTTPMethod.delete }) else {
-                                XCTFail("No logout payload in payload queue.")
-                                return
-                            }
+        let cachedAttachments2 = try self.fileManager.contentsOfDirectory(atPath: cachesURL.path)
+        #expect(cachedAttachments2.count == 0, "\(cachedAttachments2.count) files found in \(cachesURL.path), expected 0")
 
-                            let cachedAttachments = try self.fileManager.contentsOfDirectory(atPath: cachesURL.path)
-                            XCTAssertEqual(cachedAttachments.count, 0, "\(cachedAttachments.count) files found in \(cachesURL.path), expected 0")
+        // Have to dig through payload queue to look for logout event since conversation no longer active at this point.
+        var foundLogoutPayload = false
+        for payload in await self.payloadSender.queuedPayloads.filter({ $0.path.hasSuffix("events") }) {
+            guard payload.contentType == "application/octet-stream" else {
+                continue  // not encrypted
+            }
 
-                            // Have to dig through payload queue to look for logout event since conversation no longer active at this point.
-                            var foundLogoutPayload = false
-                            for payload in self.payloadSender.queuedPayloads.filter({ $0.path.hasSuffix("events") }) {
-                                guard payload.contentType == "application/octet-stream" else {
-                                    continue  // not encrypted
-                                }
-
-                                let decryptedBody = try payload.bodyData!.decrypted(with: fakeEncryptionKey)
-                                if String(data: decryptedBody, encoding: .utf8)?.contains("com.apptentive#app#logout") ?? false {
-                                    foundLogoutPayload = true
-                                }
-                            }
-
-                            XCTAssertTrue(foundLogoutPayload)
-
-                            logoutExpectation.fulfill()
-                        } catch let error {
-                            XCTFail(error.localizedDescription)
-                        }
-
-                        loginExpectation.fulfill()
-                    }
-                }
-            } catch let error {
-                XCTFail(error.localizedDescription)
+            let decryptedBody = try payload.bodyData!.decrypted(with: fakeEncryptionKey)
+            if String(data: decryptedBody, encoding: .utf8)?.contains("com.apptentive#app#logout") ?? false {
+                foundLogoutPayload = true
             }
         }
 
-        self.wait(for: [anonymousExpectation, loginExpectation, logoutExpectation], timeout: 5)
+        #expect(foundLogoutPayload)
     }
 
-    func testUpdateToken() throws {
-        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
+    @Test func testUpdateToken() async throws {
+        await self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
 
-        let anonymousExpectation = self.expectation(description: "Backend configured")
-        let loginExpectation = self.expectation(description: "Backend logged in")
-        let updateTokenExpectation = self.expectation(description: "Backend updated token")
         let fakeEncryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
         let barbaraJWT =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
         let newJWT =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk4Njg0MDYuNTM2MTIsImlzcyI6IkNsaWVudFRlYW0iLCJzdWIiOiJCYXJiYXJhIiwiaWF0IjoxNjc5MzUwMDA4LjY4NTQzfQ.EypDkEHiXi9FOkThfoEw1EaaMVxw8n-mmdx0NXWp-TlulbzhjYcZk8oSR9p5L4BqYT_OSTsf29W1qxmA7lpaEA"
 
-        self.backend.queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
+        await self.backend.protectedDataDidBecomeAvailable()
 
-                self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
+        await self.requestor.setResponseData(try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil)))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
 
-                self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
-                ) { _ in
-                    guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
-                        XCTFail("Failed to move state to logged in")
-                        return
-                    }
-
-                    anonymousExpectation.fulfill()
-
-                    self.requestor.responseData = try! self.jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey))
-
-                    self.backend.logIn(with: barbaraJWT) { result in
-
-                        switch result {
-                        case .success:
-                            guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = self.backend.state.roster.active?.state else {
-                                XCTFail("Failed to move state to logged in")
-                                return
-                            }
-
-                            XCTAssertEqual(encryptionKey, fakeEncryptionKey)
-                            XCTAssertEqual(subject, "Barbara")
-                            XCTAssertEqual(loggedInCredentials.token, barbaraJWT)
-                            XCTAssertEqual(loggedInCredentials.id, anonymousCredentials.id)
-
-                        case .failure(let error):
-                            XCTFail(error.localizedDescription)
-                        }
-
-                        self.backend.updateToken(newJWT) { result in
-                            switch result {
-                            case .success:
-                                guard case .loggedIn(let credentials, _, _) = self.backend.state.roster.active?.state else {
-                                    XCTFail("No longer logged in")
-                                    break
-                                }
-
-                                XCTAssertEqual(credentials.id, "def456")
-                                XCTAssertEqual(credentials.token, newJWT)
-
-                            case .failure(let error):
-                                XCTFail(error.localizedDescription)
-                            }
-
-                            updateTokenExpectation.fulfill()
-                        }
-
-                        loginExpectation.fulfill()
-                    }
-                }
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
+        let _ = try await self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us)
+        guard case .anonymous(credentials: let anonymousCredentials) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "Failed to move state to logged in")
         }
 
-        self.wait(for: [anonymousExpectation, loginExpectation, updateTokenExpectation], timeout: 5)
+        await self.requestor.setResponseData(try! self.jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey)))
+
+        try await self.backend.logIn(with: barbaraJWT)
+        guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "Failed to move state to logged in")
+        }
+
+        #expect(encryptionKey == fakeEncryptionKey)
+        #expect(subject == "Barbara")
+        #expect(loggedInCredentials.token == barbaraJWT)
+        #expect(loggedInCredentials.id == anonymousCredentials.id)
+
+        try await self.backend.updateToken(newJWT)
+        guard case .loggedIn(let credentials, _, _) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "No longer logged in")
+        }
+
+        #expect(credentials.id == "def456")
+        #expect(credentials.token == newJWT)
     }
 
-    //    func testLogoutBeforeLoginComplete() {
+    //    @Test func testLogoutBeforeLoginComplete() {
     //        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
     //        self.requestor.delay = 0.5
     //
@@ -567,172 +459,105 @@ final class CustomerAuthenticationTests: XCTestCase {
     //        self.wait(for: [anonymousExpectation, logoutExpectation], timeout: 5)
     //    }
 
-    func testLoginBeforeRegister() {
-        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
+    @Test func testLoginBeforeRegister() async throws {
+        await self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
 
-        let anonymousExpectation = self.expectation(description: "Backend configured")
-        let loginExpectation = self.expectation(description: "Backend logged in")
-        let fakeEncryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
         let barbaraJWT =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
 
-        self.backend.queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
+        await self.backend.protectedDataDidBecomeAvailable()
 
-                self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/sessions")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
+        await self.requestor.setResponseData(try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil)))
 
-                self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
-                ) { _ in
-                    anonymousExpectation.fulfill()
-                }
-
-                self.requestor.responseData = try! self.jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey))
-
-                self.backend.logIn(with: barbaraJWT) { result in
-                    if case .success = result {
-                        XCTFail("Login should fail if called before register() completes.")
-                    }
-
-                    loginExpectation.fulfill()
-                }
-
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
+        Task {
+            let _ = try await self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us)
         }
 
-        self.wait(for: [anonymousExpectation, loginExpectation], timeout: 5)
+        await #expect(throws: ApptentiveError.self) {
+            try await self.backend.logIn(with: barbaraJWT)
+        }
     }
 
-    func testLoginWhileAnonymousPending() {
+    @Test func testLoginWhileAnonymousPending() {
         // FIXME: Implement this.
     }
 
-    func testLoginWhileLoggedIn() {
-        self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
+    @Test func testLoginWhileLoggedIn() async throws {
+        await self.createBackend(with: ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: []))
 
-        let anonymousExpectation = self.expectation(description: "Backend configured")
-        let loginExpectation = self.expectation(description: "Backend logged in")
-        let loginExpectation2 = self.expectation(description: "Backend second login attempt")
         let fakeEncryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
         let barbaraJWT =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
 
-        self.backend.queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
+        await self.backend.protectedDataDidBecomeAvailable()
 
-                self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
+        await self.requestor.setResponseData(try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil)))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
 
-                self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us
-                ) { _ in
-                    guard case .anonymous(credentials: let anonymousCredentials) = self.backend.state.roster.active?.state else {
-                        XCTFail("Failed to move state to logged in")
-                        return
-                    }
-
-                    anonymousExpectation.fulfill()
-
-                    self.requestor.responseData = try! self.jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey))
-
-                    self.backend.logIn(with: barbaraJWT) { result in
-
-                        switch result {
-                        case .success:
-                            guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = self.backend.state.roster.active?.state else {
-                                XCTFail("Failed to move state to logged in")
-                                return
-                            }
-
-                            XCTAssertEqual(encryptionKey, fakeEncryptionKey)
-                            XCTAssertEqual(subject, "Barbara")
-                            XCTAssertEqual(loggedInCredentials.token, barbaraJWT)
-                            XCTAssertEqual(loggedInCredentials.id, anonymousCredentials.id)
-
-                        case .failure(let error):
-                            XCTFail(error.localizedDescription)
-                        }
-
-                        loginExpectation.fulfill()
-
-                        self.backend.logIn(with: barbaraJWT) { result in
-                            guard case .failure(let error) = result else {
-                                XCTFail("Expected error when trying to log in while already logged in")
-                                return
-                            }
-
-                            guard case ApptentiveError.alreadyLoggedIn(subject: let subject, id: let id) = error else {
-                                XCTFail("Expected error when trying to log in while already logged in")
-                                return
-                            }
-
-                            XCTAssertEqual(subject, "Barbara")
-                            XCTAssertEqual(id, anonymousCredentials.id)
-
-                            loginExpectation2.fulfill()
-                        }
-                    }
-                }
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
+        let _ = try await self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us)
+        guard case .anonymous(credentials: let anonymousCredentials) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "Failed to move state to logged in")
         }
 
-        self.wait(for: [anonymousExpectation, loginExpectation, loginExpectation2], timeout: 5)
+        await self.requestor.setResponseData(try! self.jsonEncoder.encode(SessionResponse(deviceID: "abc", personID: "123", encryptionKey: fakeEncryptionKey)))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/sessions")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
 
+        try await self.backend.logIn(with: barbaraJWT)
+        guard case .loggedIn(credentials: let loggedInCredentials, subject: let subject, encryptionKey: let encryptionKey) = await self.backend.state.roster.active?.state else {
+            throw TestError(reason: "Failed to move state to logged in")
+        }
+
+        #expect(encryptionKey == fakeEncryptionKey)
+        #expect(subject == "Barbara")
+        #expect(loggedInCredentials.token == barbaraJWT)
+        #expect(loggedInCredentials.id == anonymousCredentials.id)
+
+        await #expect {
+            try await self.backend.logIn(with: barbaraJWT)
+        } throws: { error in
+            guard case ApptentiveError.alreadyLoggedIn(subject: let subject, id: let id) = error as! ApptentiveError else {
+                return false
+            }
+
+            return subject == "Barbara" && id == anonymousCredentials.id
+        }
     }
 
-    func testLogoutWhileLoggedOut() throws {
+    @Test func testLogoutWhileLoggedOut() async throws {
         let path = UUID().uuidString
 
         // Write a roster to load that has no active conversation and one logged-out one.
         let roster = ConversationRoster(active: nil, loggedOut: [.init(state: .loggedOut(id: "def457", subject: "Charlie"), path: path)])
 
-        self.createBackend(with: .init(active: .init(state: .placeholder, path: "."), loggedOut: []))
+        await self.createBackend(with: .init(active: .init(state: .placeholder, path: "."), loggedOut: []))
 
-        try self.fileManager.createDirectory(at: self.backend.containerURL.appendingPathComponent(path), withIntermediateDirectories: true)
-        try PropertyListEncoder().encode(roster).write(to: self.backend.containerURL.appendingPathComponent("Roster.B.abc.plist"))
-
-        let registerExpectation = self.expectation(description: "Backend configured")
-        let logoutFailureExpectation = self.expectation(description: "Backend failed to log out when not logged in")
         let jsonEncoder = JSONEncoder.apptentive
         let fakeEncryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")
         let barbaraJWT =
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2Nzk2MDkyMDYuNTM2MTE5OSwiaXNzIjoiQ2xpZW50VGVhbSIsInN1YiI6IkJhcmJhcmEiLCJpYXQiOjE2NzkzNTAwMDguNjg1NDN9.BZ0BKtaY55qMmSd24uTdDQxPtEPlHwKdUdmfTwG4hNlNMJXSOBAFHsIn0o6bmMAP1Wz_s4twRA8eK5mYnwluig"
 
-        self.backend.queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
+        let containerURL = try await self.backend.containerURL
+        try self.fileManager.createDirectory(at: containerURL.appendingPathComponent(path), withIntermediateDirectories: true)
+        try PropertyListEncoder().encode(roster).write(to: containerURL.appendingPathComponent("Roster.B.abc.plist"))
 
-                self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us) { _ in
-                    XCTAssertNil(self.backend.state.roster.active)
+        await self.backend.protectedDataDidBecomeAvailable()
 
-                    registerExpectation.fulfill()
+        let _ = try await self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us)
+        let active = await self.backend.state.roster.active
+        #expect(active == nil)
 
-                    self.requestor.responseData = try! jsonEncoder.encode(ConversationResponse(token: barbaraJWT, id: "def456", deviceID: "def", personID: "456", encryptionKey: fakeEncryptionKey))
+        await self.requestor.setResponseData(try! jsonEncoder.encode(ConversationResponse(token: barbaraJWT, id: "def456", deviceID: "def", personID: "456", encryptionKey: fakeEncryptionKey)))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
 
-                    // The type-checker gets confused if this isn't wrapped in a func.
-                    func logOutBackend() {
-                        XCTAssertThrowsError(try self.backend.logOut(), "Expected log out to throw error when already logged out") { error in
-                            guard case ApptentiveError.notLoggedIn = error else {
-                                XCTFail("Expected not logged in error")
-                                return
-                            }
-                        }
-                    }
-
-                    logOutBackend()
-
-                    logoutFailureExpectation.fulfill()
-                }
-            } catch let error {
-                XCTFail(error.localizedDescription)
+        await #expect {
+            try await self.backend.logOut()
+        } throws: { error in
+            guard case ApptentiveError.notLoggedIn = error as! ApptentiveError else {
+                return false
             }
-        }
 
-        self.wait(for: [registerExpectation, logoutFailureExpectation], timeout: 5)
+            return true
+        }
     }
 }

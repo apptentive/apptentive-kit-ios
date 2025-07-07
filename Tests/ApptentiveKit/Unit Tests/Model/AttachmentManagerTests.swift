@@ -6,150 +6,131 @@
 //  Copyright © 2022 Apptentive, Inc. All rights reserved.
 //
 
+import Testing
 import UIKit
-import XCTest
 
 @testable import ApptentiveKit
 
-class AttachmentManagerTests: XCTestCase {
+class AttachmentManagerTests {
     var spyRequestor = SpyRequestor(temporaryURL: URL(string: "https://www.example.com/")!)
     var attachmentManager: AttachmentManager!
+    var fileManager = FileManager()
     var dogImageURL: URL!
     let tempDirectoryPath = "/tmp/\(UUID().uuidString)"
     var cacheURL: URL!
 
-    override func setUpWithError() throws {
+    init() throws {
         let savedURL = URL(fileURLWithPath: "\(tempDirectoryPath)/Application Support/com.apptentive.feedback/")
         self.cacheURL = URL(fileURLWithPath: "\(tempDirectoryPath)/Caches/com.apptentive.feedback/")
 
         try FileManager.default.createDirectory(at: savedURL, withIntermediateDirectories: true, attributes: [:])
         try FileManager.default.createDirectory(at: self.cacheURL, withIntermediateDirectories: true, attributes: [:])
 
-        self.attachmentManager = AttachmentManager(fileManager: .default, requestor: self.spyRequestor, cacheContainerURL: self.cacheURL, savedContainerURL: savedURL)
+        self.attachmentManager = AttachmentManager(requestor: self.spyRequestor, cacheContainerURL: self.cacheURL, savedContainerURL: savedURL)
 
         self.dogImageURL = URL(fileURLWithPath: "\(tempDirectoryPath)/#Dog.jpg")
         if !FileManager.default.fileExists(atPath: self.dogImageURL.path) {
-            let dogURLInBundle = Bundle(for: type(of: self)).url(forResource: "dog", withExtension: "jpg", subdirectory: "Test Attachments")!
+            let dogURLInBundle = Bundle(for: BundleFinder.self).url(forResource: "dog", withExtension: "jpg", subdirectory: "Test Attachments")!
             try FileManager.default.copyItem(at: dogURLInBundle, to: self.dogImageURL)
         }
-
-        try super.setUpWithError()
     }
 
-    override func tearDownWithError() throws {
-        try FileManager.default.removeItem(atPath: self.tempDirectoryPath)
-
-        try super.tearDownWithError()
+    deinit {
+        try! FileManager.default.removeItem(atPath: self.tempDirectoryPath)
     }
 
-    func testStoreData() throws {
+    @Test func testStoreData() async throws {
         let storedData = try Data(contentsOf: self.dogImageURL)
-        let storedURL = try self.attachmentManager.store(data: storedData, filename: "DogData.jpeg")
+        let storedURL = try await self.attachmentManager.store(data: storedData, filename: "DogData.jpeg")
 
-        XCTAssert(FileManager.default.fileExists(atPath: storedURL.path))
-        XCTAssert(storedURL.lastPathComponent.hasSuffix("#DogData.jpeg"))
+        #expect(FileManager.default.fileExists(atPath: storedURL.path))
+        #expect(storedURL.lastPathComponent.hasSuffix("#DogData.jpeg"))
     }
 
-    func testStoreURL() throws {
-        let storedURL = try self.attachmentManager.store(url: self.dogImageURL, filename: "Dog.jpeg")
+    @Test func testStoreURL() async throws {
+        let storedURL = try await self.attachmentManager.store(url: self.dogImageURL, filename: "Dog.jpeg")
 
-        XCTAssert(FileManager.default.fileExists(atPath: storedURL.path))
-        XCTAssert(storedURL.lastPathComponent.hasSuffix("#Dog.jpeg"))
+        #expect(FileManager.default.fileExists(atPath: storedURL.path))
+        #expect(storedURL.lastPathComponent.hasSuffix("#Dog.jpeg"))
     }
 
-    func testRemoveStorage() throws {
-        let storedURL = try self.attachmentManager.store(url: self.dogImageURL, filename: "Dog.jpeg")
+    @Test func testRemoveStorage() async throws {
+        let storedURL = try await self.attachmentManager.store(url: self.dogImageURL, filename: "Dog.jpeg")
 
         let attachment = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "Dog.jpeg", storage: .saved(path: storedURL.lastPathComponent), thumbnailData: nil)
 
-        try self.attachmentManager.removeStorage(for: attachment)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: storedURL.path))
+        try await self.attachmentManager.removeStorage(for: attachment)
+        #expect(!FileManager.default.fileExists(atPath: storedURL.path))
     }
 
-    func testURLForAttachment() throws {
-        let storedURL = try self.attachmentManager.store(url: self.dogImageURL, filename: "Dog.jpeg")
+    @Test func testURLForAttachment() async throws {
+        let storedURL = try await self.attachmentManager.store(url: self.dogImageURL, filename: "Dog.jpeg")
 
         let attachment = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "Dog.jpeg", storage: .saved(path: storedURL.lastPathComponent), thumbnailData: nil)
 
-        XCTAssertEqual(self.attachmentManager.url(for: attachment), storedURL)
+        #expect(self.attachmentManager.url(for: attachment) == storedURL)
     }
 
-    func testCacheFileExists() throws {
+    @Test func testCacheFileExists() async throws {
         let remoteURL = URL(string: "https://www.example.com/dog.jpeg")!
         let attachment = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "Dog.jpeg", storage: .remote(remoteURL, size: 100), thumbnailData: nil)
 
-        XCTAssertFalse(self.attachmentManager.cacheFileExists(for: attachment))
+        #expect(!self.attachmentManager.cacheFileExists(for: attachment, using: self.fileManager))
 
-        let storedURL = try self.attachmentManager.store(url: self.dogImageURL, filename: "Dog.jpeg")
+        let storedURL = try await self.attachmentManager.store(url: self.dogImageURL, filename: "Dog.jpeg")
 
         var attachment2 = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "Dog.jpeg", storage: .saved(path: storedURL.lastPathComponent), thumbnailData: nil)
 
-        XCTAssert(self.attachmentManager.cacheFileExists(for: attachment2))
+        #expect(self.attachmentManager.cacheFileExists(for: attachment2, using: self.fileManager))
 
-        attachment2.storage = try self.attachmentManager.cacheQueuedAttachment(attachment2)
+        attachment2.storage = try await self.attachmentManager.cacheQueuedAttachment(attachment2)
 
-        XCTAssert(self.attachmentManager.cacheFileExists(for: attachment2))
+        #expect(self.attachmentManager.cacheFileExists(for: attachment2, using: self.fileManager))
     }
 
-    func testCacheQueuedAttachment() throws {
-        let storedURL = try self.attachmentManager.store(url: self.dogImageURL, filename: "Dog.jpeg")
+    @Test func testCacheQueuedAttachment() async throws {
+        let storedURL = try await self.attachmentManager.store(url: self.dogImageURL, filename: "Dog.jpeg")
 
         let attachment = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "Dog.jpeg", storage: .saved(path: storedURL.lastPathComponent), thumbnailData: nil)
-        let storage = try self.attachmentManager.cacheQueuedAttachment(attachment)
+        let storage = try await self.attachmentManager.cacheQueuedAttachment(attachment)
         guard case .cached(let path) = storage else {
-            return XCTFail("Expecting cached file to have cache storage")
+            throw TestError(reason: "Expecting cached file to have cache storage")
         }
 
-        XCTAssert(FileManager.default.fileExists(atPath: URL(fileURLWithPath: path, relativeTo: self.cacheURL).path))
+        #expect(FileManager.default.fileExists(atPath: URL(fileURLWithPath: path, relativeTo: self.cacheURL).path))
     }
 
-    func testDownload() throws {
-        self.spyRequestor.temporaryURL = self.dogImageURL
+    @Test func testDownload() async throws {
+        await self.spyRequestor.setTemporaryURL(self.dogImageURL)
         let remoteURL = URL(string: "https://www.example.com/dog.jpeg")!
         let attachment = MessageList.Message.Attachment(contentType: "image/jpeg", filename: "Dog.jpeg", storage: .remote(remoteURL, size: 100), thumbnailData: nil)
-
-        let expectation = self.expectation(description: "thumbnail")
-
-        self.attachmentManager.download(attachment) { result in
-            switch result {
-            case .success(let localURL):
-                XCTAssert(FileManager.default.fileExists(atPath: localURL.path))
-
-            case .failure(let error):
-                XCTFail(error.localizedDescription)
-            }
-
-            expectation.fulfill()
-        } progress: { _ in
-            // Not tested here
-        }
-
-        self.wait(for: [expectation], timeout: 1)
+        let localURL = try await self.attachmentManager.download(attachment)
+        #expect(FileManager.default.fileExists(atPath: localURL.path))
     }
 
-    func testFriendlyFilename() throws {
+    @Test func testFriendlyFilename() throws {
         let url = URL(fileURLWithPath: "/tmp/833723D0-B135-43DE-A521-A0EB1987A3EA#Attachment 1.jpeg")
-        XCTAssertEqual(AttachmentManager.friendlyFilename(for: url), "Attachment 1.jpeg")
+        #expect(AttachmentManager.friendlyFilename(for: url) == "Attachment 1.jpeg")
 
         let url2 = URL(fileURLWithPath: "/tmp/833723D0-B135-43DE-A521-A0EB1987A3EA#Attachment #1.jpeg")
-        XCTAssertEqual(AttachmentManager.friendlyFilename(for: url2), "Attachment #1.jpeg")
+        #expect(AttachmentManager.friendlyFilename(for: url2) == "Attachment #1.jpeg")
     }
 
-    func testMediaType() throws {
-        XCTAssertEqual(AttachmentManager.mediaType(for: "Attachment 1.jpeg"), "image/jpeg")
-        XCTAssertEqual(AttachmentManager.mediaType(for: "Attachment 2.png"), "image/png")
-        XCTAssertEqual(AttachmentManager.mediaType(for: "Attachment 3.foo"), "application/octet-stream")
-        XCTAssertEqual(AttachmentManager.mediaType(for: "Attachment 4"), "application/octet-stream")
+    @Test func testMediaType() throws {
+        #expect(AttachmentManager.mediaType(for: "Attachment 1.jpeg") == "image/jpeg")
+        #expect(AttachmentManager.mediaType(for: "Attachment 2.png") == "image/png")
+        #expect(AttachmentManager.mediaType(for: "Attachment 3.foo") == "application/octet-stream")
+        #expect(AttachmentManager.mediaType(for: "Attachment 4") == "application/octet-stream")
     }
 
-    func testPathExtension() throws {
-        XCTAssertEqual(AttachmentManager.pathExtension(for: "image/jpeg"), "jpeg")
-        XCTAssertEqual(AttachmentManager.pathExtension(for: "image/png"), "png")
-        XCTAssertEqual(AttachmentManager.pathExtension(for: "application/octet-stream"), nil)
+    @Test func testPathExtension() throws {
+        #expect(AttachmentManager.pathExtension(for: "image/jpeg") == "jpeg")
+        #expect(AttachmentManager.pathExtension(for: "image/png") == "png")
+        #expect(AttachmentManager.pathExtension(for: "application/octet-stream") == nil)
     }
 
     // This causes random test failures in other tests. Leaving this out of unit tests for now.
-    //    func testCreateThumbnail() throws {
+    //    @Test func testCreateThumbnail() throws {
     //        let expectation = self.expectation(description: "thumbnail")
     //        expectation.assertForOverFulfill = false
     //

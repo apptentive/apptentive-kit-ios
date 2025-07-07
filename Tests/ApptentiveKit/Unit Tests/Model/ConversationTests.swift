@@ -6,13 +6,13 @@
 //  Copyright © 2019 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class ConversationTests: XCTestCase {
-
-    func testMerge() throws {
+struct ConversationTests {
+    @Test func testMerge() throws {
         let dataProvider = MockDataProvider()
 
         let conversation1 = Conversation(dataProvider: dataProvider)
@@ -21,18 +21,18 @@ class ConversationTests: XCTestCase {
         conversation2.person.name = "Testy McTesterson"
         conversation2.appRelease.version = "2"
 
-        XCTAssertNotEqual(conversation1.person.name, conversation2.person.name)
-        XCTAssertNotEqual(conversation1.appRelease.version, conversation2.appRelease.version)
+        #expect(conversation1.person.name != conversation2.person.name)
+        #expect(conversation1.appRelease.version != conversation2.appRelease.version)
 
         let merged = try conversation1.merged(with: conversation2)
 
-        XCTAssertEqual(merged.person.name, conversation2.person.name)
-        XCTAssertEqual(merged.appRelease.version, conversation2.appRelease.version)
+        #expect(merged.person.name == conversation2.person.name)
+        #expect(merged.appRelease.version == conversation2.appRelease.version)
 
-        XCTAssertTrue(merged.appRelease.isUpdatedVersion)
+        #expect(merged.appRelease.isUpdatedVersion)
     }
 
-    func testCoding() throws {
+    @Test func testCoding() throws {
         let dataProvider = MockDataProvider()
 
         var conversation = Conversation(dataProvider: dataProvider)
@@ -56,6 +56,6 @@ class ConversationTests: XCTestCase {
 
         let conversation2 = try decoder.decode(Conversation.self, from: data)
 
-        XCTAssertEqual(conversation, conversation2)
+        #expect(conversation == conversation2)
     }
 }

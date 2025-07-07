@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OSLog
 
 /// An `Interaction` represents an interaction with the user, typically via display of view controller.
 struct Interaction: Decodable {
@@ -24,7 +25,6 @@ struct Interaction: Decodable {
 
         self.id = try container.decode(String.self, forKey: .id)
         self.typeName = try container.decode(String.self, forKey: .type)
-        let apiVersion = try container.decodeIfPresent(Int.self, forKey: .apiVersion)
 
         do {
             switch self.typeName {
@@ -38,28 +38,26 @@ struct Interaction: Decodable {
                 self.configuration = .navigateToLink(try container.decode(NavigateToLinkConfiguration.self, forKey: .configuration))
 
             case "Survey":
-                if case .some(let version) = apiVersion, version >= 12 {
-                    self.configuration = .surveyV12(try container.decode(SurveyConfiguration.self, forKey: .configuration))
-                } else {
-                    self.configuration = .surveyV11(try container.decode(SurveyV11Configuration.self, forKey: .configuration))
-                }
+                self.configuration = .surveyV12(try container.decode(SurveyConfiguration.self, forKey: .configuration))
 
             case "TextModal":
                 self.configuration = .textModal(try container.decode(TextModalConfiguration.self, forKey: .configuration))
 
             case "MessageCenter":
                 self.configuration = .messageCenter(try container.decode(MessageCenterConfiguration.self, forKey: .configuration))
+
             case "Initiator":
                 self.configuration = .initiator
+
             default:
                 let typeName = self.typeName
-                ApptentiveLogger.interaction.warning("Interaction of type \(typeName) is not implemented.")
+                Logger.interaction.warning("Interaction of type \(typeName) is not implemented.")
                 self.configuration = .notImplemented
             }
         } catch let error {
             let id = self.id
             let typeName = self.typeName
-            ApptentiveLogger.interaction.error("Failure decoding configuration for interaction id \(id) of type \(typeName): \(String(describing: error))")
+            Logger.interaction.error("Failure decoding configuration for interaction id \(id) of type \(typeName): \(String(describing: error))")
 
             self.configuration = .failedDecoding
         }
@@ -76,7 +74,6 @@ struct Interaction: Decodable {
         case appleRatingDialog
         case enjoymentDialog(EnjoymentDialogConfiguration)
         case navigateToLink(NavigateToLinkConfiguration)
-        case surveyV11(SurveyV11Configuration)
         case textModal(TextModalConfiguration)
         case messageCenter(MessageCenterConfiguration)
         case surveyV12(SurveyConfiguration)

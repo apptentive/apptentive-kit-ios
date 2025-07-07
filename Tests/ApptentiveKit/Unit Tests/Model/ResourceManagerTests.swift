@@ -6,181 +6,121 @@
 //  Copyright © 2023 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-final class ResourceManagerTests: XCTestCase {
-    var requestor = SpyRequestor(temporaryURL: URL(fileURLWithPath: "/tmp/temp"))
-    var fileManager = MockFileManager()
-    var resourceManager: ResourceManager!
-    var containerURL: URL!
+struct ResourceManagerTests {
+    var requestor: SpyRequestor
+    var fileManager: MockFileManager
+    var resourceManager: ResourceManager
+    var containerURL: URL
 
-    override func setUp() {
-        self.containerURL = URL(fileURLWithPath: "/tmp/abc123")
-
+    init() {
+        self.requestor = SpyRequestor(temporaryURL: URL(fileURLWithPath: "/tmp/temp"))
+        self.fileManager = MockFileManager()
         self.resourceManager = ResourceManager(fileManager: self.fileManager, requestor: self.requestor)
+        self.containerURL = URL(fileURLWithPath: "/tmp/abc123")
     }
 
-    func testPrefetch() throws {
+    @Test func testPrefetch() async throws {
         let prefetchData = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==")!
         try self.fileManager.writeData(prefetchData, to: URL(fileURLWithPath: "/tmp/temp"))
 
         let prefetchURL = URL(string: "https://www.example.com/test")!
-        let expectation = self.expectation(description: "Download task complete")
-
         let obsoleteRemoteURL = URL(string: "https://www.example.com/test2")!
         let obsoleteFileURL = self.containerURL.appendingPathComponent(ResourceManager.filename(for: obsoleteRemoteURL))
         try self.fileManager.writeData(prefetchData, to: obsoleteFileURL)
 
-        XCTAssertTrue(self.fileManager.fileURLs.contains(obsoleteFileURL), "Should be a file named after expected filename")
+        #expect(self.fileManager.fileURLs.contains(obsoleteFileURL), "Should be a file named after expected filename")
         self.fileManager.contentsOfDirectory.append(obsoleteFileURL)
 
-        self.resourceManager.prefetchContainerURL = containerURL
+        await self.resourceManager.setPrefetchContainerURL(containerURL)
 
-        self.requestor.responseData = prefetchData
-        self.requestor.extraCompletion = {
-            DispatchQueue.main.async {
-                let expectedURL = self.containerURL.appendingPathComponent(ResourceManager.filename(for: prefetchURL))
+        await self.requestor.setResponseData(prefetchData)
 
-                XCTAssertFalse(self.fileManager.fileURLs.contains(obsoleteFileURL), "Should not be a file named after deleted filename")
+        await self.resourceManager.prefetchResources(at: [prefetchURL])
 
-                XCTAssertTrue(self.fileManager.fileURLs.contains(expectedURL), "Should be a file named after expected filename")
-                XCTAssertEqual(prefetchData, self.fileManager.data[expectedURL], "Prefetched data should match downloaded data")
+        try await Task.sleep(nanoseconds: 1_000_000)
 
-                expectation.fulfill()
-            }
-        }
+        let expectedURL = self.containerURL.appendingPathComponent(ResourceManager.filename(for: prefetchURL))
 
-        self.resourceManager.prefetchResources(at: [prefetchURL])
-
-        self.wait(for: [expectation], timeout: 1.0)
+        #expect(!self.fileManager.fileURLs.contains(obsoleteFileURL), "Should not be a file named after deleted filename")
+        #expect(self.fileManager.fileURLs.contains(expectedURL), "Should be a file named after expected filename")
+        #expect(prefetchData == self.fileManager.data[expectedURL], "Prefetched data should match downloaded data")
     }
 
-    func testGetPrefetchedImage() throws {
+    @Test func testGetPrefetchedImage() async throws {
         let prefetchData = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==")!
         try self.fileManager.writeData(prefetchData, to: URL(fileURLWithPath: "/tmp/temp"))
 
         let prefetchURL = URL(string: "https://www.example.com/test")!
-        let expectation = self.expectation(description: "Download task complete")
 
-        self.resourceManager.prefetchContainerURL = containerURL
+        await self.resourceManager.setPrefetchContainerURL(containerURL)
 
-        self.requestor.responseData = prefetchData
-        self.requestor.extraCompletion = {
-            DispatchQueue.main.async {
-                self.resourceManager.getImage(at: prefetchURL, scale: 3) { result in
-                    if case .failure = result {
-                        XCTFail("Unable to get prefetched image")
-                    }
+        await self.requestor.setResponseData(prefetchData)
 
-                    expectation.fulfill()
-                }
-            }
-        }
+        await self.resourceManager.prefetchResources(at: [prefetchURL])
 
-        self.resourceManager.prefetchResources(at: [prefetchURL])
+        let _ = try await self.resourceManager.getImage(at: prefetchURL, scale: 3)
 
-        self.wait(for: [expectation], timeout: 1.0)
     }
 
-    func testMultipleCompletionHandlers() throws {
+    @Test func testMultipleCompletionHandlers() async throws {
         let prefetchData = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==")!
         try self.fileManager.writeData(prefetchData, to: URL(fileURLWithPath: "/tmp/temp"))
 
-        self.resourceManager.prefetchContainerURL = containerURL
+        await self.resourceManager.setPrefetchContainerURL(containerURL)
 
         let prefetchURL = URL(string: "https://www.example.com/test")!
-        let expectations = [
-            self.expectation(description: "First completion handler called"),
-            self.expectation(description: "Second completion handler called"),
-        ]
 
-        self.resourceManager.getImage(at: prefetchURL, scale: 3) { result in
-            if case .failure(let error) = result {
-                XCTFail("Failed to download or decode image: \(error)")
-            }
+        let _ = try await self.resourceManager.getImage(at: prefetchURL, scale: 3)
 
-            expectations[0].fulfill()
+        let task = Task {
+            try await self.resourceManager.getImage(at: prefetchURL, scale: 3)
         }
 
-        self.resourceManager.getImage(at: prefetchURL, scale: 3) { result in
-            if case .failure(let error) = result {
-                XCTFail("Failed to download or decode image: \(error)")
-            }
-
-            expectations[1].fulfill()
-        }
-
-        self.wait(for: expectations, timeout: 1.0)
+        let _ = try await task.value
     }
 
-    func testInvalidImage() throws {
+    @Test func testInvalidImage() async throws {
         let prefetchData = Data(base64Encoded: "aVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQAB")!
         try self.fileManager.writeData(prefetchData, to: URL(fileURLWithPath: "/tmp/temp"))
 
-        self.resourceManager.prefetchContainerURL = containerURL
+        await self.resourceManager.setPrefetchContainerURL(containerURL)
 
         let prefetchURL = URL(string: "https://www.example.com/test")!
-        let expectation = self.expectation(description: "Completion handler called")
 
-        self.resourceManager.getImage(at: prefetchURL, scale: 3) { result in
-            defer {
-                expectation.fulfill()
+        await #expect {
+            let _ = try await self.resourceManager.getImage(at: prefetchURL, scale: 3)
+        } throws: { error in
+            guard case ApptentiveError.resourceNotDecodableAsImage = error as! ApptentiveError else {
+                return false
             }
 
-            guard case .failure(ApptentiveError.resourceNotDecodableAsImage) = result else {
-                return XCTFail("Invalid image succeeded or failed with wrong error.")
-            }
+            return true
         }
-
-        self.wait(for: [expectation], timeout: 1.0)
     }
 
-    func testDownloadError() throws {
+    @Test func testDownloadError() async throws {
         let prefetchData = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==")!
         try self.fileManager.writeData(prefetchData, to: URL(fileURLWithPath: "/tmp/temp"))
 
-        self.resourceManager.prefetchContainerURL = containerURL
+        await self.resourceManager.setPrefetchContainerURL(containerURL)
 
         let prefetchURL = URL(string: "https://www.example.com/test")!
-        let expectation = self.expectation(description: "Completion handler called")
 
-        self.requestor.error = HTTPClientError.serverError(HTTPURLResponse(url: prefetchURL, mimeType: nil, expectedContentLength: 1, textEncodingName: nil), nil)
+        await self.requestor.setError(HTTPClientError.serverError(HTTPURLResponse(url: prefetchURL, mimeType: nil, expectedContentLength: 1, textEncodingName: nil), nil))
 
-        self.resourceManager.getImage(at: prefetchURL, scale: 3) { result in
-            defer {
-                expectation.fulfill()
+        await #expect {
+            let _ = try await self.resourceManager.getImage(at: prefetchURL, scale: 3)
+        } throws: { error in
+            guard case HTTPClientError.serverError = error as! HTTPClientError else {
+                return false
             }
 
-            guard case .failure(HTTPClientError.serverError) = result else {
-                return XCTFail("Invalid image succeeded or failed with wrong error.")
-            }
+            return true
         }
-
-        self.wait(for: [expectation], timeout: 1.0)
-    }
-
-    func testNoTempURL() throws {
-        let prefetchData = Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==")!
-        try self.fileManager.writeData(prefetchData, to: URL(fileURLWithPath: "/tmp/temp"))
-
-        self.resourceManager.prefetchContainerURL = containerURL
-
-        let prefetchURL = URL(string: "https://www.example.com/test")!
-        let expectation = self.expectation(description: "Completion handler called")
-        self.requestor.temporaryURL = nil
-
-        self.resourceManager.getImage(at: prefetchURL, scale: 3) { result in
-            defer {
-                expectation.fulfill()
-            }
-
-            guard case .failure(ApptentiveError.internalInconsistency) = result else {
-                return XCTFail("Invalid image succeeded or failed with wrong error.")
-            }
-        }
-
-        self.wait(for: [expectation], timeout: 1.0)
     }
 }

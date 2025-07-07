@@ -5,109 +5,49 @@
 ////  Created by Frank Schmitt on 9/26/19.
 ////
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-final class CriteriaTests: XCTestCase {
-    static let testResourceDirectory = URL(fileURLWithPath: #file).deletingLastPathComponent().appendingPathComponent("Test Criteria")
+// Criteria logger is not reentrancy-safe (relies on Backend actor isolation) so serialize these tests.
+@Suite(.serialized) struct CriteriaTests {
     let state = MockTargetingState()
 
-    func testCornerCasesThatShouldBeFalse() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
+    @Test(arguments: [
+        "testCodePointInvokesTotal",
+        "testCodePointInvokesVersion",
+        "testCodePointLastInvokedAt",
+        "testCornerCasesThatShouldBeFalse",
+        "testCornerCasesThatShouldBeTrue",
+        "testCriteriaDecoding",
+        "testDefaultValues",
+        "testInteractionInvokesTotal",
+        "testInteractionResponses",
+        "testOperatorAfter",
+        "testOperatorBefore",
+        "testOperatorContains",
+        "testOperatorEndsWith",
+        "testOperatorExists",
+        "testOperatorGreaterThan",
+        "testOperatorGreaterThanOrEqual",
+        "testOperatorLessThan",
+        "testOperatorLessThanOrEqual",
+        "testOperatorNot",
+        "testOperatorStartsWith",
+        "testOperatorStringEquals",
+        "testOperatorStringNotEquals",
+        "testV7Criteria",
+        "testWhitespaceTrimming",
+    ]) func testCriteria(in file: String) throws {
+        #expect(try criteria(for: file)?.isSatisfied(for: state) == true)
     }
 
-    func testCornerCasesThatShouldBeTrue() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
+    private func criteria(for testName: String) throws -> Criteria? {
+        let url = Bundle(for: BundleFinder.self).url(forResource: testName, withExtension: "json", subdirectory: "Test Criteria")!
 
-    func testCriteriaDecoding() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testDefaultValues() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorAfter() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorBefore() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorContains() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorEndsWith() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorExists() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorGreaterThan() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorGreaterThanOrEqual() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorLessThan() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorLessThanOrEqual() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorNot() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorStartsWith() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorStringEquals() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testOperatorStringNotEquals() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testV7Criteria() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testWhitespaceTrimming() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    func testInteractionResponses() throws {
-        XCTAssertTrue(try criteria(for: #function)?.isSatisfied(for: state) ?? false)
-    }
-
-    private func criteria(for testMethodName: String) -> Criteria? {
-        let testName = String(testMethodName.dropLast(2))  // strip parentheses from method name.
-        let url = Self.testResourceDirectory.appendingPathComponent(testName).appendingPathExtension("json")
-
-        if let data = try? Data(contentsOf: url) {
-            if let criteria = try? JSONDecoder.apptentive.decode(Criteria.self, from: data) {
-                return criteria
-            } else {
-                XCTFail("Criteria parsing failed for \(testName)")
-                return nil
-            }
-        } else {
-            XCTFail("Test json dictionary not found for \(testName)")
-            return nil
-        }
+        let data = try Data(contentsOf: url)
+        return try JSONDecoder.apptentive.decode(Criteria.self, from: data)
     }
 }
 
@@ -128,6 +68,11 @@ struct MockTargetingState: TargetingState {
             return Date()
         case "is_update/cf_bundle_short_version_string", "is_update/cf_bundle_version":
             return false
+        case "code_point/test.code.point/last_invoked_at/total":
+            return Date()
+        case "code_point/test.code.point/invokes/total",
+            "code_point/test.code.point/invokes/cf_bundle_short_version_string":
+            return 2
         case "code_point/invalid_code_point/invokes/total", "code_point/invalid_code_point/invokes/cf_bundle_short_version_string", "interactions/invalid_interaction/invokes/total",
             "interactions/invalid_interaction/invokes/cf_bundle_short_version_string":
             return 0

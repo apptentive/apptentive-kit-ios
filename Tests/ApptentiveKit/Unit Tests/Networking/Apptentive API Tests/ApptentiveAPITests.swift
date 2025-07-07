@@ -6,21 +6,22 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Testing
+import UIKit
 
 @testable import ApptentiveKit
 
-class ApptentiveAPITests: XCTestCase {
+struct ApptentiveAPITests {
     var payloadContext: Payload.Context!
     var pendingCredentials = PendingAPICredentials(appCredentials: .init(key: "abc", signature: "123"))
     var anonymousCredentials = AnonymousAPICredentials(appCredentials: .init(key: "abc", signature: "123"), conversationCredentials: .init(id: "def", token: "456"))
 
-    override func setUpWithError() throws {
+    init() throws {
         self.payloadContext = Payload.Context(
             tag: ".", credentials: .header(id: anonymousCredentials.conversationCredentials.id, token: anonymousCredentials.conversationCredentials.token), sessionID: "abc123", encoder: JSONEncoder.apptentive, encryptionContext: nil)
     }
 
-    class MockAppCredentialsProvider: PayloadAuthenticationDelegate {
+    final class MockAppCredentialsProvider: PayloadAuthenticationDelegate {
         var appCredentials: Apptentive.AppCredentials? {
             return .init(key: "abc", signature: "123")
         }
@@ -28,7 +29,7 @@ class ApptentiveAPITests: XCTestCase {
         func authenticationDidFail(with errorResponse: ErrorResponse?) {}
     }
 
-    func testBuildHeaders() {
+    @Test func testBuildHeaders() {
         let headers = ApptentiveAPI.buildHeaders(
             credentials: self.anonymousCredentials,
             contentType: "foo/bar",
@@ -51,10 +52,10 @@ class ApptentiveAPITests: XCTestCase {
             "User-Agent": "Apptentive/1.2.3 (Apple)",
         ]
 
-        XCTAssertEqual(headers, expectedHeaders)
+        #expect(headers == expectedHeaders)
     }
 
-    func testBuildRequest() throws {
+    @Test func testBuildRequest() throws {
         let path = "foo"
         let method = HTTPMethod.delete
         let bodyObject = MockHTTPBodyPart(foo: "foo", bar: "bar")
@@ -76,12 +77,12 @@ class ApptentiveAPITests: XCTestCase {
             "Accept-Language": "de",
         ]
 
-        XCTAssertEqual(request.url, URL(string: "https://api.example.com/conversations/def/foo")!)
-        XCTAssertEqual(request.httpMethod, method.rawValue)
-        XCTAssertEqual(request.allHTTPHeaderFields, expectedHeaders)
+        #expect(request.url == URL(string: "https://api.example.com/conversations/def/foo")!)
+        #expect(request.httpMethod == method.rawValue)
+        #expect(request.allHTTPHeaderFields == expectedHeaders)
     }
 
-    func testBuildMultipartRequest() throws {
+    @Test func testBuildMultipartRequest() throws {
         let path = "foo"
         let method = HTTPMethod.delete
         let bodyObject = MockHTTPBodyPart(foo: "foo", bar: "bar")
@@ -89,11 +90,11 @@ class ApptentiveAPITests: XCTestCase {
 
         let part1 = bodyObject
 
-        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
         let data1 = image1.pngData()!
         let part2 = Payload.Attachment(contentType: "image/png", filename: "logo", contents: .data(data1))
 
-        let image2 = UIImage(named: "dog", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        let image2 = UIImage(named: "dog", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
         let data2 = image2.jpegData(compressionQuality: 0.5)!
         let part3 = Payload.Attachment(contentType: "image/jpeg", filename: "dog", contents: .data(data2))
 
@@ -113,13 +114,13 @@ class ApptentiveAPITests: XCTestCase {
             "Accept-Language": "de",
         ]
 
-        XCTAssertEqual(request.url, URL(string: "https://api.example.com/conversations/def/foo")!)
-        XCTAssertEqual(request.httpMethod, method.rawValue)
-        XCTAssertEqual(request.allHTTPHeaderFields, expectedHeaders)
+        #expect(request.url == URL(string: "https://api.example.com/conversations/def/foo")!)
+        #expect(request.httpMethod == method.rawValue)
+        #expect(request.allHTTPHeaderFields == expectedHeaders)
 
         let parts = try Self.parseMultipartBody(request.httpBody!, boundary: endpoint.boundaryString)
 
-        XCTAssertEqual(parts.count, 3)
+        #expect(parts.count == 3)
 
         let expectedPartHeaders = [
             [
@@ -136,150 +137,155 @@ class ApptentiveAPITests: XCTestCase {
             ],
         ]
 
-        XCTAssertEqual(parts[0].headers, expectedPartHeaders[0])
-        XCTAssertEqual(parts[1].headers, expectedPartHeaders[1])
-        XCTAssertEqual(parts[2].headers, expectedPartHeaders[2])
+        #expect(parts[0].headers == expectedPartHeaders[0])
+        #expect(parts[1].headers == expectedPartHeaders[1])
+        #expect(parts[2].headers == expectedPartHeaders[2])
 
         let decodedBodyObject = try JSONDecoder.apptentive.decode(MockHTTPBodyPart.self, from: parts[0].content)
-        XCTAssertEqual(bodyObject, decodedBodyObject)
-        XCTAssertEqual(parts[1].content, data1)
-        XCTAssertEqual(parts[2].content, data2)
+        #expect(bodyObject == decodedBodyObject)
+        #expect(parts[1].content == data1)
+        #expect(parts[2].content == data2)
     }
 
-    func testBuildUserAgent() {
+    @Test func testBuildUserAgent() {
         let userAgent = ApptentiveAPI.userAgent(sdkVersion: "1.2.3")
 
-        XCTAssertEqual(userAgent, "Apptentive/1.2.3 (Apple)")
+        #expect(userAgent == "Apptentive/1.2.3 (Apple)")
     }
 
-    func testParseExpiry() {
+    @Test func testParseExpiry() throws {
         let response1 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["Cache-Control": "max-age = 86400"])!
 
         guard let expiry1 = ApptentiveAPI.parseExpiry(response1) else {
-            return XCTFail("Unable to parse valid expiry")
+            throw TestError(reason: "Unable to parse valid expiry")
         }
 
-        XCTAssertEqual(expiry1.timeIntervalSinceNow, Date(timeIntervalSinceNow: 86400).timeIntervalSinceNow, accuracy: 1.0)
+        #expect((expiry1.timeIntervalSinceNow == Date(timeIntervalSinceNow: 86400).timeIntervalSinceNow) ± 1.0)
 
         let response2 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["Cache-control": "axmay-agehay: 86400"])!
 
         let expiry2 = ApptentiveAPI.parseExpiry(response2)
 
-        XCTAssertNil(expiry2)
+        #expect(expiry2 == nil)
 
-        XCTAssertEqual(expiry1.timeIntervalSinceNow, Date(timeIntervalSinceNow: 86400).timeIntervalSinceNow, accuracy: 1.0)
+        #expect((expiry1.timeIntervalSinceNow == Date(timeIntervalSinceNow: 86400).timeIntervalSinceNow) ± 1.0)
 
         let response3 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["cAcHe-cOnTrOl": "max-age = 650"])!
 
         guard let expiry3 = ApptentiveAPI.parseExpiry(response3) else {
-            return XCTFail("Unable to parse valid expiry (with weird case)")
+            throw TestError(reason: "Unable to parse valid expiry (with weird case)")
         }
 
-        XCTAssertEqual(expiry3.timeIntervalSinceNow, Date(timeIntervalSinceNow: 650).timeIntervalSinceNow, accuracy: 1.0)
+        #expect((expiry3.timeIntervalSinceNow == Date(timeIntervalSinceNow: 650).timeIntervalSinceNow) ± 1.0)
     }
 
-    func testCreateConversation() throws {
+    @Test func testCreateConversation() async throws {
         let baseURL = URL(string: "http://example.com")!
         let conversation = Conversation(dataProvider: MockDataProvider())
         let requestor = SpyRequestor(responseData: try JSONEncoder.apptentive.encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789", encryptionKey: nil)))
-
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
 
-        let expectation = XCTestExpectation()
+        await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("conversations"), statusCode: 201, httpVersion: "1.1", headerFields: [:]))
+        await requestor.setResponseData(Data())
 
-        let _ = client.request(ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)) { (result: Result<ConversationResponse, Error>) in
-            XCTAssertNotNil(requestor.request)
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations"))
-            XCTAssertEqual(requestor.request?.httpMethod, "POST")
+        let _ = try await client.request(ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil))
 
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+        let request = await requestor.request
 
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                XCTFail("Error (fake) creating conversation: \(error)")
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 5)
+        #expect(request != nil)
+        #expect(request?.allHTTPHeaderFields?.isEmpty == false)
+        #expect(request?.url == baseURL.appendingPathComponent("conversations"))
+        #expect(request?.httpMethod == "POST")
+        #expect(request?.allHTTPHeaderFields?["User-Agent"] == "Apptentive/1.2.3 (Apple)")
     }
 
-    func testCreateSurveyResponse() throws {
+    @Test func testCreateSurveyResponse() async throws {
         let baseURL = URL(string: "http://example.com")!
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
-        let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier()
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
-        payloadSender.authenticationDelegate = appCredentialsProvider
-        requestRetrier.client = client
+        await payloadSender.setAuthenticationDelegate(appCredentialsProvider)
+        await payloadSender.setAppCredentials(appCredentialsProvider.appCredentials)
+        await requestRetrier.setClient(client)
+
+        await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("conversations"), statusCode: 201, httpVersion: "1.1", headerFields: [:]))
+        await requestor.setResponseData(Data())
 
         let surveyResponse = SurveyResponse(surveyID: "789", questionResponses: ["1": .answered([Answer.freeform("foo")])])
 
-        let expectation = XCTestExpectation()
+        await withCheckedContinuation { continuation in
+            Task {
+                await requestor.setExtraCompletion { requestor in
+                    Task {
+                        let request = await requestor.request
 
-        requestor.extraCompletion = {
-            XCTAssertNotNil(requestor.request)
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/surveys/789/responses"))
-            XCTAssertEqual(requestor.request?.httpMethod, "POST")
+                        #expect(request != nil)
+                        #expect(request?.allHTTPHeaderFields?.isEmpty == false)
+                        #expect(request?.url == baseURL.appendingPathComponent("conversations/def/surveys/789/responses"))
+                        #expect(request?.httpMethod == "POST")
+                        #expect(request?.allHTTPHeaderFields?["User-Agent"] == "Apptentive/1.2.3 (Apple)")
 
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+                        continuation.resume()
+                    }
+                }
 
-            expectation.fulfill()
+                try await payloadSender.send(Payload(wrapping: surveyResponse, with: self.payloadContext))
+            }
         }
-
-        try payloadSender.send(Payload(wrapping: surveyResponse, with: self.payloadContext))
-
-        self.wait(for: [expectation], timeout: 5)
     }
 
-    func testCreateEvent() throws {
+    @Test func testCreateEvent() async throws {
         let baseURL = URL(string: "http://example.com")!
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
-        let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier()
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
-        payloadSender.authenticationDelegate = appCredentialsProvider
-        requestRetrier.client = client
+        await payloadSender.setAuthenticationDelegate(appCredentialsProvider)
+        await payloadSender.setAppCredentials(appCredentialsProvider.appCredentials)
+        await requestRetrier.setClient(client)
+
+        await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("events"), statusCode: 201, httpVersion: "1.1", headerFields: [:]))
+        await requestor.setResponseData(Data())
 
         let event = Event(name: "Foobar")
 
-        let expectation = XCTestExpectation()
+        await withCheckedContinuation { continuation in
+            Task {
+                await requestor.setExtraCompletion { requestor in
+                    Task {
+                        let request = await requestor.request
 
-        requestor.extraCompletion = {
-            XCTAssertNotNil(requestor.request)
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/events"))
-            XCTAssertEqual(requestor.request?.httpMethod, "POST")
+                        #expect(request != nil)
+                        #expect(request?.allHTTPHeaderFields?.isEmpty == false)
+                        #expect(request?.url == baseURL.appendingPathComponent("conversations/def/events"))
+                        #expect(request?.httpMethod == "POST")
+                        #expect(request?.allHTTPHeaderFields?["User-Agent"] == "Apptentive/1.2.3 (Apple)")
 
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+                        continuation.resume()
+                    }
+                }
 
-            expectation.fulfill()
+                try await payloadSender.send(Payload(wrapping: event, with: self.payloadContext))
+            }
         }
-
-        try payloadSender.send(Payload(wrapping: event, with: self.payloadContext))
-
-        self.wait(for: [expectation], timeout: 5)
     }
 
-    func testUpdatePerson() throws {
+    @Test func testUpdatePerson() async throws {
         let baseURL = URL(string: "http://example.com")!
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
-        let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier()
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
-        payloadSender.authenticationDelegate = appCredentialsProvider
-        requestRetrier.client = client
+        await payloadSender.setAuthenticationDelegate(appCredentialsProvider)
+        await payloadSender.setAppCredentials(appCredentialsProvider.appCredentials)
+        await requestRetrier.setClient(client)
+
+        await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("person"), statusCode: 201, httpVersion: "1.1", headerFields: [:]))
+        await requestor.setResponseData(Data())
 
         var customData = CustomData()
         customData["foo"] = "bar"
@@ -288,110 +294,130 @@ class ApptentiveAPITests: XCTestCase {
 
         let person = Person(name: "Testy McTestface", emailAddress: "test@example.com", mParticleID: nil, customData: customData)
 
-        let expectation = XCTestExpectation()
+        await withCheckedContinuation { continuation in
+            Task {
+                await requestor.setExtraCompletion { requestor in
+                    Task {
+                        let request = await requestor.request
 
-        requestor.extraCompletion = {
-            XCTAssertNotNil(requestor.request)
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/person"))
-            XCTAssertEqual(requestor.request?.httpMethod, "PUT")
+                        #expect(request != nil)
+                        #expect(request?.allHTTPHeaderFields?.isEmpty == false)
+                        #expect(request?.url == baseURL.appendingPathComponent("conversations/def/person"))
+                        #expect(request?.httpMethod == "PUT")
+                        #expect(request?.allHTTPHeaderFields?["User-Agent"] == "Apptentive/1.2.3 (Apple)")
 
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+                        continuation.resume()
+                    }
+                }
 
-            expectation.fulfill()
+                try await payloadSender.send(Payload(wrapping: person, with: self.payloadContext))
+            }
         }
-
-        try payloadSender.send(Payload(wrapping: person, with: self.payloadContext))
-
-        self.wait(for: [expectation], timeout: 5)
     }
 
-    func testUpdateDevice() throws {
+    @Test func testUpdateDevice() async throws {
         let baseURL = URL(string: "http://example.com")!
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
-        let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier()
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
-        payloadSender.authenticationDelegate = appCredentialsProvider
-        requestRetrier.client = client
+        await payloadSender.setAuthenticationDelegate(appCredentialsProvider)
+        await payloadSender.setAppCredentials(appCredentialsProvider.appCredentials)
+        await requestRetrier.setClient(client)
+
+        await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("device"), statusCode: 201, httpVersion: "1.1", headerFields: [:]))
+        await requestor.setResponseData(Data())
 
         var customData = CustomData()
         customData["foo"] = "bar"
         customData["number"] = 2
         customData["bool"] = false
 
-        var device = Device(dataProvider: MockDataProvider())
-        device.customData = customData
+        var deviceTemp = Device(dataProvider: MockDataProvider())
+        deviceTemp.customData = customData
 
-        let expectation = XCTestExpectation()
+        let device = deviceTemp
 
-        requestor.extraCompletion = {
-            XCTAssertNotNil(requestor.request)
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/device"))
-            XCTAssertEqual(requestor.request?.httpMethod, "PUT")
+        await withCheckedContinuation { continuation in
+            Task {
+                await requestor.setExtraCompletion { requestor in
+                    Task {
+                        let request = await requestor.request
 
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+                        #expect(request != nil)
+                        #expect(request?.allHTTPHeaderFields?.isEmpty == false)
+                        #expect(request?.url == baseURL.appendingPathComponent("conversations/def/device"))
+                        #expect(request?.httpMethod == "PUT")
+                        #expect(request?.allHTTPHeaderFields?["User-Agent"] == "Apptentive/1.2.3 (Apple)")
 
-            expectation.fulfill()
+                        continuation.resume()
+                    }
+                }
+
+                try await payloadSender.send(Payload(wrapping: device, with: self.payloadContext))
+            }
         }
-
-        try payloadSender.send(Payload(wrapping: device, with: self.payloadContext))
-
-        self.wait(for: [expectation], timeout: 5)
     }
 
-    func testUpdateAppRelease() throws {
+    @Test func testUpdateAppRelease() async throws {
         let baseURL = URL(string: "http://example.com")!
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
-        let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier()
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
-        payloadSender.authenticationDelegate = appCredentialsProvider
-        requestRetrier.client = client
+        await payloadSender.setAuthenticationDelegate(appCredentialsProvider)
+        await payloadSender.setAppCredentials(appCredentialsProvider.appCredentials)
+        await requestRetrier.setClient(client)
+
+        await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("app_release"), statusCode: 201, httpVersion: "1.1", headerFields: [:]))
+        await requestor.setResponseData(Data())
 
         let appRelease = AppRelease(dataProvider: MockDataProvider())
 
-        let expectation = XCTestExpectation()
+        await withCheckedContinuation { continuation in
+            Task {
+                await requestor.setExtraCompletion { requestor in
+                    Task {
+                        let request = await requestor.request
 
-        requestor.extraCompletion = {
-            XCTAssertNotNil(requestor.request)
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/app_release"))
-            XCTAssertEqual(requestor.request?.httpMethod, "PUT")
+                        #expect(request != nil)
+                        #expect(request?.allHTTPHeaderFields?.isEmpty == false)
+                        #expect(request?.url == baseURL.appendingPathComponent("conversations/def/app_release"))
+                        #expect(request?.httpMethod == "PUT")
+                        #expect(request?.allHTTPHeaderFields?["User-Agent"] == "Apptentive/1.2.3 (Apple)")
 
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+                        continuation.resume()
+                    }
+                }
 
-            expectation.fulfill()
+                try await payloadSender.send(Payload(wrapping: appRelease, with: self.payloadContext))
+            }
         }
-
-        try payloadSender.send(Payload(wrapping: appRelease, with: self.payloadContext))
-
-        self.wait(for: [expectation], timeout: 5)
     }
 
-    func testCreateMessage() throws {
+    @Test func testCreateMessage() async throws {
         let baseURL = URL(string: "http://example.com")!
         let requestor = SpyRequestor(responseData: Data())
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
-        let retryPolicy = HTTPRetryPolicy(initialDelay: 0, multiplier: 0, useJitter: false)
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
+        let requestRetrier = HTTPRequestRetrier()
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let appCredentialsProvider = MockAppCredentialsProvider()
-        payloadSender.authenticationDelegate = appCredentialsProvider
-        requestRetrier.client = client
+        await payloadSender.setAuthenticationDelegate(appCredentialsProvider)
+        await payloadSender.setAppCredentials(appCredentialsProvider.appCredentials)
+        await requestRetrier.setClient(client)
+
+        await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("messages"), statusCode: 201, httpVersion: "1.1", headerFields: [:]))
+        await requestor.setResponseData(Data())
 
         var customData = CustomData()
         customData["foo"] = "bar"
         customData["number"] = 2
         customData["bool"] = false
 
-        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: type(of: self)), compatibleWith: nil)!
-        let image2 = UIImage(named: "dog", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
+        let image2 = UIImage(named: "dog", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
 
         let data1 = image1.pngData()!
         let data2 = image2.jpegData(compressionQuality: 0.5)!
@@ -401,140 +427,113 @@ class ApptentiveAPITests: XCTestCase {
 
         let message = MessageList.Message(nonce: "draft", body: "Test Message", attachments: [attachment1, attachment2], status: .draft)
 
-        let expectation = XCTestExpectation()
+        await withCheckedContinuation { continuation in
+            Task {
+                await requestor.setExtraCompletion { requestor in
+                    Task {
+                        let request = await requestor.request
 
-        requestor.extraCompletion = {
-            XCTAssertNotNil(requestor.request)
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/messages"))
-            XCTAssertEqual(requestor.request?.httpMethod, "POST")
+                        #expect(request != nil)
+                        #expect(request?.allHTTPHeaderFields?.isEmpty == false)
+                        #expect(request?.url == baseURL.appendingPathComponent("conversations/def/messages"))
+                        #expect(request?.httpMethod == "POST")
+                        #expect(request?.allHTTPHeaderFields?["User-Agent"] == "Apptentive/1.2.3 (Apple)")
 
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
+                        do {
+                            // get boundary from content type `multipart/mixed; boundary=<boundary>`
+                            guard let contentType = request?.allHTTPHeaderFields?["Content-Type"],
+                                let boundaryAttribute = contentType.components(separatedBy: "; ").last,
+                                let boundary = boundaryAttribute.components(separatedBy: "=").last
+                            else {
+                                throw TestError(reason: "Unable to get boundary from Content-Type header.")
+                            }
 
-            // get boundary from content type `multipart/mixed; boundary=<boundary>`
-            guard let contentType = requestor.request?.allHTTPHeaderFields?["Content-Type"],
-                let boundaryAttribute = contentType.components(separatedBy: "; ").last,
-                let boundary = boundaryAttribute.components(separatedBy: "=").last
-            else {
-                return XCTFail("Unable to get boundary from Content-Type header.")
-            }
+                            guard let body = request?.httpBody else {
+                                throw TestError(reason: "No multipart body.")
+                            }
 
-            guard let body = requestor.request?.httpBody else {
-                return XCTFail("No multipart body.")
-            }
+                            let parts = try Self.parseMultipartBody(body, boundary: boundary)
 
-            do {
-                let parts = try Self.parseMultipartBody(body, boundary: boundary)
+                            #expect(parts[0].headers["Content-Type"] == "application/json;charset=UTF-8")
+                            #expect(parts[0].headers["Content-Disposition"] == "form-data; name=\"message\"")
+                            let message = try JSONDecoder.apptentive.decode(Payload.JSONObject.self, from: parts[0].content)
 
-                XCTAssertEqual(parts[0].headers["Content-Type"], "application/json;charset=UTF-8")
-                XCTAssertEqual(parts[0].headers["Content-Disposition"], "form-data; name=\"message\"")
-                let message = try JSONDecoder.apptentive.decode(Payload.JSONObject.self, from: parts[0].content)
+                            guard case Payload.SpecializedJSONObject.message(let messageContent) = message.specializedJSONObject else {
+                                throw TestError(reason: "Message payload doesn't contain message stuff")
+                            }
 
-                guard case Payload.SpecializedJSONObject.message(let messageContent) = message.specializedJSONObject else {
-                    return XCTFail("Message payload doesn't contain message stuff")
+                            #expect(messageContent.body == "Test Message")
+
+                            #expect(parts[1].headers["Content-Type"] == "image/png")
+                            #expect(parts[1].headers["Content-Disposition"] == "form-data; name=\"file[]\"; filename=\"apptentive-logo\"")
+                            #expect(parts[1].content == data1)
+
+                            #expect(parts[2].headers["Content-Type"] == "image/jpeg")
+                            #expect(parts[2].headers["Content-Disposition"] == "form-data; name=\"file[]\"; filename=\"dog\"")
+                            #expect(parts[2].content == data2)
+
+                            continuation.resume()
+                        } catch let error {
+                            Issue.record("Error decoding multipart body: \(error).")
+                        }
+                    }
                 }
 
-                XCTAssertEqual(messageContent.body, "Test Message")
-
-                XCTAssertEqual(parts[1].headers["Content-Type"], "image/png")
-                XCTAssertEqual(parts[1].headers["Content-Disposition"], "form-data; name=\"file[]\"; filename=\"apptentive-logo\"")
-                XCTAssertEqual(parts[1].content, data1)
-
-                XCTAssertEqual(parts[2].headers["Content-Type"], "image/jpeg")
-                XCTAssertEqual(parts[2].headers["Content-Disposition"], "form-data; name=\"file[]\"; filename=\"dog\"")
-                XCTAssertEqual(parts[2].content, data2)
-
-                expectation.fulfill()
-            } catch let error {
-                XCTFail("Error decoding multipart body: \(error).")
+                let payload = try Payload(wrapping: message, with: self.payloadContext, customData: nil, attachmentURLProvider: MockAttachmentURLProviding())
+                await payloadSender.send(payload)
             }
         }
-
-        let payload = try Payload(wrapping: message, with: self.payloadContext, customData: nil, attachmentURLProvider: MockAttachmentURLProviding())
-        payloadSender.send(payload)
-
-        self.wait(for: [expectation], timeout: 5)
     }
 
-    func testGetInteractions() throws {
+    @Test func testGetInteractions() async throws {
         let baseURL = URL(string: "http://example.com")!
         let requestor = SpyRequestor(responseData: try JSONEncoder.apptentive.encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789", encryptionKey: nil)))
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
+        await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("conversations/def/interactions"), statusCode: 200, httpVersion: "1.1", headerFields: [:]))
+        await requestor.setResponseData(Data())
 
-        let expectation = XCTestExpectation()
-        let _ = client.request(ApptentiveAPI.getInteractions(with: self.anonymousCredentials)) { (result: Result<ConversationResponse, Error>) in
-            XCTAssertNotNil(requestor.request)
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/interactions"))
-            XCTAssertEqual(requestor.request?.httpMethod, "GET")
+        let _ = try await client.request(ApptentiveAPI.getInteractions(with: self.anonymousCredentials))
+        let request = await requestor.request
 
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
-
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                XCTFail("Error (fake) getting interactions: \(error)")
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 5)
+        #expect(request != nil)
+        #expect(request?.allHTTPHeaderFields?.isEmpty == false)
+        #expect(request?.url == baseURL.appendingPathComponent("conversations/def/interactions"))
+        #expect(request?.httpMethod == "GET")
+        #expect(request?.allHTTPHeaderFields?["User-Agent"] == "Apptentive/1.2.3 (Apple)")
     }
 
-    func testGetConfiguration() throws {
+    @Test func testGetConfiguration() async throws {
         let baseURL = URL(string: "http://example.com")!
         let requestor = SpyRequestor(responseData: try JSONEncoder.apptentive.encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789", encryptionKey: nil)))
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
+        await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("conversations/def/configuration"), statusCode: 200, httpVersion: "1.1", headerFields: [:]))
+        await requestor.setResponseData(Data())
 
-        let expectation = XCTestExpectation()
-        let _ = client.request(ApptentiveAPI.getConfiguration(with: self.anonymousCredentials)) { (result: Result<ConversationResponse, Error>) in
-            XCTAssertNotNil(requestor.request)
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/configuration"))
-            XCTAssertEqual(requestor.request?.httpMethod, "GET")
+        let _ = try await client.request(ApptentiveAPI.getConfiguration(with: self.anonymousCredentials))
+        let request = await requestor.request
 
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
-
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                XCTFail("Error (fake) getting configuration: \(error)")
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 5)
+        #expect(request != nil)
+        #expect(request?.allHTTPHeaderFields?.isEmpty == false)
+        #expect(request?.url == baseURL.appendingPathComponent("conversations/def/configuration"))
+        #expect(request?.httpMethod == "GET")
+        #expect(request?.allHTTPHeaderFields?["User-Agent"] == "Apptentive/1.2.3 (Apple)")
     }
 
-    func testGetMessages() throws {
+    @Test func testGetMessages() async throws {
         let baseURL = URL(string: "http://example.com")!
         let requestor = SpyRequestor(responseData: try JSONEncoder.apptentive.encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789", encryptionKey: nil)))
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
+        await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("http://example.com/conversations/def/messages?starts_after=last_message_id&page_size=5"), statusCode: 200, httpVersion: "1.1", headerFields: [:]))
+        await requestor.setResponseData(Data())
 
-        let expectation = XCTestExpectation()
-        let _ = client.request(ApptentiveAPI.getMessages(with: self.anonymousCredentials, afterMessageWithID: "last_message_id", pageSize: "5")) { (result: Result<ConversationResponse, Error>) in
-            XCTAssertNotNil(requestor.request)
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url?.absoluteString, "http://example.com/conversations/def/messages?starts_after=last_message_id&page_size=5")
-            XCTAssertEqual(requestor.request?.httpMethod, "GET")
+        let _ = try await client.request(ApptentiveAPI.getMessages(with: self.anonymousCredentials, afterMessageWithID: "last_message_id", pageSize: "5"))
+        let request = await requestor.request
 
-            XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")
-
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                XCTFail("Error (fake) getting messages: \(error)")
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 5)
+        #expect(request != nil)
+        #expect(request?.allHTTPHeaderFields?.isEmpty == false)
+        #expect(request?.url?.absoluteString == "http://example.com/conversations/def/messages?starts_after=last_message_id&page_size=5")
+        #expect(request?.httpMethod == "GET")
+        #expect(request?.allHTTPHeaderFields?["User-Agent"] == "Apptentive/1.2.3 (Apple)")
     }
 
     static func parseMultipartBody(_ body: Data, boundary boundaryString: String) throws -> [BodyPart] {

@@ -10,7 +10,7 @@ import Foundation
 
 @testable import ApptentiveKit
 
-class MockFileManager: FileManaging {
+final class MockFileManager: FileManaging, @unchecked Sendable {
     var directoryURLs = Set<URL>()
     var fileURLs = Set<URL>()
     var data = [URL: Data]()

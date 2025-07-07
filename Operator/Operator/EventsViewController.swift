@@ -167,13 +167,14 @@ class EventsViewController: UITableViewController, CustomDataDataSourceDelegate 
         if !self.isEditing {
             let event = indexPath.section == 0 ? Event(name: self.customEvents[indexPath.row]) : Event(name: self.manifestEvents[indexPath.row])
 
-            self.apptentive.canShowInteraction(event: event) { result in
+            Task {
                 let label = UILabel()
-                switch result {
-                case .success(let canShow):
+
+                do {
+                    let canShow = try await self.apptentive.canShowInteraction(event: event)
                     label.text = canShow ? "✅" : "❎"
 
-                case .failure(let error):
+                } catch let error {
                     label.text = "❌"
                     print("Error during canShowInteraction: \(error.localizedDescription)")
                 }

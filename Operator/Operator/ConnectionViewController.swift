@@ -70,7 +70,8 @@ class ConnectionViewController: UITableViewController {
     }
 
     func refreshConnectionInfo() {
-        self.apptentive.getConnectionInfo { state, id, token in
+        Task {
+            let (state, id, token) = await self.apptentive.getConnectionInfo()
             self.currentState = state
 
             self.conversationStateLabel.text = state.rawValue
@@ -141,41 +142,30 @@ class ConnectionViewController: UITableViewController {
                 print("Expected JWT View Controller as segue source")
                 return
             }
-            do {
-                if self.currentState == .loggedIn {
-                    try self.apptentive.updateToken(jwtBuilder.jwt) { result in
-                        switch result{
-                        case .success:
-                            self.refreshConnectionInfo()
 
-                        case .failure(let error):
-                            let alertController = UIAlertController(title: "JWT Update Error", message: error.localizedDescription, preferredStyle: .alert)
-                            alertController.addAction(.init(title: "OK", style: .default))
-                            self.present(alertController, animated: true)
-                            self.refreshConnectionInfo()
-                        }
+            Task {
+                if self.currentState == .loggedIn {
+                    do {
+                        try await self.apptentive.updateToken(jwtBuilder.jwt)
+                    } catch let error {
+                        let alertController = UIAlertController(title: "JWT Update Error", message: error.localizedDescription, preferredStyle: .alert)
+                        alertController.addAction(.init(title: "OK", style: .default))
+                        self.present(alertController, animated: true)
                     }
                 } else {
                     self.conversationActionButton.setTitle("Logging In…", for: .normal)
                     self.conversationActionButton.isEnabled = false
 
-                    try self.apptentive.logIn(with: jwtBuilder.jwt) { result in
-                        switch result {
-                        case .success:
-                            self.refreshConnectionInfo()
-
-                        case .failure(let error):
-                            let alertController = UIAlertController(title: "Login Error", message: error.localizedDescription, preferredStyle: .alert)
-                            alertController.addAction(.init(title: "OK", style: .default))
-                            self.present(alertController, animated: true)
-                            self.refreshConnectionInfo()
-                        }
+                    do {
+                        try await self.apptentive.logIn(with: jwtBuilder.jwt)
+                    } catch let error {
+                        let alertController = UIAlertController(title: "Login Error", message: error.localizedDescription, preferredStyle: .alert)
+                        alertController.addAction(.init(title: "OK", style: .default))
+                        self.present(alertController, animated: true)
                     }
                 }
-            } catch let error {
-                let alertController = UIAlertController(title: "Login Error", message: error.localizedDescription, preferredStyle: .alert)
-                alertController.addAction(.init(title: "OK", style: .default))
-                self.present(alertController, animated: true)
+
+                self.refreshConnectionInfo()
             }
         }
     }

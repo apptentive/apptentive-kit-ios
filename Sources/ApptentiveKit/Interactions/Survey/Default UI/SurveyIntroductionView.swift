@@ -9,10 +9,10 @@
 import UIKit
 
 class SurveyIntroductionView: UIView {
-    let textLabel: UILabel
+    let textLabel: RichTextLabel
 
     override init(frame: CGRect) {
-        self.textLabel = UILabel()
+        self.textLabel = RichTextLabel()
 
         super.init(frame: frame)
 
@@ -22,7 +22,7 @@ class SurveyIntroductionView: UIView {
         self.textLabel.numberOfLines = 0
         self.textLabel.lineBreakMode = .byWordWrapping
         self.textLabel.font = .apptentiveSurveyIntroductionLabel
-        self.textLabel.adjustsFontForContentSizeCategory = true
+        self.textLabel.textStyle = .subheadline
         self.textLabel.textAlignment = .center
 
         self.textLabel.textColor = .apptentiveSurveyIntroduction

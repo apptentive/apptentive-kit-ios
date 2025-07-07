@@ -6,51 +6,47 @@
 //
 
 import Foundation
-import XCTest
+import Testing
 
 @testable import ApptentiveKit
 
-final class TargeterTests: XCTestCase {
+struct TargeterTests {
     let targetingState = MockTargetingState()
 
-    func testManifest1() throws {
+    @Test func testManifest1() throws {
         guard let manifest = try manifest(for: #function) else {
-            return XCTFail()
+            throw TestError(reason: "Unable to read manifest")
         }
 
         let targeter = Targeter(engagementManifest: manifest)
 
-        XCTAssertEqual(try targeter.interactionData(for: "event_4", state: targetingState)?.id, "570694f855d9f42ce5000005")
+        #expect(try targeter.interactionData(for: "event_4", state: targetingState)?.id == "570694f855d9f42ce5000005")
 
-        XCTAssertNil(try targeter.interactionData(for: "nonexistent_event", state: targetingState))
+        #expect(try targeter.interactionData(for: "nonexistent_event", state: targetingState) == nil)
 
-        XCTAssertNil(try targeter.interactionData(for: "launch", state: targetingState))
+        #expect(try targeter.interactionData(for: "launch", state: targetingState) == nil)
     }
 
-    func testNoManifest() throws {
+    @Test func testNoManifest() throws {
         let targeter = Targeter(engagementManifest: EngagementManifest.placeholder)
 
-        XCTAssertNil(try targeter.interactionData(for: "event_4", state: targetingState)?.id)
+        #expect(try targeter.interactionData(for: "event_4", state: targetingState)?.id == nil)
     }
 
-    func testBadInteractionRecoveryManifest() throws {
+    @Test func testBadInteractionRecoveryManifest() throws {
         guard let _ = try manifest(for: #function) else {
-            return XCTFail()
+            throw TestError(reason: "Unable to read manifest")
         }
     }
 
     private func manifest(for testMethodName: String) throws -> EngagementManifest? {
         let testName = String(testMethodName.dropLast(2))  // strip parentheses from method name.
-        guard let url = Bundle(for: type(of: self)).url(forResource: testName, withExtension: "json", subdirectory: "Test Manifests") else {
-            throw TargeterTestError.manifestNotFound
+        guard let url = Bundle(for: BundleFinder.self).url(forResource: testName, withExtension: "json", subdirectory: "Test Manifests") else {
+            throw TestError(reason: "Manifest not found for \(testName).json")
         }
 
         let data = try Data(contentsOf: url)
 
         return try JSONDecoder.apptentive.decode(EngagementManifest.self, from: data)
     }
-}
-
-enum TargeterTestError: Error {
-    case manifestNotFound
 }

@@ -2,145 +2,120 @@
 //  HTTPRequestRetrier.swift
 //  ApptentiveKit
 //
-//  Created by Frank Schmitt on 2/8/21.
-//  Copyright © 2021 Apptentive, Inc. All rights reserved.
+//  Created by Frank Schmitt on 7/18/24.
+//  Copyright © 2024 Apptentive, Inc. All rights reserved.
 //
 
 import Foundation
+import OSLog
 
-/// Used by payload sender in place of the class below for better testability.
-protocol HTTPRequestStarting {
-    func start<T: Decodable>(_ builder: HTTPRequestBuilding, identifier: String, completion: @escaping (Result<T, Error>) -> Void)
+protocol HTTPRequestStarting: Actor {
+    func start<T>(_ builder: HTTPRequestBuilding, identifier: String) async throws -> T where T: Decodable
 }
 
-/// Retries HTTP requests until they either succeed or permanently fail.
-class HTTPRequestRetrier: HTTPRequestStarting {
-    /// The policy to use for retrying requests.
-    var retryPolicy: HTTPRetryPolicy
-
-    /// The HTTP client to use for requests.
-    var client: HTTPClient?
-
-    /// The queue to use for calling completion handlers.
-    let dispatchQueue: DispatchQueue
-
-    /// The list of in-progress requests (either active, waiting for response, or waiting to retry).
-    private var requests: [String: RequestWrapper]
-
-    /// Creates a new request retrier.
-    /// - Parameters:
-    ///   - retryPolicy: The policy to use for retrying requests.
-    ///   - queue: The queue to use for calling completion handlers.
-    internal init(retryPolicy: HTTPRetryPolicy, queue: DispatchQueue) {
-        self.retryPolicy = retryPolicy
-        self.dispatchQueue = queue
-
-        self.requests = [String: RequestWrapper]()
+actor HTTPRequestRetrier: HTTPRequestStarting {
+    func setClient(_ client: HTTPClient) {
+        self.client = client
     }
 
-    /// Starts a new request with the given parameters.
-    /// - Parameters:
-    ///   - builder: The HTTP endpoint of the request.
-    ///   - identifier: A string that identifies the request.
-    ///   - completion: A completion handler to call when the request either succeeds or fails permanently.
-    func start<T: Decodable>(_ builder: HTTPRequestBuilding, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
-        let wrapper = RequestWrapper(endpoint: builder)
+    func resetRetryDelay() {
+        self.retryDelay.resetRetryDelay()
+    }
 
-        guard let client = self.client else {
-            return completion(.failure(ApptentiveError.internalInconsistency))
+    /// The HTTP client to use for requests.
+    private var client: HTTPClient?
+
+    /// The list of in-progress requests (either active, waiting for response, or waiting to retry).
+    private var tasks = [String: Task<Decodable & Sendable, Error>]()
+
+    private var retryDelay = RetryDelay()
+
+    func start<T>(_ builder: HTTPRequestBuilding, identifier: String) async throws -> T where T: Decodable & Sendable {
+        defer {
+            self.tasks[identifier] = nil
         }
 
-        let request = client.request(builder) { (result: Result<T, Error>) in
-            self.dispatchQueue.async {
-                self.processResult(result, identifier: identifier, completion: completion)
+        guard let client = self.client else {
+            throw ApptentiveError.internalInconsistency
+        }
+
+        let task = Task<Decodable & Sendable, Error> {
+            while true {
+                do {
+                    let response = try await client.request(builder)
+                    let object: T = try builder.transformResponse(response)
+                    self.retryDelay.resetRetryDelay()
+
+                    return object
+                } catch HTTPClientError.unauthorized(let response, let data) {
+                    // Don't retry requests with auth failure.
+                    throw HTTPClientError.unauthorized(response, data)
+                } catch HTTPClientError.clientError(let response, let data) {
+                    // Don't retry other 4xx requests here.
+                    throw HTTPClientError.clientError(response, data)
+                } catch HTTPClientError.connectionError(let connectionError) {
+                    // Retry connection errors
+                    Logger.network.info("Retriable connection error sending API request with identifier ”\(identifier)”: \(connectionError.localizedDescription).")
+                } catch HTTPClientError.serverError(let response, let data) {
+                    let responseString = data.flatMap { String(data: $0, encoding: .utf8) } ?? "<no text response>"
+                    Logger.network.info("Retriable server error sending API request with identifier ”\(identifier)”: \(response.statusCode) \(responseString).")
+                } catch let error {
+                    throw error
+                }
+
+                self.retryDelay.incrementRetryDelay()
+                try await Task.sleep(nanoseconds: self.retryDelay.retryDelayNanoseconds)
             }
         }
 
-        wrapper.request = request
-        self.requests[identifier] = wrapper
+        self.tasks[identifier] = task
+
+        // swift-format-ignore
+        return try await task.value as! T
     }
 
-    /// Starts a new request with the given parameters if another request with the same identifier is not already in progress.
-    ///
-    /// This is useful for instances where the same request might be triggered multiple times but only one request is desirable.
-    /// The completion handler for a duplicate request will not be called.
-    /// - Parameters:
-    ///   - builder: The HTTP endpoint of the request.
-    ///   - identifier: A string that identifies the request.
-    ///   - completion: A completion handler to call when the request either succeeds or fails permanently.
-    func startUnlessUnderway<T: Decodable>(_ builder: HTTPRequestBuilding, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
-        if self.requests[identifier] != nil {
-            ApptentiveLogger.network.info("A request with identifier \(identifier) is already underway. Skipping.")
-
-            return
-        }
-
-        self.start(builder, identifier: identifier, completion: completion)
+    func requestIsUnderway(for identifier: String) -> Bool {
+        return self.tasks[identifier] != nil
     }
 
     /// Cancels the request with the specified identifier.
     /// - Parameter identifier: The identifier for the request.
     func cancel(identifier: String) {
-        if let request = self.requests[identifier] {
-            request.request?.cancel()
+        if let task = self.tasks[identifier] {
+            task.cancel()
         }
     }
 
-    /// Processes the response created by the HTTP client to determine if the request should be retried.
-    /// - Parameters:
-    ///   - result: The result of the HTTP client's request.
-    ///   - identifier: The identifier of the request that may be retried.
-    ///   - completion: The completion handler supplied by the original caller for this retrying request, to be called when the request succeeds or fails permanently.
-    private func processResult<T: Decodable>(_ result: Result<T, Error>, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
-        switch result {
-        case .success:
-            self.retryPolicy.resetRetryDelay()
-            self.requests[identifier] = nil
-            completion(result)
+    struct RetryDelay {
+        let initialDelay: Double
+        let multiplier: Double
+        let useJitter: Bool
 
-        case .failure(let error as HTTPClientError):
-            if self.retryPolicy.shouldRetry(inCaseOf: error) {
-                self.retryPolicy.incrementRetryDelay()
-                let retryDelayMilliseconds = Int(self.retryPolicy.retryDelay) * 1000
+        private var baseRetryDelay: TimeInterval
 
-                ApptentiveLogger.network.info("Retriable error sending API request with identifier ”\(identifier)”: \(error.localizedDescription). Retrying in \(retryDelayMilliseconds) ms.")
+        internal init(initialDelay: Double = 5.0, multiplier: Double = 2.0, useJitter: Bool = true) {
+            self.initialDelay = initialDelay
+            self.multiplier = multiplier
+            self.useJitter = useJitter
 
-                self.dispatchQueue.asyncAfter(deadline: .now() + .milliseconds(retryDelayMilliseconds)) {
-                    guard let wrapper = self.requests[identifier] else {
-                        ApptentiveLogger.network.warning("Request with identifier \(identifier) cancelled or missing when attempting to retry.")
-                        return
-                    }
-
-                    guard let client = self.client else {
-                        return completion(.failure(ApptentiveError.internalInconsistency))
-                    }
-
-                    wrapper.request = client.request(
-                        wrapper.endpoint,
-                        completion: { (result: Result<T, Error>) in
-                            self.dispatchQueue.async {
-                                self.processResult(result, identifier: identifier, completion: completion)
-                            }
-                        })
-                }
-            } else {
-                ApptentiveLogger.network.info("Permanent failure when sending request with identifier “\(identifier)”: \(error.localizedDescription).")
-                fallthrough
-            }
-        default:
-            completion(result)
-            self.requests[identifier] = nil
+            self.baseRetryDelay = initialDelay
         }
-    }
 
-    /// Describes a request's endpoint and in-flight HTTP request.
-    class RequestWrapper {
-        let endpoint: HTTPRequestBuilding
-        var request: HTTPCancellable?
+        var retryDelay: TimeInterval {
+            let jitter = self.useJitter ? Double.random(in: 0..<1) : 1
+            return self.baseRetryDelay * jitter
+        }
 
-        internal init(endpoint: HTTPRequestBuilding, request: HTTPCancellable? = nil) {
-            self.endpoint = endpoint
-            self.request = request
+        var retryDelayNanoseconds: UInt64 {
+            return UInt64(retryDelay) * NSEC_PER_SEC
+        }
+
+        mutating func incrementRetryDelay() {
+            self.baseRetryDelay *= multiplier
+        }
+
+        mutating func resetRetryDelay() {
+            self.baseRetryDelay = self.initialDelay
         }
     }
 }

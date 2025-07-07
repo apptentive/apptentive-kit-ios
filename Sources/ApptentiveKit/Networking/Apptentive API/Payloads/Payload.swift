@@ -515,3 +515,9 @@ protocol PayloadEncodable {
 
 /// An empty object corresponding to the expected response when sending a payload.
 struct PayloadResponse: Codable {}
+
+extension Payload: CustomStringConvertible {
+    var description: String {
+        return self.debugDescription
+    }
+}

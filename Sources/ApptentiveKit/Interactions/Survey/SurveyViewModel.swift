@@ -9,7 +9,7 @@
 import Foundation
 
 /// Describes the interface that users of the view model should conform to to receive updates in response to user actions.
-public protocol SurveyViewModelDelegate: AnyObject {
+@MainActor public protocol SurveyViewModelDelegate: AnyObject {
 
     /// Tells the delegate that it should dismiss the survey UI.
     /// - Parameter viewModel: The view model sending the message.
@@ -35,7 +35,7 @@ public protocol SurveyViewModelDelegate: AnyObject {
 typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & ResponseRecording & URLOpening & SurveyBranching
 
 /// A class that describes the data in a survey interaction and allows reponses to be gathered and transmitted.
-public class SurveyViewModel {
+@MainActor public class SurveyViewModel {
 
     /// The name of the survey, typically displayed in a navigation bar.
     public let name: String?
@@ -47,10 +47,10 @@ public class SurveyViewModel {
     public let pageIndicatorSegmentCount: Int
 
     /// A message shown to the user after trying to advance or submit when one or more questions have invalid answers.
-    public let validationErrorMessage: String
+    public let validationErrorMessage: AttributedString
 
     /// An optional legal disclaimer to show users.
-    public var disclaimerText: String? {
+    public var disclaimerText: AttributedString? {
         return self.currentPage.disclaimer
     }
 
@@ -110,12 +110,12 @@ public class SurveyViewModel {
     }
 
     /// A short message shown to the user after the survey is submitted successfully (in list rendering mode).
-    public var thankYouMessage: String? {
+    public var thankYouMessage: AttributedString? {
         return self.successMessage
     }
 
     /// A short description of the survey typically displayed between the name and the question list (in list rendering mode).
-    public var introduction: String? {
+    public var introduction: AttributedString? {
         return self.currentPage.description
     }
 
@@ -173,7 +173,9 @@ public class SurveyViewModel {
             return apptentiveCriticalError("Attempting to open terms and conditions, but URL is missing.")
         }
 
-        self.interactionDelegate.open(termsLink) { _ in }
+        Task {
+            await self.interactionDelegate.open(termsLink)
+        }
     }
 
     /// Submits the users answers to the survey.
@@ -181,13 +183,18 @@ public class SurveyViewModel {
     /// If one or more answers are invalid, the delegate's `surveyViewModelValidationDidChange(_:)` will be called.
     /// If the answers are valid and there are more pages, the delegate's `surveyViewModelPageDidChange(_:)` will be called (via the `advanceToNextPage` method).
     /// If the answers are valid and there are no more pages, the delegate's `surveyViewModelDidSubmit(_:)` will be called.
-    public func advance() {
+    public func advance() async {
         if self.isValid {
             for question in self.currentPage.questions {
-                self.interactionDelegate.setCurrentResponse(question.response, for: question.questionID)
+                await self.interactionDelegate.setCurrentResponse(question.response, for: question.questionID)
             }
 
-            self.advanceToNextPage()
+            do {
+                try await self.advanceToNextPage()
+            } catch let error {
+                apptentiveCriticalError("Error evaluating logic for paged survey: \(error)")
+            }
+
         } else {
             self.coalesceValidationChanges {
                 for question in self.questions {
@@ -251,8 +258,10 @@ public class SurveyViewModel {
     public func launch() {
         self.interactionDelegate.engage(event: .launch(from: self.interaction))
 
-        for question in self.allQuestions {
-            self.interactionDelegate.resetCurrentResponse(for: question.questionID)
+        Task {
+            for question in self.allQuestions {
+                await self.interactionDelegate.resetCurrentResponse(for: question.questionID)
+            }
         }
     }
 
@@ -271,8 +280,10 @@ public class SurveyViewModel {
             self.interactionDelegate.engage(event: .cancel(from: self.interaction))
         }
 
-        for question in self.allQuestions {
-            self.interactionDelegate.resetCurrentResponse(for: question.questionID)
+        Task {
+            for question in self.allQuestions {
+                await self.interactionDelegate.resetCurrentResponse(for: question.questionID)
+            }
         }
     }
 
@@ -284,7 +295,7 @@ public class SurveyViewModel {
     internal var currentPageID: String
     internal let pages: [String: Page]
     internal var visitedQuestionIDs: Set<String>
-    internal let successMessage: String?
+    internal let successMessage: AttributedString?
     internal let title: String?
     internal let singlePageID = "single"
     internal let introPageID = "intro"
@@ -388,44 +399,6 @@ public class SurveyViewModel {
         }
     }
 
-    internal init(configuration: SurveyV11Configuration, interaction: Interaction, interactionDelegate: SurveyInteractionDelegate) {
-        self.interaction = interaction
-        self.interactionDelegate = interactionDelegate
-
-        self.title = configuration.title
-        self.name = configuration.name
-
-        self.termsAndConditions = configuration.termsAndConditions.flatMap {
-            TermsAndConditions(linkLabel: $0.label, linkURL: $0.link)
-        }
-
-        self.closeConfirmation = CloseConfirmation(
-            title: configuration.closeConfirmationTitle,
-            message: configuration.closeConfirmationMessage,
-            continueButtonTitle: configuration.closeConfirmationBackButtonText,
-            closeButtonTitle: configuration.closeConfirmationCloseButtonText)
-
-        self.pageIndicatorSegmentCount = 0
-        let questions = Self.buildQuestionViewModels(questions: configuration.questions, requiredText: configuration.requiredText)
-
-        let singlePage = Page(id: self.singlePageID, description: configuration.introduction, questions: questions, advanceButtonLabel: configuration.submitText, advanceLogic: [])
-        self.pages = [singlePage.id: singlePage]
-        self.currentPageID = singlePage.id
-
-        self.validationErrorMessage = configuration.validationError
-        self.successMessage = configuration.shouldShowThankYou ? configuration.thankYouMessage : nil
-        self.isRequired = configuration.required ?? false
-
-        self.rangeChoiceLabelNumberFormatter = NumberFormatter()
-
-        self.visitedQuestionIDs = Set<String>()
-        self.currentPage.questions.forEach { self.visitedQuestionIDs.insert($0.questionID) }
-
-        for questionViewModel in self.allQuestions {
-            questionViewModel.surveyViewModel = self
-        }
-    }
-
     internal var response: SurveyResponse {
         let questionResponseTuples: [(String, QuestionResponse)] = self.allQuestions.map({ question in
             // response defaults to .empty and must be changed to .skipped if the question wasn't visited.
@@ -452,38 +425,22 @@ public class SurveyViewModel {
     }
 
     /// Sets the current question set and the question list with the new ones based on the selected answer.
-    internal func advanceToNextPage() {
-        self.interactionDelegate.getNextPageID(for: currentPage.advanceLogic) { (result: Result<String?, Error>) in
-            let nextPageID: String? = {
-                switch result {
-                case .success(.some(let nextPageID)):
-                    return nextPageID
+    internal func advanceToNextPage() async throws {
+        let nextPageID = try await self.interactionDelegate.getNextPageID(for: currentPage.advanceLogic)
 
-                case .success(.none):
-                    return nil
+        // Send response if there are no further question pages.
+        if !self.surveyDidSendResponse && (nextPageID == nil || nextPageID == self.successPageID) {
+            await self.sendResponse()
+        }
 
-                case .failure(let error):
-                    apptentiveCriticalError("Error evaluating logic for paged survey: \(error)")
-                    return nil
-                }
-            }()
+        if let nextPageID = nextPageID {
+            self.delegate?.surveyViewModelPageWillChange(self)
+            self.currentPageID = nextPageID
+            self.delegate?.surveyViewModelPageDidChange(self)
 
-            DispatchQueue.main.async {
-                // Send response if there are no further question pages.
-                if !self.surveyDidSendResponse && (nextPageID == nil || nextPageID == self.successPageID) {
-                    self.sendResponse()
-                }
-
-                if let nextPageID = nextPageID {
-                    self.delegate?.surveyViewModelPageWillChange(self)
-                    self.currentPageID = nextPageID
-                    self.delegate?.surveyViewModelPageDidChange(self)
-
-                    self.currentPage.questions.forEach { self.visitedQuestionIDs.insert($0.questionID) }
-                } else {
-                    self.delegate?.surveyViewModelDidFinish(self)
-                }
-            }
+            self.currentPage.questions.forEach { self.visitedQuestionIDs.insert($0.questionID) }
+        } else {
+            self.delegate?.surveyViewModelDidFinish(self)
         }
     }
 
@@ -509,13 +466,13 @@ public class SurveyViewModel {
         self.shouldCoalesceValidationChanges = false
     }
 
-    private func sendResponse() {
-        self.response.questionResponses.forEach { questionID, responses in
-            self.interactionDelegate.recordResponse(responses, for: questionID)
+    private func sendResponse() async {
+        for (questionID, responses) in self.response.questionResponses {
+            await self.interactionDelegate.recordResponse(responses, for: questionID)
         }
 
         self.interactionDelegate.engage(event: .submit(from: self.interaction))
-        self.interactionDelegate.send(surveyResponse: self.response)
+        await self.interactionDelegate.send(surveyResponse: self.response)
 
         self.surveyDidSendResponse = true
     }
@@ -541,7 +498,7 @@ public class SurveyViewModel {
     }
 }
 
-struct AdvanceLogic {
+struct AdvanceLogic: Sendable {
     let criteria: Criteria
     let pageID: String?
 }

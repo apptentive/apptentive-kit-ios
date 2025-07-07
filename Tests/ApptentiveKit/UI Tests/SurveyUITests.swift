@@ -48,7 +48,7 @@ class SurveyUITests: XCTestCase {
         textView.tap()
         textView.typeText("Bar")
 
-        tablesQuery.buttons["Boom"].tap()
+        tablesQuery.buttons["Submit"].tap()
 
         XCTAssertTrue(tablesQuery.staticTexts["Thank you!"].exists, "Thank you text is displayed")
 
@@ -136,7 +136,7 @@ class SurveyUITests: XCTestCase {
         let tablesQuery = XCUIApplication().tables
 
         tablesQuery.staticTexts["Survey"].tap()
-        tablesQuery.buttons["Boom"].tap()
+        tablesQuery.buttons["Submit"].tap()
 
         //TODO: Remove this comment in order to test failed validation based on error message
         //XCTAssertTrue(XCUIApplication().otherElements["Error - There was a problem with your multi-select answer."].exists, "Error message should exist.")

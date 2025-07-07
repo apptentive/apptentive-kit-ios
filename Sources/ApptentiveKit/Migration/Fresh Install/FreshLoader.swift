@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OSLog
 
 struct FreshLoader: Loader {
     let context: LoaderContext
@@ -59,7 +60,7 @@ struct FreshLoader: Loader {
         var isDirectory: ObjCBool = false
 
         if !fileManager.fileExists(atPath: containerURL.path, isDirectory: &isDirectory) {
-            ApptentiveLogger.default.debug("Creating directory for Apptentive SDK data at \(containerURL).")
+            Logger.default.debug("Creating directory for Apptentive SDK data at \(containerURL).")
 
             try fileManager.createDirectory(at: containerURL, withIntermediateDirectories: true, attributes: [:])
         } else if !isDirectory.boolValue {

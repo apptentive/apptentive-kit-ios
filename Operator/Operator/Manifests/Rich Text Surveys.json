@@ -24,7 +24,7 @@
                 "type": "multichoice",
                 "required": false,
                 "instructions": "select two one",
-                "value": "<strike>Multi</strike>Single Select<br> <a href=https://www.google.com>link</a>",
+                "value": "<strike>Multi</strike>Single Select<br> <a href=\"https://www.google.com\">link</a>",
                 "error_message": "Error - There was a problem with your single-select answer.",
                 "answer_choices": [
                   {
@@ -201,7 +201,7 @@
         ],
         "title": "All Types Survey",
         "name": "All Types Survey",
-        "description": "<html>Every Question Type <b> Survey </b> www.google.com</html>",
+        "description": "<html>Every Question Type <ul><li>Survey</li><li>www.google.com</li></ul></html>",
         "render_as": "list",
         "show_success_message": true,
         "required": false,
@@ -237,7 +237,7 @@
                 "type": "multichoice",
                 "required": true,
                 "instructions": "select one",
-                "value": "<html> <strike>Multi</strike> Single  <br> <a href=https://www.google.com>link</a> </html>",
+                "value": "<html> <strike>Multi</strike> Single  <br> <a href=\"https://www.google.com\">link</a> </html>",
                 "error_message": "Error - There was a problem with your single-select answer.",
                 "answer_choices": [
                   {

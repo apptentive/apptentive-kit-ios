@@ -6,13 +6,12 @@
 //  Copyright © 2019 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Testing
 
 @testable import ApptentiveKit
 
-class AppReleaseTests: XCTestCase {
-
-    func testMerge() {
+struct AppReleaseTests {
+    @Test func testMerge() {
         let dataProvider = MockDataProvider()
 
         var appRelease1 = AppRelease(dataProvider: dataProvider)
@@ -20,21 +19,21 @@ class AppReleaseTests: XCTestCase {
 
         appRelease2.version = "1"
 
-        XCTAssertFalse(appRelease1.isUpdatedVersion)
-        XCTAssertFalse(appRelease1.isUpdatedBuild)
+        #expect(!appRelease1.isUpdatedVersion)
+        #expect(!appRelease1.isUpdatedBuild)
 
         let newerVersion: Version = "2"
         appRelease2.sdkDistributionVersion = newerVersion
 
         appRelease1.merge(with: appRelease2)
 
-        XCTAssertTrue(appRelease1.isUpdatedVersion)
-        XCTAssertEqual(appRelease1.sdkDistributionVersion, newerVersion)
+        #expect(appRelease1.isUpdatedVersion)
+        #expect(appRelease1.sdkDistributionVersion == newerVersion)
 
         appRelease2.build = "2"
 
         appRelease1.merge(with: appRelease2)
 
-        XCTAssertTrue(appRelease1.isUpdatedBuild)
+        #expect(appRelease1.isUpdatedBuild)
     }
 }

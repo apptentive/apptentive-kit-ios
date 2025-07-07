@@ -6,52 +6,49 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Testing
+import UIKit
 
 @testable import ApptentiveKit
 
-class EnjoymentDialogViewModelTests: XCTestCase {
-    var viewModel: DialogViewModel?
-    var spySender: SpyInteractionDelegate?
+@MainActor struct EnjoymentDialogViewModelTests {
+    var viewModel: DialogViewModel
+    var spySender: SpyInteractionDelegate
 
     var gotDidSubmit: Bool = false
     var gotValidationDidChange: Bool = false
     var gotSelectionDidChange: Bool = false
 
-    override func setUpWithError() throws {
+    init() throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "EnjoymentDialog")
 
         guard case let Interaction.InteractionConfiguration.enjoymentDialog(configuration) = interaction.configuration else {
-            return XCTFail("Unable to create view model")
+            throw TestError(reason: "Unable to create view model")
         }
 
         self.spySender = SpyInteractionDelegate()
-        self.viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender!)
+        self.viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender)
     }
 
-    func testEnjoymentDialog() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
-
-        XCTAssertEqual(viewModel.title, "Do you love this app?")
-        XCTAssertNil(viewModel.message)
-        let yesButtonText = viewModel.actions[1].label
-        let noButtonText = viewModel.actions[0].label
-        XCTAssertEqual(noButtonText, "No")
-        XCTAssertEqual(yesButtonText, "Yes")
-        XCTAssertNil(viewModel.imageConfiguration)
+    @Test func testEnjoymentDialog() {
+        #expect(self.viewModel.title.flatMap { String($0.characters) } == "Do you love this app?")
+        #expect(self.viewModel.message == nil)
+        let yesButtonText = self.viewModel.actions[1].label
+        let noButtonText = self.viewModel.actions[0].label
+        #expect(noButtonText == "No")
+        #expect(yesButtonText == "Yes")
+        #expect(self.viewModel.imageConfiguration == nil)
     }
 
-    func testYesButton() {
-        viewModel?.buttonSelected(at: 1)
+    @Test func testYesButton() {
+        self.viewModel.buttonSelected(at: 1)
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#yes")
+        #expect(self.spySender.engagedEvent?.codePointName == "com.apptentive#EnjoymentDialog#yes")
     }
 
-    func testNoButton() {
-        viewModel?.buttonSelected(at: 0)
+    @Test func testNoButton() {
+        self.viewModel.buttonSelected(at: 0)
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#no")
+        #expect(self.spySender.engagedEvent?.codePointName == "com.apptentive#EnjoymentDialog#no")
     }
 }

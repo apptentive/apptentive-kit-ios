@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OSLog
 
 struct CurrentLoader: Loader {
     private static let rosterFilename = "Roster.B"
@@ -49,13 +50,13 @@ struct CurrentLoader: Loader {
                     do {
                         try loader.cleanUpRoster()
                     } catch let error {
-                        ApptentiveLogger.default.error("Error removing extraneous files for version \(String(describing: LoaderType)): \(error)")
+                        Logger.default.error("Error removing extraneous files for version \(String(describing: LoaderType)): \(error)")
                     }
 
                     return result
                 }
             } catch let error {
-                ApptentiveLogger.default.error("Error loading conversation from version \(String(describing: LoaderType)): \(error)")
+                Logger.default.error("Error loading conversation from version \(String(describing: LoaderType)): \(error)")
             }
         }
 
@@ -75,13 +76,13 @@ struct CurrentLoader: Loader {
                     do {
                         try loader.cleanUp(for: record)
                     } catch let error {
-                        ApptentiveLogger.default.error("Error removing extraneous files for version \(String(describing: LoaderType)): \(error)")
+                        Logger.default.error("Error removing extraneous files for version \(String(describing: LoaderType)): \(error)")
                     }
 
                     return
                 }
             } catch let error {
-                ApptentiveLogger.default.error("Error loading conversation from version \(String(describing: LoaderType)): \(error)")
+                Logger.default.error("Error loading conversation from version \(String(describing: LoaderType)): \(error)")
             }
         }
 

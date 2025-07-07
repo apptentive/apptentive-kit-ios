@@ -9,7 +9,7 @@
 import Foundation
 
 /// Includes the methods and variables needed to describe an API endpoint.
-protocol HTTPRequestBuilding {
+protocol HTTPRequestBuilding: Sendable {
     var method: HTTPMethod { get }
 
     func headers(userAgent: String?, languageCode: String?) throws -> [String: String]

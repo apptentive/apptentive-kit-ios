@@ -8,7 +8,7 @@
 
 import Foundation
 
-class LegacyLoader: NSObject, Loader {
+final class LegacyLoader: NSObject, Loader {
     let context: LoaderContext
 
     required init(context: LoaderContext) {

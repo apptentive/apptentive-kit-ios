@@ -7,13 +7,14 @@
 //
 
 import Foundation
+import OSLog
 
 protocol TargetingState {
     func value(for field: Field) throws -> Any?
 }
 
 /// Determines which interaction (if any) to present in response to an event being engaged.
-class Targeter {
+final class Targeter {
 
     /// The engagement manifest to use for targeting and describing interactions.
     var engagementManifest: EngagementManifest {
@@ -95,11 +96,11 @@ class Targeter {
             if let interactionID = try self.interactionID(for: invocations, state: state) {
                 return interactionID
             } else {
-                ApptentiveLogger.engagement.info("No interactions targeting event \(event) have criteria met by active conversation.")
+                Logger.engagement.info("No interactions targeting event \(event) have criteria met by active conversation.")
                 return nil
             }
         } else {
-            ApptentiveLogger.engagement.info("No interactions target the event \(event).")
+            Logger.engagement.info("No interactions target the event \(event).")
             return nil
         }
     }

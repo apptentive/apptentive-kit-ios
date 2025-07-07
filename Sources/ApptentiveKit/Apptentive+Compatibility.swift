@@ -12,18 +12,11 @@
 // from generated Swift output of the original Objective-C.
 
 import UIKit
+import OSLog
 
 extension Apptentive {
-    @available(*, deprecated, message: "Use the 'register(with:completion:)' method on the 'shared' instance instead.")
-    @objc(registerWithConfiguration:) public class func register(with configuration: ApptentiveConfiguration) {
-        self.shared.register(with: configuration)
-    }
-
     @available(swift, deprecated: 1.0, message: "Use the 'register(with:completion:) method that takes an 'AppCredentials' argument.")
-    @objc(registerWithConfiguration:completion:) public func register(with configuration: ApptentiveConfiguration, completion: ((Bool) -> Void)? = nil) {
-        ApptentiveLogger.shouldHideSensitiveLogs = configuration.shouldSanitizeLogMessages
-        ApptentiveLogger.logLevel = configuration.logLevel.logLevel
-
+    @objc(registerWithConfiguration:completion:) public func register(with configuration: ApptentiveConfiguration, completion: (@Sendable (Bool) -> Void)? = nil) {
         if let distributionName = configuration.distributionName {
             self.distributionName = distributionName
         }
@@ -45,50 +38,11 @@ extension Apptentive {
         }
     }
 
-    @available(*, deprecated, message: "Use the 'shared' static property instead.")
-    @objc public class func sharedConnection() -> Apptentive {
-        return Apptentive.shared
-    }
-
-    @available(*, deprecated, message: "This property is ignored. SKStoreReviewController will be used for all ratings.")
-    @objc public var appID: String? {
-        get {
-            nil
-        }
-        set {}
-    }
-
-    @available(*, deprecated, message: "This property is ignored. The info button no longer exists.")
-    @objc public var showInfoButton: Bool {
-        get {
-            false
-        }
-        set {}
-    }
-
-    @available(*, deprecated, message: "This feature is not implemented.")
-    @objc public var surveyTermsAndConditions: TermsAndConditions? {
-        get {
-            nil
-        }
-        set {}
-    }
-
-    @available(*, deprecated, message: "This property is not available for reading.")
-    @objc public var apptentiveKey: String {
-        ""
-    }
-
-    @available(*, deprecated, message: "This property is not available for reading.")
-    @objc public var apptentiveSignature: String {
-        ""
-    }
-
     @objc(engage:fromViewController:) public func engage(_ event: String, fromViewController viewController: UIViewController?) {
         self.engage(event: Event(name: event), from: viewController)
     }
 
-    @objc(engage:fromViewController:completion:) public func engage(_ event: String, fromViewController viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
+    @objc(engage:fromViewController:completion:) public func engage(_ event: String, fromViewController viewController: UIViewController?, completion: (@Sendable (Bool) -> Void)? = nil) {
         self.engage(event: Event(name: event), from: viewController) { (result) in
             switch result {
             case .success:
@@ -108,7 +62,7 @@ extension Apptentive {
     }
 
     @available(swift, deprecated: 1.0, message: "Create an 'Event' object and subscript its 'customData' property.")
-    @objc(engage:withCustomData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
+    @objc(engage:withCustomData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?, completion: (@Sendable (Bool) -> Void)? = nil) {
         var event = Event(name: event)
         event.customData = Self.convertLegacyCustomData(customData)
         self.engage(event: event, from: viewController) { (result) in
@@ -122,28 +76,8 @@ extension Apptentive {
         }
     }
 
-    @available(*, deprecated, message: "Event extended data are no longer supported. Event will be engaged without extended data.")
-    @objc(engage:withCustomData:withExtendedData:fromViewController:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, withExtendedData extendedData: [[AnyHashable: Any]]?, from viewController: UIViewController?) {
-        ApptentiveLogger.engagement.error("Event extended data are no longer supported. Event will be engaged without extended data.")
-        self.engage(event: Event(name: event), from: viewController, completion: nil)
-    }
-
-    @available(*, deprecated, message: "Event extended data are no longer supported. Event will be engaged without extended data.")
-    @objc(engage:withCustomData:withExtendedData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, withExtendedData extendedData: [[AnyHashable: Any]]?, from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
-        ApptentiveLogger.engagement.error("Event extended data are no longer supported. Event will be engaged without extended data.")
-        self.engage(event: Event(name: event), from: viewController) { (result) in
-            switch result {
-            case .success:
-                completion?(true)
-
-            case .failure:
-                completion?(false)
-            }
-        }
-    }
-
-    @available(swift, deprecated: 1.0, message: "Use the 'canShowInteraction(event:completion:)' method instead.")
-    @objc public func queryCanShowInteraction(forEvent event: String, completion: @escaping (Bool) -> Void) {
+    @available(swift, deprecated: 1.0, message: "Use the 'canShowInteraction(event:)' method instead.")
+    @objc public func queryCanShowInteraction(forEvent event: String, completion: @Sendable @escaping (Bool) -> Void) {
         let event = Event(name: event)
         self.canShowInteraction(event: event) { result in
             switch result {
@@ -155,28 +89,8 @@ extension Apptentive {
         }
     }
 
-    @available(*, deprecated, message: "Extended event data are no longer supported.")
-    @objc(extendedDataDate:) public class func extendedData(date: Date) -> [AnyHashable: Any] {
-        return [:]
-    }
-
-    @available(*, deprecated, message: "Extended event data are no longer supported.")
-    @objc(extendedDataLocationForLatitude:longitude:) public class func extendedData(latitude: Double, longitude: Double) -> [AnyHashable: Any] {
-        return [:]
-    }
-
-    @available(*, deprecated, message: "Extended event data are no longer supported.")
-    @objc(extendedDataCommerceWithTransactionID:affiliation:revenue:shipping:tax:currency:commerceItems:) public class func extendedData(transactionID: String?, affiliation: String?, revenue: NSNumber?, shipping: NSNumber?, tax: NSNumber?, currency: String?, commerceItems: [[AnyHashable: Any]]?) -> [AnyHashable: Any] {
-        return [:]
-    }
-
-    @available(*, deprecated, message: "Extended event data are no longer supported.")
-    @objc(extendedDataCommerceItemWithItemID:name:category:price:quantity:currency:) public class func extendedData(itemID: String?, name: String?, category: String?, price: NSNumber?, quantity: NSNumber?, currency: String?) -> [AnyHashable: Any] {
-        return [:]
-    }
-
-    @available(swift, deprecated: 1.0, message: "Use the 'canShowMessageCenter(completion:)' method instead.")
-    @objc public func queryCanShowMessageCenter(completion: @escaping (Bool) -> Void) {
+    @available(swift, deprecated: 1.0, message: "Use the 'canShowMessageCenter()' method instead.")
+    @objc public func queryCanShowMessageCenter(completion: @Sendable @escaping (Bool) -> Void) {
         self.canShowMessageCenter() { result in
             switch result {
             case .success(let canShowMessageCenter):
@@ -192,9 +106,9 @@ extension Apptentive {
         self.presentMessageCenter(from: viewController)
     }
 
-    @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
+    @available(swift, deprecated: 1.0, message: "Use the async version of this method.")
     @objc(presentMessageCenterFromViewController:completion:)
-    public func presentMessageCenterCompat(from viewController: UIViewController?, completion: ((Bool) -> Void)? = nil) {
+    public func presentMessageCenterCompat(from viewController: UIViewController?, completion: (@Sendable (Bool) -> Void)? = nil) {
         self.presentMessageCenter(from: viewController) { result in
             switch result {
             case .success(let didShow):
@@ -211,9 +125,9 @@ extension Apptentive {
         self.presentMessageCenter(from: viewController, with: Self.convertLegacyCustomData(customData))
     }
 
-    @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Bool, Error> parameter.")
+    @available(swift, deprecated: 1.0, message: "Use the async version of this method.")
     @objc(presentMessageCenterFromViewController:withCustomData:completion:)
-    public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?, completion: ((Bool) -> Void)? = nil) {
+    public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?, completion: (@Sendable (Bool) -> Void)? = nil) {
         self.presentMessageCenter(from: viewController, with: Self.convertLegacyCustomData(customData)) { result in
             switch result {
             case .success(let didShow):
@@ -222,55 +136,6 @@ extension Apptentive {
             default:
                 completion?(false)
             }
-        }
-    }
-
-    @available(*, deprecated, message: "This feature is not implemented and this method will always result in false.")
-    @objc public func dismissMessageCenter(animated: Bool, completion: (() -> Void)? = nil) {
-        completion?()
-    }
-
-    @available(*, deprecated, message: "This feature is not implemented and this property will return an empty view.")
-    @objc public func unreadMessageCountAccessoryView(apptentiveHeart: Bool) -> UIView {
-        return UIView(frame: .zero)
-    }
-
-    @available(*, deprecated, message: "This method is no longer implemented and will trigger an assertion failure.")
-    @objc public func openAppStore() {
-        apptentiveCriticalError("The public App Store feature is no longer supported.")
-    }
-
-    @available(*, deprecated, message: "Use the 'setRemoteNotificationToken()' method instead.")
-    @objc public func setPushProvider(_ pushProvider: ApptentivePushProvider, deviceToken: Data) {
-        switch pushProvider {
-        case .apptentive:
-            self.setRemoteNotificationDeviceToken(deviceToken)
-
-        default:
-            apptentiveCriticalError("Alternative push providers are no longer supported.")
-        }
-    }
-
-    @available(*, deprecated, message: "This method is deprecated in favor of didReceveUserNotificationResponse(_:from:withCompletionHandler:).")
-    @objc public func didReceveUserNotificationResponse(_ response: UNNotificationResponse, from _: UIViewController?, withCompletionHandler completionHandler: @escaping () -> Void) -> Bool {
-        return self.didReceveUserNotificationResponse(response, withCompletionHandler: completionHandler)
-    }
-
-    @available(*, deprecated, message: "Advertising identifier collection is not implemented.")
-    @objc public var advertisingIdentifier: UUID? {
-        get {
-            nil
-        }
-        set {}
-    }
-
-    @available(*, deprecated, message: "mParticleId has been renamed to mParticleID.")
-    @objc public var mParticleId: String? {
-        get {
-            return self.mParticleID
-        }
-        set {
-            self.mParticleID = newValue
         }
     }
 
@@ -314,21 +179,8 @@ extension Apptentive {
         self.personCustomData[key] = boolValue
     }
 
-    @available(*, deprecated, message: "Set style overrides defined in UIKit+Apptentive.swift extensions.")
-    @objc public var styleSheet: Any? {
-        get {
-            nil
-        }
-        set {}
-    }
-
-    @available(*, deprecated, message: "This method is not currently implemented and will trigger an assertion failure.")
-    @objc public func checkSDKConfiguration() {
-        apptentiveCriticalError("This method is no longer implemented.")
-    }
-
     @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Void, Error> parameter.")
-    @objc public func logIn(withToken token: String, completion: @escaping (Bool, Error?) -> Void) {
+    @objc public func logIn(withToken token: String, completion: @Sendable @escaping (Bool, Error?) -> Void) {
         self.logIn(with: token) { result in
             switch result {
             case .success:
@@ -355,39 +207,30 @@ extension Apptentive {
         }
     }
 
-    @available(*, deprecated, message: "This feature is no longer supported.")
-    @objc public var preInteractionCallback: ApptentiveInteractionCallback? {
-        get {
-            nil
-        }
-        set {}
-    }
-
     @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Void, Error> parameter.")
-    @objc public func updateToken(_ token: String, completion: ((Bool) -> Void)? = nil) {
+    @objc public func updateToken(_ token: String, completion: (@Sendable (Bool) -> Void)? = nil) {
         self.updateToken(token) { (result: Result<Void, Error>) in
             switch result {
             case .success:
                 completion?(true)
 
             case .failure(let error):
-                ApptentiveLogger.default.error("Error when attempting to update token: \(error)")
+                Logger.default.error("Error when attempting to update token: \(error)")
                 completion?(false)
             }
         }
     }
 
-    @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of it's static log properties.")
+    @available(swift, deprecated: 1.0, message: "Log level is no longer supported. Use the filtering in Xcode or Console app.")
     @objc public var logLevel: ApptentiveLogLevel {
         get {
             return .undefined
         }
         set {
-            ApptentiveLogger.logLevel = newValue.logLevel
         }
     }
 
-    static func convertLegacyCustomData(_ legacyCustomData: [AnyHashable: Any]?) -> CustomData {
+    nonisolated static func convertLegacyCustomData(_ legacyCustomData: [AnyHashable: Any]?) -> CustomData {
         var result = CustomData()
 
         if let legacyCustomData = legacyCustomData {
@@ -411,7 +254,7 @@ extension Apptentive {
                     result[key] = string
 
                 default:
-                    ApptentiveLogger.default.warning("Unable to migrate custom data value “\(String(describing: value))” for key “\(key)”")
+                    Logger.default.warning("Unable to migrate custom data value “\(String(describing: value))” for key “\(key)”")
                     break
                 }
             }
@@ -524,9 +367,6 @@ extension UIViewController {
 @available(swift, deprecated: 1.0, message: "Use the 'AuthenticationFailureReason' enumeration.")
 public typealias ApptentiveAuthenticationFailureCallback = (ApptentiveAuthenticationFailureReason, String?) -> Void
 
-@available(*, deprecated, message: "This feature is no longer supported.")
-public typealias ApptentiveInteractionCallback = (String, [AnyHashable: Any]?) -> Bool
-
 @available(swift, deprecated: 1.0, message: "Use the 'AuthenticationFailureReason' enumeration.")
 @objc public enum ApptentiveAuthenticationFailureReason: Int {
     /// An unknown authentication failure.
@@ -575,11 +415,11 @@ public class ApptentiveConfiguration: NSObject {
     @objc public let apptentiveSignature: String
 
     /// The granularity of log messages to show.
-    @available(swift, deprecated: 1.0, message: "Set the 'logLevel' property on 'ApptentiveLogger' or one of its static log properties.")
+    @available(*, deprecated, message: "Logging now uses iOS's Unified Logging features so logs are no longer filtered by the SDK.")
     @objc public var logLevel: ApptentiveLogLevel = .warn
 
     /// If set, redacts potentially-sensitive information such as user data and credentials from logging.
-    @available(swift, deprecated: 1.0, message: "Set the 'shouldHideSensitiveLogs' property on 'ApptentiveLogger' or one of its static log properties.")
+    @available(*, deprecated, message: "Logging now uses iOS's Unified Logging features so redaction of sensitive information is handled automatically.")
     @objc public var shouldSanitizeLogMessages: Bool = true
 
     /// The server URL to use for API calls. Should only be used for testing.
@@ -592,18 +432,6 @@ public class ApptentiveConfiguration: NSObject {
     /// The version of the distribution that includes the Apptentive SDK.
     @available(swift, deprecated: 1.0, message: "Set the 'distributionVersion' property on 'Apptentive' directly before calling 'register(with:completion)'.")
     @objc public var distributionVersion: String? = nil
-
-    /// The iTunes store app ID of the app (used for Apptentive rating prompt).
-    @available(*, deprecated, message: "This property is ignored. An 'SKStoreReviewController' will be used for all ratings.")
-    @objc public var appID: String? = nil
-
-    /// If set, shows a button in Surveys and Message Center that presents information about Apptentive including a link to our privacy policy.
-    @available(*, deprecated, message: "This property is ignored. The info button no longer exists.")
-    @objc public var showInfoButton: Bool = false
-
-    /// If set, will show a link to terms and conditions in the bottom bar in Surveys.
-    @available(*, deprecated, message: "This property is ignored. Configure survey terms and conditions in the Apptentive Dashboard.")
-    @objc public var surveyTermsAndConditions: TermsAndConditions? = nil
 
     @objc(initWithApptentiveKey:apptentiveSignature:) public required init?(apptentiveKey: String, apptentiveSignature: String) {
         self.apptentiveKey = apptentiveKey
@@ -620,22 +448,7 @@ public class ApptentiveConfiguration: NSObject {
     }
 }
 
-@available(*, deprecated, message: "Selecting a push notification provider is no longer supported.")
-@objc public enum ApptentivePushProvider: Int {
-    /// Specifies the Apptentive push provider.
-    case apptentive = 0
-
-    /// Specifies the Urban Airship push provider.
-    case urbanAirship = 1
-
-    /// Specifies the Amazon Simple Notification Service push provider.
-    case amazonSNS = 2
-
-    /// Specifies the Parse push provider.
-    case parse = 3
-}
-
-@available(*, deprecated, message: "Use the 'LogLevel' enumeration to set the 'logLevel' property on 'ApptentiveLogger' or one of it's static log properties.")
+@available(*, deprecated, message: "The SDK now uses Unified Logging, so logs are filtered by the logging system.")
 @objc public enum ApptentiveLogLevel: UInt {
     /// Undefined.
     case undefined = 0
@@ -657,158 +470,4 @@ public class ApptentiveConfiguration: NSObject {
 
     /// All possible log messages enabled.
     case verbose = 6
-
-    internal var logLevel: LogLevel {
-        switch self {
-        case .undefined:
-            return .info
-
-        case .crit:
-            return .critical
-
-        case .error:
-            return .error
-
-        case .warn:
-            return .warning
-
-        case .info:
-            return .info
-
-        case .debug:
-            return .debug
-
-        case .verbose:
-            return .debug
-        }
-    }
-}
-
-@available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-public class TermsAndConditions: NSObject {
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public init(bodyText: String?, linkText: String?, linkURL: URL?) {
-        self.bodyText = bodyText
-        self.linkText = linkText
-        self.linkURL = linkURL
-    }
-
-    public let bodyText: String?
-    public let linkText: String?
-    public let linkURL: URL?
-}
-
-@available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-public protocol ApptentiveStyle {
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    func font(for textStyle: ApptentiveStyleIdentifier) -> UIFont
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    func color(for style: ApptentiveStyleIdentifier) -> UIColor
-}
-
-@available(*, deprecated, message: "This enumeration is provided for compatibility but this feature is not implemented.")
-public enum ApptentiveStyleIdentifier {
-    case body
-    case headerTitle
-    case headerMessage
-    case messageDate
-    case messageSender
-    case messageStatus
-    case messageCenterStatus
-    case surveyInstructions
-    case doneButton
-    case button
-    case submitButton
-    case textInput
-    case headerBackground
-    case footerBackground
-    case failure
-    case separator
-    case background
-    case collectionBackground
-    case textInputBackground
-    case textInputPlaceholder
-    case messageBackground
-    case replyBackground
-    case contextBackground
-}
-
-@available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-public class ApptentiveStyleSheet: ApptentiveStyle {
-    internal init() {
-        self.fontFamily = ""
-        self.lightFaceAttribute = ""
-        self.regularFaceAttribute = ""
-        self.mediumFaceAttribute = ""
-        self.boldFaceAttribute = ""
-        self.primaryColor = .magenta
-        self.secondaryColor = .magenta
-        self.failureColor = .magenta
-        self.backgroundColor = .magenta
-        self.separatorColor = .magenta
-        self.collectionBackgroundColor = .magenta
-        self.placeholderColor = .magenta
-        self.sizeAdjustment = 0
-    }
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public func font(for textStyle: ApptentiveStyleIdentifier) -> UIFont {
-        return UIFont()
-    }
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public func color(for style: ApptentiveStyleIdentifier) -> UIColor {
-        return UIColor()
-    }
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public convenience init?(contentsOf stylePropertyListURL: URL) {
-        self.init()
-    }
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var fontFamily: String
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var lightFaceAttribute: String?
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var regularFaceAttribute: String?
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var mediumFaceAttribute: String?
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var boldFaceAttribute: String?
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var primaryColor: UIColor
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var secondaryColor: UIColor
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var failureColor: UIColor
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var backgroundColor: UIColor
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var separatorColor: UIColor
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var collectionBackgroundColor: UIColor
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var placeholderColor: UIColor
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public var sizeAdjustment: CGFloat
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public func setFontDescriptor(_ fontDescriptor: UIFontDescriptor, forStyle style: String) {}
-
-    @available(*, deprecated, message: "This class is provided for compatibility but this feature is not implemented.")
-    public func setColor(_ color: UIColor, forStyle style: String) {}
 }

@@ -10,11 +10,11 @@ import UIKit
 
 class SurveyQuestionHeaderView: UITableViewHeaderFooterView {
     let stackView: UIStackView
-    let questionLabel: UILabel
+    let questionLabel: RichTextLabel
     let instructionsLabel: UILabel
 
     override init(reuseIdentifier: String?) {
-        self.questionLabel = UILabel(frame: .zero)
+        self.questionLabel = RichTextLabel(frame: .zero)
         self.instructionsLabel = UILabel(frame: .zero)
         self.stackView = UIStackView(arrangedSubviews: [self.questionLabel, self.instructionsLabel])
         super.init(reuseIdentifier: reuseIdentifier)
@@ -30,7 +30,7 @@ class SurveyQuestionHeaderView: UITableViewHeaderFooterView {
     }
 
     private func configureLabels() {
-        self.questionLabel.adjustsFontForContentSizeCategory = true
+        self.questionLabel.textStyle = .headline
         self.questionLabel.numberOfLines = 0
         self.questionLabel.lineBreakMode = .byWordWrapping
         self.questionLabel.font = .apptentiveQuestionLabel

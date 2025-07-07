@@ -6,6 +6,7 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import OSLog
 import UIKit
 
 /// `UINavigationController` subclass intended primarily to facilitate scoping `UIAppearance` rules to Apptentive UI.
@@ -20,22 +21,22 @@ public class ApptentiveNavigationController: UINavigationController {
     @objc public static var prefersLargeHeader: Bool = false
 }
 
-extension UITableView {
+@MainActor extension UITableView {
     /// Determines height of the separator between questions.
     public static var apptentiveQuestionSeparatorHeight: CGFloat = 0
 }
 
-extension UITableView.Style {
+@MainActor extension UITableView.Style {
     /// The table view style to use for Apptentive UI.
     public static var apptentive: UITableView.Style = .insetGrouped
 }
 
-extension UIModalPresentationStyle {
+@MainActor extension UIModalPresentationStyle {
     /// The modal presentation style to use for Surveys and Message Center.
     public static var apptentive: Self = .pageSheet
 }
 
-extension UIBarButtonItem {
+@MainActor extension UIBarButtonItem {
     /// The bar button item to use for closing Apptentive UI.
     @objc public static var apptentiveClose: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
 
@@ -43,10 +44,10 @@ extension UIBarButtonItem {
     @objc public static var appentiveRefresh: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: nil, action: nil)
 
     /// The bar button item to use for editing the profile in message center.
-    @objc public static var apptentiveProfileEdit: UIBarButtonItem = UIBarButtonItem(image: .apptentiveImage(named: "person.crop.circle"), style: .done, target: nil, action: nil)
+    @objc public static var apptentiveProfileEdit: UIBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "person.crop.circle"), style: .done, target: nil, action: nil)
 }
 
-extension UIButton {
+@MainActor extension UIButton {
 
     /// The close button used to replicate the bar button item when large headers are used in surveys.
     public static var apptentiveClose: UIButton? = {
@@ -69,53 +70,45 @@ extension UIButton {
     public static var apptentiveStyle: ApptentiveButtonStyle = .pill
 }
 
-extension UIImage {
+@MainActor extension UIImage {
     /// The image to use for the add attachment button for message center.
-    @objc public static var apptentiveMessageAttachmentButton: UIImage? = apptentiveImage(named: "paperclip.circle.fill")
+    @objc public static var apptentiveMessageAttachmentButton = UIImage(systemName: "paperclip.circle.fill")
 
     /// The image to use for the button that sends messages for message center.
-    @objc public static var apptentiveMessageSendButton: UIImage? = apptentiveImage(named: "paperplane.circle.fill")
+    @objc public static var apptentiveMessageSendButton = UIImage(systemName: "paperplane.circle.fill")
 
     /// The image to use as the chat bubble for outbound messages.
-    @objc public static var apptentiveSentMessageBubble: UIImage? = UIImage(named: "messageSentBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(
-        withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 14, right: 18))
+    @objc public static var apptentiveSentMessageBubble = UIImage(named: "messageSentBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(
+        withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 14, right: 20))
 
     /// The image to use as the chat bubble for inbound messages.
-    @objc public static var apptentiveReceivedMessageBubble: UIImage? = UIImage(named: "messageReceivedBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(
-        withCapInsets: UIEdgeInsets(top: 9, left: 18, bottom: 14, right: 9))
+    @objc public static var apptentiveReceivedMessageBubble = UIImage(named: "messageReceivedBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(
+        withCapInsets: UIEdgeInsets(top: 9, left: 20, bottom: 14, right: 9))
 
     /// The image to use for attachment placeholders in messages and the composer.
-    @objc public static var apptentiveAttachmentPlaceholder: UIImage? = UIImage(named: "document", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal).resizableImage(
+    @objc public static var apptentiveAttachmentPlaceholder = UIImage(named: "document", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal).resizableImage(
         withCapInsets: UIEdgeInsets(top: 14, left: 4, bottom: 4, right: 14))
 
     /// The image to use for the attachment delete button.
-    @objc public static var apptentiveAttachmentRemoveButton: UIImage? = .apptentiveImage(named: "minus.circle.fill")?.withRenderingMode(.alwaysOriginal)
+    @objc public static var apptentiveAttachmentRemoveButton = UIImage(systemName: "minus.circle.fill")?.withRenderingMode(.alwaysOriginal)
 
     /// The image to use for the top navigation bar for surveys.
     @objc public static var apptentiveHeaderLogo: UIImage? = nil
 
     /// The image to use next to a radio button question choice.
-    @objc public static var apptentiveRadioButton: UIImage? = apptentiveImage(named: "circle")
+    @objc public static var apptentiveRadioButton = UIImage(systemName: "circle")
 
     /// The image to use next to a checkbox question choice.
-    @objc public static var apptentiveCheckbox: UIImage? = apptentiveImage(named: "square")
+    @objc public static var apptentiveCheckbox = UIImage(systemName: "square")
 
     /// The image to use next to a selected radio button question choice.
-    @objc public static var apptentiveRadioButtonSelected: UIImage? = apptentiveImage(named: "smallcircle.fill.circle.fill")
+    @objc public static var apptentiveRadioButtonSelected = UIImage(systemName: "smallcircle.filled.circle.fill")
 
     /// The image to use next to a selected checkbox question choice.
-    @objc public static var apptentiveCheckboxSelected: UIImage? = apptentiveImage(named: "checkmark.square.fill")
-
-    static func apptentiveImage(named: String) -> UIImage? {
-        if let result = UIImage(systemName: named) {
-            return result
-        }
-
-        return UIImage(named: named, in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-    }
+    @objc public static var apptentiveCheckboxSelected = UIImage(systemName: "checkmark.square.fill")
 }
 
-extension UIColor {
+@MainActor extension UIColor {
 
     /// The color to use for the background in text inputs for message center.
     @objc public static var apptentiveMessageCenterTextInputBackground = apptentiveTextInputBackground
@@ -328,7 +321,7 @@ extension UIColor {
     @objc public static var apptentiveDisclaimerLabel = lightGray
 }
 
-extension UIFont {
+@MainActor extension UIFont {
 
     /// The font to use for placeholder for text inputs in message center.
     @objc public static var apptentiveMessageCenterTextInputPlaceholder = preferredFont(forTextStyle: .body)
@@ -404,23 +397,15 @@ extension UIFont {
     /// Repairs the scalability of ``UIFont.apptentiveTextInput`` for `UITextView` and `UITextField` use.
     internal func apptentiveRepairedFont() -> UIFont {
         guard let textStyleString = self.fontDescriptor.object(forKey: UIFontDescriptor.AttributeName.textStyle) as? String else {
-            ApptentiveLogger.default.warning("Font \(self.debugDescription) has a missing or invalid textStyle and will not work with Dynamic Type.")
+            Logger.default.warning("Font \(self.debugDescription) has a missing or invalid textStyle and will not work with Dynamic Type.")
             return self
         }
 
         return UIFontMetrics(forTextStyle: UIFont.TextStyle(rawValue: textStyleString)).scaledFont(for: self)
     }
-
-    func createUIFontMetricsForHTML() -> UIFont {
-        let fontDescriptor = self.fontDescriptor
-        if let textStyle = fontDescriptor.fontAttributes[.textStyle] as? UIFont.TextStyle {
-            return UIFontMetrics(forTextStyle: textStyle).scaledFont(for: self)
-        }
-        return self
-    }
 }
 
-extension UIToolbar {
+@MainActor extension UIToolbar {
     /// The circumstances under which to show a toolbar.
     @objc public enum ToolbarMode: Int {
 
@@ -435,13 +420,13 @@ extension UIToolbar {
     @objc public static var apptentiveMode: ToolbarMode = .hiddenWhenEmpty
 }
 
-extension CGFloat {
+@MainActor extension CGFloat {
     /// The width of the layer border for Apptentive buttons for surveys.
     public static var apptentiveButtonBorderWidth: CGFloat = 2
 
     public static var apptentiveThumbnailScale: CGFloat = UIScreen.main.scale
 }
 
-extension CGSize {
+@MainActor extension CGSize {
     public static var apptentiveThumbnail = CGSize(width: 44, height: 44)
 }

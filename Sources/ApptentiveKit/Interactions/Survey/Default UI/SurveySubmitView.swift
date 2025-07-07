@@ -10,13 +10,13 @@ import UIKit
 
 class SurveySubmitView: UIView {
     let submitButton: UIButton
-    let submitLabel: UILabel
-    let disclaimerLabel: UILabel
+    let submitLabel: RichTextLabel
+    let disclaimerLabel: RichTextLabel
 
     override init(frame: CGRect) {
         self.submitButton = UIButton(frame: .zero)
-        self.submitLabel = UILabel(frame: .zero)
-        self.disclaimerLabel = UILabel(frame: .zero)
+        self.submitLabel = RichTextLabel(frame: .zero)
+        self.disclaimerLabel = RichTextLabel(frame: .zero)
         super.init(frame: frame)
 
         self.addSubview(self.submitButton)
@@ -24,18 +24,33 @@ class SurveySubmitView: UIView {
         self.addSubview(self.submitLabel)
         self.addSubview(self.disclaimerLabel)
 
-        self.submitButton.backgroundColor = UIColor.apptentiveSubmitButton
-        self.submitButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
-        self.submitButton.titleLabel?.font = .apptentiveSubmitButtonTitle
-        self.submitButton.titleLabel?.adjustsFontForContentSizeCategory = true
+        self.submitButton.configuration = .filled()
+        self.submitButton.tintColor = UIColor.apptentiveSubmitButton
+        self.submitButton.configuration?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var container = incoming
+            container.foregroundColor = .apptentiveSubmitButtonTitle
+            container.font = .apptentiveSubmitButtonTitle
+
+            return container
+        }
+
         self.submitButton.layer.borderWidth = .apptentiveButtonBorderWidth
         self.submitButton.layer.borderColor = UIColor.apptentiveSubmitButtonBorder.cgColor
+        self.submitButton.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        switch UIButton.apptentiveStyle {
+        case .pill:
+            self.submitButton.configuration?.cornerStyle = .capsule
+        case .radius:
+            self.submitButton.configuration?.cornerStyle = .dynamic
+        }
         self.submitButton.layer.shadowOpacity = 1.0
         self.submitButton.layer.shadowRadius = 3.0
         self.submitButton.layer.shadowOffset = .zero
         self.submitButton.setTitleColor(.apptentiveSubmitButtonTitle, for: .normal)
 
         self.submitButton.translatesAutoresizingMaskIntoConstraints = false
+        self.submitButton.titleLabel?.adjustsFontForContentSizeCategory = true
 
         let multiplier = UITableView.apptentiveQuestionSeparatorHeight == 0 ? 1.0 : 3.5
 
@@ -45,7 +60,7 @@ class SurveySubmitView: UIView {
         ])
 
         self.submitLabel.font = .apptentiveSubmitStatusLabel
-        self.submitLabel.adjustsFontForContentSizeCategory = true
+        self.submitLabel.textStyle = .headline
         self.submitLabel.textAlignment = .center
         self.submitLabel.numberOfLines = 0
         self.submitLabel.isHidden = true
@@ -55,7 +70,7 @@ class SurveySubmitView: UIView {
 
         self.disclaimerLabel.font = .apptentiveDisclaimerLabel
         self.disclaimerLabel.textColor = .apptentiveDisclaimerLabel
-        self.disclaimerLabel.adjustsFontForContentSizeCategory = true
+        self.disclaimerLabel.textStyle = .callout
         self.disclaimerLabel.textAlignment = .center
         self.disclaimerLabel.numberOfLines = 0
         self.disclaimerLabel.lineBreakMode = .byWordWrapping
@@ -84,20 +99,9 @@ class SurveySubmitView: UIView {
         }
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        switch UIButton.apptentiveStyle {
-        case .pill:
-            self.submitButton.layer.cornerRadius = self.submitButton.bounds.height / 2.0
-        case .radius(let radius):
-            self.submitButton.layer.cornerRadius = radius
-        }
-    }
-
     override func tintColorDidChange() {
         super.tintColorDidChange()
-        self.submitButton.backgroundColor = UIColor.apptentiveSubmitButton
+        self.submitButton.tintColor = UIColor.apptentiveSubmitButton
     }
 
     required init?(coder: NSCoder) {

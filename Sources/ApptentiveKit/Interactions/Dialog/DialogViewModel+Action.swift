@@ -16,9 +16,9 @@ extension DialogViewModel {
         /// Indicates the type of action the button should trigger when tapped.
         public let actionType: ActionType
         /// Triggers the appropriate outcome depending on the action type.
-        public let buttonTapped: () -> Void
+        public let buttonTapped: @MainActor () -> Void
 
-        init(label: String, actionType: DialogViewModel.Action.ActionType, buttonTapped: @escaping () -> Void) {
+        init(label: String, actionType: DialogViewModel.Action.ActionType, buttonTapped: @MainActor @escaping () -> Void) {
             self.label = label
             self.actionType = actionType
             self.buttonTapped = buttonTapped

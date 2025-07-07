@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OSLog
 
 struct ALoader: Loader {
     static let conversationFilename = "Conversation.A"
@@ -40,7 +41,7 @@ struct ALoader: Loader {
         let aConversation = try self.decoder.decode(AConversation.self, from: data)
 
         guard self.context.appCredentials == aConversation.appCredentials else {
-            ApptentiveLogger.default.warning("App credentials for the existing conversation do not match. Creating a new conversation.")
+            Logger.default.warning("App credentials for the existing conversation do not match. Creating a new conversation.")
             throw LoaderError.mismatchedAppCredentials
         }
 

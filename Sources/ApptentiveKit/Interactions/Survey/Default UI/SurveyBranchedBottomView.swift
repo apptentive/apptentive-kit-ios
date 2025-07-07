@@ -63,17 +63,6 @@ class SurveyBranchedBottomView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        switch UIButton.apptentiveStyle {
-        case .pill:
-            self.nextButton.layer.cornerRadius = self.nextButton.bounds.height / 2.0
-        case .radius(let radius):
-            self.nextButton.layer.cornerRadius = radius
-        }
-    }
-
     override func tintColorDidChange() {
         super.tintColorDidChange()
         self.nextButton.backgroundColor = UIColor.apptentiveSubmitButton
@@ -98,14 +87,28 @@ class SurveyBranchedBottomView: UIView {
     }
 
     private func configureNextButton() {
-        self.nextButton.backgroundColor = UIColor.apptentiveSubmitButton
-        self.nextButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
-        self.nextButton.titleLabel?.font = .apptentiveSubmitButtonTitle
-        self.nextButton.titleLabel?.adjustsFontForContentSizeCategory = true
+        self.nextButton.configuration = .filled()
+        self.nextButton.tintColor = UIColor.apptentiveSubmitButton
+        self.nextButton.configuration?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var container = incoming
+            container.foregroundColor = .apptentiveSubmitButtonTitle
+            container.font = .apptentiveSubmitButtonTitle
+
+            return container
+        }
+
         self.nextButton.layer.borderWidth = .apptentiveButtonBorderWidth
         self.nextButton.layer.borderColor = UIColor.apptentiveSubmitButtonBorder.cgColor
-        self.nextButton.setTitleColor(.apptentiveSubmitButtonTitle, for: .normal)
         self.nextButton.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        switch UIButton.apptentiveStyle {
+        case .pill:
+            self.nextButton.configuration?.cornerStyle = .capsule
+        case .radius:
+            self.nextButton.configuration?.cornerStyle = .dynamic
+        }
+
+        self.nextButton.titleLabel?.adjustsFontForContentSizeCategory = true
         self.nextButton.translatesAutoresizingMaskIntoConstraints = false
     }
 

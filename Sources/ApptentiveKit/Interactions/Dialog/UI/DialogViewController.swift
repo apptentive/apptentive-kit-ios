@@ -22,6 +22,21 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
         return self.view.window
     }
 
+    init(viewModel: DialogViewModel) {
+        self.viewModel = viewModel
+
+        self.dialogView = DialogView(frame: .zero)
+
+        super.init(nibName: nil, bundle: nil)
+        viewModel.delegate = self
+
+        self.updateConstraintsForTitleAndMessage()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     // swift-format-ignore
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,8 +44,8 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
         self.view.backgroundColor = .init(white: 0, alpha: 0.4)
         self.view.isOpaque = false
 
-        self.dialogView.titleLabel.html = self.viewModel.title
-        self.dialogView.messageLabel.html = self.viewModel.message
+        self.dialogView.titleLabel.attributedString = self.viewModel.title
+        self.dialogView.messageLabel.attributedString = self.viewModel.message
 
         self.view.addSubview(dialogView)
 
@@ -39,26 +54,6 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
         self.setConstraints()
 
         self.dialogViewModel(viewModel, didLoadImage: viewModel.image)
-    }
-
-    init(viewModel: DialogViewModel) {
-        self.viewModel = viewModel
-
-        self.dialogView = DialogView(
-            frame: .zero,
-            dialogType: self.viewModel.dialogType,
-            dialogContainsImage: self.viewModel.dialogContainsImage, isTitleHidden: self.viewModel.isTitleHidden,
-            isMessageHidden: self.viewModel.isMessageHidden
-        )
-
-        super.init(nibName: nil, bundle: nil)
-        viewModel.delegate = self
-
-        self.dialogViewModel(viewModel, didLoadImage: viewModel.image)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     public override func viewDidAppear(_ animated: Bool) {
@@ -99,6 +94,7 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
             self.dialogView.headerImageView.isAccessibilityElement = false
             self.dialogView.imageInset = layout.imageInset
             self.dialogView.headerImage = nil  // Don't show UIAppearance-based image
+            self.updateAspectRatioConstraintAndMaxHeight(image: nil, layout: layout)
 
         case .none:
             self.dialogView.headerImageAlternateLabel.text = nil
@@ -106,29 +102,55 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
             self.dialogView.headerImageView.accessibilityLabel = nil
             self.dialogView.headerImageView.isAccessibilityElement = false
             self.dialogView.headerImageView.isHidden = true
+            self.updateAspectRatioConstraintAndMaxHeight(image: nil, layout: nil)
         }
     }
 
-    // MARK: Private
-    private func updateAspectRatioConstraintAndMaxHeight(image: UIImage, layout: DialogViewModel.Image.Layout) {
-        let maxWidth = DialogViewController.widthConstant
+    // MARK: - Private
+
+    private func updateConstraintsForTitleAndMessage() {
+        self.dialogView.titleBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.titleLabel.lastBaselineAnchor, constant: self.dialogView.titleBottomConstraintConstant)
+        self.dialogView.messageBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.messageLabel.lastBaselineAnchor, constant: self.dialogView.messageBottomConstraintConstant)
+        self.dialogView.headerImageAlternateLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+
+        if self.viewModel.isMessageHidden {
+            if !self.viewModel.isTitleHidden {
+                NSLayoutConstraint.activate([
+                    self.dialogView.titleBottomConstraint
+                ])
+            }
+        } else {
+            NSLayoutConstraint.activate([
+                self.dialogView.messageBottomConstraint
+            ])
+        }
+    }
+
+    private func updateAspectRatioConstraintAndMaxHeight(image: UIImage?, layout: DialogViewModel.Image.Layout?) {
+        let maxWidth = DialogViewController.widthConstant - (layout?.imageInset.left ?? 0) - (layout?.imageInset.right ?? 0)
         let maxHeight = self.view.bounds.height - self.view.safeAreaInsets.top - self.view.safeAreaInsets.bottom
-        let aspectRatio = max(image.size.width, 1) / max(image.size.height, 1)
+        let aspectRatio = {
+            if let image {
+                return max(image.size.width, 1) / max(image.size.height, 1)
+            } else {
+                return 1000
+            }
+        }()
+
         let height = max(maxWidth, 1) / aspectRatio
 
         self.dialogView.headerImageViewAspectConstraint = self.dialogView.headerImageView.heightAnchor.constraint(equalTo: self.dialogView.headerImageView.widthAnchor, multiplier: 1.0 / aspectRatio)
         self.dialogView.headerImageViewAspectConstraint.priority = .defaultLow
 
-        var fitPriority: UILayoutPriority = (layout == .fullWidth) ? .defaultHigh : .defaultLow
+        var fitPriority: UILayoutPriority = (image != nil && layout == .fullWidth) ? .defaultHigh : .defaultLow
 
         //If the image is too wide for a center/left/right alignment we set its alignment to fit and retain the image inset to avoid the image being cropped.
         let horizontalMargin = self.dialogView.headerImageView.layoutMargins.left + self.dialogView.headerImageView.layoutMargins.right
         let verticalMargin = self.dialogView.headerImageView.layoutMargins.top + self.dialogView.headerImageView.layoutMargins.bottom
-        if image.size.width + horizontalMargin > DialogViewController.widthConstant && (layout == .leading || layout == .trailing || layout == .center) {
+
+        if let image, let layout, image.size.width + horizontalMargin > DialogViewController.widthConstant && (layout == .leading || layout == .trailing || layout == .center) {
             if (image.size.height + verticalMargin) > maxHeight {
-                self.dialogView.imageInset = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
-            } else {
-                self.dialogView.imageInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+                self.dialogView.imageInset = UIEdgeInsets(top: 0, left: layout.imageInset.left, bottom: 0, right: layout.imageInset.right)
             }
             self.dialogView.headerImageView.contentMode = .scaleAspectFit
             fitPriority = .defaultHigh
@@ -137,14 +159,13 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
         self.dialogView.headerImageViewHeightConstraint = self.dialogView.headerImageView.heightAnchor.constraint(lessThanOrEqualToConstant: height)
         self.dialogView.headerImageViewHeightConstraint.priority = fitPriority
 
-        if self.dialogView.isMessageHidden && !self.dialogView.isTitleHidden {
-            self.dialogView.headerImageViewBottomConstraint = self.dialogView.titleLabel.topAnchor.constraint(equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.messageBottomConstraintConstant)
-            self.dialogView.titleBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.titleLabel.lastBaselineAnchor, constant: self.dialogView.messageBottomConstraintConstant)
-        } else if self.dialogView.isTitleHidden && !self.dialogView.isMessageHidden {
+        if self.viewModel.isMessageHidden && !self.viewModel.isTitleHidden {
+            self.dialogView.headerImageViewBottomConstraint = self.dialogView.titleLabel.topAnchor.constraint(
+                equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.topSpacingIdealConstraintConstant - self.dialogView.messageBottomConstraintConstant)
+        } else if self.viewModel.isTitleHidden && !self.viewModel.isMessageHidden {
             self.dialogView.headerImageViewBottomConstraint = self.dialogView.messageLabel.topAnchor.constraint(
                 equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.topSpacingIdealConstraintConstant - self.dialogView.messageBottomConstraintConstant)
-            self.dialogView.messageBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.messageLabel.lastBaselineAnchor, constant: self.dialogView.messageBottomConstraintConstant)
-        } else if self.dialogView.isTitleHidden && self.dialogView.isMessageHidden {
+        } else if self.viewModel.isTitleHidden && self.viewModel.isMessageHidden {
             self.dialogView.headerImageViewBottomConstraint = self.dialogView.textContentView.bottomAnchor.constraint(equalTo: self.dialogView.headerImageView.bottomAnchor, constant: self.dialogView.imageInset.bottom)
         }
 
@@ -154,8 +175,6 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
             self.dialogView.headerImageViewHeightConstraint,
             self.dialogView.headerImageViewAspectConstraint,
             self.dialogView.headerImageViewBottomConstraint,
-            self.dialogView.titleBottomConstraint,
-            self.dialogView.messageBottomConstraint,
         ])
     }
 

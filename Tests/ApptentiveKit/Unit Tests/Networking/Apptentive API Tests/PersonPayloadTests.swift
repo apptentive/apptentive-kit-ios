@@ -6,11 +6,12 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class PersonPayloadTests: XCTestCase {
+struct PersonPayloadTests {
     var person: Person!
     let propertyListEncoder = PropertyListEncoder()
     let propertyListDecoder = PropertyListDecoder()
@@ -22,7 +23,7 @@ class PersonPayloadTests: XCTestCase {
     var encryptedPayloadContext: Payload.Context!
     var encryptedTestPayload: Payload!
 
-    override func setUpWithError() throws {
+    init() throws {
         self.payloadContext = Payload.Context(tag: ".", credentials: .header(id: "abc", token: "123"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: nil)
         self.encryptedPayloadContext = Payload.Context(tag: "abc123", credentials: .embedded(id: "abc"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: .init(encryptionKey: encryptionKey, embeddedToken: "123"))
 
@@ -36,18 +37,17 @@ class PersonPayloadTests: XCTestCase {
         self.person.customData["number"] = 42
         self.person.customData["bool"] = true
 
-        super.setUp()
     }
 
-    func testSerialization() throws {
+    @Test func testSerialization() throws {
         let testPayload = try Payload(wrapping: self.person, with: self.payloadContext)
         let encodedPayloadData = try self.propertyListEncoder.encode(testPayload)
         let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
 
-        XCTAssertEqual(testPayload, decodedPayload)
+        #expect(testPayload == decodedPayload)
     }
 
-    func testEncoding() throws {
+    @Test func testEncoding() throws {
         let testPayload = try Payload(wrapping: self.person, with: self.payloadContext)
 
         let expectedEncodedContent = """
@@ -81,7 +81,7 @@ class PersonPayloadTests: XCTestCase {
         try checkRequestHeading(for: testPayload, decoder: self.jsonDecoder, expectedMethod: .put, expectedPathSuffix: "person")
     }
 
-    func testEncryptedEncoding() throws {
+    @Test func testEncryptedEncoding() throws {
         let encryptedTestPayload = try Payload(wrapping: self.person, with: self.encryptedPayloadContext)
 
         let expectedEncodedContent = """

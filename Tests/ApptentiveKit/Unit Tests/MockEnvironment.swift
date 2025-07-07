@@ -10,7 +10,21 @@ import UIKit
 
 @testable import ApptentiveKit
 
-struct MockEnvironment: GlobalEnvironment {
+class MockEnvironment: GlobalEnvironment {
+    var userNotificationCenterDelegateConfigured: Bool = true
+
+    var localNotificationTitle: String?
+    var localNotificationBody: String?
+    var localNotificationUserInfo: [String: [String: String]]?
+    var localNotificationSound: UNNotificationSound?
+
+    func postLocalNotification(title: String, body: String, userInfo: [AnyHashable: Any], sound: UNNotificationSound) {
+        self.localNotificationTitle = title
+        self.localNotificationBody = body
+        self.localNotificationUserInfo = userInfo as? [String: [String: String]]
+        self.localNotificationSound = sound
+    }
+
     static let applicationSupportURL = URL(fileURLWithPath: "/tmp/")
     static let cachesURL = URL(fileURLWithPath: "/tmp/caches/")
     static let containerName = "com.apptentive.feedback"
@@ -25,9 +39,7 @@ struct MockEnvironment: GlobalEnvironment {
         try FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true, attributes: [:])
     }
 
-    var isTesting = true
-
-    var fileManager = FileManager.default
+    var fileManager: FileManaging = MockFileManager()
     var isInForeground = true
     var isProtectedDataAvailable = true
     var delegate: EnvironmentDelegate?
@@ -35,16 +47,13 @@ struct MockEnvironment: GlobalEnvironment {
 
     var appDisplayName: String = "This Nifty App"
 
-    var shouldOpenURLSucceed = true
-    func open(_ url: URL, completion: @escaping (Bool) -> Void) {
-        completion(self.shouldOpenURLSucceed)
-    }
-
     var shouldRequestReviewSucceed = true
-    func requestReview(completion: @escaping (Bool) -> Void) {
-        completion(shouldRequestReviewSucceed)
+    func requestReview() async throws -> Bool {
+        return self.shouldOpenURLSucceed
     }
 
-    func startBackgroundTask() {}
-    func endBackgroundTask() {}
+    var shouldOpenURLSucceed = true
+    func open(_ url: URL) async -> Bool {
+        return self.shouldOpenURLSucceed
+    }
 }

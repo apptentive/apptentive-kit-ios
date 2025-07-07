@@ -16,8 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ApptentiveDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-        ApptentiveLogger.logLevel = .debug
-
         self.registerDefaults()
 
         self.connect { result in
@@ -35,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ApptentiveDelegate {
         return true
     }
 
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @Sendable @escaping (UIBackgroundFetchResult) -> Void) {
         if !self.apptentive!.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler) {
             print("Push was not handled by Apptentive. Calling completion handler")
             completionHandler(.noData)
@@ -73,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ApptentiveDelegate {
         UNUserNotificationCenter.current().delegate = self.apptentive
     }
 
-    fileprivate func connect(_ completion: @escaping ((Result<Void, Error>)) -> Void) {
+    fileprivate func connect(_ completion: @Sendable @escaping ((Result<Void, Error>)) -> Void) {
         guard let key = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_KEY") as? String,
               let signature = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_SIGNATURE") as? String,
               let urlString = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_BASE_URL") as? String,
@@ -84,6 +82,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ApptentiveDelegate {
 
         self.apptentive = Apptentive.shared
         self.apptentive?.delegate = self
+
+        // Uncomment to use Apptentive assets from app's asset collection.
+        self.apptentive?.theme = .customerBasedOnApptentive
 
         let region = Apptentive.Region(apiBaseURL: url)
 

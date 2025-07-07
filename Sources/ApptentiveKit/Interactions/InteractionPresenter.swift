@@ -9,7 +9,7 @@
 import UIKit
 
 /// An `InteractionPresenter` is used by the Apptentive SDK to present UI represented by `Interaction`  objects to the user.
-open class InteractionPresenter {
+@MainActor open class InteractionPresenter {
     /// A view controller that can be used to present view-controller-based interactions.
     weak var presentingViewController: UIViewController?
     weak var presentedViewController: UIViewController?
@@ -25,10 +25,10 @@ open class InteractionPresenter {
     /// - Parameters:
     ///   - interaction: The interaction to present.
     ///   - presentingViewController: The view controller to use to present the interaction.
-    ///   - completion: A closure that is called when interaction presentation is initiated.
-    func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController? = nil, completion: @escaping (Result<Void, Error>) -> Void) {
+    /// - Throws: An error if the presentation fails.
+    func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController? = nil) async throws {
         guard let delegate = self.delegate else {
-            return completion(.failure(ApptentiveError.internalInconsistency))
+            throw ApptentiveError.internalInconsistency
         }
 
         if let presentingViewController = presentingViewController {
@@ -37,51 +37,39 @@ open class InteractionPresenter {
 
         switch interaction.configuration {
         case .appleRatingDialog:
-            AppleRatingDialogController(interaction: interaction, delegate: delegate).requestReview(completion: { _ in completion(.success(())) })
+            try await AppleRatingDialogController(interaction: interaction, delegate: delegate).requestReview()
 
         case .enjoymentDialog(let configuration):
             let viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            completion(Result { try self.presentEnjoymentDialog(with: viewModel) })
+            try await self.presentEnjoymentDialog(with: viewModel)
 
         case .navigateToLink(let configuration):
             let controller = NavigateToLinkController(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            if let viewController = controller.navigateToLink() {
-                completion(
-                    Result {
-                        try self.presentViewController(viewController) {
-                            controller.launch(success: true)
-                        }
-                    }
-                )
-            } else {
-                completion(.success(()))
+            if let viewController = await controller.navigateToLink() {
+                try await self.presentViewController(viewController)
+                controller.launch(success: true)
             }
-
-        case .surveyV11(let configuration):
-            let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            completion(Result { try self.presentSurvey(with: viewModel) })
 
         case .textModal(let configuration):
             let viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            self.presentTextModal(with: viewModel, completion: completion)
+            try await self.presentTextModal(with: viewModel)
 
         case .messageCenter(let configuration):
             let viewModel = MessageCenterViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            completion(Result { try self.presentMessageCenter(with: viewModel) })
+            try await self.presentMessageCenter(with: viewModel)
 
         case .surveyV12(let configuration):
             let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
-            completion(Result { try self.presentSurvey(with: viewModel) })
-
-        case .notImplemented:
-            completion(.failure(InteractionPresenterError.notImplemented(interaction.typeName, interaction.id)))
-
-        case .failedDecoding:
-            completion(.failure(InteractionPresenterError.decodingFailed(interaction.typeName, interaction.id)))
+            try await self.presentSurvey(with: viewModel)
 
         case .initiator:
-            completion(.success(()))
             self.launchInitiator(interaction: interaction)
+
+        case .notImplemented:
+            throw InteractionPresenterError.notImplemented(interaction.typeName, interaction.id)
+
+        case .failedDecoding:
+            throw InteractionPresenterError.decodingFailed(interaction.typeName, interaction.id)
         }
 
         self.presentedInteraction = interaction
@@ -92,17 +80,14 @@ open class InteractionPresenter {
     /// Override this method to change the way Message Center is presented, such as to use a custom view controller.
     /// - Parameter viewModel: the message center view model that represents the message center and handles sending and receiving messages.
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
-    open func presentMessageCenter(with viewModel: MessageCenterViewModel) throws {
+    open func presentMessageCenter(with viewModel: MessageCenterViewModel) async throws {
 
         let messageViewController = MessageCenterViewController(viewModel: viewModel)
 
-        let navController = ApptentiveNavigationController(rootViewController: messageViewController)
+        let navigationController = ApptentiveNavigationController(rootViewController: messageViewController)
 
-        try self.presentViewController(
-            navController,
-            completion: {
-                viewModel.launch()
-            })
+        try await self.presentViewController(navigationController)
+        viewModel.launch()
     }
 
     /// Presents a Survey interaction.
@@ -110,16 +95,13 @@ open class InteractionPresenter {
     /// Override this method to change the way Surveys are presented, such as to use a custom view controller.
     /// - Parameter viewModel: the survey view model that represents the survey and handles submissions.
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
-    open func presentSurvey(with viewModel: SurveyViewModel) throws {
+    open func presentSurvey(with viewModel: SurveyViewModel) async throws {
         let viewController = SurveyViewController(viewModel: viewModel)
 
         let navigationController = ApptentiveNavigationController(rootViewController: viewController)
 
-        try self.presentViewController(
-            navigationController,
-            completion: {
-                viewModel.launch()
-            })
+        try await self.presentViewController(navigationController)
+        viewModel.launch()
     }
 
     /// Presents an EnjoymentDialog ("Love Dialog") interaction.
@@ -127,36 +109,24 @@ open class InteractionPresenter {
     /// Override this method to change the way that love dialogs are presented, such as to use a custom view controller.
     /// - Parameter viewModel: the dialog view model that represents the love dialog and handles button taps.
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
-    open func presentEnjoymentDialog(with viewModel: DialogViewModel) throws {
+    open func presentEnjoymentDialog(with viewModel: DialogViewModel) async throws {
         let viewController = EnjoymentDialogViewController(viewModel: viewModel)
-        try self.presentViewController(
-            viewController,
-            completion: {
-                viewModel.launch()
-            })
+
+        try await self.presentViewController(viewController)
+        viewModel.launch()
     }
 
     /// Presents a TextModal ("Note") interaction.
     ///
     /// Override this method to change the way that notes are presented, such as to use a custom view controller.
-    /// - Parameters:
-    ///    - viewModel: the dialog view model that represents the note and handles button taps.
-    ///    - completion: a closure that is called when the text modal is presented successfully or fails.
-    open func presentTextModal(with viewModel: DialogViewModel, completion: @escaping (Result<Void, Error>) -> Void) {
+    /// - Parameter viewModel: the dialog view model that represents the note and handles button taps.
+    /// - Throws: an error if the presentation fails
+    open func presentTextModal(with viewModel: DialogViewModel) async throws {
         let viewController = TextModalViewController(viewModel: viewModel)
 
-        viewModel.prepareForPresentation {
-            do {
-                try self.presentViewController(
-                    viewController,
-                    completion: {
-                        viewModel.launch()
-                        completion(.success(()))
-                    })
-            } catch let error {
-                completion(.failure(error))
-            }
-        }
+        await viewModel.prepareForPresentation()
+        try await self.presentViewController(viewController)
+        viewModel.launch()
     }
 
     /// Presents a view-controller-based interaction.
@@ -165,9 +135,8 @@ open class InteractionPresenter {
     ///
     /// - Parameters:
     ///  - viewControllerToPresent: the interaction view controller that should be presented.
-    ///  - completion: a closure that is called when the interaction presentation completes.
     /// - Throws: if the `presentingViewController` property is nil or has an unrecoverable issue.
-    open func presentViewController(_ viewControllerToPresent: UIViewController, completion: (() -> Void)? = {}) throws {
+    open func presentViewController(_ viewControllerToPresent: UIViewController) async throws {
         guard let presentingViewController = self.validatedPresentingViewController else {
             throw InteractionPresenterError.noPresentingViewController
         }
@@ -178,7 +147,12 @@ open class InteractionPresenter {
         } else {
             viewControllerToPresent.modalPresentationStyle = .apptentive
         }
-        presentingViewController.present(viewControllerToPresent, animated: true, completion: completion)
+
+        await withCheckedContinuation { continuation in
+            presentingViewController.present(viewControllerToPresent, animated: true) {
+                continuation.resume()
+            }
+        }
 
         self.presentedViewController = viewControllerToPresent
     }
@@ -188,7 +162,8 @@ open class InteractionPresenter {
         // Fall back to the crawling the window's VC hierachy if certain failures exist.
         // TODO: make sure this works with scene-based apps.
         if self.presentingViewController == nil || self.presentingViewController?.isViewLoaded == false || self.presentingViewController?.view.window == nil {
-            self.presentingViewController = UIViewController.topViewController()
+            let rootViewController = UIApplication.shared.firstActiveScene?.keyWindow?.rootViewController
+            self.presentingViewController = UIViewController.topViewController(controller: rootViewController)
         }
 
         // If we have a presenting view but one of its ancestors' `isBeingDismissed` is set, use that VC's parent.
@@ -257,7 +232,7 @@ open class InteractionPresenter {
 }
 
 /// An error that occurs while presenting an interaction.
-public enum InteractionPresenterError: Error {
+public enum InteractionPresenterError: Error, Equatable {
     case notImplemented(String, String)
     case decodingFailed(String, String)
     case noPresentingViewController
@@ -268,7 +243,7 @@ struct CancelInteractionCause: Codable, Equatable {
 }
 
 extension UIViewController {
-    class func topViewController(controller: UIViewController? = UIApplication.shared.windows.first?.rootViewController) -> UIViewController? {
+    class func topViewController(controller: UIViewController?) -> UIViewController? {
         if let navigationController = controller as? UINavigationController {
             return topViewController(controller: navigationController.visibleViewController)
         }
@@ -281,5 +256,15 @@ extension UIViewController {
             return topViewController(controller: presented)
         }
         return controller
+    }
+}
+
+// Courtesy of https://sarunw.com/posts/how-to-get-root-view-controller/
+extension UIApplication {
+    var firstActiveScene: UIWindowScene? {
+        return UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .filter { $0.activationState == .foregroundActive }
+            .first
     }
 }

@@ -8,6 +8,7 @@
 
 import Foundation
 import MobileCoreServices
+import OSLog
 import QuickLookThumbnailing
 import UIKit
 
@@ -15,7 +16,7 @@ protocol AttachmentURLProviding {
     func url(for attachment: MessageList.Message.Attachment) -> URL?
 }
 
-class AttachmentManager: AttachmentURLProviding {
+actor AttachmentManager: NSObject, AttachmentURLProviding, URLSessionDownloadDelegate {
     let fileManager: FileManager
     let requestor: HTTPRequesting
     let cacheContainerURL: URL
@@ -23,26 +24,20 @@ class AttachmentManager: AttachmentURLProviding {
 
     static let attachmentFilenameSeparator = "#"
 
-    init(fileManager: FileManager, requestor: HTTPRequesting, cacheContainerURL: URL, savedContainerURL: URL) {
-        self.fileManager = fileManager
+    init(requestor: HTTPRequesting, cacheContainerURL: URL, savedContainerURL: URL) {
+        self.fileManager = FileManager()
         self.requestor = requestor
         self.cacheContainerURL = cacheContainerURL
         self.savedContainerURL = savedContainerURL
-    }
-
-    deinit {
-        for observation in self.progressObservations.values {
-            observation.invalidate()
-        }
     }
 
     func store(data: Data, filename: String) throws -> URL {
         let path = Self.newAttachmentPath(filename: filename)
         let attachmentURL = URL(fileURLWithPath: path, relativeTo: self.savedContainerURL)
 
-        ApptentiveLogger.attachments.debug("Trying to write attachment data to \(attachmentURL.path).")
+        Logger.attachments.debug("Trying to write attachment data to \(attachmentURL.path).")
         try data.write(to: attachmentURL)
-        ApptentiveLogger.attachments.debug("Successfully wrote attachment data to \(attachmentURL.path).")
+        Logger.attachments.debug("Successfully wrote attachment data to \(attachmentURL.path).")
 
         return attachmentURL
     }
@@ -52,9 +47,9 @@ class AttachmentManager: AttachmentURLProviding {
         let attachmentURL = URL(fileURLWithPath: path, relativeTo: self.savedContainerURL)
 
         if url.startAccessingSecurityScopedResource() {
-            ApptentiveLogger.attachments.debug("Trying to write attachment data to \(attachmentURL.path).")
+            Logger.attachments.debug("Trying to write attachment data to \(attachmentURL.path).")
             try self.fileManager.copyItem(at: url, to: attachmentURL)
-            ApptentiveLogger.attachments.debug("Successfully wrote attachment data to \(attachmentURL.path).")
+            Logger.attachments.debug("Successfully wrote attachment data to \(attachmentURL.path).")
         }
         url.stopAccessingSecurityScopedResource()
         return attachmentURL
@@ -65,12 +60,12 @@ class AttachmentManager: AttachmentURLProviding {
             if self.fileManager.fileExists(atPath: attachmentURL.path) {
                 try self.fileManager.removeItem(at: attachmentURL)
             } else {
-                ApptentiveLogger.default.error("File does not exist at attachment URL path when attempting to remove from storage.")
+                Logger.default.error("File does not exist at attachment URL path when attempting to remove from storage.")
             }
         }  // else it likely doesn't have a sidecar file.
     }
 
-    func url(for attachment: MessageList.Message.Attachment) -> URL? {
+    nonisolated func url(for attachment: MessageList.Message.Attachment) -> URL? {
         switch attachment.storage {
         case .cached(let path):
             return URL(fileURLWithPath: path, relativeTo: self.cacheContainerURL)
@@ -83,9 +78,9 @@ class AttachmentManager: AttachmentURLProviding {
         }
     }
 
-    func cacheFileExists(for attachment: MessageList.Message.Attachment) -> Bool {
+    nonisolated func cacheFileExists(for attachment: MessageList.Message.Attachment, using fileManager: FileManager) -> Bool {
         if let url = self.url(for: attachment) {
-            return self.fileManager.fileExists(atPath: url.path)
+            return fileManager.fileExists(atPath: url.path)
         } else {
             return false
         }
@@ -95,9 +90,9 @@ class AttachmentManager: AttachmentURLProviding {
         if case .saved(let path) = attachment.storage {
             let savedURL = URL(fileURLWithPath: path, relativeTo: self.savedContainerURL)
             let cacheURL = URL(fileURLWithPath: path, relativeTo: self.cacheContainerURL)
-            ApptentiveLogger.attachments.debug("Trying to write attachment data from \(savedURL.path) to \(cacheURL.path).")
+            Logger.attachments.debug("Trying to write attachment data from \(savedURL.path) to \(cacheURL.path).")
             try self.fileManager.moveItem(at: savedURL, to: cacheURL)
-            ApptentiveLogger.attachments.debug("Successfully wrote attachment data to \(cacheURL.path).")
+            Logger.attachments.debug("Successfully wrote attachment data to \(cacheURL.path).")
             return .cached(path: path)
         } else {
             return attachment.storage
@@ -112,42 +107,35 @@ class AttachmentManager: AttachmentURLProviding {
         }
     }
 
-    func download(_ attachment: MessageList.Message.Attachment, completion: @escaping (Result<URL, Error>) -> Void, progress: ((Double) -> Void)? = nil) {
+    func download(_ attachment: MessageList.Message.Attachment, progress: (@Sendable (Double) -> Void)? = nil) async throws -> URL {
+        defer {
+            progress?(1)
+        }
+
         switch attachment.storage {
         case .remote(let remoteURL, size: _):
             let localURL = URL(fileURLWithPath: Self.newAttachmentPath(filename: attachment.filename), relativeTo: self.cacheContainerURL)
-            self.downloadData(from: remoteURL, to: localURL, completion: completion, progress: progress)
+            return try await self.downloadData(from: remoteURL, to: localURL, progress: progress)
 
         case .cached(let path):
-            completion(
-                Result(catching: {
-                    let localURL = URL(fileURLWithPath: path, relativeTo: self.cacheContainerURL)
-                    guard self.fileManager.fileExists(atPath: localURL.path) else {
-                        throw ApptentiveError.internalInconsistency
-                    }
-                    return localURL
-                }))
+            let localURL = URL(fileURLWithPath: path, relativeTo: self.cacheContainerURL)
+            guard self.fileManager.fileExists(atPath: localURL.path) else {
+                throw ApptentiveError.internalInconsistency
+            }
+            return localURL
 
         case .saved(let path):
-            completion(
-                Result(catching: {
-                    let localURL = URL(fileURLWithPath: path, relativeTo: self.savedContainerURL)
-                    guard self.fileManager.fileExists(atPath: localURL.path) else {
-                        throw ApptentiveError.internalInconsistency
-                    }
-                    return localURL
-                }))
+            let localURL = URL(fileURLWithPath: path, relativeTo: self.savedContainerURL)
+            guard self.fileManager.fileExists(atPath: localURL.path) else {
+                throw ApptentiveError.internalInconsistency
+            }
+            return localURL
 
         case .inMemory(let data):
-            completion(
-                Result(catching: {
-                    let localURL = URL(fileURLWithPath: Self.newAttachmentPath(filename: attachment.filename), relativeTo: self.cacheContainerURL)
-                    try data.write(to: localURL)
-                    return localURL
-                }))
+            let localURL = URL(fileURLWithPath: Self.newAttachmentPath(filename: attachment.filename), relativeTo: self.cacheContainerURL)
+            try data.write(to: localURL)
+            return localURL
         }
-
-        progress?(1)
     }
 
     static func friendlyFilename(for url: URL) -> String {
@@ -155,37 +143,29 @@ class AttachmentManager: AttachmentURLProviding {
     }
 
     static func mediaType(for filename: String) -> String {
-        if let pathExtension = filename.components(separatedBy: ".").last {
-            if let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as NSString, nil)?.takeRetainedValue() {
-                if let mimetype = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() {
-                    return mimetype as String
-                }
-            }
-        }
-
-        return "application/octet-stream"
+        return filename.components(separatedBy: ".").last.flatMap { UTType(filenameExtension: $0)?.preferredMIMEType } ?? "application/octet-stream"
     }
 
     static func pathExtension(for mediaType: String) -> String? {
-        if let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, mediaType as NSString, nil)?.takeRetainedValue() {
-            if let pathExtension = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassFilenameExtension)?.takeRetainedValue() {
-                return pathExtension as String
-            }
-        }
-        return nil
+        return UTType(mimeType: mediaType)?.preferredFilenameExtension
     }
 
     // Note: completion may be called multiple times.
-    static func createThumbnail(of size: CGSize, scale: CGFloat, for url: URL, completion: @escaping (Result<UIImage, Error>) -> Void) {
+    static func createThumbnail(of size: CGSize, scale: CGFloat, for url: URL, completion: @Sendable @escaping (Result<UIImage, Error>) -> Void) {
         let request = QLThumbnailGenerator.Request(fileAt: url, size: size, scale: scale, representationTypes: .all)
 
         QLThumbnailGenerator.shared.generateRepresentations(for: request) { (thumbnail, type, error) in
-            DispatchQueue.main.async {
-                guard let thumbnail = thumbnail else {
-                    return completion(.failure(error ?? AttachmentError.unableToCreateThumbnail))
+            guard let thumbnail = thumbnail else {
+                Task {
+                    completion(.failure(error ?? AttachmentError.unableToCreateThumbnail))
                 }
+                return
+            }
 
-                return completion(.success(thumbnail.uiImage))
+            let image = thumbnail.uiImage
+
+            Task {
+                completion(.success(image))
             }
         }
 
@@ -193,37 +173,39 @@ class AttachmentManager: AttachmentURLProviding {
 
     // MARK: - Private
 
-    private var progressObservations = [URL: NSKeyValueObservation]()
+    private var progressBlocks = [URL: @Sendable (Double) -> Void]()
 
-    private func downloadData(from remoteURL: URL, to localURL: URL, completion: @escaping (Result<URL, Error>) -> Void, progress: ((Double) -> Void)? = nil) {
-        let cancellable = self.requestor.download(remoteURL) { tempURL, response, error in
-            completion(
-                Result(catching: {
-                    self.progressObservations.removeValue(forKey: remoteURL)?.invalidate()
-
-                    if let error = error {
-                        progress?(0)
-                        throw error
-                    }
-
-                    guard let tempURL = tempURL else {
-                        throw AttachmentError.missingDownloadedURL(response)
-                    }
-                    ApptentiveLogger.attachments.debug("Trying to write attachment data from \(remoteURL.path) to \(localURL.path).")
-                    try self.fileManager.moveItem(at: tempURL, to: localURL)
-                    ApptentiveLogger.attachments.debug("Successfully wrote attachment data to \(localURL.path).")
-
-                    return localURL
-                })
-            )
+    private func downloadData(from remoteURL: URL, to localURL: URL, progress: (@Sendable (Double) -> Void)? = nil) async throws -> URL {
+        defer {
+            self.progressBlocks.removeValue(forKey: remoteURL)
         }
 
-        if let cancellable = cancellable as? URLSessionTaskCancellable {
-            self.progressObservations[remoteURL] = cancellable.task.progress.observe(\.fractionCompleted) { taskProgress, _ in
-                progress?(taskProgress.fractionCompleted)
+        self.progressBlocks[remoteURL] = progress
+
+        progress?(0)
+
+        let (tempURL, _) = try await self.requestor.download(from: remoteURL, delegate: self)
+
+        progress?(1)
+
+        Logger.attachments.debug("Trying to write attachment data from \(remoteURL.path) to \(localURL.path).")
+        try self.fileManager.moveItem(at: tempURL, to: localURL)
+        Logger.attachments.debug("Successfully wrote attachment data to \(localURL.path).")
+
+        return localURL
+    }
+
+    nonisolated func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        Task {
+            guard let remoteURL = downloadTask.originalRequest?.url, let progressBlock = await self.progressBlocks[remoteURL] else {
+                return
             }
+
+            progressBlock(Double(totalBytesWritten / totalBytesExpectedToWrite))
         }
     }
+
+    nonisolated func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {}
 
     private static func newAttachmentPath(filename: String) -> String {
         return "\(UUID().uuidString)\(self.attachmentFilenameSeparator)\(filename)"

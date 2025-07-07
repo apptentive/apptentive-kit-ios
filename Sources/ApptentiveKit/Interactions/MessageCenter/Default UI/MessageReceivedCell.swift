@@ -92,15 +92,7 @@ class MessageReceivedCell: UITableViewCell {
     }
 
     private func setConstraints() {
-        NSLayoutConstraint(
-            item: bubbleImageView,
-            attribute: .trailing,
-            relatedBy: .equal,
-            toItem: self.contentView,
-            attribute: .trailing,
-            multiplier: 0.75,
-            constant: 0
-        ).isActive = true
+        NSLayoutConstraint(item: bubbleImageView, attribute: .width, relatedBy: .equal, toItem: self.contentView, attribute: .width, multiplier: 0.75, constant: 0).isActive = true
 
         let bottomConstraint = self.bubbleImageView.bottomAnchor.constraint(equalTo: self.stackView.bottomAnchor, constant: 15)
         bottomConstraint.priority = .init(751)

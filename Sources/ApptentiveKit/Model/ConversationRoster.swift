@@ -13,12 +13,12 @@ struct ConversationRoster: Codable, Equatable {
 
     var loggedOut: [Record]
 
-    struct Record: Codable, Equatable {
+    struct Record: Codable, Equatable, Sendable {
         var state: State
 
         var path: String
 
-        enum State: Codable, Equatable {
+        enum State: Codable, Equatable, Sendable {
             case placeholder
             case anonymousPending
             case legacyPending(legacyToken: String)

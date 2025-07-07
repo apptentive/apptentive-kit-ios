@@ -6,19 +6,30 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class BackendTests: XCTestCase {
-    var backend: Backend!
-    var requestor: SpyRequestor!
-    var messageManager: MessageManager!
+struct BackendTests {
+    var backend: Backend
+    var requestor: SpyRequestor
+    var messageManager: MessageManager
     var containerURL: URL?
-    let backendDelegate = MockBackendDelegate()
+    var backendDelegate: MockBackendDelegate
     let jsonEncoder = JSONEncoder.apptentive
 
-    class MockBackendDelegate: BackendDelegate {
+    class MockBackendDelegate: BackendDelegate & MessageManagerApptentiveDelegate {
+        func prefetchResources(at: [URL]) {}
+
+        func setUnreadMessageCount(_ unreadMessageCount: Int) {
+            self.unreadMessageCount = unreadMessageCount
+        }
+
+        func setPrefetchContainerURL(_ prefetchContainerURL: URL?) {}
+
+        var unreadMessageCount: Int = 0
+
         func updateProperties(with: Conversation) {}
         func clearProperties() {}
 
@@ -33,21 +44,25 @@ class BackendTests: XCTestCase {
     }
 
     /// Creates a Backend object with a
-    override func setUpWithError() throws {
-        try MockEnvironment.cleanContainerURL()
+    init() async throws {
+        self.backendDelegate = await MockBackendDelegate()
+
+        try await MockEnvironment.cleanContainerURL()
 
         self.containerURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString)")
 
         self.requestor = SpyRequestor(responseData: Data())
         let dataProvider = MockDataProvider()
-        let queue = DispatchQueue(label: "Test Queue")
         self.messageManager = MessageManager(notificationCenter: NotificationCenter.default)
 
         let conversation = Conversation(dataProvider: dataProvider)
 
         let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://api.apptentive.com/")!, userAgent: "foo", languageCode: "de")
-        let requestRetrier = HTTPRequestRetrier(retryPolicy: HTTPRetryPolicy(), queue: queue)
-        requestRetrier.client = client
+        let requestRetrier = HTTPRequestRetrier()
+
+        Task {
+            await requestRetrier.setClient(client)
+        }
 
         let payloadSender = PayloadSender(requestRetrier: requestRetrier, notificationCenter: NotificationCenter.default)
         let roster = ConversationRoster(active: .init(state: .placeholder, path: "."), loggedOut: [])
@@ -55,39 +70,24 @@ class BackendTests: XCTestCase {
         let backendState = BackendState(isInForeground: true, isProtectedDataAvailable: true, roster: roster, fatalError: false)
 
         self.backend = Backend(
-            queue: queue, conversation: conversation, state: backendState, containerName: containerURL!.lastPathComponent, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), requestor: self.requestor,
+            conversation: conversation, state: backendState, containerName: containerURL!.lastPathComponent, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), requestor: self.requestor,
             messageManager: self.messageManager,
             requestRetrier: requestRetrier,
             payloadSender: payloadSender, dataProvider: dataProvider, fileManager: FileManager.default)
 
-        self.backend.delegate = self.backendDelegate
+        await self.backend.setDelegate(self.backendDelegate)
+        await self.backend.protectedDataDidBecomeAvailable()
 
-        let expectation = self.expectation(description: "Backend configured")
+        await self.requestor.setResponseData(try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil)))
 
-        queue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
-
-                self.requestor.responseData = try self.jsonEncoder.encode(ConversationResponse(token: "abc", id: "def456", deviceID: "def", personID: "456", encryptionKey: nil))
-
-                self.backend.register(
-                    appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us,
-                    completion: { _ in
-                        expectation.fulfill()
-                    })
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
-        }
-
-        self.wait(for: [expectation], timeout: 5)
+        let _ = try await self.backend.register(appCredentials: Apptentive.AppCredentials(key: "abc", signature: "123"), region: .us)
     }
 
-    override func tearDownWithError() throws {
-        self.containerURL.flatMap { try? FileManager.default.removeItem(at: $0) }
-    }
+    //    deinit {
+    //        self.containerURL.flatMap { try? FileManager.default.removeItem(at: $0) }
+    //    }
 
-    //    func testPersonChange() {
+    //    @Test func testPersonChange() {
     //        let expectation = XCTestExpectation(description: "Person data sent")
     //
     //        self.requestor.extraCompletion = {
@@ -105,7 +105,7 @@ class BackendTests: XCTestCase {
     //        self.wait(for: [expectation], timeout: 5)
     //    }
     //
-    //    func testDeviceChange() {
+    //    @Test func testDeviceChange() {
     //        let expectation = XCTestExpectation(description: "Device data sent")
     //
     //        self.requestor.extraCompletion = {
@@ -123,7 +123,7 @@ class BackendTests: XCTestCase {
     //        self.wait(for: [expectation], timeout: 5)
     //    }
     //
-    //    func testAppReleaseChange() {
+    //    @Test func testAppReleaseChange() {
     //        let expectation = XCTestExpectation(description: "App release data sent")
     //
     //        self.requestor.extraCompletion = {
@@ -141,7 +141,7 @@ class BackendTests: XCTestCase {
     //        self.wait(for: [expectation], timeout: 5)
     //    }
 
-    //    func testPayloadWithBadToken() throws {
+    //    @Test func testPayloadWithBadToken() throws {
     //        let expectation = XCTestExpectation(description: "Payload failed sent")
     //
     //        // Mock the payload send request to fail.
@@ -169,7 +169,7 @@ class BackendTests: XCTestCase {
     //        self.wait(for: [expectation], timeout: 5)
     //    }
 
-    //    func testOverridingStyles() {
+    //    @Test func testOverridingStyles() {
     //        apptentiveAssertionHandler = { message, file, line in
     //            print("\(file):\(line): Apptentive critical error: \(message())")
     //        }

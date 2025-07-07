@@ -6,24 +6,25 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import OSLog
 import UIKit
 
-typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & ResponseRecording & ResourceProviding
+typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & ResponseRecording & ResourceProviding & Sendable
 
 /// Describes the updates to the UI triggered from the view model.
-public protocol DialogViewModelDelegate: AnyObject {
+@MainActor public protocol DialogViewModelDelegate: AnyObject {
     func dialogViewModel(_: DialogViewModel, didLoadImage: DialogViewModel.Image)
     func dismiss()
 }
 
 /// Describes the values needed to configure a view for the TextModal ("Note") interaction.
-public class DialogViewModel {
+@MainActor public class DialogViewModel {
 
     /// The "Do you love this app" question part of the dialog.
-    public let title: String?
+    public let title: AttributedString?
 
     /// The "subtitle" of the dialog (which should be blank).
-    public let message: String?
+    public let message: AttributedString?
 
     /// Indicates if this view model will be used to configure a Love Dialog.
     public let dialogType: DialogType
@@ -81,8 +82,6 @@ public class DialogViewModel {
         case textModal
     }
 
-    static let imageScale: CGFloat = 3
-
     // MARK: - Internal
     let interaction: Interaction
     let interactionDelegate: DialogInteractionDelegate
@@ -94,8 +93,8 @@ public class DialogViewModel {
         self.dialogType = .textModal
         self.title = configuration.title
         self.message = configuration.body
-        self.isMessageHidden = self.message == nil || self.message?.isEmpty == true
-        self.isTitleHidden = self.title == nil || self.title?.isEmpty == true
+        self.isMessageHidden = configuration.body == nil || configuration.body?.characters.isEmpty == true
+        self.isTitleHidden = configuration.title == nil || configuration.title?.characters.isEmpty == true
 
         self.actions = configuration.actions.enumerated().map { (position, action) in
             return Self.buildTextModalAction(action: action, position: position, interaction: interaction, interactionDelegate: interactionDelegate)
@@ -134,29 +133,37 @@ public class DialogViewModel {
         ]
     }
 
-    func prepareForPresentation(completion: @escaping () -> Void) {
+    func prepareForPresentation() async {
         guard let configurationImage = self.imageConfiguration else {
-            return completion()
+            return
         }
 
-        self.prepareForPresentationCompletion = completion
-        self.interactionDelegate.getImage(at: configurationImage.url, scale: Self.imageScale) { result in
-            switch result {
-            case .success(let image):
-                let layout = DialogViewModel.Image.Layout(rawValue: configurationImage.layout) ?? .fullWidth
-                self.image = .loaded(image: image, acessibilityLabel: configurationImage.altText, layout: layout)
-            case .failure(let error):
-                ApptentiveLogger.interaction.error("Error retrieving image from \(configurationImage.url): \(error)")
+        let _: Void = await withCheckedContinuation { continuation in
+            Task {
+                do {
+                    try await withThrowingTaskGroup(of: Void.self) { group in
+                        // Add a task that tries loading the image.
+                        group.addTask {
+                            let image = try await self.interactionDelegate.getImage(at: configurationImage.url, scale: Self.imageScale)
+                            let layout = DialogViewModel.Image.Layout(rawValue: configurationImage.layout) ?? .fullWidth
+                            await self.setImage(.loaded(image: image, acessibilityLabel: configurationImage.altText, layout: layout))
+                        }
+
+                        // Also start a timeout task that waits for 2 seconds.
+                        group.addTask {
+                            try await Task.sleep(nanoseconds: UInt64(Self.preloadTimeout) * NSEC_PER_SEC)
+                            Logger.interaction.warning("Image load timed out, presenting dialog anyway.")
+                        }
+
+                        // Wait for the image to load or the timer to time out, whichever happens first, and return from this method.
+                        let _ = try await group.next()
+                        continuation.resume()
+                    }
+                } catch let error {
+                    Logger.interaction.warning("Image load failed with error \(error), presenting dialog anyway.")
+                    continuation.resume()
+                }
             }
-
-            self.prepareForPresentationCompletion?()
-            self.prepareForPresentationCompletion = nil
-        }
-
-        // Display prompt once image loads or after trying for 2 seconds.
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Self.preloadTimeout)) {
-            self.prepareForPresentationCompletion?()
-            self.prepareForPresentationCompletion = nil
         }
     }
 
@@ -164,13 +171,20 @@ public class DialogViewModel {
 
     private var prepareForPresentationCompletion: (() -> Void)? = nil
     private static let preloadTimeout = 2
+    private static let imageScale: CGFloat = 3
+
+    private func setImage(_ image: DialogViewModel.Image) {
+        self.image = image
+    }
 
     private static func buildTextModalAction(action: TextModalConfiguration.Action, position: Int, interaction: Interaction, interactionDelegate: DialogInteractionDelegate) -> DialogViewModel.Action {
         return DialogViewModel.Action(
             label: action.label,
             actionType: DialogViewModel.Action.ActionType.from(action.actionType),
             buttonTapped: {
-                interactionDelegate.recordResponse(.answered([Answer.choice(action.id)]), for: interaction.id)
+                Task {
+                    await interactionDelegate.recordResponse(.answered([Answer.choice(action.id)]), for: interaction.id)
+                }
 
                 switch action.actionType {
                 case .dismiss:
@@ -179,15 +193,14 @@ public class DialogViewModel {
 
                 case .interaction:
                     guard let invocations = action.invocations else {
-                        ApptentiveLogger.engagement.error("TextModal interaction button missing invocations.")
+                        Logger.engagement.error("TextModal interaction button missing invocations.")
                         return apptentiveCriticalError("TextModal interaction button missing invocations.")
                     }
 
-                    interactionDelegate.invoke(invocations) { (invokedInteractionID) in
-                        if let invokedInteractionID = invokedInteractionID {
-                            let invokedAction = TextModalAction(label: action.label, position: position, invokedInteractionID: invokedInteractionID, actionID: action.id)
-                            interactionDelegate.engage(event: .interaction(for: interaction, action: invokedAction))
-                        }
+                    Task {
+                        let invokedInteractionID = try await interactionDelegate.invoke(invocations)
+                        let invokedAction = TextModalAction(label: action.label, position: position, invokedInteractionID: invokedInteractionID, actionID: action.id)
+                        interactionDelegate.engage(event: .interaction(for: interaction, action: invokedAction))
                     }
                 }
             })

@@ -35,22 +35,25 @@ class ApptentiveFeatureTests: XCTestCase {
     }
 
     override func tearDown() {
-        Apptentive.alreadyInitialized = false
-    }
-
-    func testSDKRegistrationSucceedsWithPositiveConfirmation() {
-        let credentials = Apptentive.AppCredentials(key: self.validKey!, signature: self.validSignature!)
-
-        self.sdkRegistrationWithConfirmation(credentials: credentials) {
-            XCTAssertTrue($0)
+        Task { @MainActor in
+            Apptentive.alreadyInitialized = false
         }
     }
 
-    func testSDKRegistrationFailsWithNegativeConfirmation() {
+    func testSDKRegistrationSucceedsWithPositiveConfirmation() async throws {
+        let credentials = Apptentive.AppCredentials(key: self.validKey!, signature: self.validSignature!)
+
+        try await self.sdkRegistrationWithConfirmation(credentials: credentials)
+    }
+
+    func testSDKRegistrationFailsWithNegativeConfirmation() async throws {
         let credentials = Apptentive.AppCredentials(key: "invalid", signature: "invalid")
 
-        self.sdkRegistrationWithConfirmation(credentials: credentials) {
-            XCTAssertFalse($0)
+        do {
+            try await self.sdkRegistrationWithConfirmation(credentials: credentials)
+            XCTFail("Should not succeed with invalid credentials")
+        } catch let error {
+            XCTAssertNotNil(error)
         }
     }
 
@@ -59,8 +62,8 @@ class ApptentiveFeatureTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
-    func sdkRegistrationWithConfirmation() async -> Bool {
-        let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: nil, environment: Environment())
+    @MainActor func sdkRegistrationWithConfirmation() async -> Bool {
+        let apptentive = Apptentive(containerDirectory: UUID().uuidString, environment: Environment())
         (apptentive.environment as! Environment).protectedDataDidBecomeAvailable(notification: Notification(name: Notification.Name(rawValue: "foo")))
         let credentials = Apptentive.AppCredentials(key: self.validKey!, signature: self.validSignature!)
 
@@ -72,31 +75,15 @@ class ApptentiveFeatureTests: XCTestCase {
         }
     }
 
-    func sdkRegistrationWithConfirmation(credentials: Apptentive.AppCredentials, asserts: @escaping (Bool) -> Void) {
-        let expectation = self.expectation(description: "Authentication request complete")
-
+    @MainActor func sdkRegistrationWithConfirmation(credentials: Apptentive.AppCredentials) async throws {
         guard let baseURL = self.baseURL else {
-            return XCTFail("Base URL is invalid")
+            XCTFail("Base URL is invalid")
+            return
         }
 
-        let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: nil, environment: Environment())
+        let apptentive = Apptentive(containerDirectory: UUID().uuidString, environment: Environment())
         (apptentive.environment as! Environment).protectedDataDidBecomeAvailable(notification: Notification(name: Notification.Name(rawValue: "foo")))
 
-        apptentive.register(with: credentials) { result in
-            switch result {
-            case .success:
-                asserts(true)
-            case .failure(_):
-                asserts(false)
-            }
-
-            expectation.fulfill()
-        }
-
-        self.waitForExpectations(timeout: 5) { error in
-            if let error = error {
-                XCTFail("Authentication request timed out: \(error.localizedDescription)")
-            }
-        }
+        try await apptentive.register(with: credentials)
     }
 }

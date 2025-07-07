@@ -8,10 +8,18 @@
 
 import Foundation
 
-struct EnjoymentDialogConfiguration: Decodable {
-    let title: String
+struct EnjoymentDialogConfiguration: Decodable, Equatable {
+    let title: AttributedString
     let yesText: String
     let noText: String
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.title = try container.apptentiveDecodeHTML(forKey: .title)
+        self.yesText = try container.decode(String.self, forKey: .yesText)
+        self.noText = try container.decode(String.self, forKey: .noText)
+    }
 
     enum CodingKeys: String, CodingKey {
         case title

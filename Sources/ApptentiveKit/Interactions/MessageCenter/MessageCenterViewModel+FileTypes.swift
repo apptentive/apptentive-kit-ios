@@ -12,7 +12,6 @@ import PhotosUI
 import UIKit
 
 extension MessageCenterViewModel {
-    @available(iOS 14.0, *)
     var allUTTypes: [UTType] {
         return [
             UTType.item, UTType.content, UTType.compositeContent, UTType.message, UTType.contact, UTType.archive, UTType.diskImage, UTType.data, UTType.directory, UTType.resolvable, UTType.executable, UTType.mountPoint, UTType.aliasFile,
@@ -25,21 +24,5 @@ extension MessageCenterViewModel {
             UTType.applicationBundle, UTType.unixExecutable, UTType.systemPreferencesPane, UTType.spreadsheet, UTType.presentation, UTType.database, UTType.vCard, UTType.toDoItem, UTType.calendarEvent, UTType.emailMessage, UTType.internetLocation,
             UTType.font, UTType.bookmark, UTType.pkcs12, UTType.x509Certificate, UTType.log,
         ]
-    }
-
-    var allFileTypes: [String] {
-        return [
-            kUTTypeItem, kUTTypeContent, kUTTypeCompositeContent, kUTTypeMessage, kUTTypeContact, kUTTypeArchive, kUTTypeDiskImage, kUTTypeData, kUTTypeDirectory, kUTTypeResolvable, kUTTypeSymLink, kUTTypeExecutable, kUTTypeMountPoint, kUTTypeAliasFile,
-            kUTTypeAliasRecord, kUTTypeURLBookmarkData, kUTTypeURL, kUTTypeFileURL, kUTTypeText, kUTTypePlainText, kUTTypeUTF8PlainText, kUTTypeUTF16ExternalPlainText, kUTTypeUTF16PlainText, kUTTypeDelimitedText, kUTTypeCommaSeparatedText,
-            kUTTypeTabSeparatedText, kUTTypeUTF8TabSeparatedText, kUTTypeRTF, kUTTypeHTML, kUTTypeXML, kUTTypeSourceCode, kUTTypeAssemblyLanguageSource, kUTTypeCSource, kUTTypeObjectiveCSource, kUTTypeSwiftSource, kUTTypeCPlusPlusSource,
-            kUTTypeObjectiveCPlusPlusSource, kUTTypeCHeader, kUTTypeCPlusPlusHeader, kUTTypeJavaSource, kUTTypeScript, kUTTypeAppleScript, kUTTypeOSAScript, kUTTypeOSAScriptBundle, kUTTypeJavaScript, kUTTypeShellScript, kUTTypePerlScript,
-            kUTTypePythonScript, kUTTypeRubyScript, kUTTypePHPScript, kUTTypeJSON, kUTTypePropertyList, kUTTypeXMLPropertyList, kUTTypeBinaryPropertyList, kUTTypePDF, kUTTypeRTFD, kUTTypeFlatRTFD, kUTTypeTXNTextAndMultimediaData, kUTTypeWebArchive,
-            kUTTypeImage, kUTTypeJPEG, kUTTypeJPEG2000, kUTTypeTIFF, kUTTypePICT, kUTTypeGIF, kUTTypePNG, kUTTypeQuickTimeImage, kUTTypeAppleICNS, kUTTypeBMP, kUTTypeICO, kUTTypeRawImage, kUTTypeScalableVectorGraphics, kUTTypeLivePhoto,
-            kUTTypeAudiovisualContent, kUTTypeMovie, kUTTypeVideo, kUTTypeAudio, kUTTypeQuickTimeMovie, kUTTypeMPEG, kUTTypeMPEG2Video, kUTTypeMPEG2TransportStream, kUTTypeMP3, kUTTypeMPEG4, kUTTypeMPEG4Audio, kUTTypeAppleProtectedMPEG4Audio,
-            kUTTypeAppleProtectedMPEG4Video, kUTTypeAVIMovie, kUTTypeAudioInterchangeFileFormat, kUTTypeWaveformAudio, kUTTypeMIDIAudio, kUTTypePlaylist, kUTTypeM3UPlaylist, kUTTypeFolder, kUTTypeVolume, kUTTypePackage, kUTTypeBundle, kUTTypePluginBundle,
-            kUTTypeSpotlightImporter, kUTTypeQuickLookGenerator, kUTTypeXPCService, kUTTypeFramework, kUTTypeApplication, kUTTypeApplicationBundle, kUTTypeApplicationFile, kUTTypeUnixExecutable, kUTTypeWindowsExecutable, kUTTypeJavaClass,
-            kUTTypeJavaArchive, kUTTypeSystemPreferencesPane, kUTTypeGNUZipArchive, kUTTypeBzip2Archive, kUTTypeZipArchive, kUTTypeSpreadsheet, kUTTypePresentation, kUTTypeDatabase, kUTTypeVCard, kUTTypeToDoItem, kUTTypeCalendarEvent, kUTTypeEmailMessage,
-            kUTTypeInternetLocation, kUTTypeInkText, kUTTypeFont, kUTTypeBookmark, kUTType3DContent, kUTTypePKCS12, kUTTypeX509Certificate, kUTTypeElectronicPublication, kUTTypeLog,
-        ].map { String($0) }
     }
 }

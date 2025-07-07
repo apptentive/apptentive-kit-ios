@@ -6,13 +6,14 @@
 //  Copyright © 2020 Apptentive. All rights reserved.
 //
 
-import XCTest
+import Testing
+import UIKit
 
 @testable import ApptentiveKit
 
-class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
-    var viewModel: SurveyViewModel!
-    var spyInteractionDelegate: SpyInteractionDelegate!
+@MainActor class SurveyViewModelTests: SurveyViewModelDelegate {
+    var viewModel: SurveyViewModel
+    var spyInteractionDelegate: SpyInteractionDelegate
 
     var gotDidFinish: Bool = false
     var gotValidationDidChange: Bool = false
@@ -20,381 +21,311 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
     var gotPageWillChange: Bool = false
     var gotPageDidChange: Bool = false
 
-    override func setUpWithError() throws {
+    init() throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "Survey")
 
         guard case let Interaction.InteractionConfiguration.surveyV12(surveyConfiguration) = interaction.configuration else {
-            return XCTFail("Unable to create view model")
+            throw TestError(reason: "Unable to create view model")
         }
 
         self.spyInteractionDelegate = SpyInteractionDelegate()
-        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate!)
+        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate)
         self.viewModel.delegate = self
     }
 
-    func testSurveyMetadata() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
-
-        XCTAssertEqual(viewModel.name, "Every Question Type")
-        XCTAssertEqual(viewModel.advanceButtonText, "Boom")
-        XCTAssertEqual(viewModel.interaction.id, "1")
-        XCTAssertEqual(viewModel.validationErrorMessage, "You done goofed.")
-        XCTAssertEqual(viewModel.introduction, "Please help us see how each question is formatted when returning a survey response to the server.")
-        XCTAssertEqual(viewModel.thankYouMessage, "Thank you!")
-        XCTAssertEqual(viewModel.isRequired, false)
-        XCTAssertEqual(viewModel.questions.count, 16)
-
-        XCTAssertEqual(viewModel.termsAndConditions?.linkLabel, "Terms & Conditions")
+    @Test func testSurveyMetadata() async throws {
+        #expect(self.viewModel.name == "Every Question Type")
+        #expect(self.viewModel.advanceButtonText == "Boom")
+        #expect(self.viewModel.interaction.id == "1")
+        #expect(String(self.viewModel.validationErrorMessage.characters) == "You done goofed.")
+        #expect(self.viewModel.introduction.flatMap { String($0.characters) } == "Please help us see how each question is formatted when returning a survey response to the server.")
+        #expect(self.viewModel.thankYouMessage.flatMap { String($0.characters) } == "Thank you!")
+        #expect(self.viewModel.isRequired == false)
+        #expect(self.viewModel.questions.count == 16)
+        #expect(viewModel.termsAndConditions?.linkLabel == "Terms & Conditions")
 
         self.viewModel.openTermsAndConditions()
-
-        XCTAssertEqual(self.spyInteractionDelegate.openedURL, URL(string: "https://www.example.com/"))
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
+        #expect(self.spyInteractionDelegate.openedURL == URL(string: "https://www.example.com/"))
     }
 
-    func testSurveyQuestionBasics() {
-        XCTAssertEqual(self.viewModel.questions[0].text, "Multichoice Optional")
-        XCTAssertEqual(self.viewModel.questions[0].instructions, "select one")
+    @Test func testSurveyQuestionBasics() {
+        #expect(String(self.viewModel.questions[0].text.characters) == "Multichoice Optional")
+        #expect(self.viewModel.questions[0].instructions == "select one")
     }
 
-    func testOtherOptionSelection() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
+    @Test func testOtherOptionSelection() throws {
+        let otherQuestion = try #require(viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion)
 
-        guard let otherQuestion = viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion else {
-            return XCTFail("Choice questions have non-radio-button view models")
-        }
-        XCTAssertEqual(otherQuestion.choices.filter { $0.isSelected }.count, 0)
+        #expect(otherQuestion.choices.filter { $0.isSelected }.count == 0)
         otherQuestion.toggleChoice(at: 2)
-        XCTAssertTrue(otherQuestion.choices[2].isSelected)
+        #expect(otherQuestion.choices[2].isSelected)
     }
 
-    func testRadioButtonSelection() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
+    @Test func testRadioButtonSelection() throws {
+        let multichoiceOptional = try #require(viewModel.questions[0] as? SurveyViewModel.ChoiceQuestion)
 
-        guard let multichoiceOptional = viewModel.questions[0] as? SurveyViewModel.ChoiceQuestion else {
-            return XCTFail("Choice questions have non-radio-button view models")
-        }
-
-        XCTAssertEqual(multichoiceOptional.choices.filter { $0.isSelected }.count, 0)
+        #expect(multichoiceOptional.choices.filter { $0.isSelected }.count == 0)
         multichoiceOptional.toggleChoice(at: 0)
-        XCTAssertTrue(multichoiceOptional.choices[0].isSelected)
+        #expect(multichoiceOptional.choices[0].isSelected)
         multichoiceOptional.toggleChoice(at: 1)
-        XCTAssertTrue(self.gotSelectionDidChange)
-        XCTAssertTrue(multichoiceOptional.choices[1].isSelected)
-        XCTAssertFalse(multichoiceOptional.choices[0].isSelected)
+        #expect(self.gotSelectionDidChange)
+        #expect(multichoiceOptional.choices[1].isSelected)
+        #expect(!multichoiceOptional.choices[0].isSelected)
         multichoiceOptional.toggleChoice(at: 1)
-        XCTAssertTrue(multichoiceOptional.choices[1].isSelected)
+        #expect(multichoiceOptional.choices[1].isSelected)
     }
 
-    func testRadioButtonValidation() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
+    @Test func testRadioButtonValidation() throws {
+        let multichoiceOptional = try #require(viewModel.questions[0] as? SurveyViewModel.ChoiceQuestion)
+        let multichoiceRequired = try #require(viewModel.questions[1] as? SurveyViewModel.ChoiceQuestion)
 
-        guard let multichoiceOptional = viewModel.questions[0] as? SurveyViewModel.ChoiceQuestion,
-            let multichoiceRequired = viewModel.questions[1] as? SurveyViewModel.ChoiceQuestion
-        else {
-            return XCTFail("Choice questions have non-radio-button view models")
-        }
-
-        XCTAssertTrue(multichoiceOptional.isValid)
+        #expect(multichoiceOptional.isValid)
         multichoiceOptional.toggleChoice(at: 0)
-        XCTAssertTrue(multichoiceOptional.isValid)
+        #expect(multichoiceOptional.isValid)
 
-        XCTAssertFalse(multichoiceRequired.isValid)
+        #expect(!multichoiceRequired.isValid)
         multichoiceRequired.toggleChoice(at: 0)
-        XCTAssertTrue(multichoiceRequired.isValid)
+        #expect(multichoiceRequired.isValid)
         multichoiceRequired.toggleChoice(at: 0)
-        XCTAssertTrue(multichoiceRequired.isValid)
+        #expect(multichoiceRequired.isValid)
     }
 
-    func testCheckboxSelection() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
+    @Test func testCheckboxSelection() throws {
+        let question = try #require(viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion)
 
-        guard let question = viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion else {
-            return XCTFail("Choice questions have non-radio-button view models")
-        }
-
-        XCTAssertEqual(question.choices.filter { $0.isSelected }.count, 0)
+        #expect(question.choices.filter { $0.isSelected }.count == 0)
 
         question.toggleChoice(at: 0)
-        XCTAssertTrue(self.gotSelectionDidChange)
-        XCTAssertTrue(question.choices[0].isSelected)
+        #expect(self.gotSelectionDidChange)
+        #expect(question.choices[0].isSelected)
 
         self.gotSelectionDidChange = false
 
         question.toggleChoice(at: 1)
-        XCTAssertTrue(self.gotSelectionDidChange)
-        XCTAssertTrue(question.choices[0].isSelected)
-        XCTAssertTrue(question.choices[1].isSelected)
+        #expect(self.gotSelectionDidChange)
+        #expect(question.choices[0].isSelected)
+        #expect(question.choices[1].isSelected)
 
         self.gotSelectionDidChange = false
 
         question.toggleChoice(at: 1)
-        XCTAssertTrue(self.gotSelectionDidChange)
-        XCTAssertFalse(question.choices[1].isSelected)
+        #expect(self.gotSelectionDidChange)
+        #expect(!question.choices[1].isSelected)
     }
 
-    func testCheckboxValidation() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
+    @Test func testCheckboxValidation() throws {
+        let multiselectOptional = try #require(viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectRequired = try #require(viewModel.questions[3] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectOptionalWithLimits = try #require(viewModel.questions[4] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectRequiredWithLimits = try #require(viewModel.questions[5] as? SurveyViewModel.ChoiceQuestion)
 
-        guard let multiselectOptional = viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectRequired = viewModel.questions[3] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectOptionalWithLimits = viewModel.questions[4] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectRequiredWithLimits = viewModel.questions[5] as? SurveyViewModel.ChoiceQuestion
-        else {
-            return XCTFail("Choice questions have non-radio-button view models")
-        }
-
-        XCTAssertTrue(multiselectOptional.isValid)
+        #expect(multiselectOptional.isValid)
         multiselectOptional.toggleChoice(at: 0)
-        XCTAssertTrue(multiselectOptional.isValid)
+        #expect(multiselectOptional.isValid)
 
-        XCTAssertFalse(multiselectRequired.isValid)
+        #expect(!multiselectRequired.isValid)
         multiselectRequired.toggleChoice(at: 0)
-        XCTAssertFalse(multiselectRequired.isValid, "Other text should be required.")
+        #expect(!multiselectRequired.isValid, "Other text should be required.")
         multiselectRequired.choices[0].value = "Bar"
-        XCTAssertTrue(multiselectRequired.isValid, "Implicit minimum of one selection (provided by server)")
+        #expect(multiselectRequired.isValid, "Implicit minimum of one selection (provided by server)")
 
-        XCTAssertTrue(multiselectOptionalWithLimits.isValid, "Multiselect optional limits only enforced if something is selected")
+        #expect(multiselectOptionalWithLimits.isValid, "Multiselect optional limits only enforced if something is selected")
         multiselectOptionalWithLimits.toggleChoice(at: 0)
-        XCTAssertFalse(multiselectOptionalWithLimits.isValid, "Multiselect optional lower limit enforced when something is selected")
+        #expect(!multiselectOptionalWithLimits.isValid, "Multiselect optional lower limit enforced when something is selected")
         multiselectOptionalWithLimits.toggleChoice(at: 1)
-        XCTAssertTrue(multiselectOptionalWithLimits.isValid)
+        #expect(multiselectOptionalWithLimits.isValid)
         multiselectOptionalWithLimits.toggleChoice(at: 2)
-        XCTAssertFalse(multiselectOptionalWithLimits.isValid, "Multiselect optional other choice should enforce non-null value")
+        #expect(!multiselectOptionalWithLimits.isValid, "Multiselect optional other choice should enforce non-null value")
         multiselectOptionalWithLimits.choices[2].value = "Test"
-        XCTAssertTrue(multiselectOptionalWithLimits.isValid)
+        #expect(multiselectOptionalWithLimits.isValid)
         multiselectOptionalWithLimits.toggleChoice(at: 3)
-        XCTAssertFalse(multiselectOptionalWithLimits.isValid, "Multiselect optional upper limit enforced when something is selected")
+        #expect(!multiselectOptionalWithLimits.isValid, "Multiselect optional upper limit enforced when something is selected")
 
-        XCTAssertFalse(multiselectRequiredWithLimits.isValid, "Multiselect required limits enforced even when nothing is selected")
+        #expect(!multiselectRequiredWithLimits.isValid, "Multiselect required limits enforced even when nothing is selected")
         multiselectRequiredWithLimits.toggleChoice(at: 0)
-        XCTAssertTrue(multiselectRequiredWithLimits.isValid)
+        #expect(multiselectRequiredWithLimits.isValid)
         multiselectRequiredWithLimits.toggleChoice(at: 1)
         multiselectRequiredWithLimits.toggleChoice(at: 2)
         multiselectRequiredWithLimits.toggleChoice(at: 3)
-        XCTAssertFalse(multiselectRequiredWithLimits.isValid)
+        #expect(!multiselectRequiredWithLimits.isValid)
     }
 
-    func testFreeformValidation() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
+    @Test func testFreeformValidation() throws {
+        let freeformShortOptional = try #require(viewModel.questions[6] as? SurveyViewModel.FreeformQuestion)
+        let freeformShortRequired = try #require(viewModel.questions[7] as? SurveyViewModel.FreeformQuestion)
+        let freeformLongOptional = try #require(viewModel.questions[8] as? SurveyViewModel.FreeformQuestion)
+        let freeformLongRequired = try #require(viewModel.questions[9] as? SurveyViewModel.FreeformQuestion)
 
-        guard let freeformShortOptional = viewModel.questions[6] as? SurveyViewModel.FreeformQuestion,
-            let freeformShortRequired = viewModel.questions[7] as? SurveyViewModel.FreeformQuestion,
-            let freeformLongOptional = viewModel.questions[8] as? SurveyViewModel.FreeformQuestion,
-            let freeformLongRequired = viewModel.questions[9] as? SurveyViewModel.FreeformQuestion
-        else {
-            return XCTFail("Freeform questions have non-freeform view models")
-        }
-
-        XCTAssertTrue(freeformShortOptional.isValid)
-        XCTAssertFalse(freeformShortRequired.isValid)
-        XCTAssertTrue(freeformLongOptional.isValid)
-        XCTAssertFalse(freeformLongRequired.isValid)
+        #expect(freeformShortOptional.isValid)
+        #expect(!freeformShortRequired.isValid)
+        #expect(freeformLongOptional.isValid)
+        #expect(!freeformLongRequired.isValid)
 
         freeformShortRequired.value = " "
-        XCTAssertFalse(freeformShortRequired.isValid)
+        #expect(!freeformShortRequired.isValid)
         freeformShortRequired.value = "Yo"
-        XCTAssertTrue(freeformShortRequired.isValid)
+        #expect(freeformShortRequired.isValid)
 
         freeformLongRequired.value = "Hey"
-        XCTAssertTrue(freeformLongRequired.isValid)
+        #expect(freeformLongRequired.isValid)
     }
 
-    func testRangeSelection() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
+    @Test func testRangeSelection() throws {
+        let rangeNPS = try #require(viewModel.questions[10] as? SurveyViewModel.RangeQuestion)
 
-        guard let rangeNPS = viewModel.questions[10] as? SurveyViewModel.RangeQuestion else {
-            return XCTFail("Weird view models")
-        }
-
-        XCTAssertEqual(rangeNPS.selectedValueIndex, nil)
+        #expect(rangeNPS.selectedValueIndex == nil)
         rangeNPS.selectValue(at: 0)
-        XCTAssertEqual(rangeNPS.selectedValueIndex, 0)
+        #expect(rangeNPS.selectedValueIndex == 0)
         rangeNPS.selectValue(at: 1)
-        XCTAssertTrue(self.gotSelectionDidChange)
-        XCTAssertEqual(rangeNPS.selectedValueIndex, 1)
+        #expect(self.gotSelectionDidChange)
+        #expect(rangeNPS.selectedValueIndex == 1)
         rangeNPS.selectValue(at: 1)
-        XCTAssertEqual(rangeNPS.selectedValueIndex, 1)
+        #expect(rangeNPS.selectedValueIndex == 1)
 
     }
 
-    func testRangeValidation() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
+    @Test func testRangeValidation() throws {
+        let rangeNPS = try #require(viewModel.questions[10] as? SurveyViewModel.RangeQuestion)
+        let rangeHowDoYouFeel = try #require(viewModel.questions[11] as? SurveyViewModel.RangeQuestion)
 
-        guard let rangeNPS = viewModel.questions[10] as? SurveyViewModel.RangeQuestion,
-            let rangeHowDoYouFeel = viewModel.questions[11] as? SurveyViewModel.RangeQuestion
-        else {
-            return XCTFail("Weird view models")
-        }
-
-        XCTAssertTrue(rangeNPS.isValid)
+        #expect(rangeNPS.isValid)
         rangeNPS.selectValue(at: 0)
-        XCTAssertTrue(rangeNPS.isValid)
+        #expect(rangeNPS.isValid)
 
-        XCTAssertFalse(rangeHowDoYouFeel.isValid)
+        #expect(!rangeHowDoYouFeel.isValid)
         rangeHowDoYouFeel.selectValue(at: 0)
-        XCTAssertTrue(rangeHowDoYouFeel.isValid)
+        #expect(rangeHowDoYouFeel.isValid)
         rangeHowDoYouFeel.selectValue(at: 0)
-        XCTAssertTrue(rangeHowDoYouFeel.isValid)
+        #expect(rangeHowDoYouFeel.isValid)
     }
 
-    func testMarkedAsInvalid() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
+    @Test func testMarkedAsInvalid() async throws {
+        let multichoiceOptional = try #require(viewModel.questions[0] as? SurveyViewModel.ChoiceQuestion)
+        let multichoiceRequired = try #require(viewModel.questions[1] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectOptional = try #require(viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectRequired = try #require(viewModel.questions[3] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectOptionalWithLimits = try #require(viewModel.questions[4] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectRequiredWithLimits = try #require(viewModel.questions[5] as? SurveyViewModel.ChoiceQuestion)
+        let freeformShortOptional = try #require(viewModel.questions[6] as? SurveyViewModel.FreeformQuestion)
+        let freeformShortRequired = try #require(viewModel.questions[7] as? SurveyViewModel.FreeformQuestion)
+        let freeformLongOptional = try #require(viewModel.questions[8] as? SurveyViewModel.FreeformQuestion)
+        let freeformLongRequired = try #require(viewModel.questions[9] as? SurveyViewModel.FreeformQuestion)
+        let rangeNPS = try #require(viewModel.questions[10] as? SurveyViewModel.RangeQuestion)
+        let rangeHowDoYouFeel = try #require(viewModel.questions[11] as? SurveyViewModel.RangeQuestion)
+        let rangeHowCloseToZero = try #require(viewModel.questions[12] as? SurveyViewModel.RangeQuestion)
+        let rangeMissingLabels = try #require(viewModel.questions[13] as? SurveyViewModel.RangeQuestion)
+        let rangeEmptyLabels = try #require(viewModel.questions[14] as? SurveyViewModel.RangeQuestion)
+        let rangeMissingMinMax = try #require(viewModel.questions[15] as? SurveyViewModel.RangeQuestion)
 
-        guard let multichoiceOptional = viewModel.questions[0] as? SurveyViewModel.ChoiceQuestion,
-            let multichoiceRequired = viewModel.questions[1] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectOptional = viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectRequired = viewModel.questions[3] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectOptionalWithLimits = viewModel.questions[4] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectRequiredWithLimits = viewModel.questions[5] as? SurveyViewModel.ChoiceQuestion,
-            let freeformShortOptional = viewModel.questions[6] as? SurveyViewModel.FreeformQuestion,
-            let freeformShortRequired = viewModel.questions[7] as? SurveyViewModel.FreeformQuestion,
-            let freeformLongOptional = viewModel.questions[8] as? SurveyViewModel.FreeformQuestion,
-            let freeformLongRequired = viewModel.questions[9] as? SurveyViewModel.FreeformQuestion,
-            let rangeNPS = viewModel.questions[10] as? SurveyViewModel.RangeQuestion,
-            let rangeHowDoYouFeel = viewModel.questions[11] as? SurveyViewModel.RangeQuestion,
-            let rangeHowCloseToZero = viewModel.questions[12] as? SurveyViewModel.RangeQuestion,
-            let rangeMissingLabels = viewModel.questions[13] as? SurveyViewModel.RangeQuestion,
-            let rangeEmptyLabels = viewModel.questions[14] as? SurveyViewModel.RangeQuestion,
-            let rangeMissingMinMax = viewModel.questions[15] as? SurveyViewModel.RangeQuestion
-        else {
-            return XCTFail("Weird view models")
-        }
-
-        XCTAssertFalse(multichoiceOptional.isMarkedAsInvalid)
-        XCTAssertFalse(multichoiceRequired.isMarkedAsInvalid)
-        XCTAssertFalse(multiselectOptional.isMarkedAsInvalid)
-        XCTAssertFalse(multiselectRequired.isMarkedAsInvalid)
-        XCTAssertFalse(multiselectOptionalWithLimits.isMarkedAsInvalid)
-        XCTAssertFalse(multiselectRequiredWithLimits.isMarkedAsInvalid)
-        XCTAssertFalse(freeformShortOptional.isMarkedAsInvalid)
-        XCTAssertFalse(freeformShortRequired.isMarkedAsInvalid)
-        XCTAssertFalse(freeformLongOptional.isMarkedAsInvalid)
-        XCTAssertFalse(freeformLongRequired.isMarkedAsInvalid)
-        XCTAssertFalse(rangeNPS.isMarkedAsInvalid)
-        XCTAssertFalse(rangeHowDoYouFeel.isMarkedAsInvalid)
-        XCTAssertFalse(rangeHowCloseToZero.isMarkedAsInvalid)
-        XCTAssertFalse(rangeMissingLabels.isMarkedAsInvalid)
-        XCTAssertFalse(rangeEmptyLabels.isMarkedAsInvalid)
-        XCTAssertFalse(rangeMissingMinMax.isMarkedAsInvalid)
+        #expect(!multichoiceOptional.isMarkedAsInvalid)
+        #expect(!multichoiceRequired.isMarkedAsInvalid)
+        #expect(!multiselectOptional.isMarkedAsInvalid)
+        #expect(!multiselectRequired.isMarkedAsInvalid)
+        #expect(!multiselectOptionalWithLimits.isMarkedAsInvalid)
+        #expect(!multiselectRequiredWithLimits.isMarkedAsInvalid)
+        #expect(!freeformShortOptional.isMarkedAsInvalid)
+        #expect(!freeformShortRequired.isMarkedAsInvalid)
+        #expect(!freeformLongOptional.isMarkedAsInvalid)
+        #expect(!freeformLongRequired.isMarkedAsInvalid)
+        #expect(!rangeNPS.isMarkedAsInvalid)
+        #expect(!rangeHowDoYouFeel.isMarkedAsInvalid)
+        #expect(!rangeHowCloseToZero.isMarkedAsInvalid)
+        #expect(!rangeMissingLabels.isMarkedAsInvalid)
+        #expect(!rangeEmptyLabels.isMarkedAsInvalid)
+        #expect(!rangeMissingMinMax.isMarkedAsInvalid)
 
         // Force "sticky" validation
-        viewModel.advance()
-        XCTAssertFalse(self.gotDidFinish)
+        await viewModel.advance()
+        #expect(!self.gotDidFinish)
 
-        XCTAssertFalse(multichoiceOptional.isMarkedAsInvalid)
-        XCTAssertFalse(multiselectOptional.isMarkedAsInvalid)
-        XCTAssertFalse(multiselectOptionalWithLimits.isMarkedAsInvalid)
-        XCTAssertFalse(freeformShortOptional.isMarkedAsInvalid)
-        XCTAssertFalse(freeformLongOptional.isMarkedAsInvalid)
-        XCTAssertFalse(rangeNPS.isMarkedAsInvalid)
-        XCTAssertFalse(rangeHowCloseToZero.isMarkedAsInvalid)
-        XCTAssertFalse(rangeMissingLabels.isMarkedAsInvalid)
-        XCTAssertFalse(rangeEmptyLabels.isMarkedAsInvalid)
-        XCTAssertFalse(rangeMissingMinMax.isMarkedAsInvalid)
+        #expect(!multichoiceOptional.isMarkedAsInvalid)
+        #expect(!multiselectOptional.isMarkedAsInvalid)
+        #expect(!multiselectOptionalWithLimits.isMarkedAsInvalid)
+        #expect(!freeformShortOptional.isMarkedAsInvalid)
+        #expect(!freeformLongOptional.isMarkedAsInvalid)
+        #expect(!rangeNPS.isMarkedAsInvalid)
+        #expect(!rangeHowCloseToZero.isMarkedAsInvalid)
+        #expect(!rangeMissingLabels.isMarkedAsInvalid)
+        #expect(!rangeEmptyLabels.isMarkedAsInvalid)
+        #expect(!rangeMissingMinMax.isMarkedAsInvalid)
 
-        XCTAssertTrue(multichoiceRequired.isMarkedAsInvalid)
-        XCTAssertTrue(multiselectRequired.isMarkedAsInvalid)
-        XCTAssertTrue(multiselectRequiredWithLimits.isMarkedAsInvalid)
-        XCTAssertTrue(freeformShortRequired.isMarkedAsInvalid)
-        XCTAssertTrue(freeformLongRequired.isMarkedAsInvalid)
-        XCTAssertTrue(rangeHowDoYouFeel.isMarkedAsInvalid)
+        #expect(multichoiceRequired.isMarkedAsInvalid)
+        #expect(multiselectRequired.isMarkedAsInvalid)
+        #expect(multiselectRequiredWithLimits.isMarkedAsInvalid)
+        #expect(freeformShortRequired.isMarkedAsInvalid)
+        #expect(freeformLongRequired.isMarkedAsInvalid)
+        #expect(rangeHowDoYouFeel.isMarkedAsInvalid)
 
         self.gotValidationDidChange = false
         multichoiceRequired.toggleChoice(at: 0)
-        XCTAssertTrue(self.gotValidationDidChange)
-        XCTAssertFalse(multichoiceRequired.isMarkedAsInvalid)
+        #expect(self.gotValidationDidChange)
+        #expect(!multichoiceRequired.isMarkedAsInvalid)
 
         self.gotValidationDidChange = false
         multiselectRequired.toggleChoice(at: 0)
         multiselectRequired.choices[0].value = "Foo"
-        XCTAssertTrue(self.gotValidationDidChange)
-        XCTAssertFalse(multiselectRequired.isMarkedAsInvalid)
+        #expect(self.gotValidationDidChange)
+        #expect(!multiselectRequired.isMarkedAsInvalid)
         self.gotValidationDidChange = false
         multiselectRequired.toggleChoice(at: 0)
-        XCTAssertFalse(self.gotValidationDidChange)
-        XCTAssertFalse(multiselectRequired.isMarkedAsInvalid, "Should not re-validate until submit")
+        #expect(!self.gotValidationDidChange)
+        #expect(!multiselectRequired.isMarkedAsInvalid, "Should not re-validate until submit")
 
         self.gotValidationDidChange = false
         multiselectRequiredWithLimits.toggleChoice(at: 0)
-        XCTAssertTrue(self.gotValidationDidChange)
-        XCTAssertFalse(multiselectRequiredWithLimits.isMarkedAsInvalid)
+        #expect(self.gotValidationDidChange)
+        #expect(!multiselectRequiredWithLimits.isMarkedAsInvalid)
         self.gotValidationDidChange = false
         multiselectRequiredWithLimits.toggleChoice(at: 1)
         multiselectRequiredWithLimits.toggleChoice(at: 2)
         multiselectRequiredWithLimits.toggleChoice(at: 3)
-        XCTAssertFalse(self.gotValidationDidChange)
-        XCTAssertFalse(multiselectRequiredWithLimits.isMarkedAsInvalid, "Should not re-validate until submit")
+        #expect(!self.gotValidationDidChange)
+        #expect(!multiselectRequiredWithLimits.isMarkedAsInvalid, "Should not re-validate until submit")
 
         self.gotValidationDidChange = false
         freeformShortRequired.value = "Yo"
-        XCTAssertTrue(self.gotValidationDidChange)
-        XCTAssertFalse(freeformShortRequired.isMarkedAsInvalid)
+        #expect(self.gotValidationDidChange)
+        #expect(!freeformShortRequired.isMarkedAsInvalid)
         self.gotValidationDidChange = false
         freeformShortRequired.value = " "
-        XCTAssertFalse(self.gotValidationDidChange)
-        XCTAssertFalse(freeformShortRequired.isMarkedAsInvalid, "Should not re-validate until submit")
+        #expect(!self.gotValidationDidChange)
+        #expect(!freeformShortRequired.isMarkedAsInvalid, "Should not re-validate until submit")
 
         self.gotValidationDidChange = false
         freeformLongRequired.value = "Hey"
-        XCTAssertTrue(self.gotValidationDidChange)
-        XCTAssertFalse(freeformLongRequired.isMarkedAsInvalid)
+        #expect(self.gotValidationDidChange)
+        #expect(!freeformLongRequired.isMarkedAsInvalid)
         self.gotValidationDidChange = false
         freeformLongRequired.value = ""
-        XCTAssertFalse(self.gotValidationDidChange)
-        XCTAssertFalse(freeformLongRequired.isMarkedAsInvalid, "Should not re-validate until submit")
+        #expect(!self.gotValidationDidChange)
+        #expect(!freeformLongRequired.isMarkedAsInvalid, "Should not re-validate until submit")
 
         self.gotValidationDidChange = false
         rangeHowDoYouFeel.selectValue(at: 4)
-        XCTAssertTrue(self.gotValidationDidChange)
-        XCTAssertFalse(rangeHowDoYouFeel.isMarkedAsInvalid)
+        #expect(self.gotValidationDidChange)
+        #expect(!rangeHowDoYouFeel.isMarkedAsInvalid)
     }
 
-    func testSurveyAnswers() {
-        guard let viewModel = self.viewModel else {
-            return XCTFail("Unable to load view model")
-        }
+    @Test func testSurveyAnswers() async throws {
+        let multichoiceOptional = try #require(viewModel.questions[0] as? SurveyViewModel.ChoiceQuestion)
+        let multichoiceRequired = try #require(viewModel.questions[1] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectOptional = try #require(viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectRequired = try #require(viewModel.questions[3] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectOptionalWithLimits = try #require(viewModel.questions[4] as? SurveyViewModel.ChoiceQuestion)
+        let multiselectRequiredWithLimits = try #require(viewModel.questions[5] as? SurveyViewModel.ChoiceQuestion)
+        let freeformShortOptional = try #require(viewModel.questions[6] as? SurveyViewModel.FreeformQuestion)
+        let freeformShortRequired = try #require(viewModel.questions[7] as? SurveyViewModel.FreeformQuestion)
+        let freeformLongOptional = try #require(viewModel.questions[8] as? SurveyViewModel.FreeformQuestion)
+        let freeformLongRequired = try #require(viewModel.questions[9] as? SurveyViewModel.FreeformQuestion)
+        let rangeNPS = try #require(viewModel.questions[10] as? SurveyViewModel.RangeQuestion)
+        let rangeHowDoYouFeel = try #require(viewModel.questions[11] as? SurveyViewModel.RangeQuestion)
+        let rangeHowCloseToZero = try #require(viewModel.questions[12] as? SurveyViewModel.RangeQuestion)
+        let rangeMissingLabels = try #require(viewModel.questions[13] as? SurveyViewModel.RangeQuestion)
+        let rangeEmptyLabels = try #require(viewModel.questions[14] as? SurveyViewModel.RangeQuestion)
+        let rangeMissingMinMax = try #require(viewModel.questions[15] as? SurveyViewModel.RangeQuestion)
 
-        guard let multichoiceOptional = viewModel.questions[0] as? SurveyViewModel.ChoiceQuestion,
-            let multichoiceRequired = viewModel.questions[1] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectOptional = viewModel.questions[2] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectRequired = viewModel.questions[3] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectOptionalWithLimits = viewModel.questions[4] as? SurveyViewModel.ChoiceQuestion,
-            let multiselectRequiredWithLimits = viewModel.questions[5] as? SurveyViewModel.ChoiceQuestion,
-            let freeformShortOptional = viewModel.questions[6] as? SurveyViewModel.FreeformQuestion,
-            let freeformShortRequired = viewModel.questions[7] as? SurveyViewModel.FreeformQuestion,
-            let freeformLongOptional = viewModel.questions[8] as? SurveyViewModel.FreeformQuestion,
-            let freeformLongRequired = viewModel.questions[9] as? SurveyViewModel.FreeformQuestion,
-            let rangeNPS = viewModel.questions[10] as? SurveyViewModel.RangeQuestion,
-            let rangeHowDoYouFeel = viewModel.questions[11] as? SurveyViewModel.RangeQuestion,
-            let rangeHowCloseToZero = viewModel.questions[12] as? SurveyViewModel.RangeQuestion,
-            let rangeMissingLabels = viewModel.questions[13] as? SurveyViewModel.RangeQuestion,
-            let rangeEmptyLabels = viewModel.questions[14] as? SurveyViewModel.RangeQuestion,
-            let rangeMissingMinMax = viewModel.questions[15] as? SurveyViewModel.RangeQuestion
-        else {
-            return XCTFail("Freeform questions have non-freeform view models")
-        }
-
-        XCTAssertTrue(viewModel.response.questionResponses.values.allSatisfy({ $0 == .empty }))
+        #expect(viewModel.response.questionResponses.values.allSatisfy({ $0 == .empty }))
 
         multichoiceOptional.toggleChoice(at: 0)
         multichoiceRequired.toggleChoice(at: 1)
@@ -421,14 +352,12 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
         rangeEmptyLabels.selectValue(at: 4)
         rangeMissingMinMax.selectValue(at: 5)
 
-        viewModel.advance()
-        self.waitForSurveyLogic()
+        await viewModel.advance()
 
-        XCTAssertTrue(self.gotDidFinish)
+        #expect(self.gotDidFinish)
 
-        XCTAssertEqual(
-            self.spyInteractionDelegate.sentSurveyResponse?.questionResponses,
-            [
+        #expect(
+            self.spyInteractionDelegate.sentSurveyResponse?.questionResponses == [
                 "56e0b5d9c7199274f700001a": .empty,
                 "56e0b5d9c7199274f700001c": .empty,
                 "2": .answered([Answer.choice("3")]),
@@ -446,10 +375,9 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
                 "R5": .answered([Answer.range(5)]),
                 "R6": .answered([Answer.range(5)]),
             ])
-        XCTAssertEqual(self.spyInteractionDelegate.engagedEvent?.codePointName, "com.apptentive#Survey#submit")
-        XCTAssertEqual(
-            self.spyInteractionDelegate.responses,
-            [
+        #expect(self.spyInteractionDelegate.engagedEvent?.codePointName == "com.apptentive#Survey#submit")
+        #expect(
+            self.spyInteractionDelegate.responses == [
                 "2": [Answer.choice("3")],
                 "6": [Answer.choice("8")],
                 "11": [Answer.choice("12"), Answer.choice("14")],
@@ -466,9 +394,8 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
                 "R6": [Answer.range(5)],
             ])
 
-        XCTAssertEqual(
-            self.spyInteractionDelegate.lastResponse,
-            [
+        #expect(
+            self.spyInteractionDelegate.lastResponse == [
                 "2": [Answer.choice("3")],
                 "6": [Answer.choice("8")],
                 "11": [Answer.choice("12"), Answer.choice("14")],
@@ -487,110 +414,90 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
 
         self.viewModel.launch()
 
-        XCTAssertEqual(self.spyInteractionDelegate.lastResponse, [:])
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
+
+        #expect(self.spyInteractionDelegate.lastResponse == [:])
     }
 
-    func testBranchedSurvey() throws {
+    @Test func testBranchedSurvey() async throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "SurveyBranched")
 
         guard case let Interaction.InteractionConfiguration.surveyV12(surveyConfiguration) = interaction.configuration else {
-            return XCTFail("Unable to create view model")
+            throw TestError(reason: "Unable to create view model")
         }
 
-        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate!)
+        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate)
         self.viewModel.delegate = self
 
         self.viewModel.launch()
 
-        XCTAssertEqual(self.viewModel.currentPage.description, "Please tell us about your experience with our survey builder.")
+        #expect(self.viewModel.currentPage.description.flatMap { String($0.characters) } == "Please tell us about your experience with our survey builder.")
 
-        self.viewModel.advance()
-        self.waitForSurveyLogic()
+        await self.viewModel.advance()
 
-        XCTAssertNil(self.viewModel.currentPage.description)
+        #expect(self.viewModel.currentPage.description == nil)
 
-        guard let firstQuestion = self.viewModel.currentPage.questions.first as? SurveyViewModel.ChoiceQuestion else {
-            return XCTFail("Expected first question to be choice question")
-        }
+        let firstQuestion = try #require(self.viewModel.currentPage.questions.first as? SurveyViewModel.ChoiceQuestion)
 
-        XCTAssertEqual(firstQuestion.text, "Do you love our current survey building and management experience?")
+        #expect(String(firstQuestion.text.characters) == "Do you love our current survey building and management experience?")
 
         firstQuestion.toggleChoice(at: 0)
 
-        self.viewModel.advance()
-        self.waitForSurveyLogic()
+        await self.viewModel.advance()
 
-        XCTAssertNil(self.viewModel.currentPage.description)
+        #expect(self.viewModel.currentPage.description == nil)
 
-        guard let secondQuestion = self.viewModel.currentPage.questions.first as? SurveyViewModel.ChoiceQuestion else {
-            return XCTFail("Expected second question to be choice question")
-        }
+        let secondQuestion = try #require(self.viewModel.currentPage.questions.first as? SurveyViewModel.ChoiceQuestion)
 
-        XCTAssertEqual(secondQuestion.text, "Happy to hear! What do you love most about our survey experience?")
+        #expect(String(secondQuestion.text.characters) == "Happy to hear! What do you love most about our survey experience?")
 
-        self.viewModel.advance()
-        self.waitForSurveyLogic()
+        await self.viewModel.advance()
 
-        XCTAssertNil(self.viewModel.currentPage.description)
+        #expect(self.viewModel.currentPage.description == nil)
 
-        guard let thirdQuestion = self.viewModel.currentPage.questions.first as? SurveyViewModel.ChoiceQuestion else {
-            return XCTFail("Expected third question to be choice question")
-        }
+        let thirdQuestion = try #require(self.viewModel.currentPage.questions.first as? SurveyViewModel.ChoiceQuestion)
 
-        XCTAssertEqual(thirdQuestion.text, "Which two survey features are the most important to you?")
+        #expect(String(thirdQuestion.text.characters) == "Which two survey features are the most important to you?")
 
         thirdQuestion.toggleChoice(at: 0)
 
-        self.viewModel.advance()
-        self.waitForSurveyLogic()
+        await self.viewModel.advance()
 
-        XCTAssertNil(self.viewModel.currentPage.description)
+        #expect(self.viewModel.currentPage.description == nil)
 
-        guard let fourthQuestion = self.viewModel.currentPage.questions.first as? SurveyViewModel.ChoiceQuestion else {
-            return XCTFail("Expected fourth question to be choice question")
-        }
+        let fourthQuestion = try #require(self.viewModel.currentPage.questions.first as? SurveyViewModel.ChoiceQuestion)
 
-        XCTAssertEqual(fourthQuestion.text, "We are testing our new Survey Logic capabilities in this survey! Did you love this new survey experience?")
+        #expect(String(fourthQuestion.text.characters) == "We are testing our new Survey Logic capabilities in this survey! Did you love this new survey experience?")
 
         fourthQuestion.toggleChoice(at: 1)
         self.spyInteractionDelegate.matchingAdvanceLogicIndex = 1
 
-        self.viewModel.advance()
-        self.waitForSurveyLogic()
+        await self.viewModel.advance()
 
         self.spyInteractionDelegate.matchingAdvanceLogicIndex = 0
 
-        XCTAssertNil(self.viewModel.currentPage.description)
+        #expect(self.viewModel.currentPage.description == nil)
 
-        guard let fifthQuestion = self.viewModel.currentPage.questions.first as? SurveyViewModel.FreeformQuestion else {
-            return XCTFail("Expected fifth question to be choice question")
-        }
+        let fifthQuestion = try #require(self.viewModel.currentPage.questions.first as? SurveyViewModel.FreeformQuestion)
 
-        XCTAssertEqual(fifthQuestion.text, "What would you improve in this new survey experience with logic?")
+        #expect(String(fifthQuestion.text.characters) == "What would you improve in this new survey experience with logic?")
 
-        self.viewModel.advance()
-        self.waitForSurveyLogic()
+        await self.viewModel.advance()
 
-        guard let lastQuestion = self.viewModel.currentPage.questions.first as? SurveyViewModel.ChoiceQuestion else {
-            return XCTFail("Expected last question to be choice question")
-        }
+        let lastQuestion = try #require(self.viewModel.currentPage.questions.first as? SurveyViewModel.ChoiceQuestion)
 
-        XCTAssertEqual(lastQuestion.text, "Can we contact you for additional feedback or testing to help us improve our Survey Logic features?")
+        #expect(String(lastQuestion.text.characters) == "Can we contact you for additional feedback or testing to help us improve our Survey Logic features?")
 
         lastQuestion.toggleChoice(at: 1)
 
-        self.viewModel.advance()
-        self.waitForSurveyLogic()
+        await self.viewModel.advance()
 
-        XCTAssertEqual(self.viewModel.currentPage.description, "Thank you for your valuable time. Your feedback will be used to help us improve our features for you!")
+        #expect(self.viewModel.currentPage.description.flatMap { String($0.characters) } == "Thank you for your valuable time. Your feedback will be used to help us improve our features for you!")
 
-        guard let response = self.spyInteractionDelegate.sentSurveyResponse else {
-            return XCTFail("Expected survey response to exist")
-        }
+        let response = try #require(self.spyInteractionDelegate.sentSurveyResponse)
 
-        XCTAssertEqual(
-            response.questionResponses,
-            [
+        #expect(
+            response.questionResponses == [
                 "question_1": .answered([.choice("question_1_answer_1")]),
                 "question_2": .empty,
                 "question_3": .skipped,
@@ -601,23 +508,11 @@ class SurveyViewModelTests: XCTestCase, SurveyViewModelDelegate {
                 "question_8": .answered([.choice("question_8_answer_2")]),
             ])
 
-        XCTAssertEqual(self.viewModel.advanceButtonText, "Done")
+        #expect(self.viewModel.advanceButtonText == "Done")
 
-        self.viewModel.advance()
-        self.waitForSurveyLogic()
+        await self.viewModel.advance()
 
-        XCTAssertTrue(self.gotDidFinish)
-    }
-
-    func waitForSurveyLogic() {
-        let expectation = XCTestExpectation()
-
-        // Needed because survey logic happens on background thread.
-        DispatchQueue.main.async {
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 1)
+        #expect(self.gotDidFinish)
     }
 
     func surveyViewModelDidFinish(_ viewModel: SurveyViewModel) {

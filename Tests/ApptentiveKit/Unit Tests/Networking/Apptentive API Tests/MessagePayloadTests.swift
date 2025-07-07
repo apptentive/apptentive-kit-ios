@@ -6,11 +6,12 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Testing
+import UIKit
 
 @testable import ApptentiveKit
 
-class MessagePayloadTests: XCTestCase {
+struct MessagePayloadTests {
     var testPayload: Payload!
     var attachmentTestPayload: Payload!
     var data1: Data!
@@ -26,7 +27,7 @@ class MessagePayloadTests: XCTestCase {
     var encryptedTestPayload: Payload!
     var encryptedAttachmentTestPayload: Payload!
 
-    override func setUpWithError() throws {
+    init() throws {
         self.payloadContext = Payload.Context(tag: ".", credentials: .header(id: "abc", token: "123"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: nil)
         self.encryptedPayloadContext = Payload.Context(tag: "abc123", credentials: .embedded(id: "abc"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: .init(encryptionKey: encryptionKey, embeddedToken: "123"))
 
@@ -40,8 +41,8 @@ class MessagePayloadTests: XCTestCase {
         self.testPayload = try Payload(wrapping: message, with: self.payloadContext, customData: customData, attachmentURLProvider: MockAttachmentURLProviding())
         self.encryptedTestPayload = try Payload(wrapping: message, with: self.encryptedPayloadContext, customData: customData, attachmentURLProvider: MockAttachmentURLProviding())
 
-        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: type(of: self)), compatibleWith: nil)!
-        let image2 = UIImage(named: "dog", in: Bundle(for: type(of: self)), compatibleWith: nil)!
+        let image1 = UIImage(named: "apptentive-logo", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
+        let image2 = UIImage(named: "dog", in: Bundle(for: BundleFinder.self), compatibleWith: nil)!
 
         self.data1 = image1.pngData()!
         self.data2 = image2.jpegData(compressionQuality: 0.5)!
@@ -53,32 +54,30 @@ class MessagePayloadTests: XCTestCase {
 
         self.attachmentTestPayload = try Payload(wrapping: messageWithAttachments, with: self.payloadContext, customData: nil, attachmentURLProvider: MockAttachmentURLProviding())
         self.encryptedAttachmentTestPayload = try Payload(wrapping: messageWithAttachments, with: self.encryptedPayloadContext, customData: nil, attachmentURLProvider: MockAttachmentURLProviding())
-
-        super.setUp()
     }
 
-    func testSerialization() throws {
+    @Test func testSerialization() throws {
         let encodedPayloadData = try self.propertyListEncoder.encode(self.testPayload)
         let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
 
-        XCTAssertEqual(self.testPayload, decodedPayload)
+        #expect(self.testPayload == decodedPayload)
     }
 
-    func testSerializationWithAttachments() throws {
+    @Test func testSerializationWithAttachments() throws {
         let encodedPayloadData = try self.propertyListEncoder.encode(self.attachmentTestPayload)
         let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
 
-        XCTAssertEqual(self.attachmentTestPayload, decodedPayload)
+        #expect(self.attachmentTestPayload == decodedPayload)
     }
 
-    func testEncoding() throws {
+    @Test func testEncoding() throws {
         let boundary = self.testPayload.contentType?.components(separatedBy: ";")[1].components(separatedBy: "=")[1]
 
         let parts = try ApptentiveAPITests.parseMultipartBody(self.testPayload.bodyData!, boundary: boundary!)
 
-        XCTAssertEqual(parts.count, 1)
+        #expect(parts.count == 1)
 
-        XCTAssertEqual(parts[0].headers["Content-Type"], "application/json;charset=UTF-8")
+        #expect(parts[0].headers["Content-Type"] == "application/json;charset=UTF-8")
 
         let content0Data = parts[0].content
 
@@ -98,16 +97,16 @@ class MessagePayloadTests: XCTestCase {
         try checkRequestHeading(for: self.attachmentTestPayload, decoder: self.jsonDecoder, expectedMethod: .post, expectedPathSuffix: "messages")
     }
 
-    func testEncodingWithAttachments() throws {
+    @Test func testEncodingWithAttachments() throws {
         let boundary = self.attachmentTestPayload.contentType?.components(separatedBy: ";")[1].components(separatedBy: "=")[1]
 
         let parts = try ApptentiveAPITests.parseMultipartBody(self.attachmentTestPayload.bodyData!, boundary: boundary!)
 
-        XCTAssertEqual(parts.count, 3)
+        #expect(parts.count == 3)
 
-        XCTAssertEqual(parts[0].headers["Content-Type"], "application/json;charset=UTF-8")
-        XCTAssertEqual(parts[1].headers["Content-Type"], "image/png")
-        XCTAssertEqual(parts[2].headers["Content-Type"], "image/jpeg")
+        #expect(parts[0].headers["Content-Type"] == "application/json;charset=UTF-8")
+        #expect(parts[1].headers["Content-Type"] == "image/png")
+        #expect(parts[2].headers["Content-Type"] == "image/jpeg")
 
         let content0Data = parts[0].content
 
@@ -126,22 +125,22 @@ class MessagePayloadTests: XCTestCase {
 
         try checkRequestHeading(for: self.attachmentTestPayload, decoder: self.jsonDecoder, expectedMethod: .post, expectedPathSuffix: "messages")
 
-        XCTAssertEqual(parts[1].content, data1)
-        XCTAssertEqual(parts[2].content, data2)
+        #expect(parts[1].content == data1)
+        #expect(parts[2].content == data2)
     }
 
-    func testEncryptedEncoding() throws {
+    @Test func testEncryptedEncoding() throws {
         // API requires single-part encrypted messages to be sent as multipart
-        XCTAssertTrue(self.encryptedTestPayload.contentType!.hasPrefix("multipart"))
+        #expect(self.encryptedTestPayload.contentType!.hasPrefix("multipart"))
 
         let boundary = self.encryptedTestPayload.contentType?.components(separatedBy: ";")[1].components(separatedBy: "=")[1]
 
         let parts = try ApptentiveAPITests.parseMultipartBody(self.encryptedTestPayload.bodyData!, boundary: boundary!)
 
         // TODO: pick apart request and check body data?
-        XCTAssertEqual(parts.count, 1)
+        #expect(parts.count == 1)
 
-        XCTAssertEqual(parts[0].headers["Content-Type"], "application/octet-stream")
+        #expect(parts[0].headers["Content-Type"] == "application/octet-stream")
 
         let decryptedBody = try Data(parts[0].content).decrypted(with: self.encryptionKey)
 
@@ -168,14 +167,14 @@ class MessagePayloadTests: XCTestCase {
         try checkEncryptedRequestHeading(for: self.encryptedTestPayload, decoder: self.jsonDecoder, expectedMethod: .post, expectedPathSuffix: "messages")
     }
 
-    func testEncryptedEncodingWithAttachments() throws {
+    @Test func testEncryptedEncodingWithAttachments() throws {
         let boundary = self.encryptedAttachmentTestPayload.contentType?.components(separatedBy: ";")[1].components(separatedBy: "=")[1]
 
         let parts = try ApptentiveAPITests.parseMultipartBody(self.encryptedAttachmentTestPayload.bodyData!, boundary: boundary!)
 
-        XCTAssertEqual(parts.count, 3)
+        #expect(parts.count == 3)
 
-        XCTAssertEqual(parts[0].headers["Content-Type"], "application/octet-stream")
+        #expect(parts[0].headers["Content-Type"] == "application/octet-stream")
 
         let decryptedBody = try Data(parts[0].content).decrypted(with: self.encryptionKey)
 

@@ -10,13 +10,13 @@ import UIKit
 
 class SurveyChoiceCell: UITableViewCell {
     let buttonImageView: UIImageView
-    let choiceLabel: UILabel
+    let choiceLabel: RichTextLabel
     let imageFontMetrics: UIFontMetrics
     var imageHeightConstraint = NSLayoutConstraint()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.buttonImageView = UIImageView(frame: .zero)
-        self.choiceLabel = UILabel(frame: .zero)
+        self.choiceLabel = RichTextLabel(frame: .zero)
 
         self.imageFontMetrics = UIFontMetrics(forTextStyle: .title1)
 
@@ -61,7 +61,7 @@ class SurveyChoiceCell: UITableViewCell {
         self.contentView.addSubview(self.buttonImageView)
 
         self.choiceLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.choiceLabel.adjustsFontForContentSizeCategory = true
+        self.choiceLabel.textStyle = .body
         self.choiceLabel.font = .apptentiveChoiceLabel
         self.choiceLabel.textColor = .apptentiveChoiceLabel
         self.choiceLabel.numberOfLines = 0

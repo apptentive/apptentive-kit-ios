@@ -6,16 +6,17 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class HTTPRequestRetrierTests: XCTestCase {
+struct HTTPRequestRetrierTests {
     var requestRetrier: HTTPRequestRetrier!
     var requestor: SpyRequestor!
     let pendingCredentials = PendingAPICredentials(appCredentials: .init(key: "abc", signature: "123"))
 
-    override func setUp() {
+    init() async {
         let responseString = """
             {
             "token": "abc123",
@@ -26,171 +27,76 @@ class HTTPRequestRetrierTests: XCTestCase {
             """
 
         self.requestor = SpyRequestor(responseData: responseString.data(using: .utf8)!)
+        await self.requestor.setResponseData("{\"token\": \"abc\", \"id\": \"123\", \"person_id\": \"def\"}".data(using: .utf8))
+        await self.requestor.setResponse(HTTPURLResponse(url: URL(string: "https://www.example.com")!, statusCode: 201, httpVersion: "1.1", headerFields: [:]))
 
-        let retryPolicy = HTTPRetryPolicy(initialDelay: 1.0, multiplier: 1.0, useJitter: false)
         let client = HTTPClient(requestor: self.requestor, baseURL: URL(string: "https://www.example.com")!, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
-        self.requestRetrier = HTTPRequestRetrier(retryPolicy: retryPolicy, queue: DispatchQueue.main)
-        self.requestRetrier.client = client
+        self.requestRetrier = HTTPRequestRetrier()
+        await self.requestRetrier.setClient(client)
     }
 
-    func testStart() {
+    @Test func testStart() async throws {
         let conversation = Conversation(dataProvider: MockDataProvider())
         let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
-        let expect = self.expectation(description: "create conversation")
-
-        self.requestRetrier.start(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
-            switch result {
-            case .success(_):
-                break
-
-            case .failure(let error):
-                XCTFail("conversation creation should succeed. Error: \(error.localizedDescription)")
-            }
-
-            expect.fulfill()
-        }
-
-        self.wait(for: [expect], timeout: 5)
+        let _: ConversationResponse = try await self.requestRetrier.start(builder, identifier: "create conversation")
     }
 
-    func testStartUnlessUnderway() {
-        self.requestor.delay = 1.0
-
+    @Test func testRetryOnConnectionError() async throws {
         let conversation = Conversation(dataProvider: MockDataProvider())
         let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
 
-        let expect = self.expectation(description: "create conversation")
-
-        self.requestRetrier.startUnlessUnderway(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
-            switch result {
-            case .success(_):
-                break
-
-            case .failure(let error):
-                XCTFail("conversation creation should succeed. Error: \(error.localizedDescription)")
+        await self.requestor.setError(.connectionError(FakeError()))
+        await self.requestor.setExtraCompletion({ requestor in
+            Task {
+                if let _ = await requestor.error {
+                    await requestor.setError(nil)
+                }
             }
+        })
 
-            expect.fulfill()
-        }
-
-        self.requestRetrier.startUnlessUnderway(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
-            XCTFail("Second request completion handler should not be called.")
-        }
-
-        self.wait(for: [expect], timeout: 5)
+        let _: ConversationResponse = try await self.requestRetrier.start(builder, identifier: "create conversation")
     }
 
-    func testRetryOnConnectionError() {
+    @Test func testNoRetryOnClientError() async {
         let conversation = Conversation(dataProvider: MockDataProvider())
         let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
-
-        let expect1 = self.expectation(description: "create conversation")
-        let expect2 = self.expectation(description: "retry once")
-
-        self.requestor.error = .connectionError(FakeError())
-        self.requestor.extraCompletion = {
-            if let _ = self.requestor.error {
-                self.requestor.error = nil
-                expect2.fulfill()
-            }
-        }
-
-        self.requestRetrier.start(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
-            switch result {
-            case .success(_):
-                break
-
-            case .failure(let error):
-                XCTFail("conversation creation should succeed eventually. Error: \(error.localizedDescription)")
-            }
-
-            expect1.fulfill()
-        }
-
-        self.wait(for: [expect1, expect2], timeout: 5)
-    }
-
-    func testNoRetryOnClientError() {
-        let conversation = Conversation(dataProvider: MockDataProvider())
-        let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
-
-        let expect1 = self.expectation(description: "create conversation")
-        let expect2 = self.expectation(description: "retry once")
-
         let errorResponse = HTTPURLResponse(url: URL(string: "https://www.example.com")!, statusCode: 403, httpVersion: "1.1", headerFields: [:])!
 
-        self.requestor.error = .clientError(errorResponse, nil)
-
-        self.requestor.extraCompletion = {
-            if let _ = self.requestor.error {
-                self.requestor.error = nil
-                expect2.fulfill()
-            } else {
-                XCTFail("Should not retry request on client error")
-            }
-        }
-
-        self.requestRetrier.start(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
-            switch result {
-            case .failure(let error as HTTPClientError):
-                switch error {
-                case .clientError(_, _):
-                    break
-
-                default:
-                    XCTFail("Error should be a client or unauthorized error")
+        await self.requestor.setError(.clientError(errorResponse, nil))
+        await self.requestor.setExtraCompletion({ requestor in
+            Task {
+                if let _ = await requestor.error {
+                    await requestor.setError(nil)
+                } else {
+                    throw TestError(reason: "Should not retry request on client error")
                 }
-
-            default:
-                XCTFail("conversation creation should fail on client error")
             }
+        })
 
-            expect1.fulfill()
+        await #expect(throws: HTTPClientError.self) {
+            let _: ConversationResponse = try await self.requestRetrier.start(builder, identifier: "create conversation")
         }
-
-        self.wait(for: [expect1, expect2], timeout: 5)
     }
 
-    func testNoRetryOnUnauthorizedError() {
+    @Test func testNoRetryOnUnauthorizedError() async throws {
         let conversation = Conversation(dataProvider: MockDataProvider())
         let builder = ApptentiveAPI.createConversation(conversation, with: self.pendingCredentials, token: nil)
-
-        let expect1 = self.expectation(description: "create conversation")
-        let expect2 = self.expectation(description: "retry once")
 
         let errorResponse = HTTPURLResponse(url: URL(string: "https://www.example.com")!, statusCode: 401, httpVersion: "1.1", headerFields: [:])!
 
-        self.requestor.error = .clientError(errorResponse, nil)
+        await self.requestor.setResponseData("{\"error\":\"unauthorized\"}".data(using: .utf8))
+        await self.requestor.setResponse(errorResponse)
 
-        self.requestor.extraCompletion = {
-            if let _ = self.requestor.error {
-                self.requestor.error = nil
-                expect2.fulfill()
-            } else {
-                XCTFail("Should not retry request on client error")
-            }
-        }
-
-        self.requestRetrier.start(builder, identifier: "create conversation") { (result: Result<ConversationResponse, Error>) in
-            switch result {
-            case .failure(let error as HTTPClientError):
-                switch error {
-                case .unauthorized(_, _):
-                    break
-
-                default:
-                    XCTFail("Error should be a client or unauthorized error")
-                }
-
-            default:
-                XCTFail("conversation creation should fail on client error")
+        await #expect {
+            let _: ConversationResponse = try await self.requestRetrier.start(builder, identifier: "create conversation")
+        } throws: { error in
+            guard case .unauthorized = error as? HTTPClientError else {
+                return false
             }
 
-            expect1.fulfill()
+            return true
         }
-
-        self.wait(for: [expect1, expect2], timeout: 5)
     }
 
     struct FakeError: Error {}

@@ -7,25 +7,27 @@
 //
 
 import Foundation
+import OSLog
 
-protocol PayloadAuthenticationDelegate: AnyObject {
-    var appCredentials: Apptentive.AppCredentials? { get }
+protocol PayloadAuthenticationDelegate: AnyObject, Sendable {
     func authenticationDidFail(with errorResponse: ErrorResponse?)
 }
 
-protocol PayloadSending: AnyObject {
-    func load(from loader: Loader) throws
-    func send(_ payload: Payload, persistEagerly: Bool)
-    func drain(completionHandler: @escaping () -> Void)
-    func resume()
-    func updateCredentials(_ credentials: PayloadStoredCredentials, for tag: String, encryptionContext: Payload.Context.EncryptionContext?) throws
-    func savePayloadsIfNeeded() throws
-    var saver: Saver<[Payload]>? { get set }
-    var authenticationDelegate: PayloadAuthenticationDelegate? { get set }
+protocol PayloadSending: Actor {
+    func load(from loader: Loader) async throws
+    func send(_ payload: Payload, persistEagerly: Bool) async
+    func drain() async
+    func resume() async
+    func updateCredentials(_ credentials: PayloadStoredCredentials, for tag: String, encryptionContext: Payload.Context.EncryptionContext?) async throws
+    func savePayloadsIfNeeded() async throws
+    func setAuthenticationDelegate(_ authenticationDelegate: PayloadAuthenticationDelegate) async
+    func makeSaver(containerURL: URL, filename: String)
+    func destroySaver()
+    func setAppCredentials(_ appCredentials: Apptentive.AppCredentials?) async
 }
 
 /// Sends fire-and-forget updates to the API.
-class PayloadSender: PayloadSending {
+actor PayloadSender: PayloadSending {
     static let errorKey = "error"
     static let payloadKey = "payload"
 
@@ -53,31 +55,51 @@ class PayloadSender: PayloadSending {
         self.jsonEncoder = JSONEncoder.apptentive
     }
 
-    func load(from loader: Loader) throws {
-        self.payloads = try loader.loadPayloads() + self.payloads
+    func setAuthenticationDelegate(_ authenticationDelegate: any PayloadAuthenticationDelegate) async {
+        self.authenticationDelegate = authenticationDelegate
+    }
+
+    func setAppCredentials(_ appCredentials: Apptentive.AppCredentials?) async {
+        self.appCredentials = appCredentials
+    }
+
+    func load(from loader: Loader) async throws {
+        self.enqueuePayloads(try loader.loadPayloads())
+    }
+
+    func makeSaver(containerURL: URL, filename: String) {
+        self.setSaver(Self.createSaver(containerURL: containerURL, filename: filename, fileManager: FileManager()))
+    }
+
+    func setSaver(_ saver: Saver<[Payload]>) {
+        self.saver = saver
+    }
+
+    func destroySaver() {
+        self.saver = nil
     }
 
     /// Enqueues a payload for sending and triggers the queue to send the next available request.
     /// - Parameters:
     ///   - payload: The payload to send.
     ///   - persistEagerly: Whether the pay load should be saved to persistent storage ASAP.
-    func send(_ payload: Payload, persistEagerly: Bool = false) {
+    func send(_ payload: Payload, persistEagerly: Bool = false) async {
         guard payload.tag != "loggedOut" else {
-            ApptentiveLogger.default.debug("Ignoring payload for logged-out conversation")
+            Logger.default.debug("Ignoring payload for logged-out conversation")
             return
         }
 
-        ApptentiveLogger.payload.debug("Enqueuing new \(payload).")
+        Logger.payload.debug("Enqueuing new \(payload).")
 
-        self.payloads.append(payload)
+        self.enqueuePayloads([payload])
 
         self.notificationCenter.post(name: Notification.Name.payloadEnqueued, object: self, userInfo: [Self.payloadKey: payload])
 
         if persistEagerly {
             do {
-                try self.savePayloadsIfNeeded()
+                try await self.savePayloadsIfNeeded()
             } catch let error {
-                ApptentiveLogger.payload.error("Unable to save important payload: \(error).")
+                Logger.payload.error("Unable to save important payload: \(error).")
                 apptentiveCriticalError("Unable to save important payload: \(error).")
             }
         }
@@ -85,25 +107,33 @@ class PayloadSender: PayloadSending {
         self.sendPayloads()
     }
 
-    /// Tells the payload sender to finish sending any queued payloads, call the completion handler, and suspend itself.
-    /// - Parameter completionHandler: A completion handler that is called once the payload queue is empty.
-    func drain(completionHandler: @escaping () -> Void) {
-        self.drainCompletionHandler = completionHandler
-        self.isDraining = true
+    /// Tells the payload sender to finish sending any queued payloads and suspend itself.
+    func drain() async {
+        await withCheckedContinuation { continuation in
+            self.isDraining = true
+            self.drainContinuation = continuation
+        }
+    }
+
+    private func setIsSuspended(_ isSuspended: Bool) {
+        self.isSuspended = isSuspended
+    }
+
+    private func setIsDraining(_ isDraining: Bool) {
+        self.isDraining = isDraining
     }
 
     /// Resumes the payload sender.
     ///
     /// If the payload sender is draining, it cancels the drain operation, but the completion handler will still be called
     /// once the payload queue is empty.
-    func resume() {
-        self.isSuspended = false
-        self.isDraining = false
-
+    func resume() async {
+        self.setIsSuspended(false)
+        self.setIsDraining(false)
         self.sendPayloads()
     }
 
-    func updateCredentials(_ credentials: PayloadStoredCredentials, for tag: String, encryptionContext: Payload.Context.EncryptionContext?) throws {
+    func updateCredentials(_ credentials: PayloadStoredCredentials, for tag: String, encryptionContext: Payload.Context.EncryptionContext?) async throws {
         for (index, payload) in self.payloads.enumerated() {
             if payload.tag == tag {
                 try self.payloads[index].updateCredentials(credentials, using: self.jsonEncoder, decoder: self.jsonDecoder, encryptionContext: encryptionContext)
@@ -124,7 +154,7 @@ class PayloadSender: PayloadSending {
     }
 
     /// Saves any unsaved payloads, for example when the app exits.
-    func savePayloadsIfNeeded() throws {
+    func savePayloadsIfNeeded() async throws {
         if let saver = self.saver, self.payloadsNeedSaving {
             try saver.save(self.payloads)
             self.payloadsNeedSaving = false
@@ -134,8 +164,8 @@ class PayloadSender: PayloadSending {
     /// The saver to use when saving payloads to persistent storage.
     var saver: Saver<[Payload]>?
 
-    /// A delegate object that supplies app credentials and is notified of authentication failures.
-    weak var authenticationDelegate: PayloadAuthenticationDelegate?
+    /// The app credentials to use when sending payloads.
+    var appCredentials: Apptentive.AppCredentials?
 
     /// The currently in-flight API request, if any.
     private var currentPayloadIdentifier: String? = nil
@@ -152,8 +182,11 @@ class PayloadSender: PayloadSending {
     /// Whether the payload sender is finishing sending payloads in the queue and then suspend.
     private var isDraining: Bool = false
 
+    /// A delegate object that supplies app credentials and is notified of authentication failures.
+    private weak var authenticationDelegate: PayloadAuthenticationDelegate?
+
     /// A method that is called when the draining process completes.
-    private var drainCompletionHandler: (() -> Void)?
+    private var drainContinuation: CheckedContinuation<Void, Never>?
 
     /// The payloads waiting to be sent.
     private(set) var payloads: [Payload] {
@@ -164,32 +197,38 @@ class PayloadSender: PayloadSending {
         }
     }
 
+    /// Enqueue an array of payloads.
+    /// - Parameter payloadsToPush: An array of payloads to add to the end of the payload queue.
+    private func enqueuePayloads(_ payloadsToPush: [Payload]) {
+        self.payloads = payloadsToPush + self.payloads
+    }
+
     /// Send any queued payloads to the API.
     private func sendPayloads() {
         guard !isSuspended else {
-            ApptentiveLogger.payload.debug("Payload sender is suspended")
+            Logger.payload.debug("Payload sender is suspended")
             return
         }
 
-        guard let appCredentials = self.authenticationDelegate?.appCredentials else {
-            ApptentiveLogger.payload.debug("Payload sender not active.")
+        guard let appCredentials = self.appCredentials else {
+            Logger.payload.debug("Payload sender not active.")
             return
         }
 
         guard currentPayloadIdentifier == nil else {
-            ApptentiveLogger.payload.debug("Already sending a payload")
+            Logger.payload.debug("Already sending a payload")
             return
         }
 
         guard let firstPayload = self.payloads.first(where: { $0.credentials.areValid }) else {
-            ApptentiveLogger.payload.debug("No credentialed payloads waiting to be sent.")
+            Logger.payload.debug("No credentialed payloads waiting to be sent.")
 
             //  Call the completion handler regardless of whether a call to `resume` may have reset the isDraining flag.
-            self.drainCompletionHandler?()
-            self.drainCompletionHandler = nil
+            self.drainContinuation?.resume()
+            self.drainContinuation = nil
 
             if self.isDraining {
-                ApptentiveLogger.payload.debug("Drain: Finished sending queued payloads. Suspending.")
+                Logger.payload.debug("Drain: Finished sending queued payloads. Suspending.")
 
                 self.isSuspended = true
                 self.isDraining = false
@@ -200,25 +239,23 @@ class PayloadSender: PayloadSending {
 
         let credentials = PayloadAPICredentials(appCredentials: appCredentials, payloadCredentials: firstPayload.credentials)
 
-        ApptentiveLogger.payload.debug("Sending \(firstPayload).")
+        Logger.payload.debug("Sending \(firstPayload).")
 
         let apiRequest = PayloadRequest(payload: firstPayload, credentials: credentials, decoder: self.jsonDecoder)
 
         self.currentPayloadIdentifier = firstPayload.identifier
-        self.requestRetrier.start(apiRequest, identifier: firstPayload.identifier) { (result: Result<PayloadResponse, Error>) in
-            switch result {
-            case .success:
-                ApptentiveLogger.payload.debug("Successfully sent \(firstPayload). Removing from queue.")
+
+        Task {
+            do {
+                let _: PayloadResponse = try await self.requestRetrier.start(apiRequest, identifier: firstPayload.identifier)
+                Logger.payload.debug("Successfully sent \(firstPayload). Removing from queue.")
                 self.notificationCenter.post(name: Notification.Name.payloadSent, object: self, userInfo: [Self.payloadKey: firstPayload])
                 self.dequeuePayload(with: firstPayload.identifier)
-
-            case .failure(HTTPClientError.unauthorized(_, let data)):
+            } catch HTTPClientError.unauthorized(_, let data) {
                 self.clearCredentialsFromPayloads(with: firstPayload.tag)
                 self.notifyDelegateOfAuthenticationFailure(data: data)
-            // Don't dequeue failed payload.
-
-            case .failure(let error):
-                ApptentiveLogger.payload.error("Permanent failure when sending \(firstPayload): \(error.localizedDescription). Removing from queue.")
+            } catch let error {
+                Logger.payload.error("Permanent failure when sending \(firstPayload): \(error.localizedDescription). Removing from queue.")
                 self.notificationCenter.post(name: Notification.Name.payloadFailed, object: self, userInfo: [Self.payloadKey: firstPayload, Self.errorKey: error])
                 self.dequeuePayload(with: firstPayload.identifier)
             }
@@ -237,7 +274,7 @@ class PayloadSender: PayloadSending {
                 let errorResponse = try self.jsonDecoder.decode(ErrorResponse.self, from: data)
                 self.authenticationDelegate?.authenticationDidFail(with: errorResponse)
             } catch let error {
-                ApptentiveLogger.payload.error("Unexpected authentication failure response data \(String(data: data, encoding: .utf8) ?? "<binary data>"), error: \(error).")
+                Logger.payload.error("Unexpected authentication failure response data \(String(data: data, encoding: .utf8) ?? "<binary data>"), error: \(error).")
             }
         }
     }

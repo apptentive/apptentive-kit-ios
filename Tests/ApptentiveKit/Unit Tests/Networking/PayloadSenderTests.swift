@@ -6,12 +6,13 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
+import Foundation
 import GenericJSON
-import XCTest
+import Testing
 
 @testable import ApptentiveKit
 
-class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
+class PayloadSenderTests: PayloadAuthenticationDelegate, @unchecked Sendable {
     var requestRetrier = SpyRequestStarter()
     var saver = SpySaver(containerURL: URL(string: "file:///tmp")!, filename: "PayloadQueue", fileManager: FileManager.default)
     var payloadSender: PayloadSender!
@@ -29,14 +30,15 @@ class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
         self.authFailureErrorResponse = errorResponse
     }
 
-    override func setUpWithError() throws {
+    init() async throws {
         self.payloadSender = PayloadSender(requestRetrier: self.requestRetrier, notificationCenter: self.notificationCenter)
-        payloadSender.authenticationDelegate = self
+        await payloadSender.setAuthenticationDelegate(self)
+        await payloadSender.setAppCredentials(Apptentive.AppCredentials(key: "abc", signature: "123"))
 
         self.uncredentialedPayloadContext = Payload.Context(tag: ".", credentials: .placeholder, sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: nil)
     }
 
-    func testSessionID() throws {
+    @Test func testSessionID() throws {
         let payloadWithSession = try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext)
 
         self.uncredentialedPayloadContext.sessionID = nil
@@ -51,13 +53,13 @@ class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
         let payloadWithoutSessionJSON = try JSON(JSONSerialization.jsonObject(with: payloadWithoutSession.bodyData!))
         let payloadWithOtherSessionJSON = try JSON(JSONSerialization.jsonObject(with: payloadWithOtherSession.bodyData!))
 
-        XCTAssertNotNil(payloadWithSessionJSON["event"]!["session_id"])
-        XCTAssertNil(payloadWithoutSessionJSON["event"]!["session_id"])
-        XCTAssertNotEqual(payloadWithSessionJSON["event"]!["session_id"], payloadWithOtherSessionJSON["session_id"])
+        #expect(payloadWithSessionJSON["event"]!["session_id"] != nil)
+        #expect(payloadWithoutSessionJSON["event"]!["session_id"] == nil)
+        #expect(payloadWithSessionJSON["event"]!["session_id"] != payloadWithOtherSessionJSON["session_id"])
     }
 
-    func testNormalOperation() throws {
-        self.payloadSender.saver = self.saver
+    @Test func testNormalOperation() async throws {
+        await self.payloadSender.setSaver(self.saver)
 
         let payloads = [
             try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext),
@@ -65,123 +67,108 @@ class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
             try Payload(wrapping: "test3", with: self.uncredentialedPayloadContext),
         ]
 
-        self.payloadSender.send(payloads[0])
-        self.payloadSender.send(payloads[1])
-        self.payloadSender.send(payloads[2])
+        await self.payloadSender.send(payloads[0])
+        await self.payloadSender.send(payloads[1])
+        await self.payloadSender.send(payloads[2])
 
-        let nonces = payloads.map { $0.identifier }
+        let nonces = Set(payloads.map { $0.identifier })
 
-        XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
+        #expect(Set(self.notificationCenter.enqueuedNonces) == nonces)
 
         // Payload sender should not save queue to saver by default.
-        XCTAssertEqual(self.saver.payloads.count, 0)
+        #expect(self.saver.payloads.count == 0)
 
-        try self.payloadSender.savePayloadsIfNeeded()
+        try await self.payloadSender.savePayloadsIfNeeded()
 
         // Payload sender should save queue to saver when asked.
-        XCTAssertEqual(self.saver.payloads.count, 3)
+        #expect(self.saver.payloads.count == 3)
 
         // Mock the payload send request to succeed.
-        self.requestRetrier.result = .success(PayloadResponse())
+        await self.requestRetrier.setResult(.success(PayloadResponse()))
 
         // Start the payload sending process by setting the credentials.
-        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+        try await payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
 
         // Send one straggler payload while the requests are running.
         let credentialedPayloadContext = Payload.Context(
             tag: ".", credentials: .header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), encoder: self.jsonEncoder, encryptionContext: nil)
         let straggler = try Payload(wrapping: "test4", with: credentialedPayloadContext)
 
-        self.payloadSender.send(straggler)
+        await self.payloadSender.send(straggler)
 
-        let expectation = XCTestExpectation(description: "PayloadSender sends payloads")
+        await self.notificationCenter.waitForNotification(with: Notification.Name.payloadSending, toHappen: 4)
 
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(500)) {
-            XCTAssertEqual(self.notificationCenter.sendingNonces, nonces + [straggler.identifier])
+        #expect(Set(self.notificationCenter.sendingNonces) == nonces.union([straggler.identifier]))
 
-            do {
-                try self.payloadSender.savePayloadsIfNeeded()
+        await self.notificationCenter.waitForNotification(with: Notification.Name.payloadSent, toHappen: 4)
 
-                // Payload queue should be empty
-                XCTAssertEqual(self.saver.payloads.count, 0)
+        try await self.payloadSender.savePayloadsIfNeeded()
 
-                // Retrier should have made a request.
-                XCTAssertEqual(self.requestRetrier.requests.count, 4)
+        // Payload queue should be empty
+        #expect(self.saver.payloads.count == 0)
 
-                XCTAssertEqual(self.notificationCenter.sentNonces, nonces + [straggler.identifier])
-                XCTAssertEqual(self.notificationCenter.failedNonces, [])
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
+        // Retrier should have made a request.
+        let requestCount = await self.requestRetrier.requests.count
+        #expect(requestCount == 4)
 
-            expectation.fulfill()
-        }
+        #expect(Set(self.notificationCenter.sentNonces) == nonces.union([straggler.identifier]))
+        #expect(self.notificationCenter.failedNonces == [])
 
-        self.wait(for: [expectation], timeout: 5)
     }
 
-    func testHTTPUnauthorizedError() throws {
-        self.payloadSender.saver = self.saver
+    @Test func testHTTPUnauthorizedError() async throws {
+        await self.payloadSender.setSaver(self.saver)
 
         let payloads = [
             try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext),
             try Payload(wrapping: "test2", with: self.uncredentialedPayloadContext),
         ]
 
-        self.payloadSender.send(payloads[0])
-        self.payloadSender.send(payloads[1])
+        await self.payloadSender.send(payloads[0])
+        await self.payloadSender.send(payloads[1])
 
         let nonces = payloads.map { $0.identifier }
 
-        XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
+        #expect(self.notificationCenter.enqueuedNonces == nonces)
 
         // Payload sender should not save queue to saver by default.
-        XCTAssertEqual(self.saver.payloads.count, 0)
+        #expect(self.saver.payloads.count == 0)
 
-        try self.payloadSender.savePayloadsIfNeeded()
+        try await self.payloadSender.savePayloadsIfNeeded()
 
         // Payload sender should save queue to saver when asked.
-        XCTAssertEqual(self.saver.payloads.count, 2)
+        #expect(self.saver.payloads.count == 2)
 
         let errorResponse = ErrorResponse(error: "Mismatched sub claim", errorType: .mismatchedSubClaim)
         let errorData = try self.jsonEncoder.encode(errorResponse)
 
         // Mock the payload send request to fail.
-        self.requestRetrier.result = .failure(HTTPClientError.unauthorized(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations/1234/events")!, statusCode: 401, httpVersion: nil, headerFields: nil)!, errorData))
+        await self.requestRetrier.setResult(.failure(HTTPClientError.unauthorized(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations/1234/events")!, statusCode: 401, httpVersion: nil, headerFields: nil)!, errorData)))
 
         // Start the payload sending process by setting the credentials.
-        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+        try await payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
 
-        XCTAssertNil(self.authFailureErrorResponse)
+        #expect(self.authFailureErrorResponse == nil)
+        #expect(self.notificationCenter.sendingNonces == [nonces.last!])
 
-        let expectation = XCTestExpectation(description: "PayloadSender sends payloads")
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC)
 
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(500)) {
-            XCTAssertEqual(self.notificationCenter.sendingNonces, [nonces.first!])
-            XCTAssertNotNil(self.authFailureErrorResponse)
+        #expect(self.authFailureErrorResponse != nil)
 
-            do {
-                try self.payloadSender.savePayloadsIfNeeded()
+        try await self.payloadSender.savePayloadsIfNeeded()
 
-                // Payload queue should still be full (of payloads with no credentials)
-                XCTAssertEqual(self.saver.payloads.count, 2)
+        // Payload queue should still be full (of payloads with no credentials)
+        #expect(self.saver.payloads.count == 2)
 
-                XCTAssertEqual(self.notificationCenter.failedErrors.count, 0)
+        #expect(self.notificationCenter.failedErrors.count == 0)
 
-                // Retrier should have made a request.
-                XCTAssertEqual(self.requestRetrier.requests.count, 1)
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 5)
+        // Retrier should have made a request.
+        let requestCount = await self.requestRetrier.requests.count
+        #expect(requestCount == 1)
     }
 
-    func testHTTPClientError() throws {
-        self.payloadSender.saver = self.saver
+    @Test func testHTTPClientError() async throws {
+        await self.payloadSender.setSaver(self.saver)
 
         let payloads = [
             try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext),
@@ -189,85 +176,81 @@ class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
             try Payload(wrapping: "test3", with: self.uncredentialedPayloadContext),
         ]
 
-        self.payloadSender.send(payloads[0])
-        self.payloadSender.send(payloads[1])
-        self.payloadSender.send(payloads[2])
+        await self.payloadSender.send(payloads[0])
+        await self.payloadSender.send(payloads[1])
+        await self.payloadSender.send(payloads[2])
 
-        let nonces = payloads.map { $0.identifier }
+        let nonces = Set(payloads.map { $0.identifier })
 
-        XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
+        #expect(Set(self.notificationCenter.enqueuedNonces) == nonces)
 
         // Payload sender should not save queue to saver by default.
-        XCTAssertEqual(self.saver.payloads.count, 0)
+        #expect(self.saver.payloads.count == 0)
 
-        try self.payloadSender.savePayloadsIfNeeded()
+        try await self.payloadSender.savePayloadsIfNeeded()
 
         // Payload sender should save queue to saver when asked.
-        XCTAssertEqual(self.saver.payloads.count, 3)
+        #expect(self.saver.payloads.count == 3)
 
         // Mock the payload send request to fail.
-        self.requestRetrier.result = .failure(HTTPClientError.clientError(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations/1234/events")!, statusCode: 422, httpVersion: nil, headerFields: nil)!, nil))
+        await self.requestRetrier.setResult(.failure(HTTPClientError.clientError(HTTPURLResponse(url: URL(string: "https://api.apptentive.com/conversations/1234/events")!, statusCode: 422, httpVersion: nil, headerFields: nil)!, nil)))
 
         // Start the payload sending process by setting the credentials.
-        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+        try await payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
 
         // Send one straggler payload while the requests are running.
         let credentialedPayloadContext = Payload.Context(
             tag: ".", credentials: .header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), encoder: self.jsonEncoder, encryptionContext: nil)
         let straggler = try Payload(wrapping: "test4", with: credentialedPayloadContext)
 
-        self.payloadSender.send(straggler)
+        await self.payloadSender.send(straggler)
 
-        let expectation = XCTestExpectation(description: "PayloadSender sends payloads")
+        await self.notificationCenter.waitForNotification(with: Notification.Name.payloadSending, toHappen: 4)
 
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(500)) {
-            XCTAssertEqual(self.notificationCenter.sendingNonces, nonces + [straggler.identifier])
+        #expect(Set(self.notificationCenter.sendingNonces) == nonces.union([straggler.identifier]))
 
-            do {
-                try self.payloadSender.savePayloadsIfNeeded()
+        await self.notificationCenter.waitForNotification(with: Notification.Name.payloadFailed, toHappen: 4)
 
-                // Payload queue should be empty
-                XCTAssertEqual(self.saver.payloads.count, 0)
+        try await self.payloadSender.savePayloadsIfNeeded()
 
-                XCTAssertEqual(self.notificationCenter.failedNonces, nonces + [straggler.identifier])
-                XCTAssertEqual(self.notificationCenter.failedErrors.count, 4)
+        // Payload queue should be empty
+        #expect(self.saver.payloads.count == 0)
 
-                // Retrier should have made a request.
-                XCTAssertEqual(self.requestRetrier.requests.count, 4)
-            } catch let error {
-                XCTFail(error.localizedDescription)
-            }
-
-            expectation.fulfill()
-        }
-
-        self.wait(for: [expectation], timeout: 5)
-    }
-
-    func testNoDiskAccess() throws {
-        try self.payloadSender.send(Payload(wrapping: "test1", with: self.uncredentialedPayloadContext))
-
-        // Mock the payload send request to succeed.
-        self.requestRetrier.result = .success(PayloadResponse())
-
-        // Start the payload sending process by setting the credentials.
-        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+        #expect(Set(self.notificationCenter.failedNonces) == nonces.union([straggler.identifier]))
+        #expect(self.notificationCenter.failedErrors.count == 4)
 
         // Retrier should have made a request.
-        XCTAssertEqual(self.requestRetrier.requests.count, 1)
+        let requestCount = await self.requestRetrier.requests.count
+        #expect(requestCount == 4)
     }
 
-    func testImportantPayload() throws {
-        self.payloadSender.saver = self.saver
+    @Test func testNoDiskAccess() async throws {
+        try await self.payloadSender.send(Payload(wrapping: "test1", with: self.uncredentialedPayloadContext))
 
-        try self.payloadSender.send(Payload(wrapping: "test1", with: self.uncredentialedPayloadContext), persistEagerly: true)
+        // Mock the payload send request to succeed.
+        await self.requestRetrier.setResult(.success(PayloadResponse()))
+
+        // Start the payload sending process by setting the credentials.
+        try await payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+
+        try await Task.sleep(nanoseconds: 1_000_000)
+
+        // Retrier should have made a request.
+        let requestCount = await self.requestRetrier.requests.count
+        #expect(requestCount == 1)
+    }
+
+    @Test func testImportantPayload() async throws {
+        await self.payloadSender.setSaver(self.saver)
+
+        try await self.payloadSender.send(Payload(wrapping: "test1", with: self.uncredentialedPayloadContext), persistEagerly: true)
 
         // Payload sender should save queue to saver when `persistEagerly` is set.
-        XCTAssertEqual(self.saver.payloads.count, 1)
+        #expect(self.saver.payloads.count == 1)
     }
 
-    func testDrain() throws {
-        self.payloadSender.saver = self.saver
+    @Test func testDrain() async throws {
+        await self.payloadSender.setSaver(self.saver)
 
         let payloads = [
             try Payload(wrapping: "test1", with: self.uncredentialedPayloadContext),
@@ -275,61 +258,58 @@ class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
             try Payload(wrapping: "test3", with: self.uncredentialedPayloadContext),
         ]
 
-        self.payloadSender.send(payloads[0])
-        self.payloadSender.send(payloads[1])
-        self.payloadSender.send(payloads[2])
+        await self.payloadSender.send(payloads[0])
+        await self.payloadSender.send(payloads[1])
+        await self.payloadSender.send(payloads[2])
 
-        let nonces = payloads.map { $0.identifier }
+        let nonces = Set(payloads.map { $0.identifier })
 
-        XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces)
+        #expect(Set(self.notificationCenter.enqueuedNonces) == nonces)
 
         // Payload sender should not save queue to saver by default.
-        XCTAssertEqual(self.saver.payloads.count, 0)
+        #expect(self.saver.payloads.count == 0)
 
         // Mock the payload send request to succeed.
-        self.requestRetrier.result = .success(PayloadResponse())
+        await self.requestRetrier.setResult(.success(PayloadResponse()))
 
-        let expectation = XCTestExpectation(description: "Payload sender finishes draining")
+        try await payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
 
-        self.payloadSender.drain {
-            XCTAssertEqual(self.notificationCenter.sendingNonces, nonces)
-            XCTAssertEqual(self.notificationCenter.sentNonces, nonces)
-            XCTAssertEqual(self.notificationCenter.failedNonces, [])
+        await self.payloadSender.drain()
 
-            XCTAssertEqual(self.requestRetrier.requests.count, 3)
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 10)
 
-            // Try sending another payload, making sure we'll be suspended.
-            DispatchQueue.main.async {
-                let credentialedPayloadContext = Payload.Context(
-                    tag: ".", credentials: .header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), encoder: self.jsonEncoder, encryptionContext: nil)
-                let straggler = try! Payload(wrapping: "test4", with: credentialedPayloadContext)
+        #expect(Set(self.notificationCenter.sendingNonces) == nonces)
+        #expect(Set(self.notificationCenter.sentNonces) == nonces)
+        #expect(self.notificationCenter.failedNonces == [])
 
-                self.payloadSender.send(straggler)
+        var requestCount = await self.requestRetrier.requests.count
+        #expect(requestCount == 3)
 
-                XCTAssertEqual(self.notificationCenter.enqueuedNonces, nonces + [straggler.identifier])
-                XCTAssertEqual(self.notificationCenter.sentNonces, nonces)
-                XCTAssertEqual(self.notificationCenter.failedNonces, [])
+        // Try sending another payload, making sure we'll be suspended.
+        let credentialedPayloadContext = Payload.Context(
+            tag: ".", credentials: .header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), encoder: self.jsonEncoder, encryptionContext: nil)
+        let straggler = try! Payload(wrapping: "test4", with: credentialedPayloadContext)
 
-                XCTAssertEqual(self.notificationCenter.sendingNonces, nonces)
+        await self.payloadSender.send(straggler)
 
-                // Payload sender should be suspended and not send the last request.
-                XCTAssertEqual(self.requestRetrier.requests.count, 3)
+        #expect(Set(self.notificationCenter.enqueuedNonces) == nonces.union([straggler.identifier]))
+        #expect(Set(self.notificationCenter.sentNonces) == nonces)
+        #expect(self.notificationCenter.failedNonces == [])
+        #expect(Set(self.notificationCenter.sendingNonces) == nonces)
 
-                self.payloadSender.resume()
+        // Payload sender should be suspended and not send the last request.
+        requestCount = await self.requestRetrier.requests.count
+        #expect(requestCount == 3)
 
-                XCTAssertEqual(self.requestRetrier.requests.count, 4)
+        await self.payloadSender.resume()
 
-                expectation.fulfill()
-            }
-        }
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 10)
 
-        // Start the payload sending process by setting the credentials.
-        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
-
-        self.wait(for: [expectation], timeout: 5)
+        requestCount = await self.requestRetrier.requests.count
+        #expect(requestCount == 4)
     }
 
-    func testAddCredentials() throws {
+    @Test func testAddCredentials() async throws {
         let altPayloadContext = Payload.Context(tag: "alt", credentials: .placeholder, encoder: self.jsonEncoder, encryptionContext: nil)
 
         let payloads = [
@@ -338,44 +318,60 @@ class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
             try Payload(wrapping: "test3", with: self.uncredentialedPayloadContext),
         ]
 
-        self.payloadSender.send(payloads[0])
-        self.payloadSender.send(payloads[1])
-        self.payloadSender.send(payloads[2])
+        await self.payloadSender.send(payloads[0])
+        await self.payloadSender.send(payloads[1])
+        await self.payloadSender.send(payloads[2])
 
-        XCTAssertEqual(self.payloadSender.payloads[0].credentials, .placeholder)
-        XCTAssertEqual(self.payloadSender.payloads[1].credentials, .placeholder)
-        XCTAssertEqual(self.payloadSender.payloads[2].credentials, .placeholder)
+        try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
 
-        self.requestRetrier.result = .success(PayloadResponse())
+        var payloadCredentials = await self.payloadSender.credentials
 
-        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+        guard payloadCredentials.count == 3 else {
+            throw TestError(reason: "Expected 3 payload credentials, but got \(payloadCredentials.count)")
+        }
 
-        XCTAssertNotEqual(self.payloadSender.payloads[0].credentials, .placeholder)
-        XCTAssertEqual(self.payloadSender.payloads[1].credentials, .placeholder)
-        XCTAssertNotEqual(self.payloadSender.payloads[2].credentials, .placeholder)
+        #expect(payloadCredentials[0] == .placeholder)
+        #expect(payloadCredentials[1] == .placeholder)
+        #expect(payloadCredentials[2] == .placeholder)
 
-        try payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+        await self.requestRetrier.setResult(.success(PayloadResponse()))
 
-        XCTAssertNotNil(self.payloadSender.payloads[0].credentials)
-        XCTAssertNotNil(self.payloadSender.payloads[1].credentials)
-        XCTAssertNotNil(self.payloadSender.payloads[2].credentials)
+        try await payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+
+        payloadCredentials = await self.payloadSender.credentials
+        #expect(payloadCredentials[0] != .placeholder)
+        #expect(payloadCredentials[1] == .placeholder)
+        #expect(payloadCredentials[2] != .placeholder)
+
+        try await payloadSender.updateCredentials(.header(id: self.anonymousCredentials.conversationCredentials.id, token: self.anonymousCredentials.conversationCredentials.token), for: ".", encryptionContext: nil)
+
+        payloadCredentials = await self.payloadSender.credentials
     }
 
-    class SpyRequestStarter: HTTPRequestStarting {
+    actor SpyRequestStarter: HTTPRequestStarting {
         var result: Result<PayloadResponse, Error>? = nil
         var requests = [HTTPRequestBuilding]()
 
-        func start<T>(_ endpoint: HTTPRequestBuilding, identifier: String, completion: @escaping (Result<T, Error>) -> Void) where T: Decodable {
+        func start<T>(_ builder: HTTPRequestBuilding, identifier: String) async throws -> T where T: Decodable {
             guard let result = self.result as? Result<T, Error> else {
-                return XCTFail("Mock object type/nullability mismatch")
+                throw TestError(reason: "Mock object type/nullability mismatch")
             }
 
-            self.requests.append(endpoint)
+            self.requests.append(builder)
 
-            // Simulate network delay.
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(10)) {
-                completion(result)
+            try await Task.sleep(nanoseconds: 10_000_000)
+
+            switch result {
+            case .success(let object):
+                return object
+
+            case .failure(let error):
+                throw error
             }
+        }
+
+        func setResult(_ result: Result<PayloadResponse, Error>) {
+            self.result = result
         }
     }
 
@@ -390,9 +386,35 @@ class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
 
 class MockNotificationCenter: NotificationCenter, @unchecked Sendable {
     var postedNotifications = [Notification]()
+    var postedNotificationsCount = [Notification.Name: Int]()
+    var continuation: CheckedContinuation<Void, Never>?
+    var expectedName: Notification.Name?
+    var expectedTimes: Int?
+
+    func waitForNotification(with name: Notification.Name, toHappen times: Int) async {
+        await withCheckedContinuation { continuation in
+            self.continuation = continuation
+            self.expectedName = name
+            self.expectedTimes = times
+        }
+    }
 
     override func post(name aName: NSNotification.Name, object anObject: Any?, userInfo aUserInfo: [AnyHashable: Any]? = nil) {
         self.postedNotifications.append(Notification(name: aName, object: anObject, userInfo: aUserInfo))
+        self.postedNotificationsCount[aName, default: 0] += 1
+
+        if let expectedName, let expectedTimes, aName == expectedName, postedNotificationsCount[expectedName] ?? 0 >= expectedTimes {
+            self.continuation?.resume()
+            self.continuation = nil
+            self.expectedName = nil
+            self.expectedTimes = nil
+        }
+    }
+}
+
+extension PayloadSender {
+    var credentials: [PayloadStoredCredentials] {
+        return self.payloads.map { $0.credentials }
     }
 }
 

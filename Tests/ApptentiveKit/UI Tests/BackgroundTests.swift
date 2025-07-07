@@ -8,7 +8,7 @@
 
 import XCTest
 
-class BackgroundTests: XCTestCase {
+@MainActor class BackgroundTests: XCTestCase {
     override func setUp() {
         let app = XCUIApplication()
         app.launchArguments = ["-layerSpeed", "500"]

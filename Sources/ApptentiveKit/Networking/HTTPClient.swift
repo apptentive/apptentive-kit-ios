@@ -7,12 +7,14 @@
 //
 
 import Foundation
+import OSLog
+import UniformTypeIdentifiers
 
 typealias HTTPResponse = (data: Data, response: HTTPURLResponse)
 typealias HTTPResult = Result<HTTPResponse, Error>
 
 /// A class used to communicate with a particular REST API.
-class HTTPClient {
+final class HTTPClient: Sendable {
 
     /// The object conforming to `HTTPRequesting` that will be used to perform requests.
     let requestor: HTTPRequesting
@@ -40,62 +42,36 @@ class HTTPClient {
     }
 
     /// Performs a request to the specified endpoint.
-    /// - Parameters:
-    ///   - endpoint: The endpoint for the request.
-    ///   - completion: A completion handler called with the result of the request.
+    /// - Parameter builder: The endpoint for the request.
     /// - Returns: An `HTTPCancellable` instance corresponding to the request.
-    @discardableResult
-    func request<T: Decodable>(_ endpoint: HTTPRequestBuilding, completion: @escaping (Result<T, Error>) -> Void) -> HTTPCancellable? {
-        do {
-            let request = try endpoint.buildRequest(baseURL: self.baseURL, userAgent: self.userAgent, languageCode: self.languageCode)
-
-            Self.log(request)
-
-            let task = requestor.sendRequest(request) { (data, response, error) in
-                completion(
-                    Result {
-                        let httpResponse = try Self.processResult(data: data, response: response, error: error)
-
-                        Self.log(httpResponse)
-
-                        return try endpoint.transformResponse(httpResponse)
-                    })
-            }
-
-            return task
-        } catch let error {
-            completion(.failure(error))
-
-            return nil
-        }
+    /// - Throws: An error if the request fails.
+    func request(_ builder: HTTPRequestBuilding) async throws -> HTTPResponse {
+        let request = try builder.buildRequest(baseURL: self.baseURL, userAgent: self.userAgent, languageCode: self.languageCode)
+        Self.log(request)
+        let (rawData, rawResponse) = try await self.requestor.data(for: request)
+        let result = try Self.processResult(data: rawData, response: rawResponse)
+        Self.log(result)
+        return result
     }
 
     /// Processes the result of a request into an HTTP response object.
     /// - Parameters:
     ///   - data: The data returned in the response, if any.
     ///   - response: The HTTP response, if any.
-    ///   - error: The error encountered during the request, if any.
     /// - Throws: Any errors encountered when processing the request.
     /// - Returns: An HTTP response object consisting of an `HTTPURLResponse` object and response data.
-    static func processResult(data: Data?, response: URLResponse?, error: Error?) throws -> HTTPResponse {
-        if let error = error {
-            throw HTTPClientError.connectionError(error)
-        }
-
+    static func processResult(data: Data?, response: URLResponse?) throws -> HTTPResponse {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw HTTPClientError.unexpectedResponseType(response)
         }
-
         switch httpResponse.statusCode {
+        case 204:  // No content
+            return (Data(), httpResponse)
         case 200...299:
-            if let data = data {
-                return (data, httpResponse)
-            } else if httpResponse.statusCode == 204 {
-                // 204 = "No Content", backfill with empty `Data` object.
-                return (Data(), httpResponse)
-            } else {
+            guard let data else {
                 throw HTTPClientError.missingResponseBody
             }
+            return (data, httpResponse)
         case 401:
             throw HTTPClientError.unauthorized(httpResponse, data)
         case 400...499:
@@ -108,32 +84,52 @@ class HTTPClient {
     }
 
     static func log(_ request: URLRequest) {
-        ApptentiveLogger.network.debug("API \(request.httpMethod ?? "<no method>") to \(request.url?.absoluteString ?? "<no URL>")")
+        Logger.network.debug("API \(request.httpMethod ?? "<no method>") to \(request.url?.absoluteString ?? "<no URL>")")
 
-        ApptentiveLogger.network.debug("API request headers:")
+        Logger.network.debug("API request headers:")
         request.allHTTPHeaderFields?.forEach({ (header, value) in
-            ApptentiveLogger.network.debug("  \(header): \(value, privacy: .auto)")
+            Logger.network.debug("  \(header): \(value, privacy: .auto)")
         })
 
         request.httpBody.flatMap { bodyData in
             if let stringValue = String(data: bodyData, encoding: .utf8) {
-                ApptentiveLogger.network.debug("Body: \(stringValue)")
+                Logger.network.debug("Body: \(stringValue)")
             } else {
-                ApptentiveLogger.network.debug("Body (base64): \(bodyData.base64EncodedString())")
+                Logger.network.debug("Body (base64): \(bodyData.base64EncodedString())")
             }
         }
     }
 
     static func log(_ response: HTTPResponse) {
-        ApptentiveLogger.network.debug("API response from \(response.response.url?.absoluteString ?? "<no URL>"), status \(response.response.statusCode)")
+        Logger.network.debug("API response from \(response.response.url?.absoluteString ?? "<no URL>"), status \(response.response.statusCode)")
 
-        ApptentiveLogger.network.debug("API response headers:")
+        Logger.network.debug("API response headers:")
         response.response.allHeaderFields.forEach({ (header, value) in
-            ApptentiveLogger.network.debug("  \((header as? String) ?? "???"): \((value as? String) ?? "???", privacy: .auto)")
+            Logger.network.debug("  \((header as? String) ?? "???"): \((value as? String) ?? "???", privacy: .auto)")
         })
 
-        if response.data.count > 0 {
-            ApptentiveLogger.network.debug("Body: \(String(data: response.data, encoding: .utf8) ?? "<encoding error>")")
+        switch response.data.count {
+        case 0:
+            Logger.network.debug("Body: <empty>")
+        case 1..<1024:
+            guard let stringValue = String(data: response.data, encoding: .utf8) else {
+                fallthrough
+            }
+            Logger.network.debug("Body: \(stringValue)")
+        default:
+            #if DEBUG
+                do {
+                    let basename = response.response.url?.lastPathComponent ?? "response"
+                    let contentType = response.response.value(forHTTPHeaderField: "Content-Type")?.split(separator: ";").first ?? "application/octet-stream"
+                    let url = FileManager.default.temporaryDirectory.appendingPathComponent(basename).appendingPathExtension(for: UTType(mimeType: String(contentType)) ?? UTType.data)
+                    try response.data.write(to: url)
+                    Logger.network.debug("Body: <saved to \(url.path)>")
+                } catch {
+                    Logger.network.debug("Body: <error saving to /tmp: \(error.localizedDescription)>")
+                }
+            #else
+                Logger.network.debug("Body: <too long to log or not UTF-8>")
+            #endif
         }
     }
 }

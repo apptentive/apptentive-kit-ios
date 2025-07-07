@@ -10,7 +10,7 @@ import Foundation
 
 typealias MediaType = String
 
-protocol HTTPBodyPart {
+protocol HTTPBodyPart: Sendable {
     var contentType: String { get }
     var contentDisposition: String { get }
     var filename: String? { get }

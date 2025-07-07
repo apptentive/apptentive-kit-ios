@@ -6,11 +6,12 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class EventPayloadTests: XCTestCase {
+struct EventPayloadTests {
     var event: Event!
     let propertyListEncoder = PropertyListEncoder()
     let propertyListDecoder = PropertyListDecoder()
@@ -21,24 +22,22 @@ class EventPayloadTests: XCTestCase {
     let encryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
     var encryptedPayloadContext: Payload.Context!
 
-    override func setUpWithError() throws {
+    init() throws {
         self.payloadContext = Payload.Context(tag: ".", credentials: .header(id: "abc", token: "123"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: nil)
         self.encryptedPayloadContext = Payload.Context(tag: "abc123", credentials: .embedded(id: "abc"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: .init(encryptionKey: encryptionKey, embeddedToken: "123"))
 
         self.event = Event(name: "Foo bar")
-
-        super.setUp()
     }
 
-    func testSerialization() throws {
+    @Test func testSerialization() throws {
         let testPayload = try Payload(wrapping: self.event, with: self.payloadContext)
         let encodedPayloadData = try self.propertyListEncoder.encode(testPayload)
         let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
 
-        XCTAssertEqual(testPayload, decodedPayload)
+        #expect(testPayload == decodedPayload)
     }
 
-    func testEncoding() throws {
+    @Test func testEncoding() throws {
         let testPayload = try Payload(wrapping: self.event, with: self.payloadContext)
 
         let expectedEncodedContent = """
@@ -55,7 +54,7 @@ class EventPayloadTests: XCTestCase {
         try checkPayloadEquivalence(between: testPayload.bodyData!, and: expectedEncodedContent, comparisons: ["label"])
     }
 
-    func testInteractionEventEncoding() throws {
+    @Test func testInteractionEventEncoding() throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "Survey")
 
         let event: Event = .launch(from: interaction)
@@ -78,7 +77,7 @@ class EventPayloadTests: XCTestCase {
         try checkRequestHeading(for: interactionPayload, decoder: self.jsonDecoder, expectedMethod: .post, expectedPathSuffix: "events")
     }
 
-    func testEventUserInfoEncoding() throws {
+    @Test func testEventUserInfoEncoding() throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "NavigateToLink")
 
         let event: Event = .navigate(to: URL(string: "https://www.apptentive.com")!, success: true, interaction: interaction)
@@ -105,7 +104,7 @@ class EventPayloadTests: XCTestCase {
         try checkRequestHeading(for: interactionPayload, decoder: self.jsonDecoder, expectedMethod: .post, expectedPathSuffix: "events")
     }
 
-    func testCustomDataEventEncoding() throws {
+    @Test func testCustomDataEventEncoding() throws {
         var event = Event(name: "test")
         event.customData["testCustomData"] = "test"
         let eventPayload = try Payload(wrapping: event, with: self.payloadContext)
@@ -129,7 +128,7 @@ class EventPayloadTests: XCTestCase {
         try checkRequestHeading(for: eventPayload, decoder: self.jsonDecoder, expectedMethod: .post, expectedPathSuffix: "events")
     }
 
-    func testEncryptedEncoding() throws {
+    @Test func testEncryptedEncoding() throws {
         let encryptedTestPayload = try Payload(wrapping: self.event, with: self.encryptedPayloadContext)
 
         let expectedEncodedContent = """

@@ -6,12 +6,12 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import OSLog
 import UIKit
 
 @testable import ApptentiveKit
 
 class SpyInteractionDelegate: InteractionDelegate {
-
     var messageCenterInForeground: Bool = false
 
     var personEmailAddress: String?
@@ -29,10 +29,88 @@ class SpyInteractionDelegate: InteractionDelegate {
     var sentMessage: MessageList.Message?
     var environment = MockEnvironment()
     var messageManager = MessageManager(notificationCenter: NotificationCenter.default)
+    var messageManagerDelegate: MessageManagerDelegate?
     var automatedMessageBody: String?
     var matchingInvocationIndex: Int = 0
     var matchingAdvanceLogicIndex: Int = 0
     var prefetchedImage: UIImage?
+    var attachmentContext = MessageList.AttachmentContext(cacheContainerURL: URL(fileURLWithPath: "/tmp"), savedContainerURL: URL(fileURLWithPath: "/tmp"))
+
+    func addDraftAttachment(data: Data, name: String?, mediaType: String) async throws -> URL {
+        return URL(fileURLWithPath: "/tmp")
+    }
+
+    func addDraftAttachment(url: URL) async throws -> URL {
+        return URL(fileURLWithPath: "/tmp")
+    }
+
+    func removeDraftAttachment(at index: Int) async throws {
+    }
+
+    func loadAttachment(at index: Int, in message: ApptentiveKit.MessageList.Message) async throws -> URL {
+        return URL(fileURLWithPath: "/tmp")
+    }
+
+    func invoke(_ invocations: [ApptentiveKit.EngagementManifest.Invocation]) async throws -> String {
+        if invocations.count > self.matchingInvocationIndex {
+            return invocations[matchingInvocationIndex].interactionID
+        } else {
+            throw ApptentiveError.internalInconsistency
+        }
+    }
+
+    func getMessages() async -> ([ApptentiveKit.MessageList.Message], ApptentiveKit.MessageList.AttachmentContext?) {
+        let message = MessageList.Message(id: "abc", nonce: "def", body: "Test Body", attachments: [], sender: nil, sentDate: Date(), isAutomated: false, isHidden: false, status: .unread)
+        return ([message], self.attachmentContext)
+    }
+
+    func getDraftMessage() async -> (ApptentiveKit.MessageList.Message, ApptentiveKit.MessageList.AttachmentContext?) {
+        return (self.draftMessage, self.attachmentContext)
+    }
+
+    func sendDraftMessage() async throws {
+        self.sentMessage = self.draftMessage
+    }
+
+    func setAutomatedMessageBody(_ body: String?) {
+        self.automatedMessageBody = body
+    }
+
+    func setDraftMessageBody(_ body: String?) {
+        self.draftMessage.body = body
+    }
+
+    func markMessageAsRead(_ nonce: String) {
+    }
+
+    func setMessageManagerDelegate(_ messageManagerDelegate: (any ApptentiveKit.MessageManagerDelegate)?) {
+        self.messageManagerDelegate = messageManagerDelegate
+    }
+
+    func getImage(at url: URL, scale: CGFloat) async throws -> UIImage {
+        if let prefetchedImage = self.prefetchedImage {
+            return prefetchedImage
+        } else {
+            throw ApptentiveError.resourceNotDecodableAsImage
+        }
+    }
+
+    func requestReview() async throws -> Bool {
+        return self.shouldRequestReviewSucceed
+    }
+
+    func getNextPageID(for advanceLogic: [ApptentiveKit.AdvanceLogic]) async throws -> String? {
+        if matchingAdvanceLogicIndex < advanceLogic.count {
+            return advanceLogic[matchingAdvanceLogicIndex].pageID
+        } else {
+            return nil
+        }
+    }
+
+    func open(_ url: URL) async -> Bool {
+        self.openedURL = url
+        return self.shouldURLOpeningSucceed
+    }
 
     func engage(event: Event) {
         self.engagedEvent = event
@@ -40,31 +118,6 @@ class SpyInteractionDelegate: InteractionDelegate {
 
     func send(surveyResponse: SurveyResponse) {
         self.sentSurveyResponse = surveyResponse
-    }
-
-    func requestReview(completion: @escaping (Bool) -> Void) {
-        completion(self.shouldRequestReviewSucceed)
-    }
-
-    func open(_ url: URL, completion: @escaping (Bool) -> Void) {
-        self.openedURL = url
-        completion(self.shouldURLOpeningSucceed)
-    }
-
-    func invoke(_ invocations: [EngagementManifest.Invocation], completion: @escaping (String?) -> Void) {
-        if invocations.count > self.matchingInvocationIndex {
-            completion(invocations[matchingInvocationIndex].interactionID)
-        } else {
-            completion(nil)
-        }
-    }
-
-    func getNextPageID(for advanceLogic: [AdvanceLogic], completion: @escaping (Result<String?, Error>) -> Void) {
-        if matchingAdvanceLogicIndex < advanceLogic.count {
-            completion(.success(advanceLogic[matchingAdvanceLogicIndex].pageID))
-        } else {
-            completion(.success(nil))
-        }
     }
 
     func recordResponse(_ response: QuestionResponse, for questionID: String) {
@@ -87,24 +140,13 @@ class SpyInteractionDelegate: InteractionDelegate {
         self.lastResponse[questionID] = nil
     }
 
-    func getMessages(completion: @escaping (MessageManager) -> Void) {
-        completion(self.messageManager)
-    }
-
-    func markMessageAsRead(_ nonce: String) {
-    }
-
-    func setMessageManagerDelegate(_ messageManagerDelegate: (any ApptentiveKit.MessageManagerDelegate)?) {
-        self.messageManagerDelegate = messageManagerDelegate
-    }
-
     func loadAttachmentDataFromDisk() throws -> [Data] {
         let fileURL = URL(fileURLWithPath: "/tmp").appendingPathComponent(MockEnvironment.containerName)
-        let fileList = try self.environment.fileManager.contentsOfDirectory(atPath: fileURL.path)
+        let fileList = try self.environment.fileManager.contentsOfDirectory(at: fileURL)
         var attachmentURLs: [URL] = []
         fileList.forEach({
-            if $0.contains("Attachment") {
-                let url = fileURL.appendingPathComponent($0)
+            if $0.path.contains("Attachment") {
+                let url = fileURL.appendingPathComponent($0.path)
                 attachmentURLs.append(url)
 
             }
@@ -131,7 +173,7 @@ class SpyInteractionDelegate: InteractionDelegate {
             let fileURL = URL(fileURLWithPath: "/tmp").appendingPathComponent(MockEnvironment.containerName).appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
             try data.write(to: fileURL, options: [.atomic])
         } catch {
-            ApptentiveLogger.default.error("Error retrieving application support url or saving attachment to disk: \(error)")
+            Logger.default.error("Error retrieving application support url or saving attachment to disk: \(error)")
         }
     }
 
@@ -148,67 +190,7 @@ class SpyInteractionDelegate: InteractionDelegate {
             let fileURL = URL(fileURLWithPath: "/tmp").appendingPathComponent(MockEnvironment.containerName).appendingPathComponent(uniqueID).appendingPathExtension(fileExtension)
             try self.environment.fileManager.removeItem(at: fileURL)
         } catch {
-            ApptentiveLogger.default.error("Error retrieving application support url or deleting attachment to disk: \(error)")
-        }
-    }
-
-    func addDraftAttachment(data: Data, name: String?, mediaType: String, completion: (Result<URL, Error>) -> Void) {
-
-    }
-
-    func addDraftAttachment(url: URL, completion: (Result<URL, Error>) -> Void) {
-
-    }
-
-    func removeDraftAttachment(at index: Int, completion: (Result<Void, Error>) -> Void) {
-
-    }
-
-    func urlForAttachment(at index: Int, in message: MessageList.Message) -> URL? {
-        return nil
-    }
-
-    func loadAttachment(at index: Int, in message: MessageList.Message, completion: @escaping (Result<URL, Error>) -> Void) {
-
-    }
-
-    var messageManagerDelegate: MessageManagerDelegate?
-
-    func getMessages(completion: @escaping ([MessageList.Message]) -> Void) {
-        completion([
-            MessageList.Message(id: "abc", nonce: "def", body: "Test Body", attachments: [], sender: nil, sentDate: Date(), isAutomated: false, isHidden: false, status: .unread)
-        ])
-    }
-
-    func setDraftMessageBody(_ body: String?) {
-        self.draftMessage.body = body
-    }
-
-    func getDraftMessage(completion: @escaping (MessageList.Message) -> Void) {
-        completion(self.draftMessage)
-    }
-
-    func sendDraftMessage(completion: @escaping (Result<Void, Error>) -> Void) {
-        self.sentMessage = self.draftMessage
-
-        completion(.success(()))
-    }
-
-    func setAutomatedMessageBody(_ body: String?) {
-        self.automatedMessageBody = body
-    }
-
-    func sendMessage(_ message: MessageList.Message, completion: ((Result<Void, Error>) -> Void)?) {
-
-    }
-
-    func getImage(at url: URL, scale: CGFloat, completion: @escaping (Result<UIImage, Error>) -> Void) {
-        DispatchQueue.main.async {
-            if let prefetchedImage = self.prefetchedImage {
-                completion(.success(prefetchedImage))
-            } else {
-                completion(.failure(ApptentiveError.resourceNotDecodableAsImage))
-            }
+            Logger.default.error("Error retrieving application support url or deleting attachment to disk: \(error)")
         }
     }
 }

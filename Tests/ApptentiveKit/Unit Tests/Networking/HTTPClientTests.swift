@@ -6,69 +6,52 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class HTTPClientTests: XCTestCase {
-    func testProcessSuccess() throws {
+struct HTTPClientTests {
+    @Test func testProcessSuccess() throws {
         let data = Data()
         let url = URL(string: "https://example.com")!
         let response = HTTPURLResponse(url: url, statusCode: 222, httpVersion: "1.1", headerFields: [:])
 
-        let httpResult = try HTTPClient.processResult(data: data, response: response, error: nil)
+        let httpResult = try HTTPClient.processResult(data: data, response: response)
 
-        XCTAssertEqual(httpResult.0, data)
-        XCTAssertEqual(httpResult.1, response)
+        #expect(httpResult.0 == data)
+        #expect(httpResult.1 == response)
     }
 
-    struct MockError: Error {}
-
-    func testProcessConnectionError() throws {
-        let error = MockError()
-
-        let result = Result { try HTTPClient.processResult(data: nil, response: nil, error: error) }
-
-        if case .failure(let resultingError) = result {
-            if case HTTPClientError.connectionError(let underlyingError) = resultingError {
-                XCTAssert(underlyingError is MockError)
-            } else {
-                XCTFail()
-            }
-        } else {
-            XCTFail()
-        }
-    }
-
-    func testProcessClientError() throws {
+    @Test func testProcessClientError() throws {
         let url = URL(string: "https://example.com")!
         let response = HTTPURLResponse(url: url, statusCode: 444, httpVersion: "1.1", headerFields: [:])
 
-        let result = Result { try HTTPClient.processResult(data: nil, response: response, error: nil) }
+        let result = Result { try HTTPClient.processResult(data: nil, response: response) }
 
         if case .failure(let resultingError) = result {
             if case HTTPClientError.clientError(let errorResponse, let data) = resultingError {
-                XCTAssertNil(data)
-                XCTAssertEqual(errorResponse, response)
+                #expect(data == nil)
+                #expect(errorResponse == response)
             }
         } else {
-            XCTFail()
+            Issue.record("Expected client error to register as a failure")
         }
     }
 
-    func testProcessServerError() throws {
+    @Test func testProcessServerError() throws {
         let url = URL(string: "https://example.com")!
         let response = HTTPURLResponse(url: url, statusCode: 555, httpVersion: "1.1", headerFields: [:])
 
-        let result = Result { try HTTPClient.processResult(data: nil, response: response, error: nil) }
+        let result = Result { try HTTPClient.processResult(data: nil, response: response) }
 
         if case .failure(let resultingError) = result {
             if case HTTPClientError.serverError(let errorResponse, let data) = resultingError {
-                XCTAssertNil(data)
-                XCTAssertEqual(errorResponse, response)
+                #expect(data == nil)
+                #expect(errorResponse == response)
             }
         } else {
-            XCTFail()
+            Issue.record("Expected client error to register as a failure")
         }
     }
 }

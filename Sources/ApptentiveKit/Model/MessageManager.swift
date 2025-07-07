@@ -7,29 +7,37 @@
 //
 
 import Foundation
+import OSLog
 import UIKit
 
-protocol MessageManagerDelegate: AnyObject {
+@MainActor protocol MessageManagerDelegate: AnyObject, Sendable {
     // This protocol's methods are called on a background queue.
-    func messageManagerMessagesDidChange(_ messageList: [MessageList.Message])
-    func messageManagerDraftMessageDidChange(_ draftMessage: MessageList.Message)
+    func messageManagerMessagesDidChange(_ messageList: [MessageList.Message], context: MessageList.AttachmentContext?)
+    func messageManagerDraftMessageDidChange(_ draftMessage: MessageList.Message, context: MessageList.AttachmentContext?)
 }
 
-protocol MessageManagerApptentiveDelegate: AnyObject {
-    var unreadMessageCount: Int { get set }
+@MainActor protocol MessageManagerApptentiveDelegate: AnyObject, Sendable {
+    func setUnreadMessageCount(_ unreadMessageCount: Int)
 }
 
-class MessageManager {
-    var foregroundPollingInterval: TimeInterval
-    var backgroundPollingInterval: TimeInterval
+actor MessageManager {
+    private(set) var foregroundPollingInterval: TimeInterval
+    private(set) var backgroundPollingInterval: TimeInterval
     var customData: CustomData?
     let notificationCenter: NotificationCenter
     var attachmentManager: AttachmentManager?
+    let fileManager: FileManager
     var draftAttachmentNumber: Int
     var unreadMessageCount: Int {
         didSet {
-            DispatchQueue.main.async {
-                self.messageManagerApptentiveDelegate?.unreadMessageCount = self.unreadMessageCount
+            guard let messageManagerApptentiveDelegate = self.messageManagerApptentiveDelegate else {
+                return
+            }
+
+            let unreadMessageCount = self.unreadMessageCount
+
+            Task {
+                await messageManagerApptentiveDelegate.setUnreadMessageCount(unreadMessageCount)
             }
         }
     }
@@ -47,35 +55,42 @@ class MessageManager {
     }
 
     var messageManagerApptentiveDelegate: MessageManagerApptentiveDelegate?
-    weak var delegate: MessageManagerDelegate? {
-        didSet {
-            if let _ = self.delegate {
-                // When presenting, trigger a refresh of the message list at the next opportunity.
-                self.messageList.lastFetchDate = .distantPast
-            } else {
-                // When closing, clear out any unsent custom data and/or automated message.
-                self.customData = nil
-                self.automatedMessage = nil
-            }
-        }
-    }
+
+    weak var delegate: MessageManagerDelegate?
 
     var lastDownloadedMessageID: String? {
         self.messageList.lastDownloadedMessageID
     }
 
+    var attachmentContext: MessageList.AttachmentContext? {
+        guard let attachmentManager = self.attachmentManager else {
+            return nil
+        }
+
+        return MessageList.AttachmentContext(cacheContainerURL: attachmentManager.cacheContainerURL, savedContainerURL: attachmentManager.savedContainerURL)
+    }
+
     private var messageList: MessageList {
         didSet {
+            guard let delegate = self.delegate else {
+                return
+            }
+
+            let messageList = self.messageList
+            let attachmentContext = self.attachmentContext
+
             if self.messageList != oldValue {
-                if self.messageList.messages != oldValue.messages {
-                    self.delegate?.messageManagerMessagesDidChange(self.messages)
-                }
+                Task {
+                    if self.messageList.messages != oldValue.messages {
+                        await delegate.messageManagerMessagesDidChange(messageList.messages, context: attachmentContext)
+                    }
 
-                if self.messageList.draftMessage != oldValue.draftMessage {
-                    self.delegate?.messageManagerDraftMessageDidChange(self.messageList.draftMessage)
-                }
+                    if self.messageList.draftMessage != oldValue.draftMessage {
+                        await delegate.messageManagerDraftMessageDidChange(messageList.draftMessage, context: attachmentContext)
+                    }
 
-                self.messageListNeedsSaving = true
+                    self.messageListNeedsSaving = true
+                }
             }
         }
     }
@@ -97,6 +112,7 @@ class MessageManager {
         self.backgroundPollingInterval = 300
         self.notificationCenter = notificationCenter
         self.draftAttachmentNumber = 1
+        self.fileManager = FileManager()
 
         self.unreadMessageCount = 0
         notificationCenter.addObserver(self, selector: #selector(payloadSending), name: Notification.Name.payloadSending, object: nil)
@@ -104,9 +120,55 @@ class MessageManager {
         notificationCenter.addObserver(self, selector: #selector(payloadFailed), name: Notification.Name.payloadFailed, object: nil)
     }
 
+    func setPollingIntervals(foreground: TimeInterval, background: TimeInterval) {
+        self.foregroundPollingInterval = foreground
+        self.backgroundPollingInterval = background
+    }
+
+    func setForceMessageDownload() {
+        self.forceMessageDownload = true
+    }
+
+    func setCustomData(_ customData: CustomData) {
+        self.customData = customData
+    }
+
+    func setDelegate(_ delegate: MessageManagerDelegate?) {
+        self.delegate = delegate
+
+        if let _ = self.delegate {
+            // When presenting, trigger a refresh of the message list at the next opportunity.
+            self.messageList.lastFetchDate = .distantPast
+        } else {
+            // When closing, clear out any unsent custom data and/or automated message.
+            self.customData = nil
+            self.automatedMessage = nil
+        }
+    }
+
+    func setApptentiveDelegate(_ apptentiveDelegate: MessageManagerApptentiveDelegate?) {
+        self.messageManagerApptentiveDelegate = apptentiveDelegate
+    }
+
+    func setDraftMessageBody(_ body: String?) {
+        self.draftMessage.body = body
+    }
+
+    func setAttachmentManager(_ attachmentManager: AttachmentManager?) {
+        self.attachmentManager = attachmentManager
+    }
+
+    func makeSaver(containerURL: URL, filename: String, encryptionKey: Data?) {
+        self.saver = Self.createSaver(containerURL: containerURL, filename: filename, fileManager: FileManager(), encryptionKey: encryptionKey)
+    }
+
+    func destroySaver() {
+        self.saver = nil
+    }
+
     func load(from loader: Loader, for record: ConversationRoster.Record) throws {
         if let loadedMessageList = try loader.loadMessages(for: record) {
-            self.messageList.messages = Self.merge(loadedMessageList.messages, with: self.messageList.messages, attachmentManager: self.attachmentManager)
+            self.messageList.messages = Self.merge(loadedMessageList.messages, with: self.messageList.messages, attachmentManager: self.attachmentManager, fileManager: self.fileManager)
             self.messageList.draftMessage = loadedMessageList.draftMessage
             self.draftAttachmentNumber = loadedMessageList.draftMessage.attachments.count + 1
 
@@ -132,7 +194,7 @@ class MessageManager {
     /// - Parameter messagesResponse: The API response from the messages endpoint.
     /// - Returns: Whether any new messages were received.
     func update(with messagesResponse: MessagesResponse) -> Bool {
-        self.messageList.messages = Self.merge(self.messageList.messages, with: messagesResponse.messages.map { Self.convert(downloadedMessage: $0) }, attachmentManager: self.attachmentManager)
+        self.messageList.messages = Self.merge(self.messageList.messages, with: messagesResponse.messages.map { Self.convert(downloadedMessage: $0) }, attachmentManager: self.attachmentManager, fileManager: self.fileManager)
         self.messageList.additionalDownloadableMessagesExist = messagesResponse.hasMore
         self.messageList.lastDownloadedMessageID = messagesResponse.endsWith ?? self.messageList.lastDownloadedMessageID
         self.messageList.lastFetchDate = Date()
@@ -158,7 +220,7 @@ class MessageManager {
         }
     }
 
-    func addDraftAttachment(data: Data, name: String?, mediaType: String, thumbnailSize: CGSize, thumbnailScale: CGFloat) throws -> URL {
+    func addDraftAttachment(data: Data, name: String?, mediaType: String, thumbnailSize: CGSize, thumbnailScale: CGFloat) async throws -> URL {
         guard let attachmentManager = self.attachmentManager else {
             throw MessageError.missingAttachmentManager
         }
@@ -166,27 +228,29 @@ class MessageManager {
         let index = self.messageList.draftMessage.attachments.count
         let filename = self.filename(for: name, mediaType: mediaType)
 
-        let url = try attachmentManager.store(data: data, filename: filename)
+        let url = try await attachmentManager.store(data: data, filename: filename)
         let newAttachment = MessageList.Message.Attachment(contentType: mediaType, filename: filename, storage: .saved(path: url.lastPathComponent), thumbnailData: nil)
 
         self.messageList.draftMessage.attachments.append(newAttachment)
 
         AttachmentManager.createThumbnail(of: thumbnailSize, scale: thumbnailScale, for: url) { result in
             if case .success(let image) = result, let thumbnailData = image.pngData() {
-                self.messageList.draftMessage.attachments[index].thumbnailData = thumbnailData
+                Task {
+                    await self.setDraftAttachmentThumbnailData(thumbnailData, forAttachmentAt: index)
+                }
             }
         }
 
         return url
     }
 
-    func addDraftAttachment(url: URL, thumbnailSize: CGSize, thumbnailScale: CGFloat) throws -> URL {
+    func addDraftAttachment(url: URL, thumbnailSize: CGSize, thumbnailScale: CGFloat) async throws -> URL {
         guard let attachmentManager = self.attachmentManager else {
             throw MessageError.missingAttachmentManager
         }
 
         let filename = url.lastPathComponent
-        let url = try attachmentManager.store(url: url, filename: filename)
+        let url = try await attachmentManager.store(url: url, filename: filename)
         let newAttachment = MessageList.Message.Attachment(contentType: AttachmentManager.mediaType(for: filename), filename: filename, storage: .saved(path: url.lastPathComponent), thumbnailData: nil)
 
         let index = self.messageList.draftMessage.attachments.count
@@ -194,57 +258,58 @@ class MessageManager {
 
         AttachmentManager.createThumbnail(of: thumbnailSize, scale: thumbnailScale, for: url) { result in
             if case .success(let image) = result, let thumbnailData = image.pngData() {
-                self.messageList.draftMessage.attachments[index].thumbnailData = thumbnailData
+                Task {
+                    await self.setDraftAttachmentThumbnailData(thumbnailData, forAttachmentAt: index)
+                }
             }
         }
 
         return url
     }
 
-    func removeDraftAttachment(at index: Int) throws {
+    func removeDraftAttachment(at index: Int) async throws {
         guard let attachmentManager = self.attachmentManager else {
             throw MessageError.missingAttachmentManager
         }
 
         let attachmentToRemove = self.messageList.draftMessage.attachments[index]
-        try attachmentManager.removeStorage(for: attachmentToRemove)
+        try await attachmentManager.removeStorage(for: attachmentToRemove)
         self.messageList.draftMessage.attachments.remove(at: index)
     }
 
-    func loadAttachment(at index: Int, in message: MessageList.Message, thumbnailSize: CGSize, thumbnailScale: CGFloat, completion: @escaping (Result<URL, Error>) -> Void) {
+    func loadAttachment(at index: Int, in message: MessageList.Message, thumbnailSize: CGSize, thumbnailScale: CGFloat) async throws -> URL {
         guard let attachmentManager = self.attachmentManager else {
-            return completion(.failure(MessageError.missingAttachmentManager))
+            throw MessageError.missingAttachmentManager
         }
 
         guard let messageIndex = self.messageList.messages.firstIndex(of: message) else {
-            return apptentiveCriticalError("Can't find index of message in message list")
+            apptentiveCriticalError("Can't find index of message in message list")
+            throw ApptentiveError.internalInconsistency
         }
 
         let attachment = message.attachments[index]
 
-        attachmentManager.download(
+        let localURL = try await attachmentManager.download(
             attachment,
-            completion: { result in
-                switch result {
-                case .success(let url):
-                    self.messageList.messages[messageIndex].attachments[index].storage = .cached(path: url.lastPathComponent)
-
-                    if attachment.thumbnailData == nil {
-                        AttachmentManager.createThumbnail(of: thumbnailSize, scale: thumbnailScale, for: url) { result in
-                            if case .success(let image) = result, let thumbnailData = image.pngData() {
-                                self.messageList.messages[messageIndex].attachments[index].thumbnailData = thumbnailData
-                            }
-                        }
-                    }
-                    completion(.success(url))
-
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            },
             progress: { progress in
-                self.messageList.messages[messageIndex].attachments[index].downloadProgress = Float(progress)
+                Task {
+                    await self.setMessageAttachmentDownloadProgress(Float(progress), forAttachmentAt: index, inMessageAt: messageIndex)
+                }
             })
+
+        self.messageList.messages[messageIndex].attachments[index].storage = .cached(path: localURL.lastPathComponent)
+
+        if attachment.thumbnailData == nil {
+            AttachmentManager.createThumbnail(of: thumbnailSize, scale: thumbnailScale, for: localURL) { result in
+                if case .success(let image) = result, let thumbnailData = image.pngData() {
+                    Task {
+                        await self.setMessageAttachmentThumbnailData(thumbnailData, forAttachmentAt: index, inMessageAt: messageIndex)
+                    }
+                }
+            }
+        }
+
+        return localURL
     }
 
     func prepareDraftMessageForSending() throws -> (MessageList.Message, CustomData?) {
@@ -294,33 +359,51 @@ class MessageManager {
         self.messageListNeedsSaving = false
     }
 
-    func deleteCachedMessages() throws {
+    func deleteCachedMessages() async throws {
         self.messageList = MessageList(messages: [], draftMessage: Self.newDraftMessage())
-        try self.attachmentManager?.deleteCachedAttachments()
+        try await self.attachmentManager?.deleteCachedAttachments()
     }
 
-    @objc func payloadSending(_ notification: Notification) {
-        self.updateStatus(to: .sending, for: notification)
+    @objc nonisolated func payloadSending(_ notification: Notification) {
+        guard let payload = notification.userInfo?[PayloadSender.payloadKey] as? Payload else {
+            return apptentiveCriticalError("Should be able to find payload in payload sender notification's userInfo.")
+        }
+
+        Task {
+            await self.updateStatus(to: .sending, for: payload.identifier)
+        }
     }
 
-    @objc func payloadSent(_ notification: Notification) {
-        self.updateStatus(to: .sent, for: notification)
+    @objc nonisolated func payloadSent(_ notification: Notification) {
+        guard let payload = notification.userInfo?[PayloadSender.payloadKey] as? Payload else {
+            return apptentiveCriticalError("Should be able to find payload in payload sender notification's userInfo.")
+        }
+
+        Task {
+            await self.updateStatus(to: .sent, for: payload.identifier)
+        }
     }
 
-    @objc func payloadFailed(_ notification: Notification) {
-        self.updateStatus(to: .failed, for: notification)
+    @objc nonisolated func payloadFailed(_ notification: Notification) {
+        guard let payload = notification.userInfo?[PayloadSender.payloadKey] as? Payload else {
+            return apptentiveCriticalError("Should be able to find payload in payload sender notification's userInfo.")
+        }
+
+        Task {
+            await self.updateStatus(to: .failed, for: payload.identifier)
+        }
     }
 
     static func createSaver(containerURL: URL, filename: String, fileManager: FileManager, encryptionKey: Data?) -> EncryptedPropertyListSaver<MessageList> {
         return EncryptedPropertyListSaver<MessageList>(containerURL: containerURL, filename: filename, fileManager: fileManager, encryptionKey: encryptionKey)
     }
 
-    static func merge(_ existing: [MessageList.Message], with newer: [MessageList.Message], attachmentManager: AttachmentManager?) -> [MessageList.Message] {
+    static func merge(_ existing: [MessageList.Message], with newer: [MessageList.Message], attachmentManager: AttachmentManager?, fileManager: FileManager) -> [MessageList.Message] {
         var messagesByNonce = Dictionary(grouping: existing, by: { $0.nonce }).compactMapValues { $0.first }
 
         for message in newer {
             if let older = messagesByNonce[message.nonce] {
-                messagesByNonce[message.nonce] = self.merge(older, with: message, attachmentManager: attachmentManager)
+                messagesByNonce[message.nonce] = self.merge(older, with: message, attachmentManager: attachmentManager, fileManager: fileManager)
             } else {
                 messagesByNonce[message.nonce] = message
             }
@@ -329,7 +412,7 @@ class MessageManager {
         return Array(messagesByNonce.values).sorted(by: { $0.sentDate < $1.sentDate })
     }
 
-    static func merge(_ existing: MessageList.Message, with newer: MessageList.Message, attachmentManager: AttachmentManager?) -> MessageList.Message {
+    static func merge(_ existing: MessageList.Message, with newer: MessageList.Message, attachmentManager: AttachmentManager?, fileManager: FileManager) -> MessageList.Message {
         var result = newer
 
         if existing.status == .read {
@@ -338,11 +421,11 @@ class MessageManager {
 
         for (index, existingAttachment) in existing.attachments.enumerated() {
             guard result.attachments.count > index else {
-                ApptentiveLogger.messages.error("Mismatch of server-side and client-side attachment counts.")
+                Logger.messages.error("Mismatch of server-side and client-side attachment counts.")
                 continue
             }
 
-            if attachmentManager?.cacheFileExists(for: existingAttachment) == true {
+            if attachmentManager?.cacheFileExists(for: existingAttachment, using: fileManager) == true {
                 result.attachments[index].storage = existingAttachment.storage
             }
             result.attachments[index].thumbnailData = existingAttachment.thumbnailData
@@ -406,12 +489,20 @@ class MessageManager {
         self.delegate != nil ? self.foregroundPollingInterval : self.backgroundPollingInterval
     }
 
-    private func updateStatus(to status: MessageList.Message.Status, for notification: Notification) {
-        guard let payload = notification.userInfo?[PayloadSender.payloadKey] as? Payload else {
-            return apptentiveCriticalError("Should be able to find payload in payload sender notification's userInfo.")
-        }
+    private func setDraftAttachmentThumbnailData(_ thumbnailData: Data, forAttachmentAt attachmentIndex: Int) {
+        self.messageList.draftMessage.attachments[attachmentIndex].thumbnailData = thumbnailData
+    }
 
-        if let index = self.messageList.messages.firstIndex(where: { $0.nonce == payload.identifier }) {
+    private func setMessageAttachmentThumbnailData(_ thumbnailData: Data, forAttachmentAt attachmentIndex: Int, inMessageAt messageIndex: Int) {
+        self.messageList.messages[messageIndex].attachments[attachmentIndex].thumbnailData = thumbnailData
+    }
+
+    private func setMessageAttachmentDownloadProgress(_ progress: Float, forAttachmentAt attachmentIndex: Int, inMessageAt messageIndex: Int) {
+        self.messageList.messages[messageIndex].attachments[attachmentIndex].downloadProgress = progress
+    }
+
+    private func updateStatus(to status: MessageList.Message.Status, for identifier: String) async {
+        if let index = self.messageList.messages.firstIndex(where: { $0.nonce == identifier }) {
             self.messageList.messages[index].status = status
 
             if status == .queued {
@@ -423,11 +514,11 @@ class MessageManager {
                     }
 
                     for (attachmentIndex, attachment) in sentMessage.attachments.enumerated() {
-                        self.messageList.messages[index].attachments[attachmentIndex].storage = try attachmentManager.cacheQueuedAttachment(attachment)
+                        self.messageList.messages[index].attachments[attachmentIndex].storage = try await attachmentManager.cacheQueuedAttachment(attachment)
                     }
 
                 } catch let error {
-                    ApptentiveLogger.attachments.error("Unable to move queued attachments for payload \(payload.identifier): \(error).")
+                    Logger.attachments.error("Unable to move queued attachments for payload \(identifier): \(error).")
                 }
             }
         }  // else this wasn't a message payload.

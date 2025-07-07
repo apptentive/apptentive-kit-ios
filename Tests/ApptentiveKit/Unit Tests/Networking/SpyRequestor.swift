@@ -10,14 +10,14 @@ import Foundation
 
 @testable import ApptentiveKit
 
-class SpyRequestor: HTTPRequesting, FakeHTTPCancellableDelegate {
+actor SpyRequestor: HTTPRequesting {
     var request: URLRequest?
     var responseData: Data?
+    var response: URLResponse?
     var temporaryURL: URL?
-    var extraCompletion: (() -> Void)?
+    var extraCompletion: (@Sendable (SpyRequestor) -> Void)?
     var delay: TimeInterval = 0
     var error: HTTPClientError?
-    var cancellable: FakeHTTPCancellable?
 
     init(responseData: Data) {
         self.responseData = responseData
@@ -27,78 +27,61 @@ class SpyRequestor: HTTPRequesting, FakeHTTPCancellableDelegate {
         self.temporaryURL = temporaryURL
     }
 
-    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> HTTPCancellable {
+    func setTemporaryURL(_ temporaryURL: URL?) {
+        self.temporaryURL = temporaryURL
+    }
+
+    func setResponseData(_ responseData: Data?) {
+        self.responseData = responseData
+    }
+
+    func setResponse(_ response: URLResponse?) {
+        self.response = response
+    }
+
+    func setError(_ error: HTTPClientError?) {
+        self.error = error
+    }
+
+    func setExtraCompletion(_ extraCompletion: (@Sendable (SpyRequestor) -> Void)?) {
+        self.extraCompletion = extraCompletion
+    }
+
+    func runInContext(_ closure: (SpyRequestor) -> Void) {
+        closure(self)
+    }
+
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        defer {
+            self.extraCompletion?(self)
+        }
+
         self.request = request
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(self.delay / 1000.0))) {
-            switch self.error {
-            case .clientError(let response, _):
-                completion(self.responseData, response, nil)
+        try await Task.sleep(nanoseconds: UInt64(self.delay) * NSEC_PER_SEC)
 
-            case .unauthorized(let response, _):
-                completion(self.responseData, response, nil)
+        if let error = self.error {
+            throw error
+        } else if let response = self.response, let responseData = self.responseData {
+            return (responseData, response)
+        } else {
+            throw ApptentiveError.internalInconsistency
+        }
+    }
 
-            case .serverError(let response, _):
-                completion(self.responseData, response, nil)
-
-            case .none:
-                let response = HTTPURLResponse(url: request.url!, statusCode: 201, httpVersion: "1.1", headerFields: [:])
-                completion(self.responseData, response, nil)
-
-            default:
-                completion(nil, nil, self.error)
-            }
-
-            self.extraCompletion?()
+    func download(from url: URL, delegate: (any URLSessionTaskDelegate)?) async throws -> (URL, URLResponse) {
+        defer {
+            self.extraCompletion?(self)
         }
 
-        self.cancellable = FakeHTTPCancellable()
-        self.cancellable?.delegate = self
+        try await Task.sleep(nanoseconds: UInt64(self.delay) * NSEC_PER_SEC)
 
-        return self.cancellable!
-    }
-
-    func download(_ url: URL, completion: @escaping (URL?, URLResponse?, Error?) -> Void) -> HTTPCancellable {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(self.delay / 1000.0))) {
-            switch self.error {
-            case .clientError(let response, _):
-                completion(self.temporaryURL, response, self.error)
-
-            case .serverError(let response, _):
-                completion(self.temporaryURL, response, self.error)
-
-            case .none:
-                let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "1.1", headerFields: [:])
-                completion(self.temporaryURL, response, nil)
-
-            default:
-                completion(nil, nil, self.error)
-            }
-
-            self.extraCompletion?()
+        if let error = self.error {
+            throw error
+        } else if let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "1.1", headerFields: [:]), let temporaryURL = self.temporaryURL {
+            return (temporaryURL, response)
+        } else {
+            throw ApptentiveError.internalInconsistency
         }
-
-        self.cancellable = FakeHTTPCancellable()
-        self.cancellable?.delegate = self
-
-        return self.cancellable!
-    }
-
-    func didCancel(_ cancellable: FakeHTTPCancellable) {
-        self.error = .connectionError(URLError(.cancelled))
-    }
-}
-
-protocol FakeHTTPCancellableDelegate: AnyObject {
-    func didCancel(_ cancellable: FakeHTTPCancellable)
-}
-
-class FakeHTTPCancellable: NSObject, HTTPCancellable {
-    var didCancel: Bool = false
-    weak var delegate: FakeHTTPCancellableDelegate?
-
-    func cancel() {
-        self.didCancel = true
-        self.delegate?.didCancel(self)
     }
 }

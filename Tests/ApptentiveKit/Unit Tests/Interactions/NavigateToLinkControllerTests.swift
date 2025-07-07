@@ -6,11 +6,12 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Testing
+import UIKit
 
 @testable import ApptentiveKit
 
-class NavigateToLinkControllerTests: XCTestCase {
+@MainActor struct NavigateToLinkControllerTests {
     var controller: NavigateToLinkController?
     var spyInteractionDelegate: SpyInteractionDelegate?
 
@@ -18,11 +19,11 @@ class NavigateToLinkControllerTests: XCTestCase {
     var gotValidationDidChange: Bool = false
     var gotSelectionDidChange: Bool = false
 
-    override func setUpWithError() throws {
+    init() throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "NavigateToLink")
 
         guard case let Interaction.InteractionConfiguration.navigateToLink(configuration) = interaction.configuration else {
-            return XCTFail("Unable to create view model")
+            throw TestError(reason: "Unable to create view model")
         }
 
         self.spyInteractionDelegate = SpyInteractionDelegate()
@@ -30,40 +31,46 @@ class NavigateToLinkControllerTests: XCTestCase {
         self.controller = NavigateToLinkController(configuration: configuration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate!)
     }
 
-    func testNavigateToLinkSuccess() {
+    @Test func testNavigateToLinkSuccess() async throws {
         let url = URL(string: "http://www.apptentive.com")!
 
-        XCTAssertEqual(self.controller?.configuration.url, url)
+        #expect(self.controller?.configuration.url == url)
 
-        let _ = self.controller?.navigateToLink()
+        let _ = await self.controller?.navigateToLink()
 
-        XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#NavigateToLink#navigate")
-        XCTAssertEqual(self.spyInteractionDelegate?.openedURL, url)
+        try await MainActor.run {
+            #expect(self.spyInteractionDelegate?.engagedEvent?.codePointName == "com.apptentive#NavigateToLink#navigate")
+            #expect(self.spyInteractionDelegate?.openedURL == url)
 
-        guard let event = self.spyInteractionDelegate?.engagedEvent, case let .navigateToLink(result) = event.userInfo else {
-            return XCTFail("Unable to get event userInfo")
+            let event = try #require(self.spyInteractionDelegate?.engagedEvent)
+            guard case let .navigateToLink(result) = event.userInfo else {
+                throw TestError(reason: "Unable to get event userInfo")
+            }
+
+            #expect(result.success)
+            #expect(result.url == url)
         }
-
-        XCTAssertEqual(result.success, true)
-        XCTAssertEqual(result.url, url)
     }
 
-    func testNavigateToLinkFailure() {
+    @Test func testNavigateToLinkFailure() async throws {
         let url = URL(string: "http://www.apptentive.com")!
 
-        XCTAssertEqual(self.controller?.configuration.url, url)
+        #expect(self.controller?.configuration.url == url)
         self.spyInteractionDelegate?.shouldURLOpeningSucceed = false
 
-        let _ = self.controller?.navigateToLink()
+        let _ = await self.controller?.navigateToLink()
 
-        XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#NavigateToLink#navigate")
-        XCTAssertEqual(self.spyInteractionDelegate?.openedURL, url)
+        try await MainActor.run {
+            #expect(self.spyInteractionDelegate?.engagedEvent?.codePointName == "com.apptentive#NavigateToLink#navigate")
+            #expect(self.spyInteractionDelegate?.openedURL == url)
 
-        guard let event = self.spyInteractionDelegate?.engagedEvent, case let .navigateToLink(result) = event.userInfo else {
-            return XCTFail("Unable to get event userInfo")
+            let event = try #require(self.spyInteractionDelegate?.engagedEvent)
+            guard case let .navigateToLink(result) = event.userInfo else {
+                throw TestError(reason: "Unable to get event userInfo")
+            }
+
+            #expect(result.success == false)
+            #expect(result.url == url)
         }
-
-        XCTAssertEqual(result.success, false)
-        XCTAssertEqual(result.url, url)
     }
 }

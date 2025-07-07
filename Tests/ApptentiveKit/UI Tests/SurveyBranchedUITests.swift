@@ -9,8 +9,7 @@
 import ApptentiveKit
 import XCTest
 
-class SurveyBranchedUITests: XCTestCase {
-
+@MainActor class SurveyBranchedUITests: XCTestCase {
     override func setUp() {
         let app = XCUIApplication()
         app.launchArguments = ["-layerSpeed", "500"]

@@ -7,17 +7,18 @@
 //
 
 import Foundation
+import OSLog
 
 extension EngagementManifest.Invocation {
     func preLog() {
         CriteriaLogPrefix.shared.reset()
-        ApptentiveLogger.targeting.info("Evaluating criteria for interaction with identifier \(self.interactionID):")
+        Logger.targeting.info("Evaluating criteria for interaction with identifier \(self.interactionID):")
         CriteriaLogPrefix.shared.indent()
     }
 
     func postLog(_ result: Bool) {
         CriteriaLogPrefix.shared.outdent()
-        ApptentiveLogger.targeting.info("Criteria are\(result ? " " : " not ")met.")
+        Logger.targeting.info("Criteria are\(result ? " " : " not ")met.")
     }
 }
 
@@ -28,7 +29,7 @@ extension ImplicitAndClause {
 
     func preLog() {
         if self.shouldLog {
-            ApptentiveLogger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)AND (all are true) [")
+            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)AND (all are true) [")
             CriteriaLogPrefix.shared.indent()
         }
     }
@@ -36,7 +37,7 @@ extension ImplicitAndClause {
     func postLog(_ result: Bool) {
         if self.shouldLog {
             CriteriaLogPrefix.shared.outdent()
-            ApptentiveLogger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)] is \(result).")
+            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)] is \(result).")
         }
     }
 }
@@ -48,7 +49,7 @@ extension LogicalClause {
 
     func preLog() {
         if self.shouldLog {
-            ApptentiveLogger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)\(self.logicalOperator) [")
+            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)\(self.logicalOperator.rawValue) [")
             CriteriaLogPrefix.shared.indent()
         }
     }
@@ -56,7 +57,7 @@ extension LogicalClause {
     func postLog(_ result: Bool) {
         if self.shouldLog {
             CriteriaLogPrefix.shared.outdent()
-            ApptentiveLogger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)] is \(result).")
+            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)] is \(result).")
         }
     }
 }
@@ -68,7 +69,7 @@ extension ConditionalClause {
 
     func preLog() {
         if self.shouldLog {
-            ApptentiveLogger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)AND (all are true) [")
+            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)AND (all are true) [")
             CriteriaLogPrefix.shared.indent()
         }
     }
@@ -76,14 +77,14 @@ extension ConditionalClause {
     func postLog(_ result: Bool) {
         if self.shouldLog {
             CriteriaLogPrefix.shared.outdent()
-            ApptentiveLogger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)] is \(result).")
+            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)] is \(result).")
         }
     }
 }
 
 extension ConditionalTest {
     func log(field: Field, value: Any?, result: Bool) {
-        ApptentiveLogger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)Comparison “\(field.fullPath) (\(String(describing: value))) \(conditionalOperator) \(String(describing: parameter))” is \(result).")
+        Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)Comparison “\(field.fullPath) (\(String(describing: value))) \(conditionalOperator.rawValue) \(String(describing: parameter))” is \(result).")
     }
 }
 
@@ -146,7 +147,9 @@ extension ConditionalOperator: CustomDebugStringConvertible {
 }
 
 struct CriteriaLogPrefix {
-    static var shared = CriteriaLogPrefix()
+    // This will only ever be accessed by the targeting system, which
+    // is entirely running in the Backend actor's isolation context.
+    nonisolated(unsafe) static var shared = CriteriaLogPrefix()
 
     var stringValue: String {
         return String(repeating: " ", count: 2 * self.indentationLevel)

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OSLog
 
 /// Represents the basic unit of criteria, a clause that evalutes to either true or false (or throws) based on the supplied state.
 protocol CriteriaClause: Sendable {
@@ -111,7 +112,7 @@ struct ConditionalTest: Sendable {
             value = try state.value(for: field)
         } catch {
             value = nil
-            ApptentiveLogger.default.error("Error recognizing targeting field: \(error)")
+            Logger.default.error("Error recognizing targeting field: \(error)")
         }
         let result = conditionalOperator.evaluate(value, with: parameter)
 

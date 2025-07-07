@@ -6,11 +6,12 @@
 //  Copyright © 2021 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class AppReleasePayloadTests: XCTestCase {
+struct AppReleasePayloadTests {
     var appRelease: AppRelease!
     let propertyListEncoder = PropertyListEncoder()
     let propertyListDecoder = PropertyListDecoder()
@@ -21,27 +22,25 @@ class AppReleasePayloadTests: XCTestCase {
     let encryptionKey = Data(base64Encoded: "CqlAobc4IyzVEU5ut/WPu0KoSI7ZowTiIlKncCXLZ9M=")!
     var encryptedPayloadContext: Payload.Context!
 
-    override func setUpWithError() throws {
+    init() throws {
         self.payloadContext = Payload.Context(tag: ".", credentials: .header(id: "abc", token: "123"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: nil)
         self.encryptedPayloadContext = Payload.Context(tag: "abc123", credentials: .embedded(id: "abc"), sessionID: "abc123", encoder: self.jsonEncoder, encryptionContext: .init(encryptionKey: encryptionKey, embeddedToken: "123"))
 
         let dataProvider = MockDataProvider()
 
         self.appRelease = AppRelease(dataProvider: dataProvider)
-
-        super.setUp()
     }
 
-    func testSerialization() throws {
+    @Test func testSerialization() throws {
         let testPayload = try Payload(wrapping: self.appRelease, with: self.payloadContext)
 
         let encodedPayloadData = try self.propertyListEncoder.encode(testPayload)
         let decodedPayload = try self.propertyListDecoder.decode(Payload.self, from: encodedPayloadData)
 
-        XCTAssertEqual(testPayload, decodedPayload)
+        #expect(testPayload == decodedPayload)
     }
 
-    func testEncoding() throws {
+    @Test func testEncoding() throws {
         let testPayload = try Payload(wrapping: self.appRelease, with: self.payloadContext)
 
         let expectedEncodedContent = """
@@ -108,7 +107,7 @@ class AppReleasePayloadTests: XCTestCase {
         try checkRequestHeading(for: testPayload, decoder: self.jsonDecoder, expectedMethod: .put, expectedPathSuffix: "app_release")
     }
 
-    func testEncryptedEncoding() throws {
+    @Test func testEncryptedEncoding() throws {
         let encryptedTestPayload = try Payload(wrapping: self.appRelease, with: self.encryptedPayloadContext)
 
         let expectedEncodedContent = """

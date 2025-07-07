@@ -1,3 +1,14 @@
+# 2025-07-07 - 7.0.0-alpha
+
+#### New Features
+
+- The SDK is compatible with the Swift 6 language mode and with strict concurrency checks
+- Completion-handler-based have been migrated to async-await
+- Rich text is now parsed on a background queue for better performance
+- A new `fontName` static property is available for setting all text styles to a particular font
+- Images and colors can now be set using assets files
+- Several methods and properties that were non-functional and deprecated in version 6 have been removed
+
 # 2024-12-04 - 6.9.1
 
 #### Bugs Fixed
