@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0164A1042E26CBC800D33ED9 /* ApptentiveKit in Frameworks */ = {isa = PBXBuildFile; productRef = 0164A1032E26CBC800D33ED9 /* ApptentiveKit */; };
 		017BAB0F2683DD4F0035DA1E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BAB0E2683DD4F0035DA1E /* AppDelegate.swift */; };
 		017BAB112683DD4F0035DA1E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 017BAB102683DD4F0035DA1E /* SceneDelegate.swift */; };
 		017BAB162683DD4F0035DA1E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 017BAB142683DD4F0035DA1E /* Main.storyboard */; };
@@ -55,7 +56,6 @@
 		01814501268536F1003F6B1F /* PhotosViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosViewController.swift; sourceTree = "<group>"; };
 		0181450426855BAD003F6B1F /* PhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCell.swift; sourceTree = "<group>"; };
 		0181450626855BDE003F6B1F /* PhotoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoManager.swift; sourceTree = "<group>"; };
-		01814517268CE54F003F6B1F /* apple-sdk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "apple-sdk"; path = ..; sourceTree = "<group>"; };
 		01B12C19268D135C00C1F3F5 /* photo-1422255198496-21531f12a6e8.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "photo-1422255198496-21531f12a6e8.jpg"; sourceTree = "<group>"; };
 		01B12C1A268D135C00C1F3F5 /* photo-1431794062232-2a99a5431c6c.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "photo-1431794062232-2a99a5431c6c.jpg"; sourceTree = "<group>"; };
 		01B12C1B268D135C00C1F3F5 /* photo-1426170042593-200f250dfdaf.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "photo-1426170042593-200f250dfdaf.jpg"; sourceTree = "<group>"; };
@@ -90,6 +90,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0181451A268CE586003F6B1F /* ApptentiveKit in Frameworks */,
+				0164A1042E26CBC800D33ED9 /* ApptentiveKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,7 +100,6 @@
 		017BAB022683DD4F0035DA1E = {
 			isa = PBXGroup;
 			children = (
-				01814517268CE54F003F6B1F /* apple-sdk */,
 				017BAB0D2683DD4F0035DA1E /* Example */,
 				017BAB0C2683DD4F0035DA1E /* Products */,
 				01814518268CE586003F6B1F /* Frameworks */,
@@ -189,6 +189,7 @@
 			name = Example;
 			packageProductDependencies = (
 				01814519268CE586003F6B1F /* ApptentiveKit */,
+				0164A1032E26CBC800D33ED9 /* ApptentiveKit */,
 			);
 			productName = Example;
 			productReference = 017BAB0B2683DD4F0035DA1E /* Example.app */;
@@ -217,6 +218,9 @@
 				Base,
 			);
 			mainGroup = 017BAB022683DD4F0035DA1E;
+			packageReferences = (
+				0164A1022E26CBC800D33ED9 /* XCLocalSwiftPackageReference "../../apptentive-kit-ios" */,
+			);
 			productRefGroup = 017BAB0C2683DD4F0035DA1E /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -424,6 +428,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				INFOPLIST_FILE = Example/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -443,6 +448,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 86WML2UN43;
 				INFOPLIST_FILE = Example/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -477,7 +483,18 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		0164A1022E26CBC800D33ED9 /* XCLocalSwiftPackageReference "../../apptentive-kit-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../apptentive-kit-ios";
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		0164A1032E26CBC800D33ED9 /* ApptentiveKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ApptentiveKit;
+		};
 		01814519268CE586003F6B1F /* ApptentiveKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ApptentiveKit;
