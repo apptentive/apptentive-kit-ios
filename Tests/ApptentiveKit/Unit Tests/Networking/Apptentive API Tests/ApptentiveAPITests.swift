@@ -25,6 +25,10 @@ class ApptentiveAPITests: XCTestCase {
             return .init(key: "abc", signature: "123")
         }
 
+        var conversationCredentials: ConversationCredentials? {
+            return .init(id: "def", token: "456")
+        }
+
         func authenticationDidFail(with errorResponse: ErrorResponse?) {}
     }
 

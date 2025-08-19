@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ApptentiveDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if !self.apptentive!.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler) {
             print("Push was not handled by Apptentive. Calling completion handler")
-            completionHandler(.noData)
+            completionHandler(.newData)
         }
     }
 

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OSLog
 
 struct ALoader: Loader {
     static let conversationFilename = "Conversation.A"
@@ -35,7 +36,7 @@ struct ALoader: Loader {
         return self.context.fileManager.fileExists(atPath: self.conversationFileURL.path)
     }
 
-    func loadRoster() throws -> ConversationRoster {
+    func loadRoster(with _: SecureTokenStoring) throws -> ConversationRoster {
         let data = try Data(contentsOf: self.commonConversationFileURL)
         let aConversation = try self.decoder.decode(AConversation.self, from: data)
 

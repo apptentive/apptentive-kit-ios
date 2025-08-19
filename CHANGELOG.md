@@ -1,3 +1,11 @@
+# 2025-08-20 - 6.9.2
+
+#### New Features
+
+- Improved the detection of the push environment (production vs. sandbox) to allow testing push notifications with e.g. TestFlight builds
+- Added a workaround to prevent a Swift Compiler crash when building with Xcode 26 beta
+- Added an option to store the auth token in the Keychain rather than in plaintext
+
 # 2024-12-04 - 6.9.1
 
 #### Bugs Fixed

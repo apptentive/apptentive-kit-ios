@@ -39,7 +39,7 @@ class LoaderTests: XCTestCase {
         let context = LoaderContext(containerURL: containerURL, cacheURL: self.cacheURL, appCredentials: self.appCredentials, dataProvider: self.dataProvider, fileManager: self.fileManager)
 
         let roster = try CurrentLoader.loadLatestVersion(context: context) { loader in
-            let roster = try loader.loadRoster()
+            let roster = try loader.loadRoster(with: MockTokenStore())
             let _ = try loader.loadPayloads()
 
             return roster
@@ -79,7 +79,7 @@ class LoaderTests: XCTestCase {
         let context = LoaderContext(containerURL: containerURL, cacheURL: self.cacheURL, appCredentials: self.appCredentials, dataProvider: self.dataProvider, fileManager: self.fileManager)
 
         let roster = try CurrentLoader.loadLatestVersion(context: context) { loader in
-            let roster = try loader.loadRoster()
+            let roster = try loader.loadRoster(with: MockTokenStore())
             let _ = try loader.loadPayloads()
 
             return roster
@@ -111,7 +111,7 @@ class LoaderTests: XCTestCase {
         let context = LoaderContext(containerURL: containerURL, cacheURL: self.cacheURL, appCredentials: self.appCredentials, dataProvider: self.dataProvider, fileManager: self.fileManager)
 
         let roster = try CurrentLoader.loadLatestVersion(context: context) { loader in
-            let roster = try loader.loadRoster()
+            let roster = try loader.loadRoster(with: MockTokenStore())
             let _ = try loader.loadPayloads()
 
             return roster
@@ -152,7 +152,7 @@ class LoaderTests: XCTestCase {
         let context = LoaderContext(containerURL: containerURL, cacheURL: self.cacheURL, appCredentials: self.appCredentials, dataProvider: self.dataProvider, fileManager: self.fileManager)
 
         let roster = try CurrentLoader.loadLatestVersion(context: context) { loader in
-            let roster = try loader.loadRoster()
+            let roster = try loader.loadRoster(with: MockTokenStore())
             let _ = try loader.loadPayloads()
 
             XCTAssertEqual(roster.loggedOut.count, 1)
@@ -195,7 +195,7 @@ class LoaderTests: XCTestCase {
         let context = LoaderContext(containerURL: containerURL, cacheURL: self.cacheURL, appCredentials: self.appCredentials, dataProvider: self.dataProvider, fileManager: self.fileManager)
 
         let roster = try CurrentLoader.loadLatestVersion(context: context) { loader in
-            let roster = try loader.loadRoster()
+            let roster = try loader.loadRoster(with: MockTokenStore())
             let _ = try loader.loadPayloads()
 
             return roster
@@ -214,7 +214,7 @@ class LoaderTests: XCTestCase {
         let context = LoaderContext(containerURL: containerURL, cacheURL: self.cacheURL, appCredentials: self.appCredentials, dataProvider: self.dataProvider, fileManager: self.fileManager)
 
         let roster = try CurrentLoader.loadLatestVersion(context: context) { loader in
-            let roster = try loader.loadRoster()
+            let roster = try loader.loadRoster(with: MockTokenStore())
             let _ = try loader.loadPayloads()
 
             return roster
@@ -259,7 +259,7 @@ class LoaderTests: XCTestCase {
         let context = LoaderContext(containerURL: containerURL, cacheURL: self.cacheURL, appCredentials: self.appCredentials, dataProvider: self.dataProvider, fileManager: self.fileManager)
 
         let roster = try CurrentLoader.loadLatestVersion(context: context) { loader in
-            let roster = try loader.loadRoster()
+            let roster = try loader.loadRoster(with: MockTokenStore())
             let payloads = try loader.loadPayloads()
 
             if payloads.count < 13 {

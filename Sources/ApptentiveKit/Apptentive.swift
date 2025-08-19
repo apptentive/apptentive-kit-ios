@@ -38,6 +38,12 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// This property must be set before calling `register(credentials:)`.
     @objc public var theme: UITheme = .apptentive
 
+    /// Whether to store sensitive conversation credentials in the iOS keychain.
+    ///
+    /// This property must be set before calling `register(credentials:)`.
+    /// It defaults to `false` for backward compatibility.
+    @objc public var shouldUseSecureTokenStorage: Bool = false
+
     /// The name of the person using the app, if available.
     @objc @BackendSync public var personName: String?
 
@@ -101,6 +107,12 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             }
         } else {
             self.backend.setIsOverridingStyles()
+        }
+
+        if self.shouldUseSecureTokenStorage {
+            self.backendQueue.async {
+                self.backend.shouldUseSecureTokenStorage = true
+            }
         }
 
         if !self.environment.isTesting {

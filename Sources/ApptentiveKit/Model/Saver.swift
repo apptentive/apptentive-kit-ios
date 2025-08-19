@@ -74,7 +74,7 @@ class PropertyListSaver<T: Codable>: Saver<T> {
 }
 
 /// A concrete subclass of `Saver` that saves data in Property List (plist) format.
-class EncryptedPropertyListSaver<T: Codable>: PropertyListSaver<T> {
+final class EncryptedPropertyListSaver<T: Codable>: PropertyListSaver<T> {
     var encryptionKey: Data?
 
     init(containerURL: URL, filename: String, fileManager: FileManager, encryptionKey: Data?) {
@@ -99,5 +99,42 @@ class EncryptedPropertyListSaver<T: Codable>: PropertyListSaver<T> {
         } else {
             return super.fileExtension
         }
+    }
+}
+
+class RosterSaver: PropertyListSaver<ConversationRoster> {
+    let tokenStore: SecureTokenStoring?
+
+    init(containerURL: URL, filename: String, fileManager: FileManager, tokenStore: SecureTokenStoring?) {
+        self.tokenStore = tokenStore
+
+        super.init(containerURL: containerURL, filename: filename, fileManager: fileManager)
+    }
+
+    override func save(_ object: ConversationRoster) throws {
+        var storedRoster = object
+
+        if let tokenStore = self.tokenStore {
+            if let active = storedRoster.active {
+                var newActiveState: ConversationRoster.Record.State
+
+                switch active.state {
+                case .anonymous(let credentials):
+                    try tokenStore.saveToken(credentials.token, with: credentials.id)
+                    newActiveState = .anonymousSecure(id: credentials.id)
+
+                case .loggedIn(let credentials, let subject, let encryptionKey):
+                    try tokenStore.saveToken(credentials.token, with: credentials.id)
+                    newActiveState = .loggedInSecure(id: credentials.id, subject: subject, encryptionKey: encryptionKey)
+
+                default:
+                    newActiveState = active.state
+                }
+
+                storedRoster.active?.state = newActiveState
+            }
+        }  // else keep token in plaintext
+
+        try super.save(storedRoster)
     }
 }

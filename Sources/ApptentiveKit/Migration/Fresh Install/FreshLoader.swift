@@ -25,7 +25,7 @@ struct FreshLoader: Loader {
         return true
     }
 
-    func loadRoster() throws -> ConversationRoster {
+    func loadRoster(with _: SecureTokenStoring) throws -> ConversationRoster {
         try self.createDirectoryIfNeeded(containerURL: self.context.containerURL, fileManager: self.context.fileManager)
         try self.createDirectoryIfNeeded(containerURL: self.context.cacheURL, fileManager: self.context.fileManager)
 

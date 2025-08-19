@@ -14,15 +14,16 @@ pipeline {
   }
 
   stages {
-    stage('Dev PR') {
+    stage('Dev (or main) PR') {
       when {
-        changeRequest target: 'develop'
-
+        anyOf {
+          changeRequest target: 'develop'
+          changeRequest target: 'main'
+        }
         expression {
           env.ENVIRONMENT == 'dev-eks_0'
         }
       }
-
       stages {
         stage('bundle install') {
           steps {

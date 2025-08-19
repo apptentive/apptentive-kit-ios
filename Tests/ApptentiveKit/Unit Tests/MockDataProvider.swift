@@ -12,6 +12,7 @@ import UIKit
 
 struct MockDataProvider: ConversationDataProviding {
     var bundleIdentifier: String? = "com.apptentive.test"
+    var apsEnvironment: String?
     var version: ApptentiveKit.Version? = "0.0.0"
     var build: ApptentiveKit.Version? = "1"
     var deploymentTarget: String? = "13.0"
