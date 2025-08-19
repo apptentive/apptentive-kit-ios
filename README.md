@@ -55,4 +55,3 @@ Our client code is completely [open source](LICENSE.txt), and we welcome contrib
 ## Reporting Issues
 
 If you experience an issue with the Apptentive SDK, please [open a GitHub issue](https://github.com/apptentive/apptentive-kit-ios/issues?direction=desc&sort=created&state=open).
- 
