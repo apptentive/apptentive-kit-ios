@@ -25,6 +25,10 @@ class PayloadSenderTests: XCTestCase, PayloadAuthenticationDelegate {
         return self.anonymousCredentials.appCredentials
     }
 
+    var conversationCredentials: ConversationCredentials? {
+        return self.anonymousCredentials.conversationCredentials
+    }
+
     func authenticationDidFail(with errorResponse: ErrorResponse?) {
         self.authFailureErrorResponse = errorResponse
     }

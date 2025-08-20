@@ -17,6 +17,7 @@
 /// The portions of the Conversation Data Provider that provide information about the app.
 protocol AppDataProviding: Sendable {
     var appStoreReceiptURL: URL? { get }
+    var apsEnvironment: String? { get }
     var sdkVersion: Version { get }
     var distributionName: String? { get set }
     var distributionVersion: Version? { get set }
@@ -61,6 +62,7 @@ typealias ConversationDataProviding = AppDataProviding & DeviceDataProviding
 struct ConversationDataProvider: ConversationDataProviding {
     var sdkVersion: Version
     let appStoreReceiptURL: URL?
+    let apsEnvironment: String?
     var distributionName: String?
     var distributionVersion: Version?
     let isDebugBuild: Bool
@@ -93,6 +95,9 @@ struct ConversationDataProvider: ConversationDataProviding {
     init() {
         let infoDictionary = Bundle.main.infoDictionary ?? [:]
         self.appStoreReceiptURL = Bundle.main.appStoreReceiptURL
+
+        let entitlements = ProvisioningProfileParser.getEntitlements()
+        self.apsEnvironment = entitlements?["aps-environment"] as? String
 
         #if targetEnvironment(macCatalyst)
             self.carrier = nil

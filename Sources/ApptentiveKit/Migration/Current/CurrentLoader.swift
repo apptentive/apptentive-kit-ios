@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OSLog
 
 struct CurrentLoader: Loader {
     private static let rosterFilename = "Roster.B"
@@ -103,9 +104,30 @@ struct CurrentLoader: Loader {
         return self.context.fileManager.fileExists(atPath: self.conversationFileURL(for: record).path)
     }
 
-    func loadRoster() throws -> ConversationRoster {
+    func loadRoster(with tokenStore: SecureTokenStoring) throws -> ConversationRoster {
         let data = try Data(contentsOf: self.conversationRosterURL)
-        return try self.decoder.decode(ConversationRoster.self, from: data)
+        var roster = try self.decoder.decode(ConversationRoster.self, from: data)
+
+        if let active = roster.active {
+            let newActiveState: ConversationRoster.Record.State
+
+            switch active.state {
+            case .anonymousSecure(let id):
+                let token = try tokenStore.getToken(withID: id)
+                newActiveState = .anonymous(credentials: .init(id: id, token: token))
+
+            case .loggedInSecure(let id, let subject, let encryptionKey):
+                let token = try tokenStore.getToken(withID: id)
+                newActiveState = .loggedIn(credentials: .init(id: id, token: token), subject: subject, encryptionKey: encryptionKey)
+
+            default:
+                newActiveState = active.state
+            }
+
+            roster.active?.state = newActiveState
+        }
+
+        return roster
     }
 
     func loadConversation(for record: ConversationRoster.Record) throws -> Conversation {

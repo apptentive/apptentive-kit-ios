@@ -10,6 +10,7 @@ import Foundation
 
 protocol PayloadAuthenticationDelegate: AnyObject {
     var appCredentials: Apptentive.AppCredentials? { get }
+    var conversationCredentials: ConversationCredentials? { get }
     func authenticationDidFail(with errorResponse: ErrorResponse?)
 }
 
@@ -198,7 +199,7 @@ class PayloadSender: PayloadSending {
             return
         }
 
-        let credentials = PayloadAPICredentials(appCredentials: appCredentials, payloadCredentials: firstPayload.credentials)
+        let credentials = PayloadAPICredentials(appCredentials: appCredentials, payloadCredentials: firstPayload.credentials, conversationCredentials: authenticationDelegate?.conversationCredentials)
 
         ApptentiveLogger.payload.debug("Sending \(firstPayload).")
 

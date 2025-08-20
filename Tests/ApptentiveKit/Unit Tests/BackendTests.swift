@@ -58,7 +58,7 @@ class BackendTests: XCTestCase {
             queue: queue, conversation: conversation, state: backendState, containerName: containerURL!.lastPathComponent, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), requestor: self.requestor,
             messageManager: self.messageManager,
             requestRetrier: requestRetrier,
-            payloadSender: payloadSender, dataProvider: dataProvider, fileManager: FileManager.default)
+            payloadSender: payloadSender, dataProvider: dataProvider, fileManager: FileManager.default, tokenStore: MockTokenStore())
 
         self.backend.delegate = self.backendDelegate
 

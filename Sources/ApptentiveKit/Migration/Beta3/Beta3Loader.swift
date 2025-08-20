@@ -31,7 +31,7 @@ struct Beta3Loader: Loader {
         return self.context.fileManager.fileExists(atPath: self.messagesFileURL.path)
     }
 
-    func loadRoster() throws -> ConversationRoster {
+    func loadRoster(with _: SecureTokenStoring) throws -> ConversationRoster {
         try self.cleanUpRoster()
 
         throw LoaderError.brokenVersion

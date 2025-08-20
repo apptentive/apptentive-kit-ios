@@ -96,6 +96,12 @@ class Backend: PayloadAuthenticationDelegate {
         }
     }
 
+    /// The object that stores tokens in the keychain.
+    var tokenStore: SecureTokenStoring
+
+    /// Whether to save the token in the keychain (versus in plaintext).
+    var shouldUseSecureTokenStorage = false
+
     /// The object implementing `HTTPRequesting` that should be used for HTTP requests.
     let requestor: HTTPRequesting
 
@@ -114,10 +120,11 @@ class Backend: PayloadAuthenticationDelegate {
         let roster = ConversationRoster(active: .init(state: .placeholder, path: "placeholder"), loggedOut: [])
         let state = BackendState(isInForeground: false, isProtectedDataAvailable: false, roster: roster, fatalError: false)
         let fileManager = FileManager.default
+        let tokenStore = SecureTokenStore()
 
         self.init(
             queue: queue, conversation: conversation, state: state, containerName: containerName, targeter: targeter, requestor: requestor, messageManager: messageManager, requestRetrier: requestRetrier, payloadSender: payloadSender,
-            dataProvider: dataProvider, fileManager: fileManager)
+            dataProvider: dataProvider, fileManager: fileManager, tokenStore: tokenStore)
     }
 
     /// This initializer intended for testing only.
@@ -133,9 +140,10 @@ class Backend: PayloadAuthenticationDelegate {
     ///   - payloadSender: The payload sender to use to send updates to the API.
     ///   - dataProvider: The `ConversationDataProviding` object used to initialize new conversations.
     ///   - fileManager: A `FileManager` used to manipulate files.
+    ///   - tokenStore: An object that can securely store and retrieve the conversation token.
     init(
         queue: DispatchQueue, conversation: Conversation, state: BackendState, containerName: String, targeter: Targeter, requestor: HTTPRequesting, messageManager: MessageManager, requestRetrier: HTTPRequestRetrier, payloadSender: PayloadSending,
-        dataProvider: ConversationDataProviding, fileManager: FileManager
+        dataProvider: ConversationDataProviding, fileManager: FileManager, tokenStore: SecureTokenStoring
     ) {
         self.queue = queue
         self.conversation = conversation
@@ -149,6 +157,7 @@ class Backend: PayloadAuthenticationDelegate {
         self.dataProvider = dataProvider
         self.fileManager = fileManager
         self.jsonEncoder = JSONEncoder.apptentive
+        self.tokenStore = tokenStore
 
         self.payloadSender.authenticationDelegate = self
         self.jsonEncoder.dateEncodingStrategy = .secondsSince1970
@@ -215,6 +224,14 @@ class Backend: PayloadAuthenticationDelegate {
 
     var appCredentials: Apptentive.AppCredentials? {
         return self.state.appCredentials
+    }
+
+    var conversationCredentials: ConversationCredentials? {
+        if case .anonymous(let conversationCredentials) = self.state.roster.active?.state {
+            return conversationCredentials
+        } else {
+            return nil
+        }
     }
 
     func authenticationDidFail(with response: ErrorResponse?) {
@@ -672,7 +689,7 @@ class Backend: PayloadAuthenticationDelegate {
     }
 
     /// The saver used to save the conversation roster to persistent storage.
-    private var rosterSaver: PropertyListSaver<ConversationRoster>?
+    private var rosterSaver: RosterSaver?
 
     /// The saver used to save the conversation to persistent storage.
     private var conversationSaver: EncryptedPropertyListSaver<Conversation>?
@@ -881,7 +898,9 @@ class Backend: PayloadAuthenticationDelegate {
     }
 
     private func createCommonSavers(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials) throws {
-        self.rosterSaver = PropertyListSaver<ConversationRoster>(containerURL: containerURL, filename: CurrentLoader.rosterFilename(for: appCredentials), fileManager: self.fileManager)
+        let saverTokenStore = self.shouldUseSecureTokenStorage ? self.tokenStore : nil
+
+        self.rosterSaver = RosterSaver(containerURL: containerURL, filename: CurrentLoader.rosterFilename(for: appCredentials), fileManager: self.fileManager, tokenStore: saverTokenStore)
         self.payloadSender.saver = PayloadSender.createSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename(for: appCredentials), fileManager: self.fileManager)
         self.messageManager.attachmentManager = AttachmentManager(fileManager: self.fileManager, requestor: URLSession.shared, cacheContainerURL: cacheURL, savedContainerURL: containerURL)
     }
@@ -890,7 +909,7 @@ class Backend: PayloadAuthenticationDelegate {
         let context = LoaderContext(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials, dataProvider: self.dataProvider, fileManager: self.fileManager)
 
         let result = try CurrentLoader.loadLatestVersion(context: context) { loader in
-            let roster = try loader.loadRoster()
+            let roster = try loader.loadRoster(with: self.tokenStore)
             try self.payloadSender.load(from: loader)
 
             // Save any data that might have been migrated

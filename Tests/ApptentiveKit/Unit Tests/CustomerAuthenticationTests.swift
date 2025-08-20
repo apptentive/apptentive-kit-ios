@@ -69,7 +69,7 @@ final class CustomerAuthenticationTests: XCTestCase {
         self.backend = Backend(
             queue: queue, conversation: conversation, state: backendState, containerName: containerName, targeter: Targeter(engagementManifest: EngagementManifest.placeholder), requestor: self.requestor, messageManager: messageManager,
             requestRetrier: requestRetrier,
-            payloadSender: self.payloadSender, dataProvider: self.dataProvider, fileManager: self.fileManager)
+            payloadSender: self.payloadSender, dataProvider: self.dataProvider, fileManager: self.fileManager, tokenStore: MockTokenStore())
 
         self.backend.delegate = self.backendDelegate
     }

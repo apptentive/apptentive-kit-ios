@@ -92,13 +92,11 @@ class HTTPRequestRetrier: HTTPRequestStarting {
     ///   - identifier: The identifier of the request that may be retried.
     ///   - completion: The completion handler supplied by the original caller for this retrying request, to be called when the request succeeds or fails permanently.
     private func processResult<T: Decodable>(_ result: Result<T, Error>, identifier: String, completion: @escaping (Result<T, Error>) -> Void) {
-        switch result {
-        case .success:
+        if case .success = result {
             self.retryPolicy.resetRetryDelay()
             self.requests[identifier] = nil
             completion(result)
-
-        case .failure(let error as HTTPClientError):
+        } else if case .failure(let error as HTTPClientError) = result {
             if self.retryPolicy.shouldRetry(inCaseOf: error) {
                 self.retryPolicy.incrementRetryDelay()
                 let retryDelayMilliseconds = Int(self.retryPolicy.retryDelay) * 1000
@@ -125,9 +123,11 @@ class HTTPRequestRetrier: HTTPRequestStarting {
                 }
             } else {
                 ApptentiveLogger.network.info("Permanent failure when sending request with identifier “\(identifier)”: \(error.localizedDescription).")
-                fallthrough
+
+                completion(result)
+                self.requests[identifier] = nil
             }
-        default:
+        } else {
             completion(result)
             self.requests[identifier] = nil
         }
