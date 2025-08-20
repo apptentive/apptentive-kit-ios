@@ -25,6 +25,8 @@ struct ConversationRoster: Codable, Equatable {
             case anonymous(credentials: ConversationCredentials)
             case loggedIn(credentials: ConversationCredentials, subject: String, encryptionKey: Data)
             case loggedOut(id: String, subject: String)
+            case anonymousSecure(id: String)
+            case loggedInSecure(id: String, subject: String, encryptionKey: Data)
         }
     }
 }

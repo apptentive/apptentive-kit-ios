@@ -125,6 +125,8 @@ struct PayloadAPICredentials: APICredentialsProviding {
 
     let payloadCredentials: PayloadStoredCredentials
 
+    let conversationCredentials: ConversationCredentials?
+
     var headers: [String: String] {
         var result = self.appCredentials.headers
 
@@ -135,7 +137,14 @@ struct PayloadAPICredentials: APICredentialsProviding {
         case .embedded:
             result[ApptentiveAPI.Header.apptentiveEncrypted] = "true"
 
-        default:
+        case .secure(let id):
+            if let conversationCredentials = self.conversationCredentials, conversationCredentials.id == id {
+                result[ApptentiveAPI.Header.authorization] = "Bearer \(conversationCredentials.token)"
+            } else {
+                apptentiveCriticalError("Conversation credentials missing or invalid")
+            }
+
+        case .placeholder, .invalidEmbedded:
             break
         }
 
@@ -157,6 +166,7 @@ enum PayloadStoredCredentials: Codable, Equatable {
     case placeholder
     case header(id: String, token: String)
     case embedded(id: String)
+    case secure(id: String)
     case invalidEmbedded
 
     /// Whether the credentials are complete enough to send an API request.
@@ -176,6 +186,9 @@ enum PayloadStoredCredentials: Codable, Equatable {
             return id
 
         case .embedded(let id):
+            return id
+
+        case .secure(let id):
             return id
 
         default:

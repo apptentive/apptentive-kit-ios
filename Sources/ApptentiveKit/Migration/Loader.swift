@@ -8,13 +8,13 @@
 
 import Foundation
 
-protocol Loader {
+protocol Loader: Sendable {
     init(context: LoaderContext)
 
     var rosterFileExists: Bool { get }
     func conversationFileExists(for record: ConversationRoster.Record) -> Bool
 
-    func loadRoster() throws -> ConversationRoster
+    func loadRoster(with tokenStore: SecureTokenStoring) throws -> ConversationRoster
     func loadConversation(for record: ConversationRoster.Record) throws -> Conversation
     func loadPayloads() throws -> [Payload]
     func loadMessages(for record: ConversationRoster.Record) throws -> MessageList?
@@ -23,7 +23,7 @@ protocol Loader {
     func cleanUp(for record: ConversationRoster.Record) throws
 }
 
-struct LoaderContext {
+struct LoaderContext: @unchecked Sendable {
     let containerURL: URL
     let cacheURL: URL
     let appCredentials: Apptentive.AppCredentials

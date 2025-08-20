@@ -8,7 +8,7 @@
 
 import Foundation
 
-class LegacyLoader: NSObject, Loader {
+final class LegacyLoader: NSObject, Loader {
     let context: LoaderContext
 
     required init(context: LoaderContext) {
@@ -23,7 +23,7 @@ class LegacyLoader: NSObject, Loader {
         return self.context.fileManager.fileExists(atPath: self.conversationFileURL(for: record).path)
     }
 
-    func loadRoster() throws -> ConversationRoster {
+    func loadRoster(with _: SecureTokenStoring) throws -> ConversationRoster {
         let data = try Data(contentsOf: self.metadataURL)
         guard let legacyConversationMetadata = try NSKeyedUnarchiver.unarchivedObject(ofClass: LegacyConversationMetadata.self, from: data) else {
             throw LoaderError.unreadableLegacyMetadata

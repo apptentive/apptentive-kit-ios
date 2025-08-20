@@ -36,7 +36,7 @@ func checkPayloadEquivalence(between bodyData: Data, and expectedJSON: String, c
 }
 
 func checkRequestHeading(for payload: Payload, decoder: JSONDecoder, expectedMethod: HTTPMethod, expectedPathSuffix: String) throws {
-    let credentials = PayloadAPICredentials(appCredentials: .init(key: "abc", signature: "123"), payloadCredentials: .header(id: "def", token: "456"))
+    let credentials = PayloadAPICredentials(appCredentials: .init(key: "abc", signature: "123"), payloadCredentials: .secure(id: "def"), conversationCredentials: .init(id: "def", token: "456"))
 
     let request = PayloadRequest(payload: payload, credentials: credentials, decoder: decoder)
     let headers = try request.headers(userAgent: "Apptentive/1.2.3 (Apple)", languageCode: "de")
@@ -88,7 +88,7 @@ func checkEncryptedPayloadEquivalence(between bodyData: Data, and expectedJSON: 
 }
 
 func checkEncryptedRequestHeading(for payload: Payload, decoder: JSONDecoder, expectedMethod: HTTPMethod, expectedPathSuffix: String) throws {
-    let credentials = PayloadAPICredentials(appCredentials: .init(key: "abc", signature: "123"), payloadCredentials: .embedded(id: "def"))
+    let credentials = PayloadAPICredentials(appCredentials: .init(key: "abc", signature: "123"), payloadCredentials: .embedded(id: "def"), conversationCredentials: nil)
     let request = PayloadRequest(payload: payload, credentials: credentials, decoder: decoder)
     let headers = try request.headers(userAgent: "Apptentive/1.2.3 (Apple)", languageCode: "de")
 
