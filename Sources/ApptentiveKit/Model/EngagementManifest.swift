@@ -12,21 +12,34 @@ import Foundation
 protocol Expiring {
     /// The date after which the object should be considered stale.
     var expiry: Date? { get set }
+
+    /// The date that this version of the object was downloaded.
+    var downloadTime: Date? { get set }
 }
 
 /// An object that represents the response to a request to the `interactions` endpoint of the Apptentive API.
 struct EngagementManifest: Expiring, Decodable {
 
     /// An array of `Interaction` objects.
-    let interactions: [Interaction]
+    var interactions: [Interaction]
 
     /// A dictionary whose keys are code points (see `Event`) and whose values are `Invocation` objects.
-    let targets: [String: [Invocation]]
+    var targets: [String: [Invocation]]
 
-    let prefetch: [URL]?
+    /// A list of resources to pre-fetch so that interactions can use them without a loading delay.
+    var prefetch: [URL]?
+
+    /// The server-side ID of the application.
+    var applicationID: String
 
     /// The date after which the engagement manifest should be considered stale.
     var expiry: Date?
+
+    /// The date when the engagement manifest was downloaded.
+    var downloadTime: Date?
+
+    /// Marker for placeholder manifest.
+    var isPlaceholder: Bool = false
 
     /// A structure combines an interaction identifier with criteria.
     struct Invocation: Decodable {
@@ -38,5 +51,10 @@ struct EngagementManifest: Expiring, Decodable {
             case interactionID = "interaction_id"
             case criteria
         }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case interactions, targets, prefetch
+        case applicationID = "application_id"
     }
 }

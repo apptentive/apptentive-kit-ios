@@ -157,29 +157,27 @@ class ApptentiveAPITests: XCTestCase {
     }
 
     func testParseExpiry() {
-        let response1 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["Cache-Control": "max-age = 86400"])!
+        let response1 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["Cache-Control": "max-age = 86400", "Date": "Thu, 29 Apr 1982 01:23:45 GMT"])!
 
-        guard let expiry1 = ApptentiveAPI.parseExpiry(response1) else {
+        guard let (expiry1, _) = ApptentiveAPI.parseExpiry(response1) else {
             return XCTFail("Unable to parse valid expiry")
         }
 
-        XCTAssertEqual(expiry1.timeIntervalSinceNow, Date(timeIntervalSinceNow: 86400).timeIntervalSinceNow, accuracy: 1.0)
+        XCTAssertEqual(expiry1.timeIntervalSince1970, 388_977_825, accuracy: 1.0)
 
-        let response2 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["Cache-control": "axmay-agehay: 86400"])!
+        let response2 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["Cache-control": "axmay-agehay: 86400", "Date": "Bat, 29 Npr 1982 01:23:45 GOT"])!
 
         let expiry2 = ApptentiveAPI.parseExpiry(response2)
 
         XCTAssertNil(expiry2)
 
-        XCTAssertEqual(expiry1.timeIntervalSinceNow, Date(timeIntervalSinceNow: 86400).timeIntervalSinceNow, accuracy: 1.0)
+        let response3 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["cAcHe-cOnTrOl": "max-age = 650", "dAtE": "sAt, 29 apR 1982 01:23:45 Gmt"])!
 
-        let response3 = HTTPURLResponse(url: URL(string: "https://api.apptentive.com/foo")!, statusCode: 200, httpVersion: "1.1", headerFields: ["cAcHe-cOnTrOl": "max-age = 650"])!
-
-        guard let expiry3 = ApptentiveAPI.parseExpiry(response3) else {
+        guard let (expiry3, _) = ApptentiveAPI.parseExpiry(response3) else {
             return XCTFail("Unable to parse valid expiry (with weird case)")
         }
 
-        XCTAssertEqual(expiry3.timeIntervalSinceNow, Date(timeIntervalSinceNow: 650).timeIntervalSinceNow, accuracy: 1.0)
+        XCTAssertEqual(expiry3.timeIntervalSince1970, 388_892_075, accuracy: 1.0)
     }
 
     func testCreateConversation() throws {
@@ -466,7 +464,7 @@ class ApptentiveAPITests: XCTestCase {
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
 
         let expectation = XCTestExpectation()
-        let _ = client.request(ApptentiveAPI.getInteractions(with: self.anonymousCredentials)) { (result: Result<ConversationResponse, Error>) in
+        let _ = client.request(ApptentiveAPI.getInteractions(with: self.anonymousCredentials, shouldIgnoreCache: false)) { (result: Result<ConversationResponse, Error>) in
             XCTAssertNotNil(requestor.request)
             XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
             XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/interactions"))
@@ -487,16 +485,17 @@ class ApptentiveAPITests: XCTestCase {
         self.wait(for: [expectation], timeout: 5)
     }
 
-    func testGetConfiguration() throws {
+    func testGetStatus() throws {
         let baseURL = URL(string: "http://example.com")!
-        let requestor = SpyRequestor(responseData: try JSONEncoder.apptentive.encode(ConversationResponse(token: "abc", id: "123", deviceID: "456", personID: "789", encryptionKey: nil)))
+        let requestor = SpyRequestor(
+            responseData: try JSONEncoder.apptentive.encode(Status(lastUpdate: .init(timeIntervalSince1970: 388_954_800), messageCenter: .init(foregroundPollingInterval: 30, backgroundPollingInterval: 300), hibernateUntil: nil, metricsEnabled: true)))
         let client = HTTPClient(requestor: requestor, baseURL: baseURL, userAgent: ApptentiveAPI.userAgent(sdkVersion: "1.2.3"), languageCode: "de")
 
         let expectation = XCTestExpectation()
-        let _ = client.request(ApptentiveAPI.getConfiguration(with: self.anonymousCredentials)) { (result: Result<ConversationResponse, Error>) in
+        let _ = client.request(ApptentiveAPI.getStatus(with: .init(appCredentials: anonymousCredentials.appCredentials, applicationID: "def"), shouldIgnoreCache: false)) { (result: Result<Status, Error>) in
             XCTAssertNotNil(requestor.request)
             XCTAssertEqual(requestor.request?.allHTTPHeaderFields?.isEmpty, false)
-            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("conversations/def/configuration"))
+            XCTAssertEqual(requestor.request?.url, baseURL.appendingPathComponent("apps/def/status"))
             XCTAssertEqual(requestor.request?.httpMethod, "GET")
 
             XCTAssertEqual(requestor.request?.allHTTPHeaderFields?["User-Agent"], "Apptentive/1.2.3 (Apple)")

@@ -37,11 +37,16 @@ extension Apptentive: UNUserNotificationCenterDelegate {
         }
 
         ApptentiveLogger.default.info("Apptentive push notification received with userInfo: \(userInfo).")
-        if let aps = userInfo["aps"] as? [String: Any], let contentAvailable = aps["content-available"] as? Bool, contentAvailable {
+
+        guard let aps = userInfo["aps"] as? [String: Any] else {
+            completionHandler(.newData)
+            return true
+        }
+
+        let contentAvailable = (aps["content-available"] as? NSNumber)?.boolValue ?? false
+
+        if contentAvailable {  // This is a background push
             self.fetchMessages { fetchResult in
-                // Post a user notification if no alert was displayed,
-                // either because this was a background push,
-                // or because the app is in the foreground.
                 if fetchResult == .newData && (aps["alert"] == nil || self.environment.isInForeground) {
                     self.postUserNotification(with: userInfo)
                 }
@@ -49,8 +54,8 @@ extension Apptentive: UNUserNotificationCenterDelegate {
                 // Always send .newData so Apple doesn't throttle us.
                 completionHandler(.newData)
             }
-        } else {
-            // Always send .newData so Apple doesn't throttle us.
+        } else {  // This is a push with a visible banner that the user tapped on.
+            self.presentMessageCenterIfNeeded(for: userInfo)
             completionHandler(.newData)
         }
 

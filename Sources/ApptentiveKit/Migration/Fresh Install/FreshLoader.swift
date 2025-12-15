@@ -26,8 +26,8 @@ struct FreshLoader: Loader {
     }
 
     func loadRoster(with _: SecureTokenStoring) throws -> ConversationRoster {
-        try self.createDirectoryIfNeeded(containerURL: self.context.containerURL, fileManager: self.context.fileManager)
-        try self.createDirectoryIfNeeded(containerURL: self.context.cacheURL, fileManager: self.context.fileManager)
+        try self.createDirectoryIfNeeded(containerURL: self.context.containerURL, fileManager: self.context.fileManager, assertNoExistingDirectory: false)
+        try self.createDirectoryIfNeeded(containerURL: self.context.cacheURL, fileManager: self.context.fileManager, assertNoExistingDirectory: false)
 
         return ConversationRoster(active: .init(state: .anonymousPending, path: newConversationPath), loggedOut: [])
     }
@@ -54,8 +54,9 @@ struct FreshLoader: Loader {
     /// - Parameters:
     ///   - containerURL: The URL at which the directory should reside.
     ///   - fileManager: The `FileManager` object used to create the directory.
+    ///   - assertNoExistingDirectory: Whether to trigger a fail assertion if a directory already exists with the proposed URL.
     /// - Throws: An error if the directory can't be created, or if an existing file is in the way of the directory.
-    private func createDirectoryIfNeeded(containerURL: URL, fileManager: FileManager) throws {
+    private func createDirectoryIfNeeded(containerURL: URL, fileManager: FileManager, assertNoExistingDirectory: Bool = true) throws {
         var isDirectory: ObjCBool = false
 
         if !fileManager.fileExists(atPath: containerURL.path, isDirectory: &isDirectory) {
@@ -64,6 +65,8 @@ struct FreshLoader: Loader {
             try fileManager.createDirectory(at: containerURL, withIntermediateDirectories: true, attributes: [:])
         } else if !isDirectory.boolValue {
             throw ApptentiveError.fileExistsAtContainerDirectoryPath
+        } else if assertNoExistingDirectory {
+            apptentiveCriticalError("Loading of existing conversation file at \(containerURL.path) may have failed.")
         }
     }
 }

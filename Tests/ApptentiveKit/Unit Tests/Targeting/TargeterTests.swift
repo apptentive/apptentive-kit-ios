@@ -20,6 +20,8 @@ final class TargeterTests: XCTestCase {
 
         let targeter = Targeter(engagementManifest: manifest)
 
+        XCTAssertEqual(targeter.engagementManifest.applicationID, "test")
+
         XCTAssertEqual(try targeter.interactionData(for: "event_4", state: targetingState)?.id, "570694f855d9f42ce5000005")
 
         XCTAssertNil(try targeter.interactionData(for: "nonexistent_event", state: targetingState))
@@ -30,6 +32,7 @@ final class TargeterTests: XCTestCase {
     func testNoManifest() throws {
         let targeter = Targeter(engagementManifest: EngagementManifest.placeholder)
 
+        XCTAssertEqual(targeter.engagementManifest.applicationID, "placeholder")
         XCTAssertNil(try targeter.interactionData(for: "event_4", state: targetingState)?.id)
     }
 

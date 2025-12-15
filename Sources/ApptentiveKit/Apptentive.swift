@@ -228,6 +228,35 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         }
     }
 
+    /// Adds an event to the list of events whose interactions should not be rate limited.
+    ///
+    /// Use this setting for events that engaged by your app that are intended to
+    /// always present the interaction, for example a button that launches a feature via this SDK.
+    /// The Message Center launch event is automatically included.
+    ///
+    /// The list of events is not persisted, so your app must set it on every launch.
+    /// - Parameter events: The event objects to exclude.
+    internal func excludeEventsFromThrottling(_ events: [Event]) {
+        self.backendQueue.async {
+            for event in events {
+                self.backend.rateLimitExemptCodePoints.insert(event.codePointName)
+            }
+        }
+    }
+
+    /// Sets the number of times an interaction may show per session before being throttled.
+    ///
+    /// The default value is once per session, defined as a cold launch of the app.
+    /// The interaction counts are also reset if a user logs out.
+    /// A negative or zero rate limit will prevent all interactions (from non-excluded events)
+    /// from presenting.
+    /// - Parameter count: The value of the interaction rate limit.
+    internal func setPerSessionInteractionLimit(_ count: Int) {
+        self.backendQueue.async {
+            self.backend.perSessionInteractionLimit = count
+        }
+    }
+
     /// Dimisses any currently-visible interactions.
     ///
     /// Note that it is not possible to programmatically dismiss the Apple Rating Dialog (`SKStoreReviewController`).
@@ -643,6 +672,7 @@ public enum ApptentiveError: Swift.Error, LocalizedError {
     case noActiveConversation
     case authenticationFailed(reason: AuthenticationFailureReason?, responseString: String?)
     case resourceNotDecodableAsImage
+    case interactionExceededRateLimit(count: Int, limit: Int)
 
     // swift-format-ignore
     public var errorDescription: String? {
@@ -691,6 +721,9 @@ public enum ApptentiveError: Swift.Error, LocalizedError {
 
         case .resourceNotDecodableAsImage:
             return "The resource was not decodable as an image."
+
+        case .interactionExceededRateLimit(count: let count, limit: let limit):
+            return "This interaction has already been presented \(count) times this session, exceeding the limit of \(limit)."
         }
     }
 }

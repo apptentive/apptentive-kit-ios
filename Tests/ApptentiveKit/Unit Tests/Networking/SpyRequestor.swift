@@ -18,6 +18,7 @@ class SpyRequestor: HTTPRequesting, FakeHTTPCancellableDelegate {
     var delay: TimeInterval = 0
     var error: HTTPClientError?
     var cancellable: FakeHTTPCancellable?
+    var maxAge: Int = 0
 
     init(responseData: Data) {
         self.responseData = responseData
@@ -42,7 +43,12 @@ class SpyRequestor: HTTPRequesting, FakeHTTPCancellableDelegate {
                 completion(self.responseData, response, nil)
 
             case .none:
-                let response = HTTPURLResponse(url: request.url!, statusCode: 201, httpVersion: "1.1", headerFields: [:])
+                var headerFields = [String: String]()
+                if self.maxAge > 0 {
+                    headerFields["Cache-Control"] = "max-age=\(self.maxAge)"
+                }
+
+                let response = HTTPURLResponse(url: request.url!, statusCode: 201, httpVersion: "1.1", headerFields: headerFields)
                 completion(self.responseData, response, nil)
 
             default:
@@ -86,6 +92,9 @@ class SpyRequestor: HTTPRequesting, FakeHTTPCancellableDelegate {
 
     func didCancel(_ cancellable: FakeHTTPCancellable) {
         self.error = .connectionError(URLError(.cancelled))
+    }
+
+    func clearCache(for request: URLRequest) {
     }
 }
 

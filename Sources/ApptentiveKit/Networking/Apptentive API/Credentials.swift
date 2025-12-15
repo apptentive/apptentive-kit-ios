@@ -161,6 +161,19 @@ struct PayloadAPICredentials: APICredentialsProviding {
     }
 }
 
+struct StatusCredentials: APICredentialsProviding {
+    let appCredentials: Apptentive.AppCredentials
+    let applicationID: String
+
+    var headers: [String: String] {
+        return appCredentials.headers
+    }
+
+    func transformPath(_ path: String) -> String {
+        return "apps/\(applicationID)/\(path)"
+    }
+}
+
 /// Represents the conversation credentials stored with a payload, which don't include the app credentials.
 enum PayloadStoredCredentials: Codable, Equatable {
     case placeholder

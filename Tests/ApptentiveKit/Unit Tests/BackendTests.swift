@@ -24,11 +24,29 @@ class BackendTests: XCTestCase {
 
         var resourceManager: ApptentiveKit.ResourceManager = ResourceManager(fileManager: MockFileManager(), requestor: SpyRequestor(responseData: Data()))
         let environment: ApptentiveKit.GlobalEnvironment = MockEnvironment()
-        let interactionPresenter = InteractionPresenter()
+        let spyInteractionPresenter = {
+            let presenter = SpyInteractionPresenter()
+            presenter.delegate = SpyInteractionDelegate()
+
+            return presenter
+        }()
+        var interactionPresenter: InteractionPresenter {
+            return self.spyInteractionPresenter
+        }
         var authError: Error?
 
         func authenticationDidFail(with error: Swift.Error) {
             self.authError = error
+        }
+    }
+
+    class SpyInteractionPresenter: InteractionPresenter {
+        var numberOfPresentations = 0
+
+        override func presentTextModal(with viewModel: DialogViewModel, completion: @escaping (Result<Void, any Error>) -> Void) {
+            self.numberOfPresentations += 1
+
+            completion(.success(()))
         }
     }
 
@@ -80,12 +98,82 @@ class BackendTests: XCTestCase {
             }
         }
 
+        var manifest = EngagementManifest.placeholder
+
+        manifest.targets[Event("test_event").codePointName] = [.init(interactionID: "message_center_fallback", criteria: ImplicitAndClause(subClauses: []))]
+
+        self.backend.setLocalEngagementManifest(manifest)
+
         self.wait(for: [expectation], timeout: 5)
     }
 
     override func tearDownWithError() throws {
         self.containerURL.flatMap { try? FileManager.default.removeItem(at: $0) }
     }
+
+    func testEngage() throws {
+        let expectation = self.expectation(description: "Engage Done")
+
+        self.backend.engage(event: .showMessageCenterFallback) { _ in
+            XCTAssertEqual(self.backendDelegate.spyInteractionPresenter.numberOfPresentations, 1)
+
+            self.backend.engage(event: .showMessageCenterFallback) { _ in
+                XCTAssertEqual(self.backendDelegate.spyInteractionPresenter.numberOfPresentations, 2)  // Message center fallback should not throttle
+
+                expectation.fulfill()
+            }
+        }
+
+        self.wait(for: [expectation], timeout: 5)
+    }
+
+//    func testEngageThrottled() throws {
+//        let expectation = self.expectation(description: "Engage Done")
+//
+//        self.backend.engage(event: "test_event") { _ in
+//
+//            XCTAssertEqual(self.backendDelegate.spyInteractionPresenter.numberOfPresentations, 1)
+//
+//            self.backend.engage(event: "test_event") { result in
+//                if case .success = result {
+//                    XCTFail("Should return throttling error result")
+//                }
+//
+//                XCTAssertEqual(self.backendDelegate.spyInteractionPresenter.numberOfPresentations, 1)
+//
+//                expectation.fulfill()
+//            }
+//        }
+//
+//        self.wait(for: [expectation], timeout: 5)
+//    }
+//
+//    func testEngageThrottledWithLimitOf2() throws {
+//        let expectation = self.expectation(description: "Engage Done")
+//        self.backend.perSessionInteractionLimit = 2
+//
+//        self.backend.engage(event: "test_event") { _ in
+//
+//            XCTAssertEqual(self.backendDelegate.spyInteractionPresenter.numberOfPresentations, 1)
+//
+//            self.backend.engage(event: "test_event") { _ in
+//
+//                XCTAssertEqual(self.backendDelegate.spyInteractionPresenter.numberOfPresentations, 2)
+//
+//                self.backend.engage(event: "test_event") { result in
+//                    if case .success = result {
+//                        XCTFail("Should return throttling error result")
+//                    }
+//
+//                    XCTAssertEqual(self.backendDelegate.spyInteractionPresenter.numberOfPresentations, 2)
+//
+//                    expectation.fulfill()
+//                }
+//            }
+//        }
+//
+//        self.wait(for: [expectation], timeout: 5)
+//    }
 
     //    func testPersonChange() {
     //        let expectation = XCTestExpectation(description: "Person data sent")

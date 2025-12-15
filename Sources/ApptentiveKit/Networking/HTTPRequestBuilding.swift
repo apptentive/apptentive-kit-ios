@@ -11,6 +11,7 @@ import Foundation
 /// Includes the methods and variables needed to describe an API endpoint.
 protocol HTTPRequestBuilding {
     var method: HTTPMethod { get }
+    var shouldIgnoreCache: Bool { get }
 
     func headers(userAgent: String?, languageCode: String?) throws -> [String: String]
     func url(relativeTo baseURL: URL) throws -> URL
@@ -28,6 +29,10 @@ extension HTTPRequestBuilding {
         request.httpMethod = self.method.rawValue
         request.allHTTPHeaderFields = try self.headers(userAgent: userAgent, languageCode: languageCode)
         request.httpBody = try self.body()
+
+        if shouldIgnoreCache {
+            request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        }
 
         return request
     }

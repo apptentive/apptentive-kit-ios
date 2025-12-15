@@ -9,7 +9,7 @@
 import UIKit
 
 typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesting & URLOpening & InvocationInvoking & ResponseRecording & MessageSending & MessageProviding & AttachmentManaging & ProfileEditing
-    & UnreadMessageUpdating & SurveyBranching & ResourceProviding
+    & UnreadMessageUpdating & SurveyBranching & ResourceProviding & EnjoymentRecording
 
 /// Describes an object that can manage attachments to a draft message and load attachments from an arbitrary message.
 protocol AttachmentManaging: AnyObject {
@@ -109,4 +109,9 @@ protocol ResponseRecording: AnyObject {
 /// Describes an object that can provide the data downloaded from a URL (typically with pre-fetch).
 protocol ResourceProviding: AnyObject {
     func getImage(at url: URL, scale: CGFloat, completion: @escaping (Result<UIImage, Error>) -> Void)
+}
+
+/// Describes an object that can record positive or negative sentiment regarding the app.
+protocol EnjoymentRecording: AnyObject {
+    func recordEnjoyment(_ didLove: Bool, from interaction: Interaction)
 }
