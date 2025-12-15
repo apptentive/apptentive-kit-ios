@@ -8,7 +8,7 @@
 
 import UIKit
 
-typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & ResponseRecording & ResourceProviding
+typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & ResponseRecording & ResourceProviding & EnjoymentRecording
 
 /// Describes the updates to the UI triggered from the view model.
 public protocol DialogViewModelDelegate: AnyObject {
@@ -124,12 +124,12 @@ public class DialogViewModel {
             DialogViewModel.Action(
                 label: configuration.noText, actionType: .no,
                 buttonTapped: {
-                    interactionDelegate.engage(event: .no(from: interaction))
+                    interactionDelegate.recordEnjoyment(false, from: interaction)
                 }),
             DialogViewModel.Action(
                 label: configuration.yesText, actionType: .yes,
                 buttonTapped: {
-                    interactionDelegate.engage(event: .yes(from: interaction))
+                    interactionDelegate.recordEnjoyment(true, from: interaction)
                 }),
         ]
     }

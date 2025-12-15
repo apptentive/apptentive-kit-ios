@@ -11,13 +11,9 @@ import UIKit
 @testable import ApptentiveKit
 
 class SpyInteractionDelegate: InteractionDelegate {
-
     var messageCenterInForeground: Bool = false
-
     var personEmailAddress: String?
-
     var personName: String?
-
     var engagedEvent: Event?
     var sentSurveyResponse: SurveyResponse?
     var shouldRequestReviewSucceed = true
@@ -33,6 +29,7 @@ class SpyInteractionDelegate: InteractionDelegate {
     var matchingInvocationIndex: Int = 0
     var matchingAdvanceLogicIndex: Int = 0
     var prefetchedImage: UIImage?
+    var recordedEnjoyment: Bool?
 
     func engage(event: Event) {
         self.engagedEvent = event
@@ -210,5 +207,9 @@ class SpyInteractionDelegate: InteractionDelegate {
                 completion(.failure(ApptentiveError.resourceNotDecodableAsImage))
             }
         }
+    }
+
+    func recordEnjoyment(_ didLove: Bool, from interaction: ApptentiveKit.Interaction) {
+        self.recordedEnjoyment = didLove
     }
 }

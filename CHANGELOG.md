@@ -1,3 +1,10 @@
+# 2025-12-15 - 6.10.0
+
+### Improvements
+
+* A new status endpoint has been introduced to track updates to interactions and targeting. The SDK checks this endpoint frequently, ensuring interactions are updated promptly without waiting for cache expiration. 
+* The ability of alert-style push notifications to open Message Center has been streamlined. 
+
 # 2025-08-20 - 6.9.2
 
 #### New Features

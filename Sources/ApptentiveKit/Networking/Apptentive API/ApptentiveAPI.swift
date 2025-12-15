@@ -45,9 +45,19 @@ extension JSONEncoder {
     }()
 }
 
+extension DateFormatter {
+    static let apptentive: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss zzz"
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.timeZone = TimeZone(abbreviation: "GMT")
+
+        return dateFormatter
+    }()
+}
+
 /// Configures a URL request corresponding to an endpoint on the Apptentive API.
 struct ApptentiveAPI: HTTPRequestBuilding {
-
     /// The HTTP method for this endpoint.
     let method: HTTPMethod
 
@@ -62,6 +72,8 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     private let bodyParts: [HTTPBodyPart]
 
     private let queryItems: [URLQueryItem]?
+
+    let shouldIgnoreCache: Bool
 
     let boundaryString: String
 
@@ -98,10 +110,12 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     }
 
     /// Builds a request to retrieve an engagement manifest from the server.
-    /// - Parameter credentials: The conversation for which to retrieve the manifest.
+    /// - Parameters:
+    ///   - credentials: The conversation for which to retrieve the manifest.
+    ///   - shouldIgnoreCache: Whether to bypass the system URL cache when loading.
     /// - Returns: A struct describing the HTTP request to be performed.
-    static func getInteractions(with credentials: AnonymousAPICredentials) -> Self {
-        return Self(credentials: credentials, path: "interactions", method: .get)
+    static func getInteractions(with credentials: AnonymousAPICredentials, shouldIgnoreCache: Bool) -> Self {
+        return Self(credentials: credentials, path: "interactions", method: .get, shouldIgnoreCache: shouldIgnoreCache)
     }
 
     /// Builds a request to retrieve a message list from the server.
@@ -126,10 +140,12 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     }
 
     /// Builds a request to retrieve a message list from the server.
-    /// - Parameter credentials: The conversation for which to retrieve the message list.
+    /// - Parameters:
+    ///   - credentials: The conversation for which to retrieve the message list.
+    ///   - shouldIgnoreCache: Whether to bypass the system URL cache when loading.
     /// - Returns: A struct describing the HTTP request to be performed.
-    static func getConfiguration(with credentials: AnonymousAPICredentials) -> Self {
-        return Self(credentials: credentials, path: "configuration", method: .get)
+    static func getStatus(with credentials: StatusCredentials, shouldIgnoreCache: Bool) -> Self {
+        return Self(credentials: credentials, path: "status", method: .get, shouldIgnoreCache: shouldIgnoreCache)
     }
 
     // MARK: - HTTPEndpoint
@@ -201,7 +217,10 @@ struct ApptentiveAPI: HTTPRequestBuilding {
 
         // If the response object conforms to `Expiring`, set its `expiry` property.
         if var expiring = responseObject as? Expiring {
-            expiring.expiry = Self.parseExpiry(response.response)
+            if let (expiry, downloadTime) = Self.parseExpiry(response.response) {
+                expiring.expiry = expiry
+                expiring.downloadTime = downloadTime
+            }
 
             // swift-format-ignore
             return expiring as! T
@@ -217,14 +236,15 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     ///   - queryItems: A list of key-value pairs to include in the query portion of the request URL.
     ///   - method: The HTTP method for the request.
     ///   - bodyObject: The object that should be encoded for the HTTP body of the request.
-    init(credentials: APICredentialsProviding, path: String, queryItems: [URLQueryItem]? = nil, method: HTTPMethod, bodyObject: HTTPBodyPart? = nil) {
+    ///   - shouldIgnoreCache: Whether to bypass the system URL cache when loading.
+    init(credentials: APICredentialsProviding, path: String, queryItems: [URLQueryItem]? = nil, method: HTTPMethod, bodyObject: HTTPBodyPart? = nil, shouldIgnoreCache: Bool = false) {
         var bodyParts = [HTTPBodyPart]()
 
         if let bodyObject = bodyObject {
             bodyParts.append(bodyObject)
         }
 
-        self.init(credentials: credentials, path: path, queryItems: queryItems, method: method, bodyParts: bodyParts)
+        self.init(credentials: credentials, path: path, queryItems: queryItems, method: method, bodyParts: bodyParts, shouldIgnoreCache: shouldIgnoreCache)
     }
 
     /// Initializes a new request for the endpoint.
@@ -234,12 +254,14 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     ///   - queryItems: A list of key-value pairs to include in the query portion of the request URL.
     ///   - method: The HTTP method for the request.
     ///   - bodyParts: An array of content to use as part of the request body (an empty array indicates no request body).
-    init(credentials: APICredentialsProviding, path: String, queryItems: [URLQueryItem]? = nil, method: HTTPMethod, bodyParts: [HTTPBodyPart]) {
+    ///   - shouldIgnoreCache: Whether to bypass the system URL cache when loading.
+    init(credentials: APICredentialsProviding, path: String, queryItems: [URLQueryItem]? = nil, method: HTTPMethod, bodyParts: [HTTPBodyPart], shouldIgnoreCache: Bool = false) {
         self.credentials = credentials
         self.path = path
         self.queryItems = queryItems
         self.method = method
         self.bodyParts = bodyParts
+        self.shouldIgnoreCache = shouldIgnoreCache
 
         self.boundaryString = Self.createRandomString()
     }
@@ -336,13 +358,19 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     /// Parses the date after which the resource should be considered stale.
     /// - Parameter response: The HTTP response whose headers shoud be parsed.
     /// - Returns: A date after which the resource should be considered stale, or nil if the header was missing or could not be parsed.
-    static func parseExpiry(_ response: HTTPURLResponse) -> Date? {
-        if let cacheControlHeader = response.allHeaderFields["Cache-Control"] as? String {
-            let scanner = Scanner(string: cacheControlHeader.lowercased())
+    static func parseExpiry(_ response: HTTPURLResponse) -> (Date, Date)? {
+        if let cacheControlHeaderValue = response.allHeaderFields["Cache-Control"] as? String,
+            let dateHeaderValue = response.allHeaderFields["Date"] as? String
+        {
+            guard let serverDate = DateFormatter.apptentive.date(from: dateHeaderValue) else {
+                return nil
+            }
+
+            let scanner = Scanner(string: cacheControlHeaderValue.lowercased())
             var maxAge: Int = 0
             if (scanner.scanString("max-age") != nil) && (scanner.scanString("=") != nil) && scanner.scanInt(&maxAge) {
-                maxAge = max(maxAge, 600)  // API has a bug where it sends a max-age of zero sometimes.
-                return Date(timeIntervalSinceNow: Double(maxAge))
+                maxAge = max(maxAge, 300)  // API has a bug where it sends a max-age of zero sometimes.
+                return (Date(timeInterval: Double(maxAge), since: serverDate), serverDate)
             }
         }
         return nil

@@ -12,7 +12,7 @@ import XCTest
 
 class EnjoymentDialogViewModelTests: XCTestCase {
     var viewModel: DialogViewModel?
-    var spySender: SpyInteractionDelegate?
+    var spyInteractionDelegate: SpyInteractionDelegate?
 
     var gotDidSubmit: Bool = false
     var gotValidationDidChange: Bool = false
@@ -25,8 +25,8 @@ class EnjoymentDialogViewModelTests: XCTestCase {
             return XCTFail("Unable to create view model")
         }
 
-        self.spySender = SpyInteractionDelegate()
-        self.viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender!)
+        self.spyInteractionDelegate = SpyInteractionDelegate()
+        self.viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate!)
     }
 
     func testEnjoymentDialog() {
@@ -46,12 +46,12 @@ class EnjoymentDialogViewModelTests: XCTestCase {
     func testYesButton() {
         viewModel?.buttonSelected(at: 1)
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#yes")
+        XCTAssertEqual(self.spyInteractionDelegate?.recordedEnjoyment, true)
     }
 
     func testNoButton() {
         viewModel?.buttonSelected(at: 0)
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, "com.apptentive#EnjoymentDialog#no")
+        XCTAssertEqual(self.spyInteractionDelegate?.recordedEnjoyment, false)
     }
 }

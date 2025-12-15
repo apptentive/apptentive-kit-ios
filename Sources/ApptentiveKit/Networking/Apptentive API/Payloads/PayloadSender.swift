@@ -260,6 +260,7 @@ struct PayloadRequest: HTTPRequestBuilding {
     let payload: Payload
     let credentials: APICredentialsProviding
     let decoder: JSONDecoder
+    let shouldIgnoreCache = true
 
     init(payload: Payload, credentials: APICredentialsProviding, decoder: JSONDecoder) {
         self.payload = payload

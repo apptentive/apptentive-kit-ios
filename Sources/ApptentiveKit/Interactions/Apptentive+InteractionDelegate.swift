@@ -201,4 +201,18 @@ extension Apptentive {
             }
         }
     }
+
+    // MARK: EnjoymentRecording
+
+    func recordEnjoyment(_ didLove: Bool, from interaction: Interaction) {
+        if didLove {
+            self.engage(event: .yes(from: interaction))
+        } else {
+            self.engage(event: .no(from: interaction))
+        }
+
+        self.backendQueue.async {
+            self.backend.invalidateEngagementManifest(after: Date.init(timeIntervalSinceNow: 3600))
+        }
+    }
 }

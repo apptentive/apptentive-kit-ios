@@ -105,6 +105,12 @@ class Backend: PayloadAuthenticationDelegate {
     /// The object implementing `HTTPRequesting` that should be used for HTTP requests.
     let requestor: HTTPRequesting
 
+    /// The number of times an interaction can be shown per session (cold launch) before the safeguard activates.
+    var perSessionInteractionLimit = 1
+
+    /// A set of code points (full event names) that are exempt from the interaction rate limit safeguard.
+    var rateLimitExemptCodePoints = Set<String>()
+
     /// Initializes a new backend instance.
     /// - Parameters:
     ///   - queue: The dispatch queue on which the backend instance should run.
@@ -161,6 +167,9 @@ class Backend: PayloadAuthenticationDelegate {
 
         self.payloadSender.authenticationDelegate = self
         self.jsonEncoder.dateEncodingStrategy = .secondsSince1970
+
+        self.rateLimitExemptCodePoints.insert(Event.showMessageCenter.codePointName)
+        self.rateLimitExemptCodePoints.insert(Event.showMessageCenterFallback.codePointName)
     }
 
     deinit {
@@ -216,8 +225,8 @@ class Backend: PayloadAuthenticationDelegate {
         }
     }
 
-    func invalidateEngagementManifest() {
-        self.targeter.engagementManifest.expiry = .distantPast
+    func invalidateEngagementManifest(after invalidationDate: Date? = nil) {
+        self.conversation?.interactionsInvalidation = invalidationDate ?? .distantPast
     }
 
     // MARK: Payload Authentication Delegate
@@ -308,6 +317,7 @@ class Backend: PayloadAuthenticationDelegate {
 
         do {
             if let conversation = self.conversation, let interaction = try self.targeter.interactionData(for: event, state: conversation) {
+                try self.maybeThrottleInteraction(interaction, for: event)
                 try self.presentInteraction(interaction, completion: completion)
             } else {
                 completion?(.success(false))
@@ -675,11 +685,15 @@ class Backend: PayloadAuthenticationDelegate {
 
     private var fileManager: FileManager
 
-    private var configuration: Configuration? {
+    private var status: Status? {
         didSet {
-            if let configuration = self.configuration {
-                self.messageManager.foregroundPollingInterval = configuration.messageCenter.foregroundPollingInterval
-                self.messageManager.backgroundPollingInterval = configuration.messageCenter.backgroundPollingInterval
+            if let status = self.status {
+                self.messageManager.foregroundPollingInterval = status.messageCenter.foregroundPollingInterval
+                self.messageManager.backgroundPollingInterval = status.messageCenter.backgroundPollingInterval
+
+                if status.lastUpdate > self.targeter.engagementManifest.downloadTime ?? .distantPast {
+                    self.invalidateEngagementManifest()
+                }
             }
         }
     }
@@ -705,6 +719,8 @@ class Backend: PayloadAuthenticationDelegate {
     private var registerCompletion: ((Result<ConnectionType, Error>) -> Void)?
 
     private var messageFetchCompletion: ((UIBackgroundFetchResult) -> Void)?
+
+    private var interactionRateLimitCounts = [String: Int]()
 
     private func handleTransition(_ transition: (from: BackendState.Summary, to: BackendState.Summary)) {
         ApptentiveLogger.default.debug("Backend state transition \(String(describing: transition))")
@@ -765,6 +781,7 @@ class Backend: PayloadAuthenticationDelegate {
                 self.clearFrontendVariables()
                 self.registerCompletion?(.success(.cached))
                 self.registerCompletion = nil
+                self.interactionRateLimitCounts.removeAll()
 
             case (from: .anonymous, to: .loggedIn(let payloadCredentials, let encryptionContext)):
                 guard let activeRecord = self.state.roster.active else {
@@ -794,10 +811,13 @@ class Backend: PayloadAuthenticationDelegate {
 
             case (from: .loggedIn, to: .loggedOut):
                 self.suspendHousekeepingTimer()
+                self.invalidateEngagementManifest()
+                self.targeter.engagementManifest = .placeholder
+                try self.saveConversation()
                 self.conversation = nil
                 self.clearFrontendVariables()
                 try self.messageManager.deleteCachedMessages()
-                self.invalidateEngagementManifest()
+                self.interactionRateLimitCounts.removeAll()
 
             case (from: .loggedIn, to: .loggedIn(let payloadCredentials, let encryptionContext)):  // Conversation credentials were updated.
                 guard let activeRecord = self.state.roster.active else {
@@ -1009,6 +1029,19 @@ class Backend: PayloadAuthenticationDelegate {
         }
     }
 
+    private func maybeThrottleInteraction(_ interaction: Interaction, for event: Event) throws {
+        let interactionSessionCount = self.interactionRateLimitCounts[interaction.id] ?? 0
+        //        let interactionIsRateLimited = interactionSessionCount >= self.perSessionInteractionLimit
+        //        let eventIsExempt = self.rateLimitExemptCodePoints.contains(event.codePointName)
+
+        // Disabling this feature for the time being.
+        //        if interactionIsRateLimited && !eventIsExempt && !interaction.isExemptFromRateLimit {
+        //            throw ApptentiveError.interactionExceededRateLimit(count: interactionSessionCount, limit: self.perSessionInteractionLimit)
+        //        }
+
+        self.interactionRateLimitCounts[interaction.id] = interactionSessionCount + 1
+    }
+
     // MARK: API syncing
 
     /// If registered, sends updates to person, device, and app release if they have changed since the last sync.
@@ -1032,7 +1065,11 @@ class Backend: PayloadAuthenticationDelegate {
 
         self.getInteractionsIfNeeded(with: credentials)
 
-        self.getConfigurationIfNeeded(with: credentials)
+        if let applicationID = conversation.applicationID {
+            self.getStatusIfNeeded(with: StatusCredentials(appCredentials: credentials.appCredentials, applicationID: applicationID))
+        } else {
+            ApptentiveLogger.default.info("Skipping status check due to missing application ID.")
+        }
 
         self.getMessagesIfNeeded(with: credentials)
 
@@ -1216,17 +1253,48 @@ class Backend: PayloadAuthenticationDelegate {
 
     /// Retrieves an engagement manifest from the Apptentive API if the current one is missing or expired.
     private func getInteractionsIfNeeded(with credentials: AnonymousAPICredentials) {
-        // Check that the engagement manifest in memory (if any) is expired.
-        if (self.targeter.engagementManifest.expiry ?? Date.distantPast) < Date() {
-            ApptentiveLogger.default.info("Requesting new engagement manifest via Apptentive API (current one is absent or stale).")
+        // Whether what's in the cache is no longer valid (due to fan signals or customer updates)
+        let cacheInvalidated = (self.conversation?.interactionsInvalidation ?? .distantFuture) < Date()
 
-            self.requestRetrier.startUnlessUnderway(ApptentiveAPI.getInteractions(with: credentials), identifier: "get interactions") { (result: Result<EngagementManifest, Error>) in
+        // Whether what's in the cache is old enough to refresh just in case
+        let cacheExpired = (self.targeter.engagementManifest.expiry ?? .distantFuture) < Date()
+
+        // Check if the engagement manifest has not yet been loaded or has expired.
+        if self.targeter.engagementManifest.isPlaceholder || cacheExpired || cacheInvalidated {
+            ApptentiveLogger.default.info("Requesting engagement manifest via Apptentive API/URL cache (current one is absent or stale).")
+
+            let request = ApptentiveAPI.getInteractions(with: credentials, shouldIgnoreCache: cacheExpired || cacheInvalidated)
+
+            self.requestRetrier.startUnlessUnderway(request, identifier: "get interactions") { (result: Result<EngagementManifest, Error>) in
                 switch result {
                 case .success(let engagementManifest):
-                    ApptentiveLogger.default.debug("New engagement manifest received.")
-
                     self.targeter.engagementManifest = engagementManifest
                     self.delegate?.resourceManager.prefetchResources(at: engagementManifest.prefetch ?? [])
+
+                    if self.conversation?.applicationID == nil {
+                        self.conversation?.applicationID = engagementManifest.applicationID
+                    } else if self.conversation?.applicationID != engagementManifest.applicationID {
+                        apptentiveCriticalError("Manifest app ID does not match conversation app ID!")
+                        self.state.fatalError = true
+                    }
+
+                    // Clear out the invalidation time from the conversation if this download happened after that time.
+                    if let invalidationTime = self.conversation?.interactionsInvalidation,
+                        let downloadTime = engagementManifest.downloadTime,
+                        downloadTime > invalidationTime
+                    {
+                        self.conversation?.interactionsInvalidation = nil
+                    }
+
+                    let source: String = {
+                        if let downloadTime = engagementManifest.downloadTime {
+                            return Date().timeIntervalSince(downloadTime) > 10 ? "URL cache" : "API"
+                        } else {
+                            return "<unknown>"
+                        }
+                    }()
+
+                    ApptentiveLogger.default.debug("Engagement manifest received from \(source). New expiry is \(engagementManifest.expiry)")
 
                 case .failure(let error):
                     ApptentiveLogger.network.error("Failed to download engagement manifest: \(error).")
@@ -1235,21 +1303,33 @@ class Backend: PayloadAuthenticationDelegate {
         }
     }
 
-    /// Retrieves a Configuration object from the Apptentive API if the current one is missing or expired.
-    private func getConfigurationIfNeeded(with credentials: AnonymousAPICredentials) {
-        // Check that the configuration in memory (if any) is expired.
-        if (self.configuration?.expiry ?? Date.distantPast) < Date() {
-            ApptentiveLogger.default.info("Requesting new app configuration via Apptentive API (current one is absent or stale).")
+    /// Retrieves a Status object from the Apptentive API if the current one is missing or expired.
+    private func getStatusIfNeeded(with credentials: StatusCredentials) {
+        let statusExpired = self.status?.expiry ?? .distantFuture < Date()
 
-            self.requestRetrier.startUnlessUnderway(ApptentiveAPI.getConfiguration(with: credentials), identifier: "get configuration") { (result: Result<Configuration, Error>) in
+        // Check if the application status is missing or has expired.
+        if self.status == nil || statusExpired {
+            ApptentiveLogger.default.info("Requesting new application status via Apptentive API/URL cache (current one is absent or stale).")
+
+            let request = ApptentiveAPI.getStatus(with: credentials, shouldIgnoreCache: statusExpired)
+
+            self.requestRetrier.startUnlessUnderway(request, identifier: "get status") { (result: Result<Status, Error>) in
                 switch result {
-                case .success(let configuration):
-                    ApptentiveLogger.default.debug("New app configuration received.")
+                case .success(let status):
+                    self.status = status
 
-                    self.configuration = configuration
+                    let source: String = {
+                        if let downloadTime = status.downloadTime {
+                            return Date().timeIntervalSince(downloadTime) > 10 ? "URL cache" : "API"
+                        } else {
+                            return "<unknown>"
+                        }
+                    }()
+
+                    ApptentiveLogger.default.debug("App status received from \(source). New expiry is \(status.expiry)")
 
                 case .failure(let error):
-                    ApptentiveLogger.network.error("Failed to download app configuration: \(error).")
+                    ApptentiveLogger.network.error("Failed to download app status: \(error).")
                 }
             }
         }
@@ -1268,4 +1348,13 @@ class Backend: PayloadAuthenticationDelegate {
 
         return configuration
     }()
+}
+
+extension Interaction {
+    var isExemptFromRateLimit: Bool {
+        return switch self.configuration {
+        case .initiator: true
+        default: false
+        }
+    }
 }
