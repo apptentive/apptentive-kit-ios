@@ -6,36 +6,35 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Testing
 
 @testable import ApptentiveKit
 
-class FieldTests: XCTestCase {
-    func testRootField() {
+struct FieldTests {
+    @Test func testRootField() {
         let field: Field = "application/cf_bundle_short_version_string"
 
-        XCTAssertEqual(field.fullPath, "application/cf_bundle_short_version_string")
-        XCTAssertEqual(field.keys.first, "application")
-        XCTAssertEqual(field.position, 0)
-        XCTAssertEqual(field.parentKeys, [])
+        #expect(field.fullPath == "application/cf_bundle_short_version_string")
+        #expect(field.keys.first == "application")
+        #expect(field.position == 0)
+        #expect(field.parentKeys == [])
     }
 
-    func testChildField() throws {
+    @Test func testChildField() throws {
         let field: Field = "application/cf_bundle_short_version_string/foo"
 
         let childField = try field.nextComponent()
 
-        XCTAssertEqual(childField.fullPath, "application/cf_bundle_short_version_string/foo")
-        XCTAssertEqual(childField.keys.first, "cf_bundle_short_version_string")
-        XCTAssertEqual(childField.position, 1)
-        XCTAssertEqual(childField.parentKeys, ["application"])
+        #expect(childField.fullPath == "application/cf_bundle_short_version_string/foo")
+        #expect(childField.keys.first == "cf_bundle_short_version_string")
+        #expect(childField.position == 1)
+        #expect(childField.parentKeys == ["application"])
 
         let grandchildField = try childField.nextComponent()
 
-        XCTAssertEqual(grandchildField.fullPath, "application/cf_bundle_short_version_string/foo")
-        XCTAssertEqual(grandchildField.keys.first, "foo")
-        XCTAssertEqual(grandchildField.position, 2)
-        XCTAssertEqual(grandchildField.parentKeys, ["cf_bundle_short_version_string", "application"])
-
+        #expect(grandchildField.fullPath == "application/cf_bundle_short_version_string/foo")
+        #expect(grandchildField.keys.first == "foo")
+        #expect(grandchildField.position == 2)
+        #expect(grandchildField.parentKeys == ["cf_bundle_short_version_string", "application"])
     }
 }

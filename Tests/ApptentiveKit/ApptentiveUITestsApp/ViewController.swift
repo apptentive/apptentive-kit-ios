@@ -19,7 +19,9 @@ class ViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.loadInteractions()
+        Task {
+            try await self.loadInteractions()
+        }
         //TODO: Set header here in order to test it.
         //UIImage.apptentiveHeaderLogo = UIImage(named: "exampleLogo")
     }
@@ -43,22 +45,22 @@ class ViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        Apptentive.shared.presentInteraction(with: self.interactions[indexPath.row].id) { _ in }
+        Task {
+            try await Apptentive.shared.presentInteraction(with: self.interactions[indexPath.row].id)
+        }
 
         self.tableView.deselectRow(at: indexPath, animated: true)
     }
 
-    private func loadInteractions() {
+    private func loadInteractions() async throws {
         guard let manifestURL = Bundle.main.url(forResource: "Manifest", withExtension: "json") else {
             return assertionFailure("Can't find bundled interactions")
         }
 
-        Apptentive.shared.loadEngagementManifest(at: manifestURL) { _ in
-            Apptentive.shared.getInteractionList({ interactions in
-                self.interactions = interactions
+        try await Apptentive.shared.loadEngagementManifest(at: manifestURL)
 
-                self.tableView.reloadData()
-            })
-        }
+        self.interactions = await Apptentive.shared.getInteractionList()
+
+        self.tableView.reloadData()
     }
 }

@@ -23,9 +23,9 @@ struct EngagementMetrics: Equatable, Codable {
     ///
     /// If no engagement metric exists for the specified key, one will be created.
     /// - Parameter key: The key corresponding to the engagement metric to be invoked.
-    mutating func invoke(for key: String) {
+    mutating func increment(for key: String) {
         var metric = metrics[key] ?? EngagementMetric()
-        metric.invoke()
+        metric.increment()
         self.metrics[key] = metric
     }
 

@@ -36,6 +36,7 @@ class SurveyBackgroundView: UIView {
         self.textView.dataDetectorTypes = .all
         self.textView.accessibilityIdentifier = "IntroDisclaimerTextView"
         self.textView.isAccessibilityElement = true
+        self.textView.adjustsFontForContentSizeCategory = true
 
         self.landscapeConstraints = [
             self.textView.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),

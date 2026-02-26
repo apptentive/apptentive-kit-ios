@@ -9,6 +9,8 @@
 import UIKit
 
 class SurveyMultiLineCell: UITableViewCell {
+    static let baseHeight: CGFloat = 100
+
     let textView: UITextView
     let placeholderLabel: UILabel
     var placeholderWidthConstraint: NSLayoutConstraint?
@@ -62,6 +64,10 @@ class SurveyMultiLineCell: UITableViewCell {
         }
     }
 
+    private var textFieldHeight: CGFloat {
+        return UIFontMetrics(forTextStyle: .body).scaledValue(for: Self.baseHeight, compatibleWith: self.traitCollection)
+    }
+
     private var placeholderLayoutConstraints = [NSLayoutConstraint]()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -80,8 +86,14 @@ class SurveyMultiLineCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        heightConstraint?.constant = self.textFieldHeight
+    }
+
     private func configureTextView() {
-        self.textView.backgroundColor = .apptentiveTextInputBackground
+        self.textView.backgroundColor = .apptentiveSurveyTextInputBackground
         self.textView.textColor = .apptentiveTextInput
         self.textView.translatesAutoresizingMaskIntoConstraints = false
         self.textView.adjustsFontForContentSizeCategory = true
@@ -93,7 +105,7 @@ class SurveyMultiLineCell: UITableViewCell {
 
         self.trailingConstraint = self.contentView.trailingAnchor.constraint(equalTo: self.textView.trailingAnchor, constant: 10.0)
 
-        self.heightConstraint = self.textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100.0)
+        self.heightConstraint = self.textView.heightAnchor.constraint(greaterThanOrEqualToConstant: self.textFieldHeight)
 
         NSLayoutConstraint.activate(
             [
@@ -124,7 +136,13 @@ class SurveyMultiLineCell: UITableViewCell {
         // For some reason we need to constrain placeholder width as well as leading/trailing
         // to keep Dynamic Type from growing the label beyond where the trailing constraint
         // should be keeping it from growing. Below we manually calculate the width to set a constraint.
-        let additionalPlaceholderInset: CGFloat = 5.0
+        var additionalPlaceholderInset: CGFloat
+
+        if #available(iOS 26, *) {
+            additionalPlaceholderInset = 10.0
+        } else {
+            additionalPlaceholderInset = 5.0
+        }
         let placeholderWidthInset = self.textView.textContainerInset.right + self.textView.textContainerInset.left + additionalPlaceholderInset * 2
 
         self.placeholderLayoutConstraints = [

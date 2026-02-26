@@ -121,6 +121,7 @@ class RosterSaver: PropertyListSaver<ConversationRoster> {
                 switch active.state {
                 case .anonymous(let credentials):
                     try tokenStore.saveToken(credentials.token, with: credentials.id)
+                    // TODO: save credentials.token in keychain
                     newActiveState = .anonymousSecure(id: credentials.id)
 
                 case .loggedIn(let credentials, let subject, let encryptionKey):
@@ -133,7 +134,7 @@ class RosterSaver: PropertyListSaver<ConversationRoster> {
 
                 storedRoster.active?.state = newActiveState
             }
-        }  // else keep token in plaintext
+        }
 
         try super.save(storedRoster)
     }

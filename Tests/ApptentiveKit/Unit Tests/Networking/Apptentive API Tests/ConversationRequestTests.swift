@@ -6,8 +6,8 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import Testing
 import UIKit
-import XCTest
 
 @testable import ApptentiveKit
 
@@ -15,8 +15,8 @@ import XCTest
     import CoreTelephony
 #endif
 
-class ConversationRequestTests: XCTestCase {
-    func testConversationEncoding() throws {
+struct ConversationRequestTests {
+    @Test func testConversationEncoding() throws {
         let conversation = Conversation(dataProvider: MockDataProvider())
         let conversationRequest = ConversationRequest(conversation: conversation, token: nil)
 
@@ -71,8 +71,8 @@ class ConversationRequestTests: XCTestCase {
         let decodedExpectedJSON = try JSONDecoder.apptentive.decode(ConversationRequest.self, from: expectedJSON)
         let decodedConversationRequestJSON = try JSONDecoder.apptentive.decode(ConversationRequest.self, from: conversationRequestJSON)
 
-        XCTAssertEqual(decodedExpectedJSON.appRelease, decodedConversationRequestJSON.appRelease)
-        XCTAssertEqual(decodedExpectedJSON.person, decodedConversationRequestJSON.person)
-        XCTAssertEqual(decodedExpectedJSON.device, decodedConversationRequestJSON.device)
+        #expect(decodedExpectedJSON.appRelease == decodedConversationRequestJSON.appRelease)
+        #expect(decodedExpectedJSON.person == decodedConversationRequestJSON.person)
+        #expect(decodedExpectedJSON.device == decodedConversationRequestJSON.device)
     }
 }

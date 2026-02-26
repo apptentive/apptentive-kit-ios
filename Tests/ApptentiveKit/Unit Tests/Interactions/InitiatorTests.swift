@@ -7,24 +7,22 @@
 //
 
 import Foundation
-import XCTest
+import Testing
 
 @testable import ApptentiveKit
 
-class InitiatorTests: XCTestCase {
+@MainActor struct InitiatorTests {
 
     var spyInteractionDelegate: SpyInteractionDelegate?
 
-    override func setUpWithError() throws {
-
+    init() throws {
         self.spyInteractionDelegate = SpyInteractionDelegate()
     }
 
-    func testTriggerSuccess() {
+    @Test func testTriggerSuccess() {
         let interaction = try! InteractionTestHelpers.loadInteraction(named: "Initiator")
 
         self.spyInteractionDelegate?.engage(event: .launch(from: interaction))
-        XCTAssertEqual(self.spyInteractionDelegate?.engagedEvent?.codePointName, "com.apptentive#Initiator#launch")
+        #expect(self.spyInteractionDelegate?.engagedEvent?.codePointName == "com.apptentive#Initiator#launch")
     }
-
 }

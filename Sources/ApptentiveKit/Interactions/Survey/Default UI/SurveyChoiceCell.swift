@@ -10,15 +10,22 @@ import UIKit
 
 class SurveyChoiceCell: UITableViewCell {
     let buttonImageView: UIImageView
-    let choiceLabel: UILabel
+    let choiceLabel: RichTextLabel
     let imageFontMetrics: UIFontMetrics
     var imageHeightConstraint = NSLayoutConstraint()
+    let verticalSpace: CGFloat
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.buttonImageView = UIImageView(frame: .zero)
-        self.choiceLabel = UILabel(frame: .zero)
+        self.choiceLabel = RichTextLabel(frame: .zero)
 
         self.imageFontMetrics = UIFontMetrics(forTextStyle: .title1)
+
+        if #available(iOS 26, *) {
+            self.verticalSpace = 16
+        } else {
+            self.verticalSpace = 12
+        }
 
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
 
@@ -61,7 +68,7 @@ class SurveyChoiceCell: UITableViewCell {
         self.contentView.addSubview(self.buttonImageView)
 
         self.choiceLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.choiceLabel.adjustsFontForContentSizeCategory = true
+        self.choiceLabel.textStyle = .body
         self.choiceLabel.font = .apptentiveChoiceLabel
         self.choiceLabel.textColor = .apptentiveChoiceLabel
         self.choiceLabel.numberOfLines = 0
@@ -75,11 +82,11 @@ class SurveyChoiceCell: UITableViewCell {
         textIndentingConstraint.priority = .defaultHigh
 
         NSLayoutConstraint.activate([
-            self.choiceLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 12),
+            self.choiceLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: self.verticalSpace),
             self.choiceLabel.leadingAnchor.constraint(greaterThanOrEqualTo: self.contentView.leadingAnchor, constant: 60),
             textIndentingConstraint,
             self.contentView.trailingAnchor.constraint(greaterThanOrEqualTo: self.choiceLabel.trailingAnchor, constant: 20),
-            self.contentView.bottomAnchor.constraint(greaterThanOrEqualTo: self.choiceLabel.bottomAnchor, constant: 12),
+            self.contentView.bottomAnchor.constraint(greaterThanOrEqualTo: self.choiceLabel.bottomAnchor, constant: self.verticalSpace),
 
             self.buttonImageView.leadingAnchor.constraint(greaterThanOrEqualToSystemSpacingAfter: self.contentView.leadingAnchor, multiplier: 1),
             self.buttonImageView.firstBaselineAnchor.constraint(equalTo: self.choiceLabel.firstBaselineAnchor),

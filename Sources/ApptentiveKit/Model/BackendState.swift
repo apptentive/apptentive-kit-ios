@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct BackendState: Equatable {
+struct BackendState: Equatable, Sendable {
     var isInForeground: Bool
     var isProtectedDataAvailable: Bool
     var appCredentials: Apptentive.AppCredentials?
@@ -48,10 +48,10 @@ struct BackendState: Equatable {
             return .posting(pendingCredentials: PendingAPICredentials(appCredentials: appCredentials))
 
         case (true, true, .some, .anonymous(let credentials), false):
-            return .anonymous(payloadCredentials: .header(id: credentials.id, token: credentials.token))
+            return .anonymous(payloadCredentials: .secure(id: credentials.id), authenticationContext: .init(encryptionKey: nil, token: credentials.token))
 
         case (true, true, .some, .loggedIn(credentials: let credentials, subject: _, encryptionKey: let encryptionKey), false):
-            return .loggedIn(payloadCredentials: .embedded(id: credentials.id), encryptionContext: .init(encryptionKey: encryptionKey, embeddedToken: credentials.token))
+            return .loggedIn(payloadCredentials: .embedded(id: credentials.id), authenticationContext: .init(encryptionKey: encryptionKey, token: credentials.token))
 
         case (true, true, .some, .none, false):
             return .loggedOut
@@ -69,8 +69,8 @@ struct BackendState: Equatable {
         case waiting
         case loading(appCredentials: Apptentive.AppCredentials)
         case posting(pendingCredentials: PendingAPICredentials)
-        case anonymous(payloadCredentials: PayloadStoredCredentials)
-        case loggedIn(payloadCredentials: PayloadStoredCredentials, encryptionContext: Payload.Context.EncryptionContext)
+        case anonymous(payloadCredentials: PayloadStoredCredentials, authenticationContext: Payload.Context.AuthenticationContext)
+        case loggedIn(payloadCredentials: PayloadStoredCredentials, authenticationContext: Payload.Context.AuthenticationContext)
         case loggedOut
         case locked
         case backgrounded

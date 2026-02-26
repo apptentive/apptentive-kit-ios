@@ -11,7 +11,7 @@ import Foundation
 extension SurveyViewModel {
 
     /// Contains the information needed to display a page in a survey.
-    public class Page {
+    @MainActor public class Page {
 
         /// The identifier for the page.
         ///
@@ -24,10 +24,10 @@ extension SurveyViewModel {
         ///
         /// For list display mode, the text will be displayed at the top of the question list.
         /// For paged display mode, the text will be displayed in a centered label.
-        public let description: String?
+        public let description: AttributedString?
 
         /// A second string of static text that will be displayed near the avance button.
-        public let disclaimer: String?
+        public let disclaimer: AttributedString?
 
         /// The question view models corresponding to the questions to display on this page.
         public let questions: [SurveyViewModel.Question]
@@ -44,7 +44,7 @@ extension SurveyViewModel {
 
         internal let advanceLogic: [AdvanceLogic]
 
-        internal init(id: String, description: String? = nil, disclaimer: String? = nil, questions: [SurveyViewModel.Question] = [], advanceButtonLabel: String, pageIndicatorValue: Int? = nil, advanceLogic: [AdvanceLogic]) {
+        internal init(id: String, description: AttributedString? = nil, disclaimer: AttributedString? = nil, questions: [SurveyViewModel.Question] = [], advanceButtonLabel: String, pageIndicatorValue: Int? = nil, advanceLogic: [AdvanceLogic]) {
             self.id = id
             self.description = description
             self.disclaimer = disclaimer

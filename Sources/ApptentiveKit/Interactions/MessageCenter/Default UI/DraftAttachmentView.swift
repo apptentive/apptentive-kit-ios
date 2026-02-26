@@ -40,6 +40,10 @@ extension MessageCenterViewController {
             self.imageView.isAccessibilityElement = true
             self.imageView.accessibilityTraits.insert(.button)
 
+            if #available(iOS 26.0, *) {
+                self.imageView.cornerConfiguration = .uniformCorners(radius: 8)
+            }
+
             self.closeButton.translatesAutoresizingMaskIntoConstraints = false
             self.closeButton.setImage(.apptentiveAttachmentRemoveButton, for: .normal)
             self.closeButton.tintColor = .apptentiveAttachmentRemoveButton

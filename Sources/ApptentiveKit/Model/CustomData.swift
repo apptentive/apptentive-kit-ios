@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 /// Groups the different data types that we can store/transmit/evaluate in custom data.
-public protocol CustomDataCompatible {}
+public protocol CustomDataCompatible: Sendable {}
 
 extension String: CustomDataCompatible {}
 extension Double: CustomDataCompatible {}
@@ -19,7 +19,7 @@ extension Int: CustomDataCompatible {}
 extension Bool: CustomDataCompatible {}
 
 /// Represents device or person custom data.
-public struct CustomData: Equatable, Codable {
+public struct CustomData: Equatable, Codable, Sendable {
     /// The internal representation of the custom data.
     var customData: [String: CustomDataCompatible]
 
@@ -78,7 +78,7 @@ public struct CustomData: Equatable, Codable {
             case let bool as Bool:
                 try container.encode(bool, forKey: codingKey)
             default:
-                throw ApptentiveError.invalidCustomDataType(value)
+                throw ApptentiveError.invalidCustomDataType
             }
         }
     }
@@ -98,7 +98,7 @@ public struct CustomData: Equatable, Codable {
             } else if let string = try? container.decode(String.self, forKey: codingKey) {
                 self.customData[codingKey.stringValue] = string
             } else {
-                throw ApptentiveError.invalidCustomDataType(nil)
+                throw ApptentiveError.invalidCustomDataType
             }
         }
     }

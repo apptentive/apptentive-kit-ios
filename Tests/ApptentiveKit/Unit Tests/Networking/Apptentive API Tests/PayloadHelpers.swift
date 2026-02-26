@@ -6,8 +6,9 @@
 //  Copyright © 2022 Apptentive, Inc. All rights reserved.
 //
 
+import Foundation
 import GenericJSON
-import XCTest
+import Testing
 
 @testable import ApptentiveKit
 
@@ -21,22 +22,22 @@ func checkPayloadEquivalence(between bodyData: Data, and expectedJSON: String, c
         expectedJSON = expectedJSON[containerName!]!
     }
 
-    XCTAssertNotNil(actualJSON["nonce"])
-    XCTAssertNotNil(expectedJSON["nonce"])
+    #expect(actualJSON["nonce"] != nil)
+    #expect(expectedJSON["nonce"] != nil)
 
-    XCTAssertGreaterThan(Date(timeIntervalSinceReferenceDate: actualJSON["client_created_at"]!.doubleValue!), Date(timeIntervalSince1970: 1_600_904_569))
-    XCTAssertEqual(Date(timeIntervalSince1970: expectedJSON["client_created_at"]!.doubleValue!), Date(timeIntervalSince1970: 1_600_904_569))
+    #expect(Date(timeIntervalSinceReferenceDate: actualJSON["client_created_at"]!.doubleValue!) > Date(timeIntervalSince1970: 1_600_904_569))
+    #expect(Date(timeIntervalSince1970: expectedJSON["client_created_at"]!.doubleValue!) == Date(timeIntervalSince1970: 1_600_904_569))
 
-    XCTAssertNotNil(actualJSON["client_created_at_utc_offset"])
-    XCTAssertNotNil(expectedJSON["client_created_at_utc_offset"])
+    #expect(actualJSON["client_created_at_utc_offset"] != nil)
+    #expect(expectedJSON["client_created_at_utc_offset"] != nil)
 
     for comparison in comparisons {
-        XCTAssertEqual(actualJSON[comparison], expectedJSON[comparison])
+        #expect(actualJSON[comparison] == expectedJSON[comparison])
     }
 }
 
 func checkRequestHeading(for payload: Payload, decoder: JSONDecoder, expectedMethod: HTTPMethod, expectedPathSuffix: String) throws {
-    let credentials = PayloadAPICredentials(appCredentials: .init(key: "abc", signature: "123"), payloadCredentials: .secure(id: "def"), conversationCredentials: .init(id: "def", token: "456"))
+    let credentials = PayloadAPICredentials(appCredentials: .init(key: "abc", signature: "123"), payloadCredentials: .header(id: "def", token: "456"), conversationCredentials: .init(id: "abc", token: "123"))
 
     let request = PayloadRequest(payload: payload, credentials: credentials, decoder: decoder)
     let headers = try request.headers(userAgent: "Apptentive/1.2.3 (Apple)", languageCode: "de")
@@ -53,13 +54,13 @@ func checkRequestHeading(for payload: Payload, decoder: JSONDecoder, expectedMet
         "Accept-Language": "de",
     ]
 
-    XCTAssertEqual(headers, expectedHeaders)
+    #expect(headers == expectedHeaders)
 
     let url = try request.url(relativeTo: URL(string: "https://api.apptentive.com/")!)
 
-    XCTAssertEqual(url.path, "/conversations/def/\(expectedPathSuffix)")
+    #expect(url.path == "/conversations/def/\(expectedPathSuffix)")
 
-    XCTAssertEqual(request.method, expectedMethod)
+    #expect(request.method == expectedMethod)
 }
 
 func checkEncryptedPayloadEquivalence(between bodyData: Data, and expectedJSON: String, comparisons: [String], encryptionKey: Data) throws {
@@ -67,28 +68,28 @@ func checkEncryptedPayloadEquivalence(between bodyData: Data, and expectedJSON: 
     var actualJSON = try JSON(JSONSerialization.jsonObject(with: decryptedBodyData))
     var expectedJSON = try JSON(JSONSerialization.jsonObject(with: expectedJSON.data(using: .utf8)!))
 
-    XCTAssertNotNil(actualJSON["token"])
+    #expect(actualJSON["token"] != nil)
 
     let containerName = actualJSON.objectValue?.keys.first(where: { $0 != "token" })
     actualJSON = actualJSON[containerName!]!
     expectedJSON = expectedJSON[containerName!]!
 
-    XCTAssertNotNil(actualJSON["nonce"])
-    XCTAssertNotNil(expectedJSON["nonce"])
+    #expect(actualJSON["nonce"] != nil)
+    #expect(expectedJSON["nonce"] != nil)
 
-    XCTAssertGreaterThan(Date(timeIntervalSinceReferenceDate: actualJSON["client_created_at"]!.doubleValue!), Date(timeIntervalSince1970: 1_600_904_569))
-    XCTAssertEqual(Date(timeIntervalSince1970: expectedJSON["client_created_at"]!.doubleValue!), Date(timeIntervalSince1970: 1_600_904_569))
+    #expect(Date(timeIntervalSinceReferenceDate: actualJSON["client_created_at"]!.doubleValue!) > Date(timeIntervalSince1970: 1_600_904_569))
+    #expect(Date(timeIntervalSince1970: expectedJSON["client_created_at"]!.doubleValue!) == Date(timeIntervalSince1970: 1_600_904_569))
 
-    XCTAssertNotNil(actualJSON["client_created_at_utc_offset"])
-    XCTAssertNotNil(expectedJSON["client_created_at_utc_offset"])
+    #expect(actualJSON["client_created_at_utc_offset"] != nil)
+    #expect(expectedJSON["client_created_at_utc_offset"] != nil)
 
     for comparison in comparisons {
-        XCTAssertEqual(actualJSON[comparison], expectedJSON[comparison])
+        #expect(actualJSON[comparison] == expectedJSON[comparison])
     }
 }
 
 func checkEncryptedRequestHeading(for payload: Payload, decoder: JSONDecoder, expectedMethod: HTTPMethod, expectedPathSuffix: String) throws {
-    let credentials = PayloadAPICredentials(appCredentials: .init(key: "abc", signature: "123"), payloadCredentials: .embedded(id: "def"), conversationCredentials: nil)
+    let credentials = PayloadAPICredentials(appCredentials: .init(key: "abc", signature: "123"), payloadCredentials: .embedded(id: "def"), conversationCredentials: .init(id: "abc", token: "123"))
     let request = PayloadRequest(payload: payload, credentials: credentials, decoder: decoder)
     let headers = try request.headers(userAgent: "Apptentive/1.2.3 (Apple)", languageCode: "de")
 
@@ -104,11 +105,11 @@ func checkEncryptedRequestHeading(for payload: Payload, decoder: JSONDecoder, ex
         "Accept-Language": "de",
     ]
 
-    XCTAssertEqual(headers, expectedHeaders)
+    #expect(headers == expectedHeaders)
 
     let url = try request.url(relativeTo: URL(string: "https://api.apptentive.com/")!)
 
-    XCTAssertEqual(url.path, "/conversations/def/\(expectedPathSuffix)")
+    #expect(url.path == "/conversations/def/\(expectedPathSuffix)")
 
-    XCTAssertEqual(request.method, expectedMethod)
+    #expect(request.method == expectedMethod)
 }

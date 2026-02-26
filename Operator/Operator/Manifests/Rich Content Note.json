@@ -25,9 +25,9 @@
           }
         ],
         "image": {
-          "url": "https://variety.com/wp-content/uploads/2022/12/Disney-Plus.png",
+          "url": "https://github.com/apptentive/test-logos/blob/main/full-width.png?raw=true",
           "layout": "full_width",
-          "alt_text": "Disney Logo",
+          "alt_text": "Alchemer Logo",
           "scale": 2
         },
         "max_height": 100
@@ -283,7 +283,7 @@
     ]
   },
   "prefetch": [
-      "https://variety.com/wp-content/uploads/2022/12/Disney-Plus.png",
+      "https://github.com/apptentive/test-logos/blob/main/full-width.png?raw=true",
       "https://github.com/apptentive/test-logos/blob/main/wide.png?raw=true",
       "https://github.com/apptentive/test-logos/blob/main/tall.png?raw=true",
       "https://github.com/apptentive/test-logos/blob/main/square.png?raw=true",

@@ -117,10 +117,7 @@ extension SurveyViewModel {
 
         public class Choice: Validating {
             /// The label to be shown as part of the choice user interface.
-            public let label: String
-
-            /// The label to be shown as part of the choice user interface in html format.
-            public var htmlLabel: NSAttributedString? = nil
+            public let label: AttributedString
 
             /// The placeholder text for the "Other" text field.
             public let placeholderText: String?
@@ -163,7 +160,6 @@ extension SurveyViewModel {
             }
 
             init(choice: SurveyConfiguration.Question.Choice) {
-                self.htmlLabel = choice.value.attributedString(withFont: .apptentiveChoiceLabel.createUIFontMetricsForHTML(), alignment: .left)
                 self.label = choice.value
                 self.id = choice.id
                 self.placeholderText = choice.placeholderText

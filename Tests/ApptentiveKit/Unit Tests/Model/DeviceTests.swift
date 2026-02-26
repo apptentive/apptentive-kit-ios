@@ -6,12 +6,13 @@
 //  Copyright © 2019 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class DeviceTests: XCTestCase {
-    func testCustomData() {
+struct DeviceTests {
+    @Test func testCustomData() {
         var device = Device(dataProvider: MockDataProvider())
 
         device.customData["string"] = "string"
@@ -19,13 +20,13 @@ class DeviceTests: XCTestCase {
         device.customData["float"] = 1.1
         device.customData["boolean"] = true
 
-        XCTAssertEqual(device.customData["string"] as? String, "string")
-        XCTAssertEqual(device.customData["number"] as? Int, 5)
-        XCTAssertEqual(device.customData["float"] as? Double, 1.1)
-        XCTAssertEqual(device.customData["boolean"] as? Bool, true)
+        #expect(device.customData["string"] as? String == "string")
+        #expect(device.customData["number"] as? Int == 5)
+        #expect(device.customData["float"] as? Double == 1.1)
+        #expect(device.customData["boolean"] as? Bool == true)
     }
 
-    func testMerge() {
+    @Test func testMerge() {
         let dataProvider = MockDataProvider()
 
         var device1 = Device(dataProvider: dataProvider)
@@ -37,11 +38,11 @@ class DeviceTests: XCTestCase {
 
         device1.merge(with: device2)
 
-        XCTAssertEqual(device1.customData["foo"] as? String, "baz")
-        XCTAssertEqual(device1.customData["bar"] as? String, "foo")
+        #expect(device1.customData["foo"] as? String == "baz")
+        #expect(device1.customData["bar"] as? String == "foo")
     }
 
-    func testPushToken() {
+    @Test func testPushToken() {
         var dataProvider = MockDataProvider()
 
         let tokenData = Data(hexString: "06e78d0d5604079bc0a642c19c26983d85a30b40613840501274087cd96415bf")!
@@ -49,6 +50,6 @@ class DeviceTests: XCTestCase {
 
         let device = Device(dataProvider: dataProvider)
 
-        XCTAssertEqual(device.integrationConfiguration, ["apptentive_push": ["token": tokenData]])
+        #expect(device.integrationConfiguration == ["apptentive_push": ["token": tokenData]])
     }
 }

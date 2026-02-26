@@ -1,3 +1,29 @@
+# 2026-02-26 - v7.0.0
+
+#### Fixes
+
+- API request retries have more consistent timing
+- Decoding of rich text is faster and more reliable
+- Survey multiline text fields and Terms & Conditions link now scale with Dynamic Type
+- Range questions in surveys now display selected value when using keyboard navigation
+
+#### New & Improved
+
+- Swift structured concurrency and Swift 6 language mode are fully supported
+- Interactions have been updated to match iOS 26 UI design
+- Region-specific API endpoints (currently EU and US) have been added to reduce latency and comply with data residency requirements
+- A new configurable setting allows reducing network traffic from rapid event engagement
+- A new global font setting streamlines styling
+- Colors and images in interactions can now be customized using an asset catalog
+
+#### Release Notes
+
+- The SDK's iOS deployment target is now 15.0
+- Person and device custom data (along with person name and email) must be accessed from the main actor
+- Completion-handler-based SDK methods currently must also be called from the main actor
+- A number of non-functional Objective-C methods and properties that were previously deprecated have been removed
+- The `theme` property now defaults to `.customerOnly` to be in keeping with the iOS 26 look and feel but adopt overrides from your app's assets file
+
 # 2025-12-15 - 6.10.0
 
 ### Improvements

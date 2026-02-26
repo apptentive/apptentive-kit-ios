@@ -9,7 +9,7 @@
 import UIKit
 @preconcurrency import WebKit
 
-class WebViewController: UIViewController, WKNavigationDelegate {
+final class WebViewController: UIViewController, WKNavigationDelegate {
     let webView: WKWebView
     let spinner: UIActivityIndicatorView
     let viewModel: NavigateToLinkController
@@ -59,6 +59,7 @@ class WebViewController: UIViewController, WKNavigationDelegate {
         self.setupConstraints()
         self.checkPermissions()
 
+        webView.addObserver(self, forKeyPath: "title", options: .new, context: nil)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -71,6 +72,18 @@ class WebViewController: UIViewController, WKNavigationDelegate {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         self.spinner.center = self.view.center
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+        Task { @MainActor in
+            if keyPath == "title" {
+                self.navigationItem.title = self.webView.title
+
+                try await Task.sleep(nanoseconds: NSEC_PER_SEC)
+
+                UIAccessibility.post(notification: .announcement, argument: self.webView.title)
+            }
+        }
     }
 
     func checkPermissions() {
@@ -113,7 +126,7 @@ class WebViewController: UIViewController, WKNavigationDelegate {
         self.spinner.stopAnimating()
     }
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
         if let url = navigationAction.request.url {
             if url.absoluteString.contains("survey.alchemer.com") || url.absoluteString.contains("#sg-gotoerror") {
                 decisionHandler(.allow)

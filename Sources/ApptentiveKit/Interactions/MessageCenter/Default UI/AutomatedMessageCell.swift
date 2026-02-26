@@ -60,7 +60,7 @@ extension MessageCenterViewController {
                     self.contentView.bottomAnchor.constraint(equalTo: self.bubbleImageView.bottomAnchor, constant: 10),
 
                     self.messageText.topAnchor.constraint(equalTo: self.bubbleImageView.topAnchor, constant: 15),
-                    self.messageText.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 27),
+                    self.messageText.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 44),
                     self.bubbleImageView.trailingAnchor.constraint(equalTo: self.messageText.trailingAnchor, constant: 15),
                     self.bubbleImageView.bottomAnchor.constraint(equalTo: self.messageText.bottomAnchor, constant: 15),
                 ]

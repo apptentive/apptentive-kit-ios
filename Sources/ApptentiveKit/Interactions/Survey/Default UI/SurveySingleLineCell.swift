@@ -24,11 +24,17 @@ class SurveySingleLineCell: UITableViewCell {
 
             if case self.tableViewStyle = UITableView.Style.insetGrouped {
                 self.textField.borderStyle = .none
-                self.leadingConstraint?.constant = 16.0
-                self.trailingConstraint?.constant = 16.0
                 self.topConstraint?.constant = 0
                 self.bottomConstraint?.constant = 0
-                self.heightConstraint?.constant = 44
+                if #available(iOS 26.0, *) {
+                    self.heightConstraint?.constant = 52
+                    self.leadingConstraint?.constant = 21.0
+                    self.trailingConstraint?.constant = 21.0
+                } else {
+                    self.heightConstraint?.constant = 44
+                    self.leadingConstraint?.constant = 16.0
+                    self.trailingConstraint?.constant = 16.0
+                }
             }
 
         }
@@ -73,7 +79,7 @@ class SurveySingleLineCell: UITableViewCell {
     }
 
     private func configureTextField() {
-        self.textField.backgroundColor = .apptentiveTextInputBackground
+        self.textField.backgroundColor = .apptentiveSurveyTextInputBackground
         self.textField.textColor = .apptentiveTextInput
         self.textField.translatesAutoresizingMaskIntoConstraints = false
         self.textField.adjustsFontForContentSizeCategory = true

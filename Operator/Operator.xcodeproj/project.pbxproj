@@ -11,6 +11,7 @@
 		0116CEA127EA8A0600186CC1 /* CustomDataDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0116CEA027EA8A0600186CC1 /* CustomDataDataSource.swift */; };
 		0118DD7126FBEDED00037E0E /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD7026FBEDED00037E0E /* MessagesViewController.swift */; };
 		0118DD8326FBF1C200037E0E /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0118DD8226FBF1C200037E0E /* TextViewController.swift */; };
+		0132127A2F242D3000D685B5 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013212792F242D2C00D685B5 /* Credentials.swift */; };
 		0144DA7A29BFE854006018AE /* ConnectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144DA7929BFE854006018AE /* ConnectionViewController.swift */; };
 		0144DA8129C118E4006018AE /* JWTViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0144DA8029C118E4006018AE /* JWTViewController.swift */; };
 		015D3CC6296F7B1400D666CE /* ApptentiveKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D7629A246358EA007A5AD5 /* ApptentiveKit.framework */; };
@@ -131,9 +132,10 @@
 		0122AB4A265D7E13009C30AB /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Main.strings"; sourceTree = "<group>"; };
 		0122AB4B265D7E13009C30AB /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		0122AB4C265D7E13009C30AB /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		0133E52F293FE7FF008BF351 /* Credentials.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Credentials.xcconfig; path = ../Credentials.xcconfig; sourceTree = "<group>"; };
+		013212792F242D2C00D685B5 /* Credentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
 		0144DA7929BFE854006018AE /* ConnectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionViewController.swift; sourceTree = "<group>"; };
 		0144DA8029C118E4006018AE /* JWTViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JWTViewController.swift; sourceTree = "<group>"; };
+		014DD2F92F326BBC00FA1953 /* Operator.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Operator.xcconfig; sourceTree = "<group>"; };
 		015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionsViewController.swift; sourceTree = "<group>"; };
 		0167CA1E2C0ECE3800FA1B29 /* JWT.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWT.swift; sourceTree = "<group>"; };
 		0176156825D1D48700BB85C6 /* DataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTableViewController.swift; sourceTree = "<group>"; };
@@ -213,10 +215,12 @@
 		018B099824577B15007450EA /* Operator */ = {
 			isa = PBXGroup;
 			children = (
+				014DD2F92F326BBC00FA1953 /* Operator.xcconfig */,
 				01D76280246358E4007A5AD5 /* ApptentiveKit.xcodeproj */,
 				011B6708275B196600148290 /* Operator.entitlements */,
 				01CBA930282B2E7500614A24 /* Manifests */,
 				01EB6C072477409C0067F4B9 /* README.md */,
+				013212792F242D2C00D685B5 /* Credentials.swift */,
 				018B099924577B15007450EA /* AppDelegate.swift */,
 				015F2AC524C8E79B004B53E2 /* InteractionsViewController.swift */,
 				01CBA937282B34AB00614A24 /* ManifestsViewController.swift */,
@@ -236,7 +240,6 @@
 				018B09A624577B17007450EA /* LaunchScreen.storyboard */,
 				018B09A924577B17007450EA /* Info.plist */,
 				018B09C52457AEF7007450EA /* Defaults.plist */,
-				0133E52F293FE7FF008BF351 /* Credentials.xcconfig */,
 			);
 			path = Operator;
 			sourceTree = "<group>";
@@ -311,7 +314,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1140;
-				LastUpgradeCheck = 2610;
+				LastUpgradeCheck = 1610;
 				ORGANIZATIONNAME = "Apptentive, Inc";
 				TargetAttributes = {
 					018B099524577B15007450EA = {
@@ -438,6 +441,7 @@
 				01A26B7E25DDF5D4002EFA74 /* PersonDataSource.swift in Sources */,
 				01A26B7725DDF5C9002EFA74 /* CustomCells.swift in Sources */,
 				015F2AC624C8E79B004B53E2 /* InteractionsViewController.swift in Sources */,
+				0132127A2F242D3000D685B5 /* Credentials.swift in Sources */,
 				018B099A24577B15007450EA /* AppDelegate.swift in Sources */,
 				01C060AD251E44C7006B4B30 /* EventsViewController.swift in Sources */,
 				01CBA938282B34AB00614A24 /* ManifestsViewController.swift in Sources */,
@@ -541,6 +545,7 @@
 /* Begin XCBuildConfiguration section */
 		0133E530294055D8008BF351 /* Staging */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 014DD2F92F326BBC00FA1953 /* Operator.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -575,7 +580,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 86WML2UN43;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -592,12 +596,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -605,13 +608,13 @@
 		};
 		0133E531294055D8008BF351 /* Staging */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0133E52F293FE7FF008BF351 /* Credentials.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-Staging";
 				CODE_SIGN_ENTITLEMENTS = Operator/Operator.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(APPTENTIVE_BUILD)";
+				DEVELOPMENT_TEAM = 86WML2UN43;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 86WML2UN43;
 				INFOPLIST_FILE = Operator/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Operator ⎈";
@@ -632,6 +635,7 @@
 		};
 		018B09AA24577B17007450EA /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 014DD2F92F326BBC00FA1953 /* Operator.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -666,7 +670,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 86WML2UN43;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -683,12 +686,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -696,6 +698,7 @@
 		};
 		018B09AB24577B17007450EA /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 014DD2F92F326BBC00FA1953 /* Operator.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -730,7 +733,6 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 86WML2UN43;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -741,11 +743,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
@@ -754,7 +755,6 @@
 		};
 		018B09AD24577B17007450EA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0133E52F293FE7FF008BF351 /* Credentials.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Operator/Operator.entitlements;
@@ -762,6 +762,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(APPTENTIVE_BUILD)";
+				DEVELOPMENT_TEAM = 86WML2UN43;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 86WML2UN43;
 				INFOPLIST_FILE = Operator/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "$(TARGET_NAME)";
@@ -782,7 +783,6 @@
 		};
 		018B09AE24577B17007450EA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0133E52F293FE7FF008BF351 /* Credentials.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Operator/Operator.entitlements;
@@ -790,6 +790,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = "$(APPTENTIVE_BUILD)";
+				DEVELOPMENT_TEAM = 86WML2UN43;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 86WML2UN43;
 				INFOPLIST_FILE = Operator/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Operator;

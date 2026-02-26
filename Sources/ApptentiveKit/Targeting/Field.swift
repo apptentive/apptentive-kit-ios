@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents a /-delimited array of substrings along with an index into the array.
-struct Field: ExpressibleByStringLiteral {
+struct Field: ExpressibleByStringLiteral, Equatable {
 
     /// The full field name.
     let fullPath: String

@@ -10,12 +10,12 @@ import Foundation
 
 extension SurveyViewModel {
     /// Base class for question view models (should be treated as abstract).
-    public class Question: Validating {
+    @MainActor public class Question: Validating {
         weak var surveyViewModel: SurveyViewModel?
         let questionID: String
 
         /// The text of the question.
-        public let text: String
+        public let text: AttributedString
 
         /// Whether a response to the question is required.
         public let isRequired: Bool
@@ -66,7 +66,7 @@ extension SurveyViewModel {
                 result.append(self.errorMessage)
             }
 
-            result.append(self.text)
+            result.append(String(self.text.characters))
 
             if self.isRequired, let requiredText = self.requiredText {
                 result.append(". \(requiredText)")
@@ -104,7 +104,7 @@ extension SurveyViewModel {
     }
 }
 
-protocol Validating: AnyObject {
+@MainActor protocol Validating: AnyObject {
     var isMarkedAsInvalid: Bool { get set }
     var isValid: Bool { get }
 

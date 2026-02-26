@@ -14,20 +14,20 @@ pipeline {
   }
 
   stages {
-    stage('Dev (or main) PR') {
+    stage('Dev PR') {
       when {
-        anyOf {
-          changeRequest target: 'develop'
-          changeRequest target: 'main'
-        }
+        changeRequest target: 'develop'
+
         expression {
           env.ENVIRONMENT == 'dev-eks_0'
         }
       }
+
       stages {
         stage('bundle install') {
           steps {
             script {
+              sh 'brew install xcbeautify'
               sh 'source /Users/ec2-user/.zprofile && rbenv install --skip-existing && rbenv rehash && which ruby && which gem && gem install bundler:2.2.28 && bundle install'
             }
           }
@@ -49,6 +49,8 @@ pipeline {
                 withCredentials([string(credentialsId: 'iosBuildProdSignature', variable: 'APPTENTIVE_PROD_SIGNATURE')]) {
                   withCredentials([string(credentialsId: 'iosBuildProdKey', variable: 'APPTENTIVE_PROD_KEY')]) {
                     script {
+                      // Remove coverage check while xcov is updated to work with iOS 26 (https://github.com/fastlane-community/xcov/issues/229)
+                      // sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane test && bundle exec fastlane coverage'
                       sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane test'
                     }
                   }

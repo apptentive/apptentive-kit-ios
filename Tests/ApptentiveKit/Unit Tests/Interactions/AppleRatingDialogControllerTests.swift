@@ -6,11 +6,12 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Testing
+import UIKit
 
 @testable import ApptentiveKit
 
-class AppleRatingDialogControllerTests: XCTestCase {
+@MainActor struct AppleRatingDialogControllerTests {
     var controller: AppleRatingDialogController?
     var spySender: SpyInteractionDelegate?
 
@@ -18,30 +19,30 @@ class AppleRatingDialogControllerTests: XCTestCase {
     var gotValidationDidChange: Bool = false
     var gotSelectionDidChange: Bool = false
 
-    override func setUpWithError() throws {
+    init() throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "AppleRatingDialog")
 
         guard case Interaction.InteractionConfiguration.appleRatingDialog = interaction.configuration else {
-            return XCTFail("Unable to create controller")
+            throw TestError(reason: "Wrong interaction configuration")
         }
 
         self.spySender = SpyInteractionDelegate()
         self.controller = AppleRatingDialogController(interaction: interaction, delegate: self.spySender!)
     }
 
-    func testWasShown() {
+    @Test func testWasShown() async throws {
         self.spySender?.shouldRequestReviewSucceed = true
 
-        controller?.requestReview(completion: { _ in })
+        try await controller?.requestReview()
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, Event.shown(from: controller!.interaction).codePointName)
+        #expect(self.spySender?.engagedEvent?.codePointName == Event.shown(from: controller!.interaction).codePointName)
     }
 
-    func testWasNotShown() {
+    @Test func testWasNotShown() async throws {
         self.spySender?.shouldRequestReviewSucceed = false
 
-        controller?.requestReview(completion: { _ in })
+        try await controller?.requestReview()
 
-        XCTAssertEqual(self.spySender?.engagedEvent?.codePointName, Event.notShown(from: controller!.interaction).codePointName)
+        #expect(self.spySender?.engagedEvent?.codePointName == Event.notShown(from: controller!.interaction).codePointName)
     }
 }

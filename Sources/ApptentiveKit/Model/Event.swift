@@ -11,7 +11,7 @@ import Foundation
 /// Describes an event that represents a view or action in your app that you would like to track to help trigger interactions.
 ///
 /// Use the `Apptentive` object's `engage(event:from:)` method to record events in your app.
-public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
+public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible, CustomStringConvertible, Sendable {
     /// The name of the event as provided by the customer.
     let name: String
 
@@ -131,6 +131,10 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible {
     /// Prints a description for debugging purposes.
     public var debugDescription: String {
         return "Event(codePoint: \(self.codePointName))"
+    }
+
+    public var description: String {
+        return self.debugDescription
     }
 }
 

@@ -14,7 +14,11 @@ class EditProfileViewController: UIViewController, UITextFieldDelegate {
 
     init(viewModel: MessageCenterViewModel) {
         self.viewModel = viewModel
-        self.profileView = ProfileView(frame: .zero)
+        if #available(iOS 26, *) {
+            self.profileView = GlassProfileView(frame: .zero)
+        } else {
+            self.profileView = ProfileView(frame: .zero)
+        }
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -104,11 +108,9 @@ class EditProfileViewController: UIViewController, UITextFieldDelegate {
 
     private func updateProfileValidation(strict: Bool) {
         if self.viewModel.profileIsValid || !strict {
-            self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
-            self.profileView.errorLabel.isHidden = true
+            self.profileView.emailValid = true
         } else {
-            self.profileView.emailTextField.layer.borderColor = UIColor.apptentiveError.cgColor
-            self.profileView.errorLabel.isHidden = false
+            self.profileView.emailValid = false
             UIAccessibility.post(notification: .screenChanged, argument: self.profileView.errorLabel)
         }
 

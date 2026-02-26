@@ -16,6 +16,14 @@ extension MessageCenterViewController {
         let progressView: UIProgressView
         let gestureRecognizer: UIGestureRecognizer
 
+        var isPlaceholder: Bool = false {
+            didSet {
+                if #available(iOS 26, *) {
+                    self.cornerConfiguration = .corners(radius: self.isPlaceholder ? 0 : 8)
+                }
+            }
+        }
+
         override init(frame: CGRect) {
             self.imageView = UIImageView(frame: frame)
             self.titleLabel = UILabel(frame: frame)
@@ -28,6 +36,10 @@ extension MessageCenterViewController {
             self.addSubview(self.titleLabel)
             self.addSubview(self.progressView)
             self.addGestureRecognizer(self.gestureRecognizer)
+
+            if #available(iOS 26, *) {
+                self.cornerConfiguration = .corners(radius: 8)
+            }
 
             self.configureViews()
         }

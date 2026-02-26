@@ -32,9 +32,6 @@ struct Conversation: Equatable, Codable {
     /// The time after which the engagement manifest should be considered stale.
     var interactionsInvalidation: Date?
 
-    /// The server-side ID of the app.
-    var applicationID: String?
-
     /// Initializes a conversation with the specified data provider.
     /// - Parameter dataProvider: The data provider used to create the initial app release and device values.
     init(dataProvider: ConversationDataProviding) {
@@ -44,7 +41,6 @@ struct Conversation: Equatable, Codable {
         self.codePoints = EngagementMetrics()
         self.interactions = EngagementMetrics()
         self.random = Random()
-        self.interactionsInvalidation = nil
     }
 
     /// Merges the conversation with a newer conversation.
@@ -67,12 +63,6 @@ struct Conversation: Equatable, Codable {
         self.codePoints.merge(with: newer.codePoints)
         self.interactions.merge(with: newer.interactions)
         self.random.merge(with: newer.random)
-
-        if let myInteractionsExpiry = self.interactionsInvalidation, let newerInteractionsExpiry = newer.interactionsInvalidation {
-            self.interactionsInvalidation = max(myInteractionsExpiry, newerInteractionsExpiry)
-        } else {
-            self.interactionsInvalidation = self.interactionsInvalidation ?? newer.interactionsInvalidation
-        }
     }
 
     /// Creates a new conversation merged with the specified newer conversation.

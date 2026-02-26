@@ -17,7 +17,7 @@ class ProvisioningProfileParser {
 
             return try self.getEntitlements(from: data)
         } catch (let error) {
-            ApptentiveLogger.default.info("Unable to read provisioning profile: \(error)")
+            Logger.default.info("Unable to read provisioning profile: \(error)")
             return nil
         }
     }
@@ -28,7 +28,7 @@ class ProvisioningProfileParser {
 
             return provisioningPlist["Entitlements"] as? [String: Any] ?? [:]
         } catch (let error) {
-            ApptentiveLogger.default.info("Unable to parse provisioning profile: \(error)")
+            Logger.default.info("Unable to parse provisioning profile: \(error)")
             return nil
         }
     }

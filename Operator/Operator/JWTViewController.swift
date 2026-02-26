@@ -64,7 +64,7 @@ class JWTViewController: UITableViewController {
     override func viewDidLoad() {
         self.expiryDatePicker.date = Date(timeIntervalSinceNow: 3 * 24 * 60 * 60)
 
-        self.signingSecret = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_JWT_SECRET") as? String
+        self.signingSecret = UserDefaults.standard.string(forKey: "APPTENTIVE_JWT_SECRET")
 
         if let signingSecret = self.signingSecret {
             self.secretStatusLabel.text = signingSecret.prefix(4) + "…" + signingSecret.suffix(4)

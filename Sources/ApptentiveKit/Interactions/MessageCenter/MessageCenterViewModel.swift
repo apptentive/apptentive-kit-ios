@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import OSLog
 import UIKit
 
 /// Represents an object that can be notified of a change to the message list.
-public protocol MessageCenterViewModelDelegate: AnyObject {
+@MainActor public protocol MessageCenterViewModelDelegate: AnyObject {
     func messageCenterViewModelDidBeginUpdates(_: MessageCenterViewModel)
     func messageCenterViewModel(_: MessageCenterViewModel, didInsertSectionsWith sectionIndexes: IndexSet)
     func messageCenterViewModel(_: MessageCenterViewModel, didDeleteSectionsWith sectionIndexes: IndexSet)
@@ -22,24 +23,12 @@ public protocol MessageCenterViewModelDelegate: AnyObject {
     func messageCenterViewModelMessageListDidLoad(_: MessageCenterViewModel)
 
     func messageCenterViewModelDraftMessageDidUpdate(_: MessageCenterViewModel)
-
-    func messageCenterViewModel(_: MessageCenterViewModel, didFailToRemoveAttachmentAt index: Int, with error: Error)
-
-    func messageCenterViewModel(_: MessageCenterViewModel, didFailToAddAttachmentWith error: Error)
-
-    func messageCenterViewModel(_: MessageCenterViewModel, didFailToSendMessageWith error: Error)
-
-    func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFinishAt index: Int, inMessageAt indexPath: IndexPath)
-
-    func messageCenterViewModel(_: MessageCenterViewModel, attachmentDownloadDidFailAt index: Int, inMessageAt indexPath: IndexPath, with error: Error)
-
-    func messageCenterViewModel(_: MessageCenterViewModel, profilePhoto: UIImage, didDownloadFor indexPath: IndexPath)
 }
 
 typealias MessageCenterInteractionDelegate = EventEngaging & MessageSending & MessageProviding & AttachmentManaging & ProfileEditing & UnreadMessageUpdating & ResourceProviding
 
 /// A class that describes the data in message center and allows messages to be gathered and transmitted.
-public class MessageCenterViewModel: MessageManagerDelegate {
+@MainActor public class MessageCenterViewModel: MessageManagerDelegate {
     let interaction: Interaction
     let interactionDelegate: MessageCenterInteractionDelegate
 
@@ -288,7 +277,13 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         let message = self.message(at: indexPath)
 
         if case .sentFromDashboard(let readStatus) = message.direction, case .unread(let id) = readStatus {
-            self.interactionDelegate.markMessageAsRead(message.nonce)
+            Task {
+                do {
+                    try await self.interactionDelegate.markMessageAsRead(message.nonce)
+                } catch let error {
+                    Logger.default.error("Error updating read message in backend: \(error).")
+                }
+            }
             self.interactionDelegate.engage(event: .messageRead(with: id, from: self.interaction))
         }
     }
@@ -322,24 +317,14 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// - Parameters:
     ///   - index: The index of the attachment.
     ///   - indexPath: The indexPath of the message.
-    public func downloadAttachment(at index: Int, inMessageAt indexPath: IndexPath) {
+    /// - Throws: an error if the download fails.
+    public func downloadAttachment(at index: Int, inMessageAt indexPath: IndexPath) async throws {
         let messageViewModel = self.message(at: indexPath)
         guard let managedMessage = self.managedMessages.first(where: { $0.nonce == messageViewModel.nonce }) else {
-            self.delegate?.messageCenterViewModel(self, attachmentDownloadDidFailAt: index, inMessageAt: indexPath, with: ApptentiveError.internalInconsistency)
-            return
+            throw ApptentiveError.internalInconsistency
         }
 
-        self.interactionDelegate.loadAttachment(at: index, in: managedMessage) { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
-                    self.delegate?.messageCenterViewModel(self, attachmentDownloadDidFinishAt: index, inMessageAt: indexPath)
-
-                case .failure(let error):
-                    self.delegate?.messageCenterViewModel(self, attachmentDownloadDidFailAt: index, inMessageAt: indexPath, with: error)
-                }
-            }
-        }
+        let _ = try await self.interactionDelegate.loadAttachment(at: index, in: managedMessage)
     }
 
     // MARK: Editing
@@ -353,7 +338,9 @@ public class MessageCenterViewModel: MessageManagerDelegate {
             self.draftMessage.body
         }
         set {
-            self.interactionDelegate.setDraftMessageBody(newValue)
+            Task {
+                await self.interactionDelegate.setDraftMessageBody(newValue)
+            }
         }
     }
 
@@ -366,45 +353,34 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     /// - Parameters:
     ///  - image: The image to attach.
     ///  - name: The name to associate with the image, if available.
-    public func addImageAttachment(_ image: UIImage, name: String?) {
+    public func addImageAttachment(_ image: UIImage, name: String?) async throws {
         guard self.canAddAttachment else {
-            self.delegate?.messageCenterViewModel(self, didFailToAddAttachmentWith: MessageCenterViewModelError.attachmentCountGreaterThanMax)
-            return
+            throw MessageCenterViewModelError.attachmentCountGreaterThanMax
         }
 
         guard let data = image.jpegData(compressionQuality: 0.95) else {
-            self.delegate?.messageCenterViewModel(self, didFailToAddAttachmentWith: MessageCenterViewModelError.unableToGetImageData)
-            return
+            throw MessageCenterViewModelError.unableToGetImageData
         }
 
-        self.interactionDelegate.addDraftAttachment(data: data, name: name, mediaType: "image/jpeg") { result in
-            self.finishAddingDraftAttachment(with: result)
-        }
+        let _ = try await self.interactionDelegate.addDraftAttachment(data: data, name: name, mediaType: "image/jpeg")
     }
 
     /// Attaches a file to the draft message.
     /// - Parameter sourceURL: The URL of the file to attach.
-    public func addFileAttachment(at sourceURL: URL) {
+    /// - Throws: An error if adding the attachment fails.
+    public func addFileAttachment(at sourceURL: URL) async throws {
         guard self.canAddAttachment else {
-            self.delegate?.messageCenterViewModel(self, didFailToAddAttachmentWith: MessageCenterViewModelError.attachmentCountGreaterThanMax)
-            return
+            throw MessageCenterViewModelError.attachmentCountGreaterThanMax
         }
 
-        self.interactionDelegate.addDraftAttachment(url: sourceURL) { result in
-            self.finishAddingDraftAttachment(with: result)
-        }
+        let _ = try await self.interactionDelegate.addDraftAttachment(url: sourceURL)
     }
 
     /// Removes an attachment from the draft message.
     /// - Parameter index: The index of the attachment to remove.
-    public func removeAttachment(at index: Int) {
-        self.interactionDelegate.removeDraftAttachment(at: index) { result in
-            DispatchQueue.main.async {
-                if case .failure(let error) = result {
-                    self.delegate?.messageCenterViewModel(self, didFailToRemoveAttachmentAt: index, with: error)
-                }
-            }
-        }
+    /// - Throws: An error if removing the attachment fails.
+    public func removeAttachment(at index: Int) async throws {
+        try await self.interactionDelegate.removeDraftAttachment(at: index)
     }
 
     /// The difference between the maximum number of attachments and the number
@@ -424,91 +400,58 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     }
 
     /// Sends the message to the interaction delegate.
-    public func sendMessage() {
-        self.interactionDelegate.sendDraftMessage { result in
-            if case .failure(let error) = result {
-                DispatchQueue.main.async {
-                    self.delegate?.messageCenterViewModel(self, didFailToSendMessageWith: error)
-                }
-            } else {
-                self.interactionDelegate.engage(event: .send(from: self.interaction))
-            }
-        }
+    public func sendMessage() async throws {
+        try await self.interactionDelegate.sendDraftMessage()
+        self.interactionDelegate.engage(event: .send(from: self.interaction))
     }
 
-    public func getGreetingImage(completion: @escaping (UIImage) -> Void) {
-        self.interactionDelegate.getImage(at: self.greetingImageURL, scale: 3) { result in
-            if case .success(let image) = result {
-                completion(image)
-            } else {
-                ApptentiveLogger.messages.error("Unable to download/convert image at \(self.greetingImageURL)")
-            }
-        }
+    public func getGreetingImage() async throws -> UIImage {
+        return try await self.interactionDelegate.getImage(at: self.greetingImageURL, scale: 3)
     }
 
-    private var inFlightProfilePhotos = [URL: IndexPath]()
-
-    public func getProfilePhoto(for indexPath: IndexPath) {
+    public func getProfilePhoto(for indexPath: IndexPath) async throws -> UIImage? {
         guard let url = self.message(at: indexPath).sender?.profilePhotoURL else {
-            return
+            return nil
         }
 
-        inFlightProfilePhotos[url] = indexPath
-
-        self.interactionDelegate.getImage(at: url, scale: 3) { [weak self, url] (result) in
-            guard let self = self else {
-                return
-            }
-
-            self.inFlightProfilePhotos[url] = nil
-
-            if case .success(let image) = result {
-                self.delegate?.messageCenterViewModel(self, profilePhoto: image, didDownloadFor: indexPath)
-            } else {
-                ApptentiveLogger.messages.error("Unable to download/decode/update profile photo at \(url)")
-            }
-        }
+        return try await self.interactionDelegate.getImage(at: url, scale: 3)
     }
 
     // MARK: - Message Manager Delegate (called on background queue)
 
-    func messageManagerMessagesDidChange(_ managedMessages: [MessageList.Message]) {
+    func messageManagerMessagesDidChange(_ managedMessages: [MessageList.Message], context: MessageList.AttachmentContext?) {
         self.managedMessages = managedMessages
         let convertedMessages = managedMessages.compactMap { message -> Message? in
             if message.isHidden {
                 return nil
             } else {
-                return self.convert(message)
+                return self.convert(message, context: context)
             }
         }
 
         let groupings = Self.assembleGroupedMessages(messages: convertedMessages)
 
         if groupings != self.groupedMessages || !self.hasLoadedMessages {
-            DispatchQueue.main.async {
-                self.updateShouldAllowProfileEdit()
+            self.updateShouldAllowProfileEdit()
 
-                if self.hasLoadedMessages {
-                    self.delegate?.messageCenterViewModelDidBeginUpdates(self)
-                    self.update(from: self.groupedMessages, to: groupings)
-                    self.groupedMessages = groupings
-                    self.delegate?.messageCenterViewModelDidEndUpdates(self)
-                } else {
-                    self.hasLoadedMessages = true
-                    self.groupedMessages = groupings
-                    self.validateProfile()
-                    self.delegate?.messageCenterViewModelMessageListDidLoad(self)
-                }
+            if self.hasLoadedMessages {
+                self.delegate?.messageCenterViewModelDidBeginUpdates(self)
+                self.update(from: self.groupedMessages, to: groupings)
+                self.groupedMessages = groupings
+                self.delegate?.messageCenterViewModelDidEndUpdates(self)
+            } else {
+                self.hasLoadedMessages = true
+                self.groupedMessages = groupings
+                self.validateProfile()
+                self.delegate?.messageCenterViewModelMessageListDidLoad(self)
             }
         }
     }
 
-    func messageManagerDraftMessageDidChange(_ managedDraftMessage: MessageList.Message) {
-        let result = self.convert(managedDraftMessage)
-        DispatchQueue.main.async {
-            self.draftMessage = result
-            self.delegate?.messageCenterViewModelDraftMessageDidUpdate(self)
-        }
+    func messageManagerDraftMessageDidChange(_ managedDraftMessage: MessageList.Message, context: MessageList.AttachmentContext?) {
+        let result = self.convert(managedDraftMessage, context: context)
+        self.draftMessage = result
+        self.delegate?.messageCenterViewModelDraftMessageDidUpdate(self)
     }
 
     // MARK: - Internal
@@ -582,15 +525,15 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         self.attachmentOptionsImagesButton = NSLocalizedString("Attachment Options Images Button", bundle: .apptentive, value: "Images", comment: "The button label for the files attachment option.")
         self.attachmentOptionsCancelButton = NSLocalizedString("Attachment Options Cancel Button", bundle: .apptentive, value: "Cancel", comment: "The button label for dismissing the attachment options alert.")
 
-        self.interactionDelegate.setMessageManagerDelegate(self)
-        self.interactionDelegate.setAutomatedMessageBody(configuration.automatedMessage?.body)
+        Task {
+            await self.interactionDelegate.setMessageManagerDelegate(self)
+            await self.interactionDelegate.setAutomatedMessageBody(configuration.automatedMessage?.body)
 
-        self.interactionDelegate.getMessages { messages in
-            self.messageManagerMessagesDidChange(messages)
-        }
+            let (messages, context) = await self.interactionDelegate.getMessages()
+            self.messageManagerMessagesDidChange(messages, context: context)
 
-        self.interactionDelegate.getDraftMessage { draftManagedMessage in
-            self.messageManagerDraftMessageDidChange(draftManagedMessage)
+            let (draftManagedMessage, _) = await self.interactionDelegate.getDraftMessage()
+            self.messageManagerDraftMessageDidChange(draftManagedMessage, context: context)
         }
 
         self.name = self.interactionDelegate.personName
@@ -742,10 +685,14 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         }
     }
 
-    func convert(_ managedMessage: MessageList.Message) -> MessageCenterViewModel.Message {
+    func convert(_ managedMessage: MessageList.Message, context: MessageList.AttachmentContext?) -> MessageCenterViewModel.Message {
         let attachments = managedMessage.attachments.enumerated().compactMap { (index, attachment) in
-            Message.Attachment(
-                fileExtension: AttachmentManager.pathExtension(for: attachment.contentType) ?? "file", thumbnailData: attachment.thumbnailData, localURL: interactionDelegate.urlForAttachment(at: index, in: managedMessage),
+            guard let context = context else {
+                return Optional<Message.Attachment>.none
+            }
+
+            return Message.Attachment(
+                fileExtension: AttachmentManager.pathExtension(for: attachment.contentType) ?? "file", thumbnailData: attachment.thumbnailData, localURL: attachment.localURL(for: context),
                 downloadProgress: attachment.downloadProgress)
         }
 
@@ -815,7 +762,7 @@ public class MessageCenterViewModel: MessageManagerDelegate {
         return result
     }
 
-    static func sectionDate(for message: Message) -> Date {
+    nonisolated static func sectionDate(for message: Message) -> Date {
         return Calendar.current.startOfDay(for: message.sentDate)
     }
 
@@ -826,14 +773,6 @@ public class MessageCenterViewModel: MessageManagerDelegate {
     private let sentDateFormatter: DateFormatter
 
     private let groupDateFormatter: DateFormatter
-
-    private func finishAddingDraftAttachment(with result: Result<URL, Error>) {
-        DispatchQueue.main.async {
-            if case .failure(let error) = result {
-                self.delegate?.messageCenterViewModel(self, didFailToAddAttachmentWith: error)
-            }
-        }
-    }
 
     private static let emailPredicate = NSPredicate(format: "SELF MATCHES %@", "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}")
 

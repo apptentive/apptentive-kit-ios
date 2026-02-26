@@ -6,14 +6,6 @@
 	<string>${PRODUCT_NAME} requires access to the camera to take photos.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>${PRODUCT_NAME} requires access to the microphone to take videos.</string>
-	<key>APPTENTIVE_API_BASE_URL</key>
-	<string>https://$(APPTENTIVE_API_HOST)</string>
-	<key>APPTENTIVE_API_KEY</key>
-	<string>$(APPTENTIVE_API_KEY)</string>
-	<key>APPTENTIVE_API_SIGNATURE</key>
-	<string>$(APPTENTIVE_API_SIGNATURE)</string>
-	<key>APPTENTIVE_JWT_SECRET</key>
-	<string>$(APPTENTIVE_JWT_SECRET)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
