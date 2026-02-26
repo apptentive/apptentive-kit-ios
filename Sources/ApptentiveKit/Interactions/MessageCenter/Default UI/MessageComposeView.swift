@@ -24,10 +24,16 @@ class MessageCenterComposeContainerView: UIView {
         self.addSubview(self.separatorView)
 
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = .apptentiveMessageCenterComposeBoxBackground
 
         self.separatorView.translatesAutoresizingMaskIntoConstraints = false
         self.separatorView.backgroundColor = .apptentiveMessageCenterComposeBoxSeparator
+
+        if #available(iOS 26, *) {
+            self.backgroundColor = .clear
+            self.separatorView.isHidden = true
+        } else {
+            self.backgroundColor = .apptentiveMessageCenterComposeBoxBackground
+        }
 
         self.setUpConstraints()
     }
@@ -74,11 +80,15 @@ class MessageCenterComposeView: UIView {
     let textView: UITextView
     let placeholderLabel: UILabel
     let sendButton: UIButton
-    var placeholderWidthConstraint: NSLayoutConstraint?
-    var textViewHeightConstraint: NSLayoutConstraint?
-    var textViewHeightLimitConstraint: NSLayoutConstraint?
+    var placeholderWidthConstraint = NSLayoutConstraint()
+    var textViewHeightConstraint = NSLayoutConstraint()
+    var textViewHeightLimitConstraint = NSLayoutConstraint()
     let attachmentButton: UIButton
     let attachmentStackView: UIStackView
+    var addsBorder = true
+    var buttonInsets = NSDirectionalEdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6)
+    var buttonConfiguration = UIButton.Configuration.plain()
+    var buttonSymbolConfiguration: UIImage.SymbolConfiguration = .init(pointSize: 24)
 
     override init(frame: CGRect) {
         self.textView = UITextView(frame: frame)
@@ -89,10 +99,7 @@ class MessageCenterComposeView: UIView {
 
         super.init(frame: frame)
 
-        self.addSubview(self.textView)
-        self.addSubview(self.sendButton)
-        self.addSubview(self.attachmentButton)
-        self.addSubview(self.attachmentStackView)
+        self.addSubviews()
 
         self.tintColor = .apptentiveTint
 
@@ -114,8 +121,14 @@ class MessageCenterComposeView: UIView {
         NotificationCenter.default.removeObserver(self)
     }
 
-    private func configureTextView() {
-        self.textView.backgroundColor = .apptentiveMessageCenterTextInputBackground
+    internal func addSubviews() {
+        self.addSubview(self.textView)
+        self.addSubview(self.sendButton)
+        self.addSubview(self.attachmentButton)
+        self.addSubview(self.attachmentStackView)
+    }
+
+    internal func configureTextView() {
         self.textView.textColor = .apptentiveMessageCenterTextInput
         self.textView.translatesAutoresizingMaskIntoConstraints = false
         self.textView.adjustsFontForContentSizeCategory = true
@@ -133,12 +146,17 @@ class MessageCenterComposeView: UIView {
         self.placeholderLabel.font = .apptentiveMessageCenterTextInputPlaceholder
         self.placeholderLabel.textColor = .apptentiveMessageCenterTextInputPlaceholder
 
-        self.textView.layer.cornerRadius = 6.0
-        self.textView.layer.masksToBounds = false
-        self.textView.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
-        self.textView.clipsToBounds = true
-
-        self.textView.layer.cornerCurve = .continuous
+        if self.addsBorder {
+            self.textView.backgroundColor = .apptentiveMessageCenterTextInputBackground
+            self.textView.layer.cornerRadius = 6.0
+            self.textView.layer.masksToBounds = false
+            self.textView.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+            self.textView.clipsToBounds = true
+            self.textView.layer.cornerCurve = .continuous
+        } else {
+            self.textView.backgroundColor = .clear
+            self.backgroundColor = .clear
+        }
 
         self.textView.accessibilityIdentifier = "composeTextView"
         self.accessibilityElements = [self.attachmentButton, self.textView, self.sendButton, self.attachmentStackView]
@@ -173,19 +191,20 @@ class MessageCenterComposeView: UIView {
     private func configureSendButton() {
         self.sendButton.translatesAutoresizingMaskIntoConstraints = false
 
-        self.sendButton.setPreferredSymbolConfiguration(.init(pointSize: 32.0), forImageIn: .normal)
+        self.sendButton.setPreferredSymbolConfiguration(self.buttonSymbolConfiguration, forImageIn: .normal)
         self.sendButton.setImage(.apptentiveMessageSendButton, for: .normal)
-        self.sendButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+        self.sendButton.configuration = self.buttonConfiguration
+        self.sendButton.configuration?.contentInsets = self.buttonInsets
         self.sendButton.accessibilityIdentifier = "sendButton"
     }
 
     private func configureAttachmentButton() {
         self.attachmentButton.translatesAutoresizingMaskIntoConstraints = false
 
-        self.attachmentButton.setPreferredSymbolConfiguration(.init(pointSize: 32.0), forImageIn: .normal)
-
+        self.attachmentButton.setPreferredSymbolConfiguration(self.buttonSymbolConfiguration, forImageIn: .normal)
         self.attachmentButton.setImage(.apptentiveMessageAttachmentButton, for: .normal)
-        self.attachmentButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+        self.attachmentButton.configuration = self.buttonConfiguration
+        self.attachmentButton.configuration?.contentInsets = self.buttonInsets
         self.attachmentButton.accessibilityIdentifier = "attachmentButton"
     }
 
@@ -197,36 +216,44 @@ class MessageCenterComposeView: UIView {
 
     private func setUpConstraints() {
         self.textViewHeightConstraint = self.textView.heightAnchor.constraint(greaterThanOrEqualToConstant: 18.0)
-        self.textViewHeightConstraint?.priority = .init(751)
+        self.textViewHeightConstraint.priority = .init(751)
         self.textViewHeightLimitConstraint = self.textView.heightAnchor.constraint(lessThanOrEqualToConstant: 100)
 
-        NSLayoutConstraint.activate(
-            [
-                self.attachmentButton.centerYAnchor.constraint(equalTo: self.textView.centerYAnchor),
-                self.attachmentButton.leadingAnchor.constraint(equalToSystemSpacingAfter: self.safeAreaLayoutGuide.leadingAnchor, multiplier: 1),
-                self.attachmentButton.heightAnchor.constraint(equalTo: self.attachmentButton.widthAnchor),
+        NSLayoutConstraint.activate([
+            self.attachmentButton.centerYAnchor.constraint(equalTo: self.textView.centerYAnchor),
+            self.attachmentButton.leadingAnchor.constraint(equalToSystemSpacingAfter: self.safeAreaLayoutGuide.leadingAnchor, multiplier: 1),
+            self.attachmentButton.heightAnchor.constraint(equalTo: self.attachmentButton.widthAnchor),
 
-                self.textView.topAnchor.constraint(equalTo: self.topAnchor),
-                self.textView.leadingAnchor.constraint(equalToSystemSpacingAfter: self.attachmentButton.trailingAnchor, multiplier: 1.0),
-                self.sendButton.leadingAnchor.constraint(equalToSystemSpacingAfter: self.textView.trailingAnchor, multiplier: 1.0),
+            self.sendButton.centerYAnchor.constraint(equalTo: self.textView.centerYAnchor),
+            self.safeAreaLayoutGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: self.sendButton.trailingAnchor, multiplier: 1),
+            self.sendButton.heightAnchor.constraint(equalTo: self.sendButton.widthAnchor),
 
-                self.sendButton.centerYAnchor.constraint(equalTo: self.textView.centerYAnchor),
-                self.safeAreaLayoutGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: self.sendButton.trailingAnchor, multiplier: 1),
-                self.sendButton.heightAnchor.constraint(equalTo: self.sendButton.widthAnchor),
+            self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.attachmentStackView.bottomAnchor, multiplier: 0.5),
 
-                self.attachmentStackView.topAnchor.constraint(equalToSystemSpacingBelow: self.textView.bottomAnchor, multiplier: 0.5),
-                self.attachmentStackView.centerXAnchor.constraint(equalTo: self.textView.centerXAnchor),
-                self.bottomAnchor.constraint(equalToSystemSpacingBelow: self.attachmentStackView.bottomAnchor, multiplier: 0.5),
+            self.textViewHeightConstraint,
+            self.textViewHeightLimitConstraint,
+        ])
 
-                self.textViewHeightConstraint,
-                self.textViewHeightLimitConstraint,
-            ].compactMap({ $0 }))
+        self.setUpSpecificConstraints()
+    }
+
+    internal func setUpSpecificConstraints() {
+        NSLayoutConstraint.activate([
+            self.textView.topAnchor.constraint(equalTo: self.topAnchor),
+            self.textView.leadingAnchor.constraint(equalToSystemSpacingAfter: self.attachmentButton.trailingAnchor, multiplier: 1.0),
+            self.sendButton.leadingAnchor.constraint(equalToSystemSpacingAfter: self.textView.trailingAnchor, multiplier: 1.0),
+
+            self.attachmentStackView.topAnchor.constraint(equalToSystemSpacingBelow: self.textView.bottomAnchor, multiplier: 0.5),
+            self.attachmentStackView.centerXAnchor.constraint(equalTo: self.textView.centerXAnchor),
+        ])
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        let fineLineWidth = 1.0 / self.traitCollection.displayScale
-        self.textView.layer.borderWidth = fineLineWidth
+        if self.addsBorder {
+            let fineLineWidth = 1.0 / self.traitCollection.displayScale
+            self.textView.layer.borderWidth = fineLineWidth
+        }
     }
 }

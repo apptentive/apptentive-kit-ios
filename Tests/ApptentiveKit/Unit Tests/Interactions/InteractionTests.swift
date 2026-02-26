@@ -6,14 +6,15 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Foundation
+import Testing
 
 @testable import ApptentiveKit
 
-class InteractionTests: XCTestCase {
-    func testInteractionDecoding() throws {
-        guard let directoryURL = Bundle(for: type(of: self)).url(forResource: "Test Interactions", withExtension: nil) else {
-            return XCTFail("Unable to find test data")
+struct InteractionTests {
+    @Test func testInteractionDecoding() throws {
+        guard let directoryURL = Bundle(for: BundleFinder.self).url(forResource: "Test Interactions", withExtension: nil) else {
+            throw ApptentiveError.internalInconsistency
         }
 
         let localFileManager = FileManager()
@@ -30,10 +31,10 @@ class InteractionTests: XCTestCase {
         }
     }
 
-    func testPlaceholder() {
+    @Test func testPlaceholder() {
         let placeholder = EngagementManifest.placeholder
 
-        XCTAssertEqual(placeholder.interactions[0].id, "message_center_fallback")
-        XCTAssertEqual(placeholder.targets["com.apptentive#app#show_message_center_fallback"]?[0].interactionID, "message_center_fallback")
+        #expect(placeholder.interactions[0].id == "message_center_fallback")
+        #expect(placeholder.targets["com.apptentive#app#show_message_center_fallback"]?[0].interactionID == "message_center_fallback")
     }
 }

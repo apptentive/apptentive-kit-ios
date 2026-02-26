@@ -78,3 +78,4 @@ iphoneos/
 
 # Credential-type files
 Credentials.xcconfig
+Credentials.swift

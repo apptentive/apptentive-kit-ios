@@ -92,15 +92,7 @@ class MessageReceivedCell: UITableViewCell {
     }
 
     private func setConstraints() {
-        NSLayoutConstraint(
-            item: bubbleImageView,
-            attribute: .trailing,
-            relatedBy: .equal,
-            toItem: self.contentView,
-            attribute: .trailing,
-            multiplier: 0.75,
-            constant: 0
-        ).isActive = true
+        NSLayoutConstraint(item: bubbleImageView, attribute: .width, relatedBy: .equal, toItem: self.contentView, attribute: .width, multiplier: 0.75, constant: 0).isActive = true
 
         let bottomConstraint = self.bubbleImageView.bottomAnchor.constraint(equalTo: self.stackView.bottomAnchor, constant: 15)
         bottomConstraint.priority = .init(751)
@@ -112,8 +104,8 @@ class MessageReceivedCell: UITableViewCell {
                 self.contentView.bottomAnchor.constraint(equalTo: self.bubbleImageView.bottomAnchor, constant: 10),
 
                 self.stackView.topAnchor.constraint(equalTo: self.bubbleImageView.topAnchor, constant: 15),
-                self.stackView.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 27),
-                self.bubbleImageView.trailingAnchor.constraint(equalTo: self.stackView.trailingAnchor, constant: 15),
+                self.stackView.leadingAnchor.constraint(equalTo: self.bubbleImageView.leadingAnchor, constant: 44),
+                self.bubbleImageView.trailingAnchor.constraint(equalTo: self.stackView.trailingAnchor, constant: 12),
                 bottomConstraint,
 
                 self.profileImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 10),

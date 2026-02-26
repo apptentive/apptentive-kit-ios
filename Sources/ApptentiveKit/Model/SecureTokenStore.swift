@@ -70,7 +70,8 @@ class SecureTokenStore: SecureTokenStoring {
         {
             return jwt
         } else {
-            throw TokenStoringError.unhandledError(status: status)
+            // TODO: better error
+            throw ApptentiveError.internalInconsistency
         }
     }
 }

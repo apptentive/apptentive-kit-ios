@@ -104,7 +104,7 @@ struct AppRelease: Equatable, Codable {
     /// The version of the distribution including the SDK.
     var sdkDistributionVersion: Version?
 
-    /// Initializes a new app release with the specified environment.
+    /// Initializes a new app release with the specified data provider.
     /// - Parameter dataProvider: The data provider used to set initial values.
     init(dataProvider: AppDataProviding) {
         self.bundleIdentifier = dataProvider.bundleIdentifier

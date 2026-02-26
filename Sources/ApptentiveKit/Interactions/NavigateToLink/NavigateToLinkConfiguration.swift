@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct NavigateToLinkConfiguration: Decodable {
+struct NavigateToLinkConfiguration: Decodable, Equatable {
     let url: URL
     let modeConfiguration: Mode?
 

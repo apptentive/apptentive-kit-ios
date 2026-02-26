@@ -16,7 +16,8 @@ class InteractionsViewController: UITableViewController {
         if let manifestName = UserDefaults.standard.string(forKey: "OverrideManifest"),
            let interactionsDirectoryURL = Bundle.main.url(forResource: "Manifests", withExtension: "")
         {
-            self.apptentive.loadEngagementManifest(at: interactionsDirectoryURL.appendingPathComponent(manifestName).appendingPathExtension("json")) { _ in
+            Task {
+                try await self.apptentive.loadEngagementManifest(at: interactionsDirectoryURL.appendingPathComponent(manifestName).appendingPathExtension("json"))
                 self.loadInteractions()
                 self.updatePrompt()
             }
@@ -51,7 +52,8 @@ class InteractionsViewController: UITableViewController {
     // MARK: UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.apptentive.presentInteraction(with: self.groupedInteractions[indexPath.section][indexPath.row].id) { result in
+        Task {
+            let _ = try await self.apptentive.presentInteraction(with: self.groupedInteractions[indexPath.section][indexPath.row].id)
             self.tableView.deselectRow(at: indexPath, animated: true)
         }
     }
@@ -76,7 +78,8 @@ class InteractionsViewController: UITableViewController {
     private var groupedInteractions = [[Apptentive.InteractionListItem]]()
 
     private func loadInteractions() {
-        self.apptentive.getInteractionList { interactions in
+        Task {
+            let interactions = await self.apptentive.getInteractionList()
             let interactionGroups = Dictionary(grouping: interactions) { $0.typeName }
 
             self.interactionGroupNames = Array(interactionGroups.keys).sorted()

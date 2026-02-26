@@ -9,14 +9,19 @@
 import ApptentiveKit
 import UIKit
 
+struct Credentials {
+    let appCredentials: Apptentive.AppCredentials
+    let jwtSigningSecret: String?
+    let region: Apptentive.Region
+    let environment: Apptentive.Environment
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, ApptentiveDelegate {
     var window: UIWindow?
     var apptentive: Apptentive?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
-        ApptentiveLogger.logLevel = .debug
 
         self.registerDefaults()
 
@@ -35,7 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ApptentiveDelegate {
         return true
     }
 
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @Sendable @escaping (UIBackgroundFetchResult) -> Void) {
         if !self.apptentive!.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler) {
             print("Push was not handled by Apptentive. Calling completion handler")
             completionHandler(.newData)
@@ -73,21 +78,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, ApptentiveDelegate {
         UNUserNotificationCenter.current().delegate = self.apptentive
     }
 
-    fileprivate func connect(_ completion: @escaping ((Result<Void, Error>)) -> Void) {
-        guard let key = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_KEY") as? String,
-              let signature = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_SIGNATURE") as? String,
-              let urlString = Bundle.main.object(forInfoDictionaryKey: "APPTENTIVE_API_BASE_URL") as? String,
-              let url = URL(string: urlString) else {
-            completion(.failure(AppError.credentialsError))
-            return
-        }
-
+    fileprivate func connect(_ completion: @Sendable @escaping ((Result<Void, Error>)) -> Void) {
         self.apptentive = Apptentive.shared
         self.apptentive?.delegate = self
 
-        let region = Apptentive.Region(apiBaseURL: url)
+        UserDefaults.standard.set(Credentials.active.jwtSigningSecret, forKey: "APPTENTIVE_JWT_SECRET")
 
-        self.apptentive?.register(with: .init(key: key, signature: signature), region: region, completion: completion)
+        self.apptentive?.register(with: Credentials.active.appCredentials, region: Credentials.active.region, environment: Credentials.active.environment, completion: completion)
     }
 
     func authenticationDidFail(with error: Error) {

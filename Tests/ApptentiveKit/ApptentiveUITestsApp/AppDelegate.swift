@@ -9,7 +9,7 @@
 import ApptentiveKit
 import UIKit
 
-@UIApplicationMain
+@main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
@@ -36,9 +36,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    nonisolated static func assertionHandler(message: @autoclosure () -> String, _ file: StaticString, _ line: UInt) {
+        print("\(file):\(line): Apptentive critical error: \(message())")
+    }
 
-        if let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        apptentiveAssertionHandler = Self.assertionHandler
+
+        if let keyWindow = UIApplication.shared.firstActiveScene?.windows.first {
             keyWindow.layer.speed = UserDefaults.standard.float(forKey: "layerSpeed")
         }
 
@@ -56,5 +61,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func cachesURL() throws -> URL {
         return try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    }
+}
+
+// Courtesy of https://sarunw.com/posts/how-to-get-root-view-controller/
+extension UIApplication {
+    var firstActiveScene: UIWindowScene? {
+        return UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .filter { $0.activationState == .foregroundActive }
+            .first
     }
 }

@@ -48,7 +48,7 @@ struct EngagementMetric: Equatable, Codable {
     }
 
     /// Increments all counts and resets the last invocation date to now.
-    mutating func invoke() {
+    mutating func increment() {
         self.totalCount += 1
         self.versionCount += 1
         self.buildCount += 1

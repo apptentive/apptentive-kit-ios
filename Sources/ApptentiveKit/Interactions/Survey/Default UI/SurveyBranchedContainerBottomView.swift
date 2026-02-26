@@ -18,7 +18,7 @@ class SurveyBranchedContainerBottomView: UIView {
         super.init(frame: frame)
         self.addSubview(self.bottomView)
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = .apptentiveSubmitButton
+        self.backgroundColor = .apptentiveBranchedSurveyFooter
         self.setConstraints()
     }
 
@@ -27,7 +27,7 @@ class SurveyBranchedContainerBottomView: UIView {
         super.init(frame: frame)
         self.addSubview(self.bottomView)
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = .apptentiveSubmitButton
+        self.backgroundColor = .apptentiveBranchedSurveyFooter
         self.setConstraints()
     }
 

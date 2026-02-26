@@ -87,6 +87,19 @@ struct MessageList: Codable, Equatable {
                 case saved(path: String)  // Path relative to container directory in Library/Application Support.
                 case inMemory(Data)
             }
+
+            func localURL(for context: AttachmentContext) -> URL? {
+                switch self.storage {
+                case .cached(let path):
+                    return URL(fileURLWithPath: path, relativeTo: context.cacheContainerURL)
+
+                case .saved(let path):
+                    return URL(fileURLWithPath: path, relativeTo: context.savedContainerURL)
+
+                default:
+                    return nil
+                }
+            }
         }
 
         enum Status: Codable, Equatable {
@@ -98,5 +111,10 @@ struct MessageList: Codable, Equatable {
             case read
             case failed
         }
+    }
+
+    struct AttachmentContext: Sendable {
+        let cacheContainerURL: URL
+        let savedContainerURL: URL
     }
 }

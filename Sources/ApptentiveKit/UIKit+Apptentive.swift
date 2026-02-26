@@ -6,6 +6,7 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import OSLog
 import UIKit
 
 /// `UINavigationController` subclass intended primarily to facilitate scoping `UIAppearance` rules to Apptentive UI.
@@ -20,22 +21,22 @@ public class ApptentiveNavigationController: UINavigationController {
     @objc public static var prefersLargeHeader: Bool = false
 }
 
-extension UITableView {
+@MainActor extension UITableView {
     /// Determines height of the separator between questions.
     public static var apptentiveQuestionSeparatorHeight: CGFloat = 0
 }
 
-extension UITableView.Style {
+@MainActor extension UITableView.Style {
     /// The table view style to use for Apptentive UI.
     public static var apptentive: UITableView.Style = .insetGrouped
 }
 
-extension UIModalPresentationStyle {
+@MainActor extension UIModalPresentationStyle {
     /// The modal presentation style to use for Surveys and Message Center.
     public static var apptentive: Self = .pageSheet
 }
 
-extension UIBarButtonItem {
+@MainActor extension UIBarButtonItem {
     /// The bar button item to use for closing Apptentive UI.
     @objc public static var apptentiveClose: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
 
@@ -43,10 +44,10 @@ extension UIBarButtonItem {
     @objc public static var appentiveRefresh: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: nil, action: nil)
 
     /// The bar button item to use for editing the profile in message center.
-    @objc public static var apptentiveProfileEdit: UIBarButtonItem = UIBarButtonItem(image: .apptentiveImage(named: "person.crop.circle"), style: .done, target: nil, action: nil)
+    @objc public static var apptentiveProfileEdit: UIBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "person.crop.circle"), style: .done, target: nil, action: nil)
 }
 
-extension UIButton {
+@MainActor extension UIButton {
 
     /// The close button used to replicate the bar button item when large headers are used in surveys.
     public static var apptentiveClose: UIButton? = {
@@ -69,53 +70,59 @@ extension UIButton {
     public static var apptentiveStyle: ApptentiveButtonStyle = .pill
 }
 
-extension UIImage {
+@MainActor extension UIImage {
     /// The image to use for the add attachment button for message center.
-    @objc public static var apptentiveMessageAttachmentButton: UIImage? = apptentiveImage(named: "paperclip.circle.fill")
+    @objc public static var apptentiveMessageAttachmentButton = {
+        if #available(iOS 26, *) {
+            UIImage(systemName: "paperclip")
+        } else {
+            UIImage(systemName: "paperclip.circle.fill")
+        }
+    }()
 
     /// The image to use for the button that sends messages for message center.
-    @objc public static var apptentiveMessageSendButton: UIImage? = apptentiveImage(named: "paperplane.circle.fill")
+    @objc public static var apptentiveMessageSendButton = {
+        if #available(iOS 26, *) {
+            UIImage(systemName: "paperplane")
+        } else {
+            UIImage(systemName: "paperplane.circle.fill")
+        }
+    }()
 
     /// The image to use as the chat bubble for outbound messages.
-    @objc public static var apptentiveSentMessageBubble: UIImage? = UIImage(named: "messageSentBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(
-        withCapInsets: UIEdgeInsets(top: 9, left: 9, bottom: 14, right: 18))
+    @objc public static var apptentiveSentMessageBubble = UIImage(named: "messageSentBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(
+        withCapInsets: UIEdgeInsets(top: 26, left: 26, bottom: 26, right: 52))
 
     /// The image to use as the chat bubble for inbound messages.
-    @objc public static var apptentiveReceivedMessageBubble: UIImage? = UIImage(named: "messageReceivedBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(
-        withCapInsets: UIEdgeInsets(top: 9, left: 18, bottom: 14, right: 9))
+    @objc public static var apptentiveReceivedMessageBubble = UIImage(named: "messageReceivedBubble", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate).resizableImage(
+        withCapInsets: UIEdgeInsets(top: 26, left: 52, bottom: 26, right: 26))
 
     /// The image to use for attachment placeholders in messages and the composer.
-    @objc public static var apptentiveAttachmentPlaceholder: UIImage? = UIImage(named: "document", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal).resizableImage(
+    @objc public static var apptentiveAttachmentPlaceholder = UIImage(named: "document", in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysOriginal).resizableImage(
         withCapInsets: UIEdgeInsets(top: 14, left: 4, bottom: 4, right: 14))
 
     /// The image to use for the attachment delete button.
-    @objc public static var apptentiveAttachmentRemoveButton: UIImage? = .apptentiveImage(named: "minus.circle.fill")?.withRenderingMode(.alwaysOriginal)
+    @objc public static var apptentiveAttachmentRemoveButton = UIImage(systemName: "minus.circle.fill")?.withRenderingMode(.alwaysOriginal)
 
     /// The image to use for the top navigation bar for surveys.
     @objc public static var apptentiveHeaderLogo: UIImage? = nil
 
     /// The image to use next to a radio button question choice.
-    @objc public static var apptentiveRadioButton: UIImage? = apptentiveImage(named: "circle")
+    @objc public static var apptentiveRadioButton = UIImage(systemName: "circle")
 
     /// The image to use next to a checkbox question choice.
-    @objc public static var apptentiveCheckbox: UIImage? = apptentiveImage(named: "square")
+    @objc public static var apptentiveCheckbox = UIImage(systemName: "square")
 
     /// The image to use next to a selected radio button question choice.
-    @objc public static var apptentiveRadioButtonSelected: UIImage? = apptentiveImage(named: "smallcircle.fill.circle.fill")
+    @objc public static var apptentiveRadioButtonSelected = UIImage(systemName: "smallcircle.filled.circle.fill")
 
     /// The image to use next to a selected checkbox question choice.
-    @objc public static var apptentiveCheckboxSelected: UIImage? = apptentiveImage(named: "checkmark.square.fill")
+    @objc public static var apptentiveCheckboxSelected = UIImage(systemName: "checkmark.square.fill")
 
-    static func apptentiveImage(named: String) -> UIImage? {
-        if let result = UIImage(systemName: named) {
-            return result
-        }
-
-        return UIImage(named: named, in: .apptentive, compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
-    }
+    @objc public static var apptentiveDialogHeader: UIImage? = nil
 }
 
-extension UIColor {
+@MainActor extension UIColor {
 
     /// The color to use for the background in text inputs for message center.
     @objc public static var apptentiveMessageCenterTextInputBackground = apptentiveTextInputBackground
@@ -222,8 +229,29 @@ extension UIColor {
     /// The color to use for the survey introduction text.
     @objc public static var apptentiveSurveyIntroduction = apptentiveLabel
 
+    /// The color to use for text fields/text views that are part of a survey (but not part of an "other" choice).
+    @objc public static var apptentiveSurveyTextInputBackground = {
+        if #available(iOS 26, *) {
+            clear
+        } else {
+            apptentiveTextInputBackground
+        }
+    }()
+
     /// The color to use for the borders of text fields and text views.
-    @objc public static var apptentiveTextInputBorder = lightGray
+    @objc public static var apptentiveTextInputBorder: UIColor = {
+        if #available(iOS 26, *) {
+            clear
+        } else {
+            lightGray
+        }
+    }()
+
+    /// The border color for survey "other" choice text fields.
+    @objc public static var apptentiveOtherTextInputBorder: UIColor = lightGray
+
+    /// The background color for survey "other" choice text fields.
+    @objc public static var apptentiveOtherTextInputBackground: UIColor = systemBackground
 
     /// The color to use for text fields and text views.
     @objc public static var apptentiveTextInputBackground = systemBackground
@@ -279,7 +307,7 @@ extension UIColor {
     @objc public static var apptentiveSubmitButtonTitle = white
 
     /// The color to use for submit button border.
-    @objc public static var apptentiveSubmitButtonBorder = clear
+    @objc public static var apptentiveSubmitButtonBorder = apptentiveButtonBorder
 
     /// The color to use for the space between questions.
     @objc public static var apptentiveQuestionSeparator = clear
@@ -326,9 +354,36 @@ extension UIColor {
 
     /// The text color used for the disclaimer text.
     @objc public static var apptentiveDisclaimerLabel = lightGray
+
+    /// The color used for the background of the Enjoyment Dialog ("Love Dialog") and Text Modals ("Prompts").
+    @objc public static var apptentiveDialogBackground: UIColor? = nil
+
+    /// The text color used for the title of the Enjoyment Dialog ("Love Dialog") or a Text Modal ("Prompt").
+    @objc public static var apptentiveDialogTitle = apptentiveLabel
+
+    /// The text color used for the message of a Text Modal ("Prompt").
+    @objc public static var apptentiveDialogMessage: UIColor = {
+        if #available(iOS 26, *) {
+            apptentiveSecondaryLabel
+        } else {
+            apptentiveLabel
+        }
+    }()
+
+    /// The text color used for the button labels in the Enjoyment Dialog ("Love Dialog") and Text Modals ("Prompts").
+    @objc public static var apptentiveDialogButtonBackground = tertiarySystemFill
+
+    /// The text color used for the button labels in the Enjoyment Dialog ("Love Dialog") and Text Modals ("Prompts").
+    @objc public static var apptentiveDialogButtonLabel = apptentiveLabel
+
+    /// The color for button borders.
+    @objc public static var apptentiveButtonBorder = clear
+
+    /// The color of the button separator of the Enjoyment Dialog ("Love Dialog") and Text Modals ("Prompts") on devices running iOS 18 and earlier.
+    @objc public static var apptentiveDialogSeparator = clear
 }
 
-extension UIFont {
+@MainActor extension UIFont {
 
     /// The font to use for placeholder for text inputs in message center.
     @objc public static var apptentiveMessageCenterTextInputPlaceholder = preferredFont(forTextStyle: .body)
@@ -401,26 +456,39 @@ extension UIFont {
     /// The font used for the multi- and single-line text inputs in surveys.
     @objc public static var apptentiveTextInput = preferredFont(forTextStyle: .body)
 
+    /// The font used for the title of a Text Modal ("Prompt") that also has a message.
+    @objc public static var apptentiveDialogTitle = preferredFont(forTextStyle: .headline)
+
+    /// The font used for the Enjoyment Dialog ("Love Dialog") title, and the text on a Text Modal ("Prompt")
+    /// when either the title or message is omitted.
+    ///
+    /// This matches the iOS 26 system alert controller's behavior.
+    @objc public static var apptentiveDialogText = preferredFont(forTextStyle: .body)
+
+    /// The font used for the message of a Text Modal ("Prompt") that also has a title.
+    @objc public static var apptentiveDialogMessage: UIFont = {
+        if #available(iOS 26.0, *) {
+            preferredFont(forTextStyle: .subheadline)
+        } else {
+            preferredFont(forTextStyle: .footnote)
+        }
+    }()
+
+    /// The font used for the button labels in the Enjoyment Dialog ("Love Dialog") and Text Modals ("Prompts").
+    @objc public static var apptentiveDialogButton = preferredFont(forTextStyle: .body)
+
     /// Repairs the scalability of ``UIFont.apptentiveTextInput`` for `UITextView` and `UITextField` use.
     internal func apptentiveRepairedFont() -> UIFont {
         guard let textStyleString = self.fontDescriptor.object(forKey: UIFontDescriptor.AttributeName.textStyle) as? String else {
-            ApptentiveLogger.default.warning("Font \(self.debugDescription) has a missing or invalid textStyle and will not work with Dynamic Type.")
+            Logger.default.warning("Font \(self.debugDescription) has a missing or invalid textStyle and will not work with Dynamic Type.")
             return self
         }
 
         return UIFontMetrics(forTextStyle: UIFont.TextStyle(rawValue: textStyleString)).scaledFont(for: self)
     }
-
-    func createUIFontMetricsForHTML() -> UIFont {
-        let fontDescriptor = self.fontDescriptor
-        if let textStyle = fontDescriptor.fontAttributes[.textStyle] as? UIFont.TextStyle {
-            return UIFontMetrics(forTextStyle: textStyle).scaledFont(for: self)
-        }
-        return self
-    }
 }
 
-extension UIToolbar {
+@MainActor extension UIToolbar {
     /// The circumstances under which to show a toolbar.
     @objc public enum ToolbarMode: Int {
 
@@ -435,13 +503,26 @@ extension UIToolbar {
     @objc public static var apptentiveMode: ToolbarMode = .hiddenWhenEmpty
 }
 
-extension CGFloat {
+@MainActor extension CGFloat {
     /// The width of the layer border for Apptentive buttons for surveys.
     public static var apptentiveButtonBorderWidth: CGFloat = 2
 
-    public static var apptentiveThumbnailScale: CGFloat = UIScreen.main.scale
+    static var apptentiveThumbnailScale: CGFloat = UIScreen.main.scale
+
+    /// The corner radius for Enjoyment Dialog ("Love Dialog") and Text Modal ("Prompt") views.
+    public static var apptentiveDialogCornerRadius: CGFloat = 34
+
+    /// The spacing between buttons in the Enjoyment Dialog ("Love Dialog") and Text Modal ("Prompt") views.
+    public static var apptentiveDialogButtonSpacing: CGFloat = 8
 }
 
-extension CGSize {
+@MainActor extension CGSize {
+    /// The size of attachment thumbnails in Message Center.
     public static var apptentiveThumbnail = CGSize(width: 44, height: 44)
+}
+
+@available(iOS 26.0, *)
+@MainActor extension UICornerConfiguration {
+    /// The corner configuration for Enjoyment Dialog ("Love Dialog") and Text Modal ("Prompt") buttons in iOS 26 and later.
+    public static var apptentiveDialogButton: UICornerConfiguration = .capsule(maximumRadius: 32)
 }

@@ -8,7 +8,7 @@
 
 import XCTest
 
-class TextModalUITests: XCTestCase {
+@MainActor class TextModalUITests: XCTestCase {
     override func setUp() {
         let app = XCUIApplication()
         app.launchArguments = ["-layerSpeed", "500"]
@@ -27,7 +27,7 @@ class TextModalUITests: XCTestCase {
         XCTAssertEqual(messageText, "Message content.")
 
         XCTAssertTrue(XCUIApplication().images["DialogHeaderImageView"].exists)
-        XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Disney Logo")
+        XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Alchemer Logo")
         XCTAssertTrue(XCUIApplication().buttons["Message Center"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Survey"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Link"].exists)
@@ -90,8 +90,10 @@ class TextModalUITests: XCTestCase {
         XCTAssertFalse(XCUIApplication().textViews["DialogMessageText"].exists)
         XCTAssertFalse(XCUIApplication().textViews["DialogTitleText"].exists)
 
+        let _ = XCUIApplication().images["DialogHeaderImageView"].waitForExistence(timeout: 5)
+
         XCTAssertTrue(XCUIApplication().images["DialogHeaderImageView"].exists)
-        XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Disney Logo")
+        XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Alchemer Logo")
         XCTAssertTrue(XCUIApplication().buttons["Message Center"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Survey"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Link"].exists)
@@ -113,7 +115,7 @@ class TextModalUITests: XCTestCase {
         XCTAssertEqual(messageText, "Message content.")
 
         XCTAssertTrue(XCUIApplication().images["DialogHeaderImageView"].exists)
-        XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Disney Logo")
+        XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Alchemer Logo")
         XCTAssertTrue(XCUIApplication().buttons["Message Center"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Survey"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Link"].exists)
@@ -135,7 +137,7 @@ class TextModalUITests: XCTestCase {
         XCTAssertEqual(titleText, "Message Title")
 
         XCTAssertTrue(XCUIApplication().images["DialogHeaderImageView"].exists)
-        XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Disney Logo")
+        XCTAssertEqual(XCUIApplication().images["DialogHeaderImageView"].label, "Alchemer Logo")
         XCTAssertTrue(XCUIApplication().buttons["Message Center"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Survey"].exists)
         XCTAssertTrue(XCUIApplication().buttons["Link"].exists)

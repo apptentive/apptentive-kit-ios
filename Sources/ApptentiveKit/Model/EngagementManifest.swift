@@ -29,7 +29,7 @@ struct EngagementManifest: Expiring, Decodable {
     /// A list of resources to pre-fetch so that interactions can use them without a loading delay.
     var prefetch: [URL]?
 
-    /// The server-side ID of the application.
+    /// The server-side identifier for the application.
     var applicationID: String
 
     /// The date after which the engagement manifest should be considered stale.

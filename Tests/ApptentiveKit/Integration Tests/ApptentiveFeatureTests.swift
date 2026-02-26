@@ -35,22 +35,25 @@ class ApptentiveFeatureTests: XCTestCase {
     }
 
     override func tearDown() {
-        Apptentive.alreadyInitialized = false
-    }
-
-    func testSDKRegistrationSucceedsWithPositiveConfirmation() {
-        let credentials = Apptentive.AppCredentials(key: self.validKey!, signature: self.validSignature!)
-
-        self.sdkRegistrationWithConfirmation(credentials: credentials) {
-            XCTAssertTrue($0)
+        Task { @MainActor in
+            Apptentive.alreadyInitialized = false
         }
     }
 
-    func testSDKRegistrationFailsWithNegativeConfirmation() {
+    func testSDKRegistrationSucceedsWithPositiveConfirmation() async throws {
+        let credentials = Apptentive.AppCredentials(key: self.validKey!, signature: self.validSignature!)
+
+        try await self.sdkRegistrationWithConfirmation(credentials: credentials)
+    }
+
+    func testSDKRegistrationFailsWithNegativeConfirmation() async throws {
         let credentials = Apptentive.AppCredentials(key: "invalid", signature: "invalid")
 
-        self.sdkRegistrationWithConfirmation(credentials: credentials) {
-            XCTAssertFalse($0)
+        do {
+            try await self.sdkRegistrationWithConfirmation(credentials: credentials)
+            XCTFail("Should not succeed with invalid credentials")
+        } catch let error {
+            XCTAssertNotNil(error)
         }
     }
 
@@ -59,44 +62,31 @@ class ApptentiveFeatureTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
-    func sdkRegistrationWithConfirmation() async -> Bool {
-        let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: nil, environment: Environment())
-        (apptentive.environment as! Environment).protectedDataDidBecomeAvailable(notification: Notification(name: Notification.Name(rawValue: "foo")))
+    @MainActor func sdkRegistrationWithConfirmation() async -> Bool {
+        let apptentive = Apptentive(containerDirectory: UUID().uuidString, hostContext: HostContext())
+        (apptentive.hostContext as! HostContext).protectedDataDidBecomeAvailable(notification: Notification(name: Notification.Name(rawValue: "foo")))
         let credentials = Apptentive.AppCredentials(key: self.validKey!, signature: self.validSignature!)
 
         do {
-            try await apptentive.register(with: credentials)
+            try await apptentive.register(
+                with: credentials, region: .us,
+                environment: .init({ _, _ in
+                    "https://api.apptentive.com"
+                }))
             return true
         } catch {
             return false
         }
     }
 
-    func sdkRegistrationWithConfirmation(credentials: Apptentive.AppCredentials, asserts: @escaping (Bool) -> Void) {
-        let expectation = self.expectation(description: "Authentication request complete")
+    @MainActor func sdkRegistrationWithConfirmation(credentials: Apptentive.AppCredentials) async throws {
+        let apptentive = Apptentive(containerDirectory: UUID().uuidString, hostContext: HostContext())
+        (apptentive.hostContext as! HostContext).protectedDataDidBecomeAvailable(notification: Notification(name: Notification.Name(rawValue: "foo")))
 
-        guard let baseURL = self.baseURL else {
-            return XCTFail("Base URL is invalid")
-        }
-
-        let apptentive = Apptentive(baseURL: baseURL, containerDirectory: UUID().uuidString, backendQueue: nil, environment: Environment())
-        (apptentive.environment as! Environment).protectedDataDidBecomeAvailable(notification: Notification(name: Notification.Name(rawValue: "foo")))
-
-        apptentive.register(with: credentials) { result in
-            switch result {
-            case .success:
-                asserts(true)
-            case .failure(_):
-                asserts(false)
-            }
-
-            expectation.fulfill()
-        }
-
-        self.waitForExpectations(timeout: 15) { error in
-            if let error = error {
-                XCTFail("Authentication request timed out: \(error.localizedDescription)")
-            }
-        }
+        try await apptentive.register(
+            with: credentials, region: .us,
+            environment: .init({ _, _ in
+                "https://api.apptentive.com"
+            }))
     }
 }

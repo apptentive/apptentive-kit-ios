@@ -6,8 +6,12 @@
 //  Copyright © 2024 Apptentive, Inc. All rights reserved.
 //
 
+import OSLog
+
 #if canImport(UIKit)
     import UIKit
+#else
+    import Foundation
 #endif
 
 #if canImport(CoreTelephony)
@@ -92,7 +96,7 @@ struct ConversationDataProvider: ConversationDataProviding {
     let xcode: String?
     let xcodeBuild: String?
 
-    init() {
+    @MainActor init() {
         let infoDictionary = Bundle.main.infoDictionary ?? [:]
         self.appStoreReceiptURL = Bundle.main.appStoreReceiptURL
 
@@ -157,7 +161,7 @@ struct ConversationDataProvider: ConversationDataProviding {
             {
                 self.distributionName = distributionName
             } else {
-                ApptentiveLogger.default.warning("ApptentiveKit framework is damaged! Missing ApptentiveDistributionName in Distribution.plist.")
+                Logger.default.warning("ApptentiveKit framework is damaged! Missing ApptentiveDistributionName in Distribution.plist.")
                 self.distributionName = "Unknown"
             }
         #endif

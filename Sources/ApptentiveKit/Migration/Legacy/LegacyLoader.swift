@@ -132,17 +132,17 @@ final class LegacyLoader: NSObject, Loader {
     func cleanUpRoster() throws {
         // Until we're out of beta, keep the legacy conversation around.
         // if self.rosterFileExists {
-        //     try self.environment.fileManager.removeItem(at: self.metadataURL)
+        //     try self.hostContext.fileManager.removeItem(at: self.metadataURL)
         // }
     }
 
     func cleanUp(for record: ConversationRoster.Record) throws {
         //        if self.conversationFileExists {
-        //            try self.environment.fileManager.removeItem(at: self.conversationFileURL)
+        //            try self.hostContext.fileManager.removeItem(at: self.conversationFileURL)
         //        }
         //
-        //        if self.environment.fileManager.fileExists(atPath: self.messagesFileURL.path) {
-        //            try self.environment.fileManager.removeItem(at: self.messagesFileURL)
+        //        if self.hostContext.fileManager.fileExists(atPath: self.messagesFileURL.path) {
+        //            try self.hostContext.fileManager.removeItem(at: self.messagesFileURL)
         //        }
     }
 

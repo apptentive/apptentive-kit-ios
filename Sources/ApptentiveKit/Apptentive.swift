@@ -6,6 +6,7 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import OSLog
 import UIKit
 
 /// Describes an object that responds to authentication failures for logged-in conversations.
@@ -16,8 +17,7 @@ import UIKit
 }
 
 /// The main interface to the Apptentive SDK.
-public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, MessageManagerApptentiveDelegate, BackendDelegate {
-
+@MainActor public final class Apptentive: NSObject, HostContextDelegate, InteractionDelegate, MessageManagerApptentiveDelegate, BackendDelegate {
     /// The shared instance of the Apptentive SDK.
     ///
     /// This object is created lazily upon access.
@@ -36,7 +36,13 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// The theme to apply to Apptentive UI.
     ///
     /// This property must be set before calling `register(credentials:)`.
-    @objc public var theme: UITheme = .apptentive
+    @objc public var theme: UITheme = {
+        if #available(iOS 26, *) {
+            .customerOnly
+        } else {
+            .customerBasedOnApptentive
+        }
+    }()
 
     /// Whether to store sensitive conversation credentials in the iOS keychain.
     ///
@@ -86,74 +92,20 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     @objc @BackendSync public var distributionVersion: String?
 
     /// Indicates a theme that will be applied to Apptentive UI.
-    @objc public enum UITheme: Int {
+    @objc public enum UITheme: Int, Sendable {
         /// Apptentive cross-platform look and feel.
         case apptentive = 1
+
+        case customerOnly = 2
+
+        case customerBasedOnApptentive = 3
 
         /// iOS default look and feel.
         case none = 0
     }
 
-    /// Provides the SDK with the credentials necessary to connect to the Apptentive API.
-    /// - Parameters:
-    ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
-    ///   - region: The region to use when making API requests (defaults to `.us`).
-    ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
-    public func register(with credentials: AppCredentials, region: Region = .us, completion: ((Result<Void, Error>) -> Void)? = nil) {
-        if case .apptentive = self.theme {
-            ApptentiveLogger.interaction.info("Using Apptentive theme for interaction UI.")
-            DispatchQueue.main.async {
-                Self.applyApptentiveTheme()
-            }
-        } else {
-            self.backend.setIsOverridingStyles()
-        }
-
-        if self.shouldUseSecureTokenStorage {
-            self.backendQueue.async {
-                self.backend.shouldUseSecureTokenStorage = true
-            }
-        }
-
-        if !self.environment.isTesting {
-            if credentials.key.isEmpty || credentials.signature.isEmpty {
-                apptentiveCriticalError("App key or signature is missing.")
-            } else if !credentials.key.hasPrefix("IOS-") {
-                apptentiveCriticalError("Invalid app key. Please check the dashboard for the correct app key.")
-            }
-        }
-
-        self.backendQueue.async {
-            self.backend.register(appCredentials: credentials, region: region) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let connectionType):
-                        completion?(.success(()))
-                        ApptentiveLogger.default.info("Apptentive SDK registered successfully (\(connectionType == .new ? "new" : "existing") conversation).")
-
-                    case .failure(let error):
-                        completion?(.failure(error))
-                        ApptentiveLogger.default.error("Failed to register Apptentive SDK: \(error)")
-                        if !self.environment.isTesting {
-                            apptentiveCriticalError("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /// Provides the SDK with the credentials necessary to connect to the Apptentive API.
-    /// - Parameter credentials: The `AppCredentials` object containing your Apptentive key and signature.
-    /// - Throws: An error if registration fails.
-    public func register(with credentials: AppCredentials) async throws {
-        let _ = try await withCheckedThrowingContinuation { continuation in
-            self.register(with: credentials) { continuation.resume(returning: $0) }
-        }
-    }
-
     /// Contains the app-level credentials necessary to connect to the Apptentive API.
-    public struct AppCredentials: Codable, Equatable {
+    public struct AppCredentials: Codable, Equatable, Sendable {
 
         /// The Apptentive App Key (found in the API & Development section of the Settings tab in the Apptentive Dashboard).
         public let key: String
@@ -172,21 +124,99 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     }
 
     /// Specifies which server should host data associated with the host app.
-    public struct Region {
+    public enum Region: String, Sendable {
+        /// The United States region.
+        case us
 
-        /// Creates a new Region object with the specified API base URL.
-        ///
-        /// This initializer should only be used for testing. Use one of the static properties of this struct for production apps.
-        /// - Parameter apiBaseURL: The URL that the SDK will use as a base for its API requests.
-        public init(apiBaseURL: URL) {
-            self.apiBaseURL = apiBaseURL
+        /// The European Union region.
+        case eu
+
+        /// The Australian region.
+        case au
+    }
+
+    /// Specifies which environment's (production/staging) URL template to use.
+    public struct Environment: Sendable {
+        private let builder: @Sendable (String, Apptentive.Region) -> String
+
+        public init(_ template: @escaping @Sendable (String, Apptentive.Region) -> String) {
+            self.builder = template
         }
 
-        internal let apiBaseURL: URL
+        func resolve(appCredentials: Apptentive.AppCredentials, region: Apptentive.Region) throws -> URL {
+            guard let result = URL(string: builder(appCredentials.key, region)) else {
+                throw ApptentiveError.internalInconsistency
+            }
 
-        /// The region for data that should be hosted in the United States of America (default).
-        // swift-format-ignore
-        public static let us = Region(apiBaseURL: URL(string: "https://api.apptentive.com/")!)
+            return result
+        }
+
+        public static let production = Self { key, region in
+            "https://\(key).api.digital.\(region).alchemer.com/"
+        }
+
+        public static func custom(_ url: URL) -> Self {
+            return Self { _, _ in url.absoluteString }
+        }
+    }
+
+    /// Provides the SDK with the credentials necessary to connect to the Apptentive API.
+    /// - Parameters:
+    ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
+    ///   - region: The region to use when making API requests (defaults to `.us`).
+    ///   - environment: The environment to use when building the API base URL.
+    ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
+    public func register(with credentials: AppCredentials, region: Region = .us, environment: Environment = .production, completion: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
+        Task {
+            do {
+                try await self.register(with: credentials, region: region, environment: environment)
+                completion?(.success(()))
+            } catch let error {
+                if let completion {
+                    completion(.failure(error))
+                } else {
+                    Logger.default.error("Failed to register Apptentive SDK: \(error)")
+                    apptentiveCriticalError("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                }
+            }
+        }
+    }
+
+    /// Provides the SDK with the credentials necessary to connect to the Apptentive API.
+    /// - Parameters:
+    ///   - credentials: The `AppCredentials` object containing your Apptentive key and signature.
+    ///   - region: The region to use when making API requests (defaults to `.us`).
+    ///   - environment: The environment to use when building the API base URL.
+    /// - Throws: An error if registration fails.
+    nonisolated public func register(with credentials: AppCredentials, region: Region = .us, environment: Environment = .production) async throws {
+        switch await self.theme {
+        case .apptentive:
+            Logger.interaction.info("Using Apptentive theme for interaction UI.")
+            await Self.applyApptentiveTheme()
+
+        case .customerOnly:
+            Logger.interaction.info("Using customer theme (asset catalog) for interaction UI.")
+            await self.backend.setIsOverridingStyles()
+            await Self.applyCustomerTheme()
+
+        case .customerBasedOnApptentive:
+            Logger.interaction.info("Using customer theme (asset catalog) for interaction UI to override Apptentive theme.")
+            await self.backend.setIsOverridingStyles()
+            await Self.applyApptentiveTheme()
+            await Self.applyCustomerTheme()
+
+        case .none:
+            await self.backend.setIsOverridingStyles()
+        }
+
+        await self.backend.setShouldUseSecureTokenStorage(self.shouldUseSecureTokenStorage)
+
+        if credentials.signature.isEmpty || !credentials.key.hasPrefix("IOS-") {
+            throw ApptentiveError.invalidAppCredentials
+        }
+
+        let connectionType = try await self.backend.register(appCredentials: credentials, region: region, environment: environment)
+        Logger.default.info("Apptentive SDK registered successfully (\(connectionType == .new ? "new" : "existing") conversation).")
     }
 
     /// Engages the specified event, using the view controller (if any) as the presenting view controller for any interactions.
@@ -194,24 +224,13 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///   - event: The event to engage.
     ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
     ///   - completion: A completion handler that is called with a boolean indicating whether or not an interaction was presented.
-    public func engage(event: Event, from viewController: UIViewController? = nil, completion: ((Result<Bool, Error>) -> Void)? = nil) {
-        if let presentingViewController = viewController {
-            self.interactionPresenter.presentingViewController = presentingViewController
-        }
-
-        NotificationCenter.default.post(name: Notification.Name.apptentiveEventEngaged, object: nil, userInfo: event.userInfoForNotification())
-
-        self.backendQueue.async {
-            self.backend.engage(event: event) { result in
-                if let completion = completion {
-                    DispatchQueue.main.async {
-                        completion(result)
-                    }
-                } else {
-                    if case .failure(let error) = result {
-                        ApptentiveLogger.default.error("Error when engaging event: \(error)")
-                    }
-                }
+    public func engage(event: Event, from viewController: UIViewController? = nil, completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
+        Task {
+            do {
+                let result = try await self.engage(event: event, from: viewController)
+                completion?(.success(result))
+            } catch let error {
+                completion?(.failure(error))
             }
         }
     }
@@ -222,39 +241,14 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
     /// - Returns: A boolean indicating whether or not an interaction was presented.
     /// - Throws: An error if engaging the event fails.
-    public func engage(event: Event, from viewController: UIViewController? = nil) async throws -> Bool {
-        try await withCheckedThrowingContinuation { continuation in
-            self.engage(event: event, from: viewController) { continuation.resume(with: $0) }
+    nonisolated public func engage(event: Event, from viewController: UIViewController? = nil) async throws -> Bool {
+        if let viewController {
+            await self.setPresentingViewController(viewController)
         }
-    }
 
-    /// Adds an event to the list of events whose interactions should not be rate limited.
-    ///
-    /// Use this setting for events that engaged by your app that are intended to
-    /// always present the interaction, for example a button that launches a feature via this SDK.
-    /// The Message Center launch event is automatically included.
-    ///
-    /// The list of events is not persisted, so your app must set it on every launch.
-    /// - Parameter events: The event objects to exclude.
-    internal func excludeEventsFromThrottling(_ events: [Event]) {
-        self.backendQueue.async {
-            for event in events {
-                self.backend.rateLimitExemptCodePoints.insert(event.codePointName)
-            }
-        }
-    }
+        NotificationCenter.default.post(name: Notification.Name.apptentiveEventEngaged, object: nil, userInfo: event.userInfoForNotification())
 
-    /// Sets the number of times an interaction may show per session before being throttled.
-    ///
-    /// The default value is once per session, defined as a cold launch of the app.
-    /// The interaction counts are also reset if a user logs out.
-    /// A negative or zero rate limit will prevent all interactions (from non-excluded events)
-    /// from presenting.
-    /// - Parameter count: The value of the interaction rate limit.
-    internal func setPerSessionInteractionLimit(_ count: Int) {
-        self.backendQueue.async {
-            self.backend.perSessionInteractionLimit = count
-        }
+        return try await self.backend.engage(event: event)
     }
 
     /// Dimisses any currently-visible interactions.
@@ -267,34 +261,21 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     // MARK: Message Center
 
-    /// Presents Apptentive's Message Center using the specified view controller for presentation.
-    /// - Parameters:
-    ///   - viewController: The view controller from which to present Message Center.
-    ///   - completion: Called with the result of the message center presentation request.
-    public func presentMessageCenter(from viewController: UIViewController?, completion: ((Result<Bool, Error>) -> Void)? = nil) {
-        self.canShowMessageCenter { result in
-            if case .success(let canShow) = result, canShow {
-                self.engage(event: .showMessageCenter, from: viewController, completion: completion)
-            } else {
-                self.engage(event: .showMessageCenterFallback, from: viewController, completion: completion)
-            }
-        }
-    }
-
     /// Presents Apptentive's Message Center using the specified view controller for presentation,
     /// attaching the specified custom data to the first message (if any) sent by the user.
     /// - Parameters:
     ///   - viewController: The view controller from which to present Message Center.
     ///   - customData: The custom data to send along with the message.
     ///   - completion: Called with the result of the message center presentation request.
-    public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData?, completion: ((Result<Bool, Error>) -> Void)? = nil) {
-        if let customData = customData {
-            self.backendQueue.async {
-                self.backend.setMessageCenterCustomData(customData)
+    public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData? = nil, completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
+        Task {
+            do {
+                let shown = try await self.presentMessageCenter(from: viewController, with: customData)
+                completion?(.success(shown))
+            } catch let error {
+                completion?(.failure(error))
             }
         }
-
-        self.presentMessageCenter(from: viewController, completion: completion)
     }
 
     /// Presents Apptentive's Message Center using the specified view controller for presentation,
@@ -304,27 +285,31 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///   - customData: The custom data to send along with the message.
     /// - Returns: A boolean indicating if the message center was presented.
     /// - Throws: An error if presenting message center with custom data fails.
-    public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData? = nil) async throws -> Bool {
-        try await withCheckedThrowingContinuation { continuation in
+    nonisolated public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData? = nil) async throws -> Bool {
+        if try await self.canShowMessageCenter() {
             if let customData = customData {
-                self.presentMessageCenter(from: viewController, with: customData) { continuation.resume(with: $0) }
-            } else {
-                self.presentMessageCenterCompat(from: viewController)
+                await self.backend.setMessageCenterCustomData(customData)
             }
+
+            return try await self.engage(event: .showMessageCenter, from: viewController)
+        } else {
+            let _ = try await self.engage(event: .showMessageCenterFallback, from: viewController)
+
+            return false
         }
     }
 
     /// Sends the specified text as a hidden message to the app's dashboard.
     /// - Parameter text: The text to send in the body of the message.
     @objc(sendAttachmentText:)
-    public func sendAttachment(_ text: String) {
+    nonisolated public func sendAttachment(_ text: String) {
         self.sendMessage(MessageList.Message(nonce: "hidden", body: text, attachments: [], sentDate: Date(), isHidden: true))
     }
 
     /// Sends the specified image (encoded as a JPEG at 95% quality) attached to a hidden message to the app's dashboard.
     /// - Parameter image: The image to encode and send.
     @objc(sendAttachmentImage:)
-    public func sendAttachment(_ image: UIImage) {
+    nonisolated public func sendAttachment(_ image: UIImage) {
         guard let imageData = image.jpegData(compressionQuality: 0.95) else {
             return apptentiveCriticalError("Unable to convert image to JPEG data.")
         }
@@ -338,11 +323,11 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///   - fileData: The contents of the file.
     ///   - mediaType: The media type for the file.
     @objc(sendAttachmentFile:withMimeType:)
-    public func sendAttachment(_ fileData: Data, mediaType: String) {
+    nonisolated public func sendAttachment(_ fileData: Data, mediaType: String) {
         var filename = "file"
 
         if let pathExtension = AttachmentManager.pathExtension(for: mediaType) {
-            filename.append(".\([pathExtension])")
+            filename.append(".\(pathExtension)")
         }
 
         let attachment = MessageList.Message.Attachment(contentType: mediaType, filename: filename, storage: .inMemory(fileData))
@@ -353,18 +338,14 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// - Parameters:
     ///  - event: The event used to check if it can trigger an interaction.
     ///  - completion: A completion handler that is called with a boolean indicating whether or not an interaction can be shown using the event.
-    public func canShowInteraction(event: Event, completion: ((Result<Bool, Error>) -> Void)? = nil) {
-        self.backendQueue.async {
-            self.backend.canShowInteraction(event: event) { result in
-                if let completion = completion {
-                    DispatchQueue.main.async {
-                        completion(result)
-                    }
-                } else {
-                    if case .failure(let error) = result {
-                        ApptentiveLogger.default.error("Error when evaluating criteria: \(error)")
-                    }
-                }
+    public func canShowInteraction(event: Event, completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
+        Task {
+            do {
+                let result = try await self.canShowInteraction(event: event)
+                completion?(.success(result))
+            } catch let error {
+                Logger.default.error("Error when evaluating criteria: \(error)")
+                completion?(.failure(error))
             }
         }
     }
@@ -373,22 +354,20 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// - Parameter event: The event used to check if it can trigger an interaction.
     /// - Returns: A boolean indicating whether or not an interaction can be shown using the event.
     /// - Throws: An error when failing.
-    public func canShowInteraction(event: Event) async throws -> Bool {
-        try await withCheckedThrowingContinuation { continuation in
-            self.canShowInteraction(event: event) { continuation.resume(with: $0) }
-        }
+    nonisolated public func canShowInteraction(event: Event) async throws -> Bool {
+        return try await self.backend.canShowInteraction(event: event)
     }
 
     /// Checks if Message Center can be presented.
     /// - Parameter completion: A completion handler that is called with a boolean indicating whether or not an interaction can be shown using the event.
-    public func canShowMessageCenter(completion: ((Result<Bool, Error>) -> Void)? = nil) {
+    public func canShowMessageCenter(completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
         self.canShowInteraction(event: .showMessageCenter, completion: completion)
     }
 
     /// Checks if Message Center can be presented.
     /// - Returns: A boolean indicating whether or not an interaction can be shown using the event.
     /// - Throws: An error when failing.
-    public func canShowMessageCenter() async throws -> Bool {
+    nonisolated public func canShowMessageCenter() async throws -> Bool {
         return try await self.canShowInteraction(event: .showMessageCenter)
     }
 
@@ -412,12 +391,13 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///   signed with the secret from the API & Development section of the
     ///   Settings tab in your app's Apptentive dashboard.
     ///   - completion: A completion handler that is called with the result  of the login operation.
-    public func logIn(with token: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        self.backendQueue.async {
-            self.backend.logIn(with: token) { result in
-                DispatchQueue.main.async {
-                    completion(result)
-                }
+    public func logIn(with token: String, completion: @Sendable @escaping (Result<Void, Error>) -> Void) {
+        Task {
+            do {
+                try await self.backend.logIn(with: token)
+                completion(.success(()))
+            } catch let error {
+                completion(.failure(error))
             }
         }
     }
@@ -441,28 +421,24 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///   signed with the secret from the API & Development section of the
     ///   Settings tab in your app's Apptentive dashboard.
     /// - Throws: an error if there is a problem logging in.
-    public func logIn(with token: String) async throws {
-        try await withCheckedThrowingContinuation { continuation in
-            self.logIn(with: token) { continuation.resume(with: $0) }
-        }
+    nonisolated public func logIn(with token: String) async throws {
+        try await self.backend.logIn(with: token)
     }
 
     /// Logs out the active conversation.
     ///
     /// This also discards the key used to encrypt/decrypt the conversation data and deletes cached attachments.
     /// - Parameter completion: A completion handler that is called with the result of the logout operation.
-    public func logOut(completion: ((Result<Void, Error>) -> Void)?) {
-        self.backendQueue.async {
+    public func logOut(completion: (@Sendable (Result<Void, Error>) -> Void)?) {
+        Task {
             do {
-                try self.backend.logOut()
-                DispatchQueue.main.async {
-                    completion?(.success(()))
-                }
+                try await self.backend.logOut()
+                completion?(.success(()))
             } catch let error {
                 if let completion = completion {
                     completion(.failure(error))
                 } else {
-                    ApptentiveLogger.default.error("Error when logging out: \(error).")
+                    Logger.default.error("Error when logging out: \(error).")
                 }
             }
         }
@@ -472,21 +448,24 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     ///
     /// This also discards the key used to encrypt/decrypt the conversation data and deletes cached attachments.
     /// - Throws: an error if the logout operation fails.
-    public func logOut() async throws {
-        try await withCheckedThrowingContinuation { continuation in
-            self.logOut { continuation.resume(with: $0) }
-        }
+    nonisolated public func logOut() async throws {
+        try await self.backend.logOut()
     }
 
     /// Updates the JWT for the currently logged-in conversation.
     /// - Parameters:
     ///   - token: The new JWT.
     ///   - completion: A completion handler that is called with the result of the update operation.
-    public func updateToken(_ token: String, completion: ((Result<Void, Error>) -> Void)? = nil) {
-        self.backendQueue.async {
-            self.backend.updateToken(token) { result in
-                DispatchQueue.main.async {
-                    completion?(result)
+    public func updateToken(_ token: String, completion: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
+        Task {
+            do {
+                try await self.backend.updateToken(token)
+                completion?(.success(()))
+            } catch let error {
+                if let completion = completion {
+                    completion(.failure(error))
+                } else {
+                    Logger.default.error("Error when updating token: \(error).")
                 }
             }
         }
@@ -495,104 +474,108 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
     /// Updates the JWT for the currently logged-in conversation.
     /// - Parameter token: The new JWT.
     /// - Throws: an error if the update operation fails.
-    public func updateToken(_ token: String) async throws {
-        try await withCheckedThrowingContinuation { continuation in
-            self.updateToken(token) { continuation.resume(with: $0) }
-        }
+    nonisolated public func updateToken(_ token: String) async throws {
+        try await self.backend.updateToken(token)
     }
 
     // MARK: - Internal
 
-    let backendQueue: DispatchQueue
-    let backend: Backend
-    var environment: GlobalEnvironment
+    let backend: BackendProtocol
+    var hostContext: GlobalContext
     let resourceManager: ResourceManager
 
-    init(baseURL: URL? = nil, containerDirectory: String? = nil, backendQueue: DispatchQueue? = nil, environment: GlobalEnvironment? = nil) {
+    convenience init(containerDirectory: String? = nil, hostContext: GlobalContext? = nil) {
+        let dataProvider = ConversationDataProvider()
+        let containerName = containerDirectory ?? "com.apptentive.feedback"
+        let requestor = URLSession(configuration: Backend.urlSessionConfiguration)
+        let backend = Backend(dataProvider: dataProvider, requestor: requestor, containerName: containerName)
+        let context = hostContext ?? HostContext()
+
+        self.init(backend: backend, requestor: requestor, dataProvider: dataProvider, hostContext: context)
+    }
+
+    init(backend: BackendProtocol, requestor: HTTPRequesting, dataProvider: ConversationDataProviding, hostContext: GlobalContext) {
         if Self.alreadyInitialized {
             apptentiveCriticalError("Attempting to instantiate an Apptentive object but an instance already exists.")
         }
 
         Self.alreadyInitialized = true
 
-        let backendQueue = backendQueue ?? DispatchQueue(label: "com.apptentive.backend", qos: .default, autoreleaseFrequency: .workItem)
-        self.backendQueue = backendQueue
-        self.environment = environment ?? Environment()
-        let dataProvider = ConversationDataProvider()
-        let containerName = containerDirectory ?? "com.apptentive.feedback"
-        let requestor = URLSession(configuration: Backend.urlSessionConfiguration)
-        let backend = Backend(queue: self.backendQueue, dataProvider: dataProvider, requestor: requestor, containerName: containerName)
+        self.hostContext = hostContext
         self.backend = backend
 
         self.interactionPresenter = InteractionPresenter()
-        self.resourceManager = ResourceManager(fileManager: self.environment.fileManager, requestor: requestor)
+        self.resourceManager = ResourceManager(requestor: requestor)
 
-        self._personName = BackendSync(value: nil, queue: backendQueue, updateMethod: backend.setPersonName)
-        self._personEmailAddress = BackendSync(value: nil, queue: backendQueue, updateMethod: backend.setPersonEmailAddress)
-        self._mParticleID = BackendSync(value: nil, queue: backendQueue, updateMethod: backend.setMParticleID)
-        self._personCustomData = BackendSync(value: CustomData(), queue: backendQueue, updateMethod: backend.setPersonCustomData)
-        self._deviceCustomData = BackendSync(value: CustomData(), queue: backendQueue, updateMethod: backend.setDeviceCustomData)
-        self._distributionName = BackendSync(value: nil, queue: backendQueue, updateMethod: backend.setDistributionName)
-        self._distributionVersion = BackendSync(value: nil, queue: backendQueue, updateMethod: backend.setDistributionVersion)
+        self._personName = BackendSync(value: nil, updateMethod: { personName in Task { await backend.setPersonName(personName) } })
+        self._personEmailAddress = BackendSync(value: nil, updateMethod: { personEmailAddress in Task { await backend.setPersonEmailAddress(personEmailAddress) } })
+        self._mParticleID = BackendSync(value: nil, updateMethod: { mParticleID in Task { await backend.setMParticleID(mParticleID) } })
+        self._personCustomData = BackendSync(value: CustomData(), updateMethod: { personCustomData in Task { await backend.setPersonCustomData(personCustomData) } })
+        self._deviceCustomData = BackendSync(value: CustomData(), updateMethod: { deviceCustomData in Task { await backend.setDeviceCustomData(deviceCustomData) } })
+        self._distributionName = BackendSync(value: nil, updateMethod: { distributionName in Task { await backend.setDistributionName(distributionName) } })
+        self._distributionVersion = BackendSync(value: nil, updateMethod: { distributionVersion in Task { await backend.setDistributionVersion(distributionVersion) } })
 
         super.init()
 
-        self.environment.delegate = self
-        self.backend.setDelegate(self)
+        self.hostContext.delegate = self
+        Task {
+            await self.backend.setDelegate(self)
+        }
         self.interactionPresenter.delegate = self
 
-        if self.environment.isInForeground {
-            self.applicationWillEnterForeground(self.environment)
+        if self.hostContext.isInForeground {
+            self.applicationWillEnterForeground(self.hostContext)
         }
 
-        if self.environment.isProtectedDataAvailable {
-            self.protectedDataDidBecomeAvailable(self.environment)
+        if self.hostContext.isProtectedDataAvailable {
+            self.protectedDataDidBecomeAvailable(self.hostContext)
         }
 
-        ApptentiveLogger.default.info("Apptentive SDK Version \(dataProvider.sdkVersion.versionString) Initialized.")
+        Logger.default.info("Apptentive SDK Version \(dataProvider.sdkVersion.versionString) Initialized.")
     }
 
     static var alreadyInitialized = false
 
-    // MARK: EnvironmentDelegate
+    // MARK: HostContextDelegate
 
-    func protectedDataDidBecomeAvailable(_ environment: GlobalEnvironment) {
-        self.backendQueue.async {
-            do {
-                try self.backend.protectedDataDidBecomeAvailable()
-            } catch let error {
-                ApptentiveLogger.default.error("Unable to start Backend: \(error).")
-                apptentiveCriticalError("Unable to start Backend: \(error)")
+    nonisolated func protectedDataDidBecomeAvailable(_ context: GlobalContext) {
+        Task {
+            await self.backend.protectedDataDidBecomeAvailable()
+        }
+    }
+
+    func protectedDataWillBecomeUnavailable(_ context: GlobalContext) {
+        Task {
+            await self.backend.protectedDataWillBecomeUnavailable()
+        }
+    }
+
+    func applicationWillEnterForeground(_ context: GlobalContext) {
+        Task {
+            await self.backend.willEnterForeground()
+        }
+    }
+
+    func applicationDidEnterBackground(_ context: GlobalContext) {
+        Task {
+            await self.backend.didEnterBackground()
+        }
+    }
+
+    func applicationWillTerminate(_ context: GlobalContext) {
+        if context.isInForeground {
+            Task {
+                let _ = try await self.engage(event: .exit())
             }
-        }
-    }
-
-    func protectedDataWillBecomeUnavailable(_ environment: GlobalEnvironment) {
-        self.backendQueue.async {
-            self.backend.protectedDataWillBecomeUnavailable()
-        }
-    }
-
-    func applicationWillEnterForeground(_ environment: GlobalEnvironment) {
-        self.backendQueue.async {
-            self.backend.willEnterForeground()
-        }
-    }
-
-    func applicationDidEnterBackground(_ environment: GlobalEnvironment) {
-        self.backendQueue.async {
-            self.backend.didEnterBackground()
-        }
-    }
-
-    func applicationWillTerminate(_ environment: GlobalEnvironment) {
-        if environment.isInForeground {
-            self.engage(event: .exit())
         }
     }
 
     func authenticationDidFail(with error: Swift.Error) {
         self.delegate?.authenticationDidFail(with: error)
+    }
+
+    func setUnreadMessageCount(_ unreadMessageCount: Int) {
+        self.unreadMessageCount = unreadMessageCount
     }
 
     // MARK: BackendDelegate
@@ -622,14 +605,26 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
         self._distributionVersion.value = conversation.appRelease.sdkDistributionVersion?.versionString
     }
 
+    func setPrefetchContainerURL(_ prefetchContainerURL: URL?) async {
+        await self.resourceManager.setPrefetchContainerURL(prefetchContainerURL)
+    }
+
+    func prefetchResources(at urls: [URL]) async {
+        await self.resourceManager.prefetchResources(at: urls)
+    }
+
     // MARK: - Private
 
-    private func sendMessage(_ message: MessageList.Message) {
-        self.backendQueue.async {
+    private func setPresentingViewController(_ presentingViewController: UIViewController?) {
+        self.interactionPresenter.presentingViewController = presentingViewController
+    }
+
+    nonisolated private func sendMessage(_ message: MessageList.Message) {
+        Task {
             do {
-                try self.backend.sendMessage(message)
+                try await self.backend.sendMessage(message, with: nil)
             } catch let error {
-                ApptentiveLogger.default.error("Error sending message: \(error)")
+                Logger.default.error("Error sending message: \(error)")
             }
         }
     }
@@ -638,7 +633,6 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
 
     @propertyWrapper public struct BackendSync<T> {
         var value: T
-        let queue: DispatchQueue
         let updateMethod: (T) -> Void
 
         public var wrappedValue: T {
@@ -647,18 +641,15 @@ public class Apptentive: NSObject, EnvironmentDelegate, InteractionDelegate, Mes
             }
             set {
                 self.value = newValue
-                let updateMethodCopy = self.updateMethod
-                self.queue.async {
-                    updateMethodCopy(newValue)
-                }
+                self.updateMethod(newValue)
             }
         }
     }
 }
 
-public enum ApptentiveError: Swift.Error, LocalizedError {
+public enum ApptentiveError: Swift.Error, LocalizedError, Equatable {
     case internalInconsistency
-    case invalidCustomDataType(Any?)
+    case invalidCustomDataType
     case fileExistsAtContainerDirectoryPath
     case unsupportedBackendStateTransition
     case emptyEventName
@@ -669,6 +660,7 @@ public enum ApptentiveError: Swift.Error, LocalizedError {
     case missingSubClaim
     case mismatchedSubClaim
     case invalidEncryptionKey
+    case invalidAppCredentials
     case noActiveConversation
     case authenticationFailed(reason: AuthenticationFailureReason?, responseString: String?)
     case resourceNotDecodableAsImage
@@ -680,8 +672,8 @@ public enum ApptentiveError: Swift.Error, LocalizedError {
         case .internalInconsistency:
             return "Internal error."
 
-        case .invalidCustomDataType(let value):
-            return "Unsupported type for custom data: \(String(describing: value))"
+        case .invalidCustomDataType:
+            return "Unsupported type for custom data"
 
         case .fileExistsAtContainerDirectoryPath:
             return "Internal error: creation of Apptentive container directory failed because a file was present at that path."
@@ -710,6 +702,9 @@ public enum ApptentiveError: Swift.Error, LocalizedError {
         case .invalidEncryptionKey:
             return "Internal error: The encryption key received from the API could not be decoded."
 
+        case .invalidAppCredentials:
+            return "The app credentials were invalid or intended for use with another platform."
+
         case .noActiveConversation:
             return "The SDK is currently logged out."
 
@@ -722,13 +717,13 @@ public enum ApptentiveError: Swift.Error, LocalizedError {
         case .resourceNotDecodableAsImage:
             return "The resource was not decodable as an image."
 
-        case .interactionExceededRateLimit(count: let count, limit: let limit):
+        case .interactionExceededRateLimit(let count, let limit):
             return "This interaction has already been presented \(count) times this session, exceeding the limit of \(limit)."
         }
     }
 }
 
-public enum AuthenticationFailureReason: String, Codable {
+public enum AuthenticationFailureReason: String, Codable, Sendable {
     case invalidAlgorithm = "INVALID_ALGORITHM"
     case malformedToken = "MALFORMED_TOKEN"
     case invalidToken = "INVALID_TOKEN"
@@ -777,7 +772,7 @@ public enum AuthenticationFailureReason: String, Codable {
 ///     print("\(file):\(line): Apptentive critical error: \(message())")
 /// }
 /// ```
-public var apptentiveAssertionHandler = { (message: @autoclosure () -> String, file, line) in
+nonisolated(unsafe) public var apptentiveAssertionHandler = { (message: @autoclosure () -> String, file, line) in
     assertionFailure(message(), file: file, line: line)
 }
 

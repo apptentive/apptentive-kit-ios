@@ -11,7 +11,7 @@ import UIKit
 
 typealias AppleRatingDialogInteractionDelegate = EventEngaging & ReviewRequesting
 
-class AppleRatingDialogController {
+@MainActor final class AppleRatingDialogController {
     let interaction: Interaction
     let delegate: AppleRatingDialogInteractionDelegate
 
@@ -23,17 +23,14 @@ class AppleRatingDialogController {
         self.delegate = delegate
     }
 
-    func requestReview(completion: @escaping (Bool) -> Void) {
+    func requestReview() async throws {
         self.delegate.engage(event: .request(from: self.interaction))
+        let wasShown = try await self.delegate.requestReview()
 
-        self.delegate.requestReview { (wasShown) in
-            if wasShown {
-                self.delegate.engage(event: .shown(from: self.interaction))
-            } else {
-                self.delegate.engage(event: .notShown(from: self.interaction))
-            }
-
-            completion(wasShown)
+        if wasShown {
+            self.delegate.engage(event: .shown(from: self.interaction))
+        } else {
+            self.delegate.engage(event: .notShown(from: self.interaction))
         }
     }
 }

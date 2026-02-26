@@ -41,7 +41,7 @@ struct ALoader: Loader {
         let aConversation = try self.decoder.decode(AConversation.self, from: data)
 
         guard self.context.appCredentials == aConversation.appCredentials else {
-            ApptentiveLogger.default.warning("App credentials for the existing conversation do not match. Creating a new conversation.")
+            Logger.default.warning("App credentials for the existing conversation do not match. Creating a new conversation.")
             throw LoaderError.mismatchedAppCredentials
         }
 
@@ -81,7 +81,7 @@ struct ALoader: Loader {
 
             // Rebase attachment URLs (this mostly comes up in testing)
             return try aPayloads.map { aPayload in
-                let context = Payload.Context(tag: self.newConversationPath, credentials: .placeholder, sessionID: aPayload.jsonObject.sessionID, encoder: jsonEncoder, encryptionContext: nil)
+                let context = Payload.Context(tag: self.newConversationPath, credentials: .placeholder, sessionID: aPayload.jsonObject.sessionID, encoder: jsonEncoder, authenticationContext: nil)
 
                 let movedAttachments = aPayload.attachments.map { (attachment) -> Payload.Attachment in
                     switch attachment.contents {

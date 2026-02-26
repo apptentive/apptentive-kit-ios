@@ -28,86 +28,49 @@ extension Apptentive {
     }
 
     /// Overrides the API-provided engagement manifest with one from the specified URL.
-    /// - Parameters:
-    ///   - url: The (file) URL of the manifest to load.
-    ///   - completion: A completion handler called with the result of loading the URL.
-    public func loadEngagementManifest(at url: URL?, completion: @escaping (Result<Void, Error>) -> Void) {
-        self.backendQueue.async {
-            if let url = url {
-                do {
-                    let manifestData = try Data(contentsOf: url)
+    /// - Parameter url: The (file) URL of the manifest to load.
+    /// - Throws: An error if the manifest fails to load.
+    public func loadEngagementManifest(at url: URL?) async throws {
+        if let url = url {
+            let manifestData = try Data(contentsOf: url)
 
-                    let engagementManifest = try JSONDecoder.apptentive.decode(EngagementManifest.self, from: manifestData)
+            let engagementManifest = try JSONDecoder.apptentive.decode(EngagementManifest.self, from: manifestData)
 
-                    self.backend.setLocalEngagementManifest(engagementManifest)
-                    self.resourceManager.prefetchResources(at: engagementManifest.prefetch ?? [])
+            await self.backend.setLocalEngagementManifest(engagementManifest)
+            await self.resourceManager.prefetchResources(at: engagementManifest.prefetch ?? [])
 
-                    DispatchQueue.main.async {
-                        Self.engagementManifestURL = url
-                        completion(.success(()))
-                    }
-                } catch let error {
-                    DispatchQueue.main.async {
-                        completion(.failure(error))
-                    }
-                }
-            } else {
-                self.backend.setLocalEngagementManifest(nil)
+            Self.engagementManifestURL = url
+        } else {
+            await self.backend.setLocalEngagementManifest(nil)
 
-                DispatchQueue.main.async {
-                    Self.engagementManifestURL = nil
-                    completion(.success(()))
-                }
-            }
+            Self.engagementManifestURL = nil
         }
     }
 
     /// Returns a list of objects describing the interactions encoded in the engagement manifest.
-    /// - Parameter completion: A completion handler that is called with the list of interaction items.
-    public func getInteractionList(_ completion: @escaping ([InteractionListItem]) -> Void) {
-        self.backendQueue.async {
-            let interactionItems = self.backend.getInteractions()
-                .map({ InteractionListItem(id: $0.id, displayName: $0.displayName, typeName: $0.typeName) })
-
-            DispatchQueue.main.async {
-                completion(interactionItems)
-            }
-        }
+    /// - Returns: The list of interaction items.
+    public func getInteractionList() async -> [InteractionListItem] {
+        return await self.backend.getInteractions()
+            .map({ InteractionListItem(id: $0.id, displayName: $0.displayName, typeName: $0.typeName) })
     }
 
     /// Attempts to present the interaction with the specified identifier from the active engagement manifest.
-    /// - Parameters:
-    ///   - id: The identifier of the interaction.
-    ///   - completion: A completion handler that is called with the result of attempting to present the interaction.
-    public func presentInteraction(with id: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        self.backendQueue.async {
-            if let interaction = self.backend.getInteraction(with: id) {
-                DispatchQueue.main.async {
-                    self.interactionPresenter.presentInteraction(interaction, completion: completion)
-                }
-            }
+    /// - Parameter id: The identifier of the interaction.
+    /// - Throws: An error if the interaction fails to present.
+    public func presentInteraction(with id: String) async throws {
+        if let interaction = await self.backend.getInteraction(with: id) {
+            try await self.interactionPresenter.presentInteraction(interaction)
         }
     }
 
     /// Attempts to load a JSON-encoded interaction from the specified URL and present it.
-    /// - Parameters:
-    ///   - url: The URL for the interaction
-    ///   - completion: A completion handler that is called with the result of attempting to present the interaction.
-    public func presentInteraction(at url: URL, completion: @escaping (Result<Void, Error>) -> Void) {
-        self.backendQueue.async {
-            do {
-                let interactionData = try Data(contentsOf: url)
-                let interaction = try JSONDecoder.apptentive.decode(Interaction.self, from: interactionData)
+    /// - Parameter url: The URL for the interaction
+    /// - Throws: An error if presenting the interaction fails.
+    public func presentInteraction(at url: URL) async throws {
+        let interactionData = try Data(contentsOf: url)
+        let interaction = try JSONDecoder.apptentive.decode(Interaction.self, from: interactionData)
 
-                DispatchQueue.main.async {
-                    self.interactionPresenter.presentInteraction(interaction, completion: completion)
-                }
-            } catch let error {
-                DispatchQueue.main.async {
-                    completion(.failure(error))
-                }
-            }
-        }
+        try await self.interactionPresenter.presentInteraction(interaction)
     }
 
     /// An object that encapsulates the information to display an interaction in a list.
@@ -125,8 +88,8 @@ extension Apptentive {
     /// Calls a completion handler with a list of app-defined events that may trigger an interaction.
     /// - Parameter completion: A completion handler that is called with the list of events.
     public func getEventList(_ completion: @escaping ([String]) -> Void) {
-        self.backendQueue.async {
-            let targetedEvents = self.backend.getTargets()
+        Task {
+            let targetedEvents = await self.backend.getTargets()
                 .filter({ $0.hasPrefix("local#app#") })
                 .compactMap({ $0.split(separator: "#").last?.removingPercentEncoding })
 
@@ -137,32 +100,28 @@ extension Apptentive {
     }
 
     /// Queries information about the current connection to the Apptentive API.
-    /// - Parameter completion: A completion handler that is called with the result of the query.
-    public func getConnectionInfo(_ completion: @escaping (_ state: ConversationState, _ id: String?, _ token: String?) -> Void) {
-        self.backendQueue.async {
-            let conversationState = self.backend.getState()
+    /// - Returns: A tuple containing the conversation state, conversation ID, and conversation token.
+    public func getConnectionInfo() async -> (ConversationState, String?, String?) {
+        let conversationState = await self.backend.getState()
 
-            DispatchQueue.main.async {
-                switch conversationState {
-                case .placeholder:
-                    completion(.placeholder, nil, nil)
+        switch conversationState {
+        case .placeholder:
+            return (.placeholder, nil, nil)
 
-                case .anonymousPending:
-                    completion(.anonymousPending, nil, nil)
+        case .anonymousPending:
+            return (.anonymousPending, nil, nil)
 
-                case .legacyPending:
-                    completion(.legacyPending, nil, nil)
+        case .legacyPending:
+            return (.legacyPending, nil, nil)
 
-                case .anonymous(let credentials):
-                    completion(.anonymous, credentials.id, credentials.token)
+        case .anonymous(let credentials):
+            return (.anonymous, credentials.id, credentials.token)
 
-                case .loggedIn(let credentials, _, _):
-                    completion(.loggedIn, credentials.id, credentials.token)
+        case .loggedIn(let credentials, _, _):
+            return (.loggedIn, credentials.id, credentials.token)
 
-                default:
-                    completion(.loggedOut, nil, nil)
-                }
-            }
+        default:
+            return (.loggedOut, nil, nil)
         }
     }
 }
@@ -197,16 +156,13 @@ extension Interaction {
             return "Apple Rating Dialog"
 
         case .enjoymentDialog(let configuration):
-            return configuration.title
+            return String(configuration.title.characters)
 
         case .navigateToLink(let configuration):
             return configuration.url.absoluteString
 
-        case .surveyV11(let configuration):
-            return configuration.title ?? configuration.name ?? "Untitled"
-
         case .textModal(let configuration):
-            return configuration.name ?? configuration.title ?? configuration.body ?? "Untitled"
+            return configuration.name ?? configuration.title.flatMap { String($0.characters) } ?? configuration.body.flatMap { String($0.characters) } ?? "Untitled"
 
         case .messageCenter(let configuration):
             return configuration.title

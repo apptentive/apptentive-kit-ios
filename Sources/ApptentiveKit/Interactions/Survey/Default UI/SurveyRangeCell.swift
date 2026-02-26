@@ -39,12 +39,21 @@ class SurveyRangeCell: UITableViewCell {
             segmentedControl.layer.borderColor = UIColor.apptentiveRangeControlBorder.cgColor
             segmentedControl.layer.borderWidth = 1.0 / self.traitCollection.displayScale
 
-            NSLayoutConstraint.activate([
-                segmentedControl.heightAnchor.constraint(equalToConstant: 44),
-                segmentedControl.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 7),
-                self.contentView.trailingAnchor.constraint(equalTo: segmentedControl.trailingAnchor, constant: 10),
-                segmentedControl.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
-            ])
+            if #available(iOS 26, *) {
+                NSLayoutConstraint.activate([
+                    segmentedControl.heightAnchor.constraint(equalToConstant: 32),
+                    segmentedControl.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 8),
+                    self.contentView.trailingAnchor.constraint(equalTo: segmentedControl.trailingAnchor, constant: 8),
+                    segmentedControl.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 8),
+                ])
+            } else {
+                NSLayoutConstraint.activate([
+                    segmentedControl.heightAnchor.constraint(equalToConstant: 44),
+                    segmentedControl.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 7),
+                    self.contentView.trailingAnchor.constraint(equalTo: segmentedControl.trailingAnchor, constant: 10),
+                    segmentedControl.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
+                ])
+            }
         }
 
         self.contentView.isAccessibilityElement = false

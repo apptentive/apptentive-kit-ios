@@ -9,7 +9,7 @@
 import Foundation
 
 /// Includes the methods and variables needed to describe an API endpoint.
-protocol HTTPRequestBuilding {
+protocol HTTPRequestBuilding: Sendable {
     var method: HTTPMethod { get }
     var shouldIgnoreCache: Bool { get }
 
@@ -30,7 +30,7 @@ extension HTTPRequestBuilding {
         request.allHTTPHeaderFields = try self.headers(userAgent: userAgent, languageCode: languageCode)
         request.httpBody = try self.body()
 
-        if shouldIgnoreCache {
+        if self.shouldIgnoreCache {
             request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         }
 

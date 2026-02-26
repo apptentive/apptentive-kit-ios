@@ -11,7 +11,7 @@ import UIKit
 
 typealias NavigateToLinkInteractionDelegate = EventEngaging & URLOpening
 
-class NavigateToLinkController {
+@MainActor final class NavigateToLinkController {
     let configuration: NavigateToLinkConfiguration
     let interaction: Interaction
     let interactionDelegate: NavigateToLinkInteractionDelegate
@@ -32,7 +32,7 @@ class NavigateToLinkController {
         self.refreshButtonAccessibilityHint = NSLocalizedString("Web View Refresh Button Accessibility Hint", bundle: .apptentive, value: "Refresh Web View", comment: "The accessibility hint for the refresh button.")
     }
 
-    func navigateToLink() -> UIViewController? {
+    func navigateToLink() async -> UIViewController? {
         switch configuration.mode {
         case .inAppBrowser:
             let viewController = WebViewController(viewModel: self)
@@ -40,9 +40,8 @@ class NavigateToLinkController {
             return navigationController
 
         default:
-            self.interactionDelegate.open(self.configuration.url) { (success) in
-                self.launch(success: success)
-            }
+            let success = await self.interactionDelegate.open(self.configuration.url)
+            self.launch(success: success)
             return nil
         }
     }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OSLog
 
 struct FreshLoader: Loader {
     let context: LoaderContext
@@ -26,6 +27,8 @@ struct FreshLoader: Loader {
     }
 
     func loadRoster(with _: SecureTokenStoring) throws -> ConversationRoster {
+        // These are global directories, so a directory already existing there is to be expected
+        // (e.g. when changing app key/signature).
         try self.createDirectoryIfNeeded(containerURL: self.context.containerURL, fileManager: self.context.fileManager, assertNoExistingDirectory: false)
         try self.createDirectoryIfNeeded(containerURL: self.context.cacheURL, fileManager: self.context.fileManager, assertNoExistingDirectory: false)
 
@@ -60,7 +63,7 @@ struct FreshLoader: Loader {
         var isDirectory: ObjCBool = false
 
         if !fileManager.fileExists(atPath: containerURL.path, isDirectory: &isDirectory) {
-            ApptentiveLogger.default.debug("Creating directory for Apptentive SDK data at \(containerURL).")
+            Logger.default.debug("Creating directory for Apptentive SDK data at \(containerURL).")
 
             try fileManager.createDirectory(at: containerURL, withIntermediateDirectories: true, attributes: [:])
         } else if !isDirectory.boolValue {

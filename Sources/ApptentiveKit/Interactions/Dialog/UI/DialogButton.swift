@@ -13,7 +13,7 @@ public class DialogButton: UIButton {
     // MARK: - Appearance
 
     /// The font to use for the button title.
-    @objc public dynamic var titleFont: UIFont = .preferredFont(forTextStyle: .body)
+    @objc public dynamic var titleFont: UIFont = .apptentiveDialogButton
 
     /// The radius of the button corners.
     ///
@@ -29,12 +29,14 @@ public class DialogButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.setTitleColor(.apptentiveTint, for: .normal)
+        self.setTitleColor(.apptentiveDialogButtonLabel, for: .normal)
         self.titleLabel?.adjustsFontSizeToFitWidth = true
         self.titleLabel?.minimumScaleFactor = 0.58
         self.titleLabel?.adjustsFontForContentSizeCategory = true
 
-        self.titleEdgeInsets = .init(top: 0, left: 12, bottom: 0, right: 12)
+        self.configuration = .plain()
+        self.configuration?.contentInsets = .init(top: 0, leading: 12, bottom: 0, trailing: 12)
+        self.configuration?.titleLineBreakMode = .byTruncatingMiddle
     }
 
     required init?(coder: NSCoder) {
@@ -59,7 +61,13 @@ public class DialogButton: UIButton {
     public override func didMoveToWindow() {
         super.didMoveToWindow()
 
-        self.titleLabel?.font = self.titleFont
+        self.configuration?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            let fontDescriptor = self.titleFont.fontDescriptor
+            let newFont = UIFont(descriptor: fontDescriptor, size: self.titleFont.pointSize)
+            outgoing.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: newFont)
+            return outgoing
+        }
 
         if self.cornerRadius >= 0 {
             self.layer.cornerRadius = self.cornerRadius

@@ -12,7 +12,7 @@ extension JSONDecoder {
     static let apptentive: JSONDecoder = {
         let decoder = JSONDecoder()
 
-        func decodeHexData(_ decoder: Decoder) throws -> Data {
+        let decodeHexData: @Sendable (_ decoder: Decoder) throws -> Data = { decoder in
             let container = try decoder.singleValueContainer()
             let stringValue = try container.decode(String.self)
             guard let hexData = Data(hexString: stringValue) else {
@@ -33,7 +33,7 @@ extension JSONEncoder {
     static let apptentive: JSONEncoder = {
         let encoder = JSONEncoder()
 
-        func encodeHexData(_ data: Data, _ encoder: Encoder) throws {
+        let encodeHexData: @Sendable (_ data: Data, _ encoder: Encoder) throws -> Void = { (data, encoder) in
             var container = encoder.singleValueContainer()
             try container.encode(data.hexString)
         }
@@ -58,6 +58,7 @@ extension DateFormatter {
 
 /// Configures a URL request corresponding to an endpoint on the Apptentive API.
 struct ApptentiveAPI: HTTPRequestBuilding {
+
     /// The HTTP method for this endpoint.
     let method: HTTPMethod
 
@@ -111,8 +112,8 @@ struct ApptentiveAPI: HTTPRequestBuilding {
 
     /// Builds a request to retrieve an engagement manifest from the server.
     /// - Parameters:
-    ///   - credentials: The conversation for which to retrieve the manifest.
-    ///   - shouldIgnoreCache: Whether to bypass the system URL cache when loading.
+    ///   - credentials: The credentials to use when retrieving the manifest.
+    ///   - shouldIgnoreCache: Whether to ignore the system URL cache when fetching.
     /// - Returns: A struct describing the HTTP request to be performed.
     static func getInteractions(with credentials: AnonymousAPICredentials, shouldIgnoreCache: Bool) -> Self {
         return Self(credentials: credentials, path: "interactions", method: .get, shouldIgnoreCache: shouldIgnoreCache)
@@ -140,12 +141,10 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     }
 
     /// Builds a request to retrieve a message list from the server.
-    /// - Parameters:
-    ///   - credentials: The conversation for which to retrieve the message list.
-    ///   - shouldIgnoreCache: Whether to bypass the system URL cache when loading.
+    /// - Parameter credentials: The conversation for which to retrieve the message list.
     /// - Returns: A struct describing the HTTP request to be performed.
-    static func getStatus(with credentials: StatusCredentials, shouldIgnoreCache: Bool) -> Self {
-        return Self(credentials: credentials, path: "status", method: .get, shouldIgnoreCache: shouldIgnoreCache)
+    static func getStatus(with credentials: StatusCredentials) -> Self {
+        return Self(credentials: credentials, path: "status", method: .get)
     }
 
     // MARK: - HTTPEndpoint
@@ -236,7 +235,7 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     ///   - queryItems: A list of key-value pairs to include in the query portion of the request URL.
     ///   - method: The HTTP method for the request.
     ///   - bodyObject: The object that should be encoded for the HTTP body of the request.
-    ///   - shouldIgnoreCache: Whether to bypass the system URL cache when loading.
+    ///   - shouldIgnoreCache: Whether to ignore the system URL cache when performing the request.
     init(credentials: APICredentialsProviding, path: String, queryItems: [URLQueryItem]? = nil, method: HTTPMethod, bodyObject: HTTPBodyPart? = nil, shouldIgnoreCache: Bool = false) {
         var bodyParts = [HTTPBodyPart]()
 
@@ -254,8 +253,8 @@ struct ApptentiveAPI: HTTPRequestBuilding {
     ///   - queryItems: A list of key-value pairs to include in the query portion of the request URL.
     ///   - method: The HTTP method for the request.
     ///   - bodyParts: An array of content to use as part of the request body (an empty array indicates no request body).
-    ///   - shouldIgnoreCache: Whether to bypass the system URL cache when loading.
-    init(credentials: APICredentialsProviding, path: String, queryItems: [URLQueryItem]? = nil, method: HTTPMethod, bodyParts: [HTTPBodyPart], shouldIgnoreCache: Bool = false) {
+    ///   - shouldIgnoreCache: Whether to ignore the system URL cache when performing the request.
+    init(credentials: APICredentialsProviding, path: String, queryItems: [URLQueryItem]? = nil, method: HTTPMethod, bodyParts: [HTTPBodyPart], shouldIgnoreCache: Bool) {
         self.credentials = credentials
         self.path = path
         self.queryItems = queryItems

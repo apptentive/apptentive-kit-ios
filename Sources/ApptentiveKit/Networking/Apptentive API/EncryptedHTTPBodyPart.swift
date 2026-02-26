@@ -34,10 +34,6 @@ struct EncryptedHTTPBodyPart: HTTPBodyPart {
     }
 
     func content(using encoder: JSONEncoder) throws -> Data {
-        //        guard let crlf = "\r\n".data(using: .utf8) else {
-        //            throw ApptentiveError.internalInconsistency
-        //        }
-
         var result = try self.bodyPart.content(using: encoder)
 
         if self.includeHeaders {

@@ -10,10 +10,10 @@ import Foundation
 import UIKit
 
 class ProfileView: UIView {
-
     let nameTextField: UITextField
     let emailTextField: UITextField
     let errorLabel: UILabel
+    var addsBorder = true
 
     override init(frame: CGRect) {
         self.nameTextField = UITextField(frame: .zero)
@@ -22,9 +22,7 @@ class ProfileView: UIView {
 
         super.init(frame: frame)
 
-        self.addSubview(self.nameTextField)
-        self.addSubview(self.emailTextField)
-        self.addSubview(self.errorLabel)
+        self.addSubviews()
 
         configureViews()
     }
@@ -33,16 +31,37 @@ class ProfileView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    var emailValid: Bool = true {
+        didSet {
+            self.emailTextField.layer.borderColor = (emailValid ? UIColor.apptentiveTextInputBorder : UIColor.apptentiveError).cgColor
+            self.errorLabel.isHidden = emailValid
+            self.emailTextField.rightView?.isHidden = emailValid
+        }
+    }
+
+    func addSubviews() {
+        self.addSubview(self.nameTextField)
+        self.addSubview(self.emailTextField)
+        self.addSubview(self.errorLabel)
+    }
+
     private func configureViews() {
         let spacerView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: self.nameTextField.bounds.height))
         let secondSpacerView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: self.emailTextField.bounds.height))
 
         self.nameTextField.translatesAutoresizingMaskIntoConstraints = false
         self.nameTextField.adjustsFontForContentSizeCategory = true
-        self.nameTextField.layer.borderWidth = 1 / self.traitCollection.displayScale
-        self.nameTextField.layer.masksToBounds = false
-        self.nameTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
-        self.nameTextField.layer.cornerRadius = 5
+
+        if self.addsBorder {
+            self.nameTextField.layer.borderWidth = 1 / self.traitCollection.displayScale
+            self.nameTextField.layer.masksToBounds = false
+            self.nameTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+            self.nameTextField.layer.cornerRadius = 5
+            self.nameTextField.backgroundColor = .apptentiveTextInputBackground
+        } else {
+            self.nameTextField.backgroundColor = .clear
+        }
+
         self.nameTextField.leftView = spacerView
         self.nameTextField.leftViewMode = .always
         self.nameTextField.contentVerticalAlignment = .center
@@ -51,14 +70,26 @@ class ProfileView: UIView {
         self.nameTextField.returnKeyType = .next
         self.nameTextField.autocapitalizationType = .words
         self.nameTextField.accessibilityIdentifier = "name"
-        self.nameTextField.backgroundColor = .apptentiveTextInputBackground
 
         self.emailTextField.translatesAutoresizingMaskIntoConstraints = false
         self.emailTextField.adjustsFontForContentSizeCategory = true
-        self.emailTextField.layer.borderWidth = 1 / self.traitCollection.displayScale
-        self.emailTextField.layer.masksToBounds = false
-        self.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
-        self.emailTextField.layer.cornerRadius = 5
+
+        if self.addsBorder {
+            self.emailTextField.layer.borderWidth = 1 / self.traitCollection.displayScale
+            self.emailTextField.layer.masksToBounds = false
+            self.emailTextField.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
+            self.emailTextField.layer.cornerRadius = 5
+            self.emailTextField.backgroundColor = .apptentiveTextInputBackground
+        } else {
+            self.emailTextField.backgroundColor = .clear
+            let emailErrorImage = UIImage(systemName: "exclamationmark.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 24, weight: .medium))?.withRenderingMode(.alwaysTemplate)
+            let emailErrorView = UIImageView(image: emailErrorImage)
+            emailErrorView.tintColor = .apptentiveError
+            self.emailTextField.rightView = emailErrorView
+            self.emailTextField.rightViewMode = .always
+            self.emailTextField.rightView?.isHidden = true
+        }
+
         self.emailTextField.leftView = secondSpacerView
         self.emailTextField.leftViewMode = .always
         self.emailTextField.contentVerticalAlignment = .center
@@ -68,7 +99,6 @@ class ProfileView: UIView {
         self.emailTextField.returnKeyType = .done
         self.emailTextField.autocapitalizationType = .none
         self.emailTextField.accessibilityIdentifier = "email"
-        self.emailTextField.backgroundColor = .apptentiveTextInputBackground
 
         self.errorLabel.translatesAutoresizingMaskIntoConstraints = false
         self.errorLabel.adjustsFontForContentSizeCategory = true
@@ -80,7 +110,7 @@ class ProfileView: UIView {
         setConstraints()
     }
 
-    private func setConstraints() {
+    internal func setConstraints() {
         NSLayoutConstraint.activate([
             self.nameTextField.topAnchor.constraint(equalTo: self.readableContentGuide.topAnchor),
             self.nameTextField.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor),

@@ -9,11 +9,29 @@
 import Foundation
 
 struct TextModalConfiguration: Decodable {
-    let title: String?
+    let title: AttributedString?
     let name: String?
-    let body: String?
+    let body: AttributedString?
     let actions: [Action]
     let image: Image?
+
+    init(title: AttributedString? = nil, name: String? = nil, body: AttributedString? = nil, actions: [TextModalConfiguration.Action], image: TextModalConfiguration.Image? = nil) {
+        self.title = title
+        self.name = name
+        self.body = body
+        self.actions = actions
+        self.image = image
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.title = try container.apptentiveDecodeHTMLIfPresent(forKey: .title)
+        self.body = try container.apptentiveDecodeHTMLIfPresent(forKey: .body)
+        self.name = try container.decodeIfPresent(String.self, forKey: .name)
+        self.actions = try container.decode([Action].self, forKey: .actions)
+        self.image = try container.decodeIfPresent(Image.self, forKey: .image)
+    }
 
     struct Action: Decodable {
         let id: String

@@ -123,11 +123,11 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         try self.init(context: context, specializedJSONObject: .message(MessageContent(with: message, customData: customData)), path: "messages", method: .post, attachments: attachments, isMultipart: true)
     }
 
-    mutating func updateCredentials(_ credentials: PayloadStoredCredentials, using encoder: JSONEncoder, decoder: JSONDecoder, encryptionContext: Payload.Context.EncryptionContext?) throws {
+    mutating func updateCredentials(_ credentials: PayloadStoredCredentials, using encoder: JSONEncoder, decoder: JSONDecoder, authenticationContext: Payload.Context.AuthenticationContext?) throws {
         self.credentials = credentials
 
-        if let encryptionContext = encryptionContext {
-            try self.updateEmbeddedToken(encryptionContext.embeddedToken, encoder: encoder, decoder: decoder, encryptionKey: encryptionContext.encryptionKey)
+        if let authenticationContext = authenticationContext, let encryptionKey = authenticationContext.encryptionKey {
+            try self.updateEmbeddedToken(authenticationContext.token, encoder: encoder, decoder: decoder, encryptionKey: encryptionKey)
         }
     }
 
@@ -140,7 +140,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         let credentials: PayloadStoredCredentials
         var sessionID: String?
         let encoder: JSONEncoder
-        let encryptionContext: EncryptionContext?
+        let authenticationContext: AuthenticationContext?
 
         func getNextNonce() -> String {
             return UUID().uuidString
@@ -154,9 +154,9 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             return TimeZone.current.secondsFromGMT()
         }
 
-        struct EncryptionContext: Equatable {
-            let encryptionKey: Data
-            let embeddedToken: String
+        struct AuthenticationContext: Equatable {
+            let encryptionKey: Data?
+            let token: String
         }
     }
 
@@ -164,11 +164,11 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         let jsonObject = Payload.JSONObject(specializedJSONObject: specializedJSONObject, context: context, shouldStripContainer: isMultipart)
         var bodyParts: [HTTPBodyPart] = [jsonObject] + attachments
 
-        if case .embedded = context.credentials, let encryptionKey = context.encryptionContext?.encryptionKey {
+        if case .embedded = context.credentials, let encryptionKey = context.authenticationContext?.encryptionKey {
             bodyParts = bodyParts.map { EncryptedHTTPBodyPart(bodyPart: $0, encryptionKey: encryptionKey, includeHeaders: isMultipart) }
         }
 
-        (self.contentType, self.bodyData) = try Self.encodeBodyData(from: bodyParts, encryptionKey: context.encryptionContext?.encryptionKey, using: context.encoder, isMultipart: isMultipart)
+        (self.contentType, self.bodyData) = try Self.encodeBodyData(from: bodyParts, encryptionKey: context.authenticationContext?.encryptionKey, using: context.encoder, isMultipart: isMultipart)
 
         self.identifier = jsonObject.nonce
         self.path = path
@@ -244,7 +244,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
             self.createdAt = context.date
             self.creationUTCOffset = context.utcOffset
             self.sessionID = context.sessionID
-            self.embeddedToken = context.encryptionContext?.embeddedToken
+            self.embeddedToken = context.authenticationContext?.token
         }
 
         init(from decoder: Decoder) throws {
@@ -515,3 +515,9 @@ protocol PayloadEncodable {
 
 /// An empty object corresponding to the expected response when sending a payload.
 struct PayloadResponse: Codable {}
+
+extension Payload: CustomStringConvertible {
+    var description: String {
+        return self.debugDescription
+    }
+}

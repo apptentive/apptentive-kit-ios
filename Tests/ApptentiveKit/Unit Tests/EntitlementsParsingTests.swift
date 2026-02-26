@@ -11,8 +11,6 @@ import Testing
 
 @testable import ApptentiveKit
 
-class BundleFinder {}
-
 struct EntitlementsParsingTests {
     @Test func testEntitlementsParsing() throws {
         let proProURL = Bundle(for: BundleFinder.self).url(forResource: "ExampleProPro", withExtension: "mobileprovision")!

@@ -6,12 +6,12 @@
 //  Copyright © 2019 Apptentive, Inc. All rights reserved.
 //
 
-import XCTest
+import Testing
 
 @testable import ApptentiveKit
 
-class PersonTests: XCTestCase {
-    func testCustomData() {
+struct PersonTests {
+    @Test func testCustomData() {
         var person = Person()
 
         person.customData["string"] = "string"
@@ -19,13 +19,13 @@ class PersonTests: XCTestCase {
         person.customData["float"] = 1.1
         person.customData["boolean"] = true
 
-        XCTAssertEqual(person.customData["string"] as? String, "string")
-        XCTAssertEqual(person.customData["number"] as? Int, 5)
-        XCTAssertEqual(person.customData["float"] as? Double, 1.1)
-        XCTAssertEqual(person.customData["boolean"] as? Bool, true)
+        #expect(person.customData["string"] as? String == "string")
+        #expect(person.customData["number"] as? Int == 5)
+        #expect(person.customData["float"] as? Double == 1.1)
+        #expect(person.customData["boolean"] as? Bool == true)
     }
 
-    func testMerge() {
+    @Test func testMerge() {
         var person1 = Person()
         person1.name = "Test"
         person1.emailAddress = "noreply@apptentive.com"
@@ -39,9 +39,9 @@ class PersonTests: XCTestCase {
 
         person1.merge(with: person2)
 
-        XCTAssertEqual(person1.name, "Testy")
-        XCTAssertEqual(person1.emailAddress, "noreply@apptentive.com")
-        XCTAssertEqual(person1.customData["foo"] as? String, "baz")
-        XCTAssertEqual(person1.customData["bar"] as? String, "foo")
+        #expect(person1.name == "Testy")
+        #expect(person1.emailAddress == "noreply@apptentive.com")
+        #expect(person1.customData["foo"] as? String == "baz")
+        #expect(person1.customData["bar"] as? String == "foo")
     }
 }
