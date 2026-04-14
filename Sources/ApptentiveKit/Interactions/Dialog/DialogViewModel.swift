@@ -48,8 +48,11 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
         }
     }
 
-    /// The maximum percentage (0–100) of the usable vertical screen space that the note should use.
-    public var maxHeight: Int = 100
+    /// The vertical position of the dialog.
+    public var position: Position
+
+    /// The vertical margin in points between the top/bottom of the safe area and the top/bottom edge of the dialog.
+    public var verticalMargins: CGFloat
 
     /// The delegate used to update the DialogViewController.
     public weak var delegate: DialogViewModelDelegate?
@@ -82,6 +85,18 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
         case textModal
     }
 
+    /// Describes the on-screen vertical position of the dialog.
+    public enum Position: String, Sendable, Codable, RawRepresentable {
+        /// The dialog is positioned at the top of the screen.
+        case top = "top"
+
+        /// The dialog is positioned in the center of the screen.
+        case center = "center"
+
+        /// The dialog is positioned at the bottom of the screen.
+        case bottom = "bottom"
+    }
+
     // MARK: - Internal
     let interaction: Interaction
     let interactionDelegate: DialogInteractionDelegate
@@ -111,6 +126,9 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
         } else {
             self.image = .none
         }
+
+        self.position = configuration.position ?? .center
+        self.verticalMargins = configuration.verticalMargins ?? 0
     }
 
     init(configuration: EnjoymentDialogConfiguration, interaction: Interaction, interactionDelegate: DialogInteractionDelegate) {
@@ -141,6 +159,9 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
         ]
 
         self.isMessageHidden = true
+
+        self.position = configuration.position ?? .center
+        self.verticalMargins = configuration.verticalMargins ?? 0
     }
 
     func prepareForPresentation() async {

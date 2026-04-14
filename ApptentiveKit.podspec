@@ -1,13 +1,13 @@
 Pod::Spec.new do |spec|
   spec.name             = "ApptentiveKit"
-  spec.version          = "7.0.0"
+  spec.version          = "7.1.0"
   spec.summary          = "Apptentive Customer Communications SDK."
   spec.homepage         = "https://www.apptentive.com/"
   spec.license          = "BSD"
   spec.swift_version    = "5.5"
   spec.author           = { 'Apptentive SDK Team' => 'sdks@apptentive.com' }
   spec.platform         = :ios, "15.0"
-  spec.source           = { :git => "https://github.com/apptentive/apptentive-kit-ios.git", :tag => "v7.0.0" }
+  spec.source           = { :git => "https://github.com/apptentive/apptentive-kit-ios.git", :tag => "v#{spec.version}" }
   spec.source_files     = "Sources/ApptentiveKit/**/*.{swift,h,m}"
   spec.public_header_files = []
   spec.resource_bundles = { "ApptentiveKitResources" => [ "Sources/ApptentiveKit/Resources/*.lproj", "Sources/ApptentiveKit/Resources/Media.xcassets", "Sources/ApptentiveKit/Resources/Distribution.plist", "Sources/ApptentiveKit/Resources/PrivacyInfo.xcprivacy" ] }

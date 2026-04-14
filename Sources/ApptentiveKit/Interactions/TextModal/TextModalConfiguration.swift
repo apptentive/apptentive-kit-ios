@@ -14,13 +14,17 @@ struct TextModalConfiguration: Decodable {
     let body: AttributedString?
     let actions: [Action]
     let image: Image?
+    let position: DialogViewModel.Position?
+    let verticalMargins: CGFloat?
 
-    init(title: AttributedString? = nil, name: String? = nil, body: AttributedString? = nil, actions: [TextModalConfiguration.Action], image: TextModalConfiguration.Image? = nil) {
+    init(title: AttributedString? = nil, name: String? = nil, body: AttributedString? = nil, actions: [TextModalConfiguration.Action]) {
         self.title = title
         self.name = name
         self.body = body
         self.actions = actions
-        self.image = image
+        self.image = nil
+        self.position = .center
+        self.verticalMargins = nil
     }
 
     init(from decoder: Decoder) throws {
@@ -31,6 +35,8 @@ struct TextModalConfiguration: Decodable {
         self.name = try container.decodeIfPresent(String.self, forKey: .name)
         self.actions = try container.decode([Action].self, forKey: .actions)
         self.image = try container.decodeIfPresent(Image.self, forKey: .image)
+        self.position = try container.decodeIfPresent(DialogViewModel.Position.self, forKey: .position)
+        self.verticalMargins = try container.decodeIfPresent(CGFloat.self, forKey: .verticalMargins)
     }
 
     struct Action: Decodable {
@@ -70,5 +76,7 @@ struct TextModalConfiguration: Decodable {
         case body
         case actions
         case image
+        case position
+        case verticalMargins = "vertical_margins"
     }
 }

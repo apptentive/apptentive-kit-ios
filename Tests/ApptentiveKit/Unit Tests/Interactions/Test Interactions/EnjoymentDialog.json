@@ -5,6 +5,8 @@
   "configuration": {
     "title": "Do you love this app?",
     "yes_text": "Yes",
-    "no_text": "No"
+    "no_text": "No",
+    "position": "bottom",
+    "vertical_margins": 16
   }
 }

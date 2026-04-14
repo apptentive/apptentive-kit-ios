@@ -37,6 +37,8 @@ import UIKit
         let noButtonText = self.viewModel.actions[0].label
         #expect(noButtonText == "No")
         #expect(yesButtonText == "Yes")
+        #expect(viewModel.position == .bottom)
+        #expect(viewModel.verticalMargins == 16)
         #expect(self.viewModel.imageConfiguration == nil)
     }
 
