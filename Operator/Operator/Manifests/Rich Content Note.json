@@ -1,4 +1,5 @@
 {
+  "application_id": "123",
   "interactions": [
     {
       "id": "548cc5dd49f63bb5c2000001",
@@ -96,7 +97,8 @@
           "alt_text": "SQU\nARE",
           "scale": 2
         },
-        "max_height": 100
+        "position": "top",
+        "vertical_margins": 20
       }
     },
     {
@@ -261,7 +263,8 @@
           "alt_text": "SQU\nARE",
           "scale": 3
         },
-        "max_height": 100
+        "position": "bottom",
+        "vertical_margins": 13
       }
     },
     {

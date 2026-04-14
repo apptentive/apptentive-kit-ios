@@ -65,7 +65,11 @@ class ManifestsViewController: UITableViewController {
                 tableView.deselectRow(at: indexPath, animated: true)
             }
 
-            try await self.apptentive.loadEngagementManifest(at: selectedManifestURL)
+            do {
+                try await self.apptentive.loadEngagementManifest(at: selectedManifestURL)
+            } catch let error {
+                print("Error loading manifest: \(error)")
+            }
             tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
             self.selectedIndex = indexPath.section == 0 ? nil : indexPath.row
 

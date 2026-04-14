@@ -52,6 +52,8 @@
     "max_height": 40,
     "title": "Message Title",
     "body": "Message content.",
-    "name": "Message Center 2.0 Note"
+    "name": "Message Center 2.0 Note",
+    "position": "top",
+    "vertical_margins": 16
   }
 }

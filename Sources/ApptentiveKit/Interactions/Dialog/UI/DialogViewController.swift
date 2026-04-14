@@ -16,6 +16,7 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
     var dialogView: DialogView
     var buttons: [DialogButton] = []
     var buttonRadiusIsCustom: Bool = false
+    var verticalPositionConstraint = NSLayoutConstraint()
 
     // Prevent touches from passing through to e.g. a FlutterView behind this one.
     public override var next: UIResponder? {
@@ -216,12 +217,31 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
     private func setConstraints() {
         self.dialogView.translatesAutoresizingMaskIntoConstraints = false
 
+        let upperSpaceConstraint = self.dialogView.topAnchor.constraint(greaterThanOrEqualTo: self.view.safeAreaLayoutGuide.topAnchor, constant: self.viewModel.verticalMargins)
+        let lowerSpaceConstraint = self.view.safeAreaLayoutGuide.bottomAnchor.constraint(greaterThanOrEqualTo: self.dialogView.bottomAnchor, constant: self.viewModel.verticalMargins)
+        let preferredHeightConstraint = self.dialogView.heightAnchor.constraint(equalToConstant: 48)
+        preferredHeightConstraint.priority = .init(500)
+
+        switch self.viewModel.position {
+        case .top:
+            self.verticalPositionConstraint = self.dialogView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: self.viewModel.verticalMargins)
+
+        case .center:
+            self.verticalPositionConstraint = self.dialogView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
+
+        case .bottom:
+            self.verticalPositionConstraint = self.dialogView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -self.viewModel.verticalMargins)
+
+        }
+        self.verticalPositionConstraint.priority = .defaultLow
+
         NSLayoutConstraint.activate([
-            self.dialogView.topAnchor.constraint(greaterThanOrEqualTo: self.view.readableContentGuide.topAnchor, constant: 20),
             self.dialogView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            self.dialogView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
+            self.verticalPositionConstraint,
             self.dialogView.widthAnchor.constraint(equalToConstant: DialogViewController.widthConstant),
-            self.dialogView.bottomAnchor.constraint(lessThanOrEqualTo: self.view.readableContentGuide.bottomAnchor, constant: 20),
+            preferredHeightConstraint,
+            upperSpaceConstraint,
+            lowerSpaceConstraint,
         ])
     }
 }

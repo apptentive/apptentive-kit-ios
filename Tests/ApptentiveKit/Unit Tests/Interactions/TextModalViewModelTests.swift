@@ -38,12 +38,13 @@ import UIKit
         #expect(viewModel.actions[2].label == "Link")
         #expect(viewModel.actions[3].label == "Dismiss")
         #expect(viewModel.dialogType == .textModal)
-        #expect(viewModel.maxHeight == 100)
         #expect(viewModel.imageConfiguration?.url == URL(string: "https://github.com/apptentive/test-logos/blob/main/full-width.png?raw=true")!)
         #expect(viewModel.imageConfiguration?.layout == "fill")
         #expect(viewModel.imageConfiguration?.altText == "Alchemer Logo")
         #expect(!viewModel.isTitleHidden)
         #expect(!viewModel.isMessageHidden)
+        #expect(viewModel.position == .top)
+        #expect(viewModel.verticalMargins == 16)
         #expect(viewModel.image != DialogViewModel.Image.none)
     }
 

@@ -90,7 +90,7 @@ platform :ios do
     Dir.chdir '..' do
       sh('xcodebuild docbuild -scheme ApptentiveKit \
       -destination generic/platform=iOS \
-      OTHER_DOCC_FLAGS="--transform-for-static-hosting --hosting-base-path documentation --output-path docs"')
+      OTHER_DOCC_FLAGS="--transform-for-static-hosting --hosting-base-path apptentive-kit-ios --output-path docs"')
     end
   end
 
