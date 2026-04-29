@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -42,6 +42,7 @@
 		01B12C4A268D135D00C1F3F5 /* photo-1424847651672-bf20a4b0982b.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 01B12C30268D135C00C1F3F5 /* photo-1424847651672-bf20a4b0982b.jpg */; };
 		01B12C4B268D135D00C1F3F5 /* photo-1433967158952-3ed126074305.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 01B12C31268D135C00C1F3F5 /* photo-1433967158952-3ed126074305.jpg */; };
 		01B12C4C268D135D00C1F3F5 /* bnW1TuTV2YGcoh1HyWNQ_IMG_0207.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 01B12C32268D135C00C1F3F5 /* bnW1TuTV2YGcoh1HyWNQ_IMG_0207.jpg */; };
+		2EE58CC62FA212970013FF63 /* ApptentiveKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2EE58CC52FA212970013FF63 /* ApptentiveKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -90,6 +91,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0181451A268CE586003F6B1F /* ApptentiveKit in Frameworks */,
+				2EE58CC62FA212970013FF63 /* ApptentiveKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,6 +191,7 @@
 			name = Example;
 			packageProductDependencies = (
 				01814519268CE586003F6B1F /* ApptentiveKit */,
+				2EE58CC52FA212970013FF63 /* ApptentiveKit */,
 			);
 			productName = Example;
 			productReference = 017BAB0B2683DD4F0035DA1E /* Example.app */;
@@ -217,6 +220,9 @@
 				Base,
 			);
 			mainGroup = 017BAB022683DD4F0035DA1E;
+			packageReferences = (
+				2EE58CC42FA212970013FF63 /* XCRemoteSwiftPackageReference "apptentive-kit-ios" */,
+			);
 			productRefGroup = 017BAB0C2683DD4F0035DA1E /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -477,9 +483,25 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		2EE58CC42FA212970013FF63 /* XCRemoteSwiftPackageReference "apptentive-kit-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apptentive/apptentive-kit-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		01814519268CE586003F6B1F /* ApptentiveKit */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = ApptentiveKit;
+		};
+		2EE58CC52FA212970013FF63 /* ApptentiveKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2EE58CC42FA212970013FF63 /* XCRemoteSwiftPackageReference "apptentive-kit-ios" */;
 			productName = ApptentiveKit;
 		};
 /* End XCSwiftPackageProductDependency section */
