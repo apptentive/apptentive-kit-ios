@@ -29,7 +29,7 @@ import UIKit
         }
 
         self.spyInteractionDelegate = SpyInteractionDelegate()
-        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate)
+        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate, whereEvent: "local#app#my_event")
         self.viewModel.delegate = self
     }
 
@@ -417,6 +417,7 @@ import UIKit
         try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
 
         #expect(self.spyInteractionDelegate.lastResponse == [:])
+        #expect(self.spyInteractionDelegate.engagedEvent?.whereEvent == "local#app#my_event")
     }
 
     @Test func testBranchedSurvey() async throws {
@@ -426,7 +427,7 @@ import UIKit
             throw TestError(reason: "Unable to create view model")
         }
 
-        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate)
+        self.viewModel = SurveyViewModel(configuration: surveyConfiguration, interaction: interaction, interactionDelegate: self.spyInteractionDelegate, whereEvent: "local#app#my_event")
         self.viewModel.delegate = self
 
         self.viewModel.launch()

@@ -27,7 +27,7 @@ import UIKit
         }
 
         self.spySender = SpyInteractionDelegate()
-        self.viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender)
+        self.viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender, whereEvent: "local#app#my_event")
     }
 
     @Test func testEnjoymentDialog() {

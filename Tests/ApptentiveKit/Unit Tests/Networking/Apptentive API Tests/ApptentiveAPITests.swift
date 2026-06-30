@@ -213,7 +213,7 @@ struct ApptentiveAPITests {
         await requestor.setResponse(HTTPURLResponse(url: baseURL.appendingPathComponent("conversations"), statusCode: 201, httpVersion: "1.1", headerFields: [:]))
         await requestor.setResponseData(Data())
 
-        let surveyResponse = SurveyResponse(surveyID: "789", questionResponses: ["1": .answered([Answer.freeform("foo")])])
+        let surveyResponse = SurveyResponse(surveyID: "789", questionResponses: ["1": .answered([Answer.freeform("foo")])], whereEvent: "test")
 
         await withCheckedContinuation { continuation in
             Task {

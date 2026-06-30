@@ -195,7 +195,7 @@ class SpyInteractionDelegate: InteractionDelegate {
         }
     }
 
-    func recordEnjoyment(_ didLove: Bool, from interaction: ApptentiveKit.Interaction) {
+    func recordEnjoyment(_ didLove: Bool, from interaction: ApptentiveKit.Interaction, whereEvent: String?) {
         self.recordedEnjoyment = didLove
     }
 }

@@ -27,7 +27,7 @@ import UIKit
         }
 
         self.spySender = SpyInteractionDelegate()
-        self.viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender)
+        self.viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: self.spySender, whereEvent: "local#app#my_event")
     }
 
     @Test func testTextModal() {
@@ -54,6 +54,7 @@ import UIKit
         try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
 
         #expect(self.spySender.engagedEvent?.codePointName == "com.apptentive#TextModal#interaction")
+        #expect(self.spySender.engagedEvent?.whereEvent == "local#app#my_event")
 
         guard case .textModalAction(let textModalAction) = self.spySender.engagedEvent?.userInfo else {
             throw TestError(reason: "Expected event data of type textModalAction")
@@ -67,6 +68,8 @@ import UIKit
 
         try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
 
+        #expect(self.spySender.engagedEvent?.whereEvent == "local#app#my_event")
+
         guard case .textModalAction(let textModalAction) = self.spySender.engagedEvent?.userInfo else {
             throw TestError(reason: "Expected event data of type textModalAction")
         }
@@ -78,6 +81,8 @@ import UIKit
         viewModel.buttonSelected(at: 2)
 
         try await Task.sleep(nanoseconds: NSEC_PER_SEC / 100)
+
+        #expect(self.spySender.engagedEvent?.whereEvent == "local#app#my_event")
 
         guard case .textModalAction(let textModalAction) = self.spySender.engagedEvent?.userInfo else {
             throw TestError(reason: "Expected event data of type textModalAction")
@@ -107,6 +112,8 @@ import UIKit
 
     @Test func testDismissButton() {
         viewModel.buttonSelected(at: 3)
+
+        #expect(self.spySender.engagedEvent?.whereEvent == "local#app#my_event")
 
         #expect(self.spySender.engagedEvent?.codePointName == "com.apptentive#TextModal#dismiss")
     }

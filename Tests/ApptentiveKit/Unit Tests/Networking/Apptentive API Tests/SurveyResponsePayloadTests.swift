@@ -44,7 +44,8 @@ struct SurveyResponsePayloadTests {
                     .choice("abc123"),
                     .other("def456", "barfoo"),
                 ]),
-            ])
+            ],
+            whereEvent: "test")
     }
 
     @Test func testSerialization() throws {
@@ -65,6 +66,7 @@ struct SurveyResponsePayloadTests {
                     "nonce": "abc123",
                     "client_created_at": 1600904569,
                     "client_created_at_utc_offset": 0,
+                    "where_event": "test",
                     "answers": {
                         "1": {
                             "state": "answered",
@@ -113,6 +115,29 @@ struct SurveyResponsePayloadTests {
         try checkPayloadEquivalence(between: testPayload.bodyData!, and: expectedEncodedContent, comparisons: ["answers"])
 
         try checkRequestHeading(for: testPayload, decoder: self.jsonDecoder, expectedMethod: .post, expectedPathSuffix: "surveys/abc123/responses")
+    }
+
+    @Test func testWhereEventEncoding() throws {
+        let surveyResponseWithWhereEvent = SurveyResponse(
+            surveyID: "abc123",
+            questionResponses: [:],
+            whereEvent: "local#app#some_view"
+        )
+        let testPayload = try Payload(wrapping: surveyResponseWithWhereEvent, with: self.payloadContext)
+
+        let expectedEncodedContent = """
+            {
+                "response": {
+                    "nonce": "abc123",
+                    "client_created_at": 1600904569,
+                    "client_created_at_utc_offset": 0,
+                    "where_event": "local#app#some_view",
+                    "answers": {}
+                }
+            }
+            """
+
+        try checkPayloadEquivalence(between: testPayload.bodyData!, and: expectedEncodedContent, comparisons: ["where_event", "answers"])
     }
 
     @Test func testEncryptedEncoding() throws {

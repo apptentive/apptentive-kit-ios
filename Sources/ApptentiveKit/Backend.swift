@@ -394,7 +394,7 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
 
         if let conversation = self.conversation, let interaction = try self.targeter.interactionData(for: event, state: conversation) {
             try self.maybeThrottleInteraction(interaction, for: event)
-            try await self.presentInteraction(interaction)
+            try await self.presentInteraction(interaction, from: event)
 
             return true
         } else {
@@ -1018,12 +1018,12 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
         try self.saveConversationIfNeeded()
     }
 
-    private func presentInteraction(_ interaction: Interaction) async throws {
+    private func presentInteraction(_ interaction: Interaction, from whereEvent: Event? = nil) async throws {
         guard let delegate = self.delegate else {
             throw ApptentiveError.internalInconsistency
         }
 
-        try await delegate.interactionPresenter.presentInteraction(interaction)
+        try await delegate.interactionPresenter.presentInteraction(interaction, whereEvent: whereEvent?.codePointName)
         self.incrementInteractionMetric(for: interaction)
     }
 

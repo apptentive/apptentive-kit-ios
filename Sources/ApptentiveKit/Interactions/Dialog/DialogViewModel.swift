@@ -67,7 +67,7 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
 
     /// Engages a launch event for the interaction.
     public func launch() {
-        self.interactionDelegate.engage(event: .launch(from: self.interaction))
+        self.interactionDelegate.engage(event: .launch(from: self.interaction, whereEvent: self.whereEvent))
     }
 
     /// Engages a cancel event for the interaction (not used by the default implementation).
@@ -101,8 +101,9 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
     let interaction: Interaction
     let interactionDelegate: DialogInteractionDelegate
     let imageConfiguration: TextModalConfiguration.Image?
+    let whereEvent: String?
 
-    init(configuration: TextModalConfiguration, interaction: Interaction, interactionDelegate: DialogInteractionDelegate) {
+    init(configuration: TextModalConfiguration, interaction: Interaction, interactionDelegate: DialogInteractionDelegate, whereEvent: String?) {
         self.interaction = interaction
         self.interactionDelegate = interactionDelegate
         self.dialogType = .textModal
@@ -110,9 +111,10 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
         self.message = configuration.body
         self.isMessageHidden = configuration.body == nil || configuration.body?.characters.isEmpty == true
         self.isTitleHidden = configuration.title == nil || configuration.title?.characters.isEmpty == true
+        self.whereEvent = whereEvent
 
         self.actions = configuration.actions.enumerated().map { (position, action) in
-            return Self.buildTextModalAction(action: action, position: position, interaction: interaction, interactionDelegate: interactionDelegate)
+            return Self.buildTextModalAction(action: action, position: position, interaction: interaction, interactionDelegate: interactionDelegate, whereEvent: whereEvent)
         }
         self.imageConfiguration = configuration.image
 
@@ -131,7 +133,7 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
         self.verticalMargins = configuration.verticalMargins ?? 0
     }
 
-    init(configuration: EnjoymentDialogConfiguration, interaction: Interaction, interactionDelegate: DialogInteractionDelegate) {
+    init(configuration: EnjoymentDialogConfiguration, interaction: Interaction, interactionDelegate: DialogInteractionDelegate, whereEvent: String?) {
         self.interaction = interaction
         self.interactionDelegate = interactionDelegate
         self.dialogType = .enjoymentDialog
@@ -144,17 +146,18 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
         } else {
             self.image = .none
         }
+        self.whereEvent = whereEvent
 
         self.actions = [
             DialogViewModel.Action(
                 label: configuration.noText, actionType: .no,
                 buttonTapped: {
-                    interactionDelegate.recordEnjoyment(false, from: interaction)
+                    interactionDelegate.recordEnjoyment(false, from: interaction, whereEvent: whereEvent)
                 }),
             DialogViewModel.Action(
                 label: configuration.yesText, actionType: .yes,
                 buttonTapped: {
-                    interactionDelegate.recordEnjoyment(true, from: interaction)
+                    interactionDelegate.recordEnjoyment(true, from: interaction, whereEvent: whereEvent)
                 }),
         ]
 
@@ -208,7 +211,7 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
         self.image = image
     }
 
-    private static func buildTextModalAction(action: TextModalConfiguration.Action, position: Int, interaction: Interaction, interactionDelegate: DialogInteractionDelegate) -> DialogViewModel.Action {
+    private static func buildTextModalAction(action: TextModalConfiguration.Action, position: Int, interaction: Interaction, interactionDelegate: DialogInteractionDelegate, whereEvent: String?) -> DialogViewModel.Action {
         return DialogViewModel.Action(
             label: action.label,
             actionType: DialogViewModel.Action.ActionType.from(action.actionType),
@@ -220,7 +223,7 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
                 switch action.actionType {
                 case .dismiss:
                     let invokedAction = TextModalAction(label: action.label, position: position, actionID: action.id)
-                    interactionDelegate.engage(event: .dismiss(for: interaction, action: invokedAction))
+                    interactionDelegate.engage(event: .dismiss(for: interaction, action: invokedAction, whereEvent: whereEvent))
 
                 case .interaction:
                     guard let invocations = action.invocations else {
@@ -231,7 +234,7 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
                     Task {
                         let invokedInteractionID = try await interactionDelegate.invoke(invocations)
                         let invokedAction = TextModalAction(label: action.label, position: position, invokedInteractionID: invokedInteractionID, actionID: action.id)
-                        interactionDelegate.engage(event: .interaction(for: interaction, action: invokedAction))
+                        interactionDelegate.engage(event: .interaction(for: interaction, action: invokedAction, whereEvent: whereEvent))
                     }
                 }
             })
@@ -240,24 +243,24 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
 
 extension Event {
 
-    static func yes(from interaction: Interaction) -> Self {
-        return Self.init(internalName: "yes", interaction: interaction)
+    static func yes(from interaction: Interaction, whereEvent: String?) -> Self {
+        return Self.init(internalName: "yes", interaction: interaction, whereEvent: whereEvent)
     }
 
-    static func no(from interaction: Interaction) -> Self {
-        return Self.init(internalName: "no", interaction: interaction)
+    static func no(from interaction: Interaction, whereEvent: String?) -> Self {
+        return Self.init(internalName: "no", interaction: interaction, whereEvent: whereEvent)
     }
 
-    static func interaction(for interaction: Interaction, action: TextModalAction) -> Self {
-        var result = Event(internalName: "interaction", interaction: interaction)
+    static func interaction(for interaction: Interaction, action: TextModalAction, whereEvent: String?) -> Self {
+        var result = Event(internalName: "interaction", interaction: interaction, whereEvent: whereEvent)
 
         result.userInfo = .textModalAction(action)
 
         return result
     }
 
-    static func dismiss(for interaction: Interaction, action: TextModalAction) -> Self {
-        var result = Event(internalName: "dismiss", interaction: interaction)
+    static func dismiss(for interaction: Interaction, action: TextModalAction, whereEvent: String?) -> Self {
+        var result = Event(internalName: "dismiss", interaction: interaction, whereEvent: whereEvent)
 
         result.userInfo = .textModalAction(action)
 

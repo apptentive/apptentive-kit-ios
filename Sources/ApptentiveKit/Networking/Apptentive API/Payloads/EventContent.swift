@@ -20,6 +20,9 @@ struct EventContent: Equatable, Decodable, PayloadEncodable {
     /// Additional event-specific info.
     let userInfo: EventUserInfo?
 
+    /// The event that triggered an interaction launch event, if any.
+    let whereEvent: String?
+
     /// Custom data associated with the event.
     let customData: CustomData?
 
@@ -30,29 +33,30 @@ struct EventContent: Equatable, Decodable, PayloadEncodable {
         self.label = event.codePointName
         self.interactionID = event.interaction?.id
         self.userInfo = event.userInfo
-
+        self.whereEvent = event.whereEvent
     }
 
     func encodeContents(to container: inout KeyedEncodingContainer<Payload.AllPossibleCodingKeys>) throws {
         try container.encode(self.label, forKey: .label)
         try container.encodeIfPresent(self.interactionID, forKey: .interactionID)
+        try container.encodeIfPresent(self.whereEvent, forKey: .whereEvent)
         try container.encodeIfPresent(self.customData, forKey: .customData)
 
-        switch self.userInfo {
-        case .navigateToLink(let link):
-            try container.encode(link, forKey: .userInfo)
+        if let userInfo = self.userInfo {
+            let dataEncoder = container.superEncoder(forKey: .userInfo)
+            switch userInfo {
+            case .navigateToLink(let link):
+                try link.encode(to: dataEncoder)
 
-        case .textModalAction(let action):
-            try container.encode(action, forKey: .userInfo)
+            case .textModalAction(let action):
+                try action.encode(to: dataEncoder)
 
-        case .dismissCause(let cause):
-            try container.encode(cause, forKey: .userInfo)
+            case .dismissCause(let cause):
+                try cause.encode(to: dataEncoder)
 
-        case .messageInfo(let messageInfo):
-            try container.encode(messageInfo, forKey: .userInfo)
-
-        case .none:
-            break
+            case .messageInfo(let info):
+                try info.encode(to: dataEncoder)
+            }
         }
     }
 
@@ -70,6 +74,7 @@ struct EventContent: Equatable, Decodable, PayloadEncodable {
         } else {
             self.userInfo = nil
         }
+        self.whereEvent = nil
     }
 
     enum CodingKeys: String, CodingKey {
@@ -78,4 +83,5 @@ struct EventContent: Equatable, Decodable, PayloadEncodable {
         case userInfo = "data"
         case eventCustomData = "custom_data"
     }
+
 }
