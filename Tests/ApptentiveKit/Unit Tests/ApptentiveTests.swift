@@ -403,7 +403,8 @@ struct ApptentiveTests {
             surveyID: "abc123",
             questionResponses: [
                 "def456": .answered([.choice("ghi789")])
-            ])
+            ],
+            whereEvent: "test")
 
         await self.apptentive.send(surveyResponse: surveyResponse)
 

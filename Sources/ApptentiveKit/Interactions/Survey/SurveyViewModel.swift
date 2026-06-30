@@ -256,7 +256,7 @@ typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & Response
 
     /// Registers that the survey was launched.
     public func launch() {
-        self.interactionDelegate.engage(event: .launch(from: self.interaction))
+        self.interactionDelegate.engage(event: .launch(from: self.interaction, whereEvent: self.whereEvent))
 
         Task {
             for question in self.allQuestions {
@@ -291,6 +291,7 @@ typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & Response
 
     internal let interaction: Interaction
     internal let interactionDelegate: SurveyInteractionDelegate
+    internal let whereEvent: String?
     internal let rangeChoiceLabelNumberFormatter: NumberFormatter
     internal var currentPageID: String
     internal let pages: [String: Page]
@@ -301,12 +302,14 @@ typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & Response
     internal let introPageID = "intro"
     internal let successPageID = "success"
 
-    internal required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: SurveyInteractionDelegate) {
+    internal required init(configuration: SurveyConfiguration, interaction: Interaction, interactionDelegate: SurveyInteractionDelegate, whereEvent: String?) {
         self.interaction = interaction
         self.interactionDelegate = interactionDelegate
 
         self.title = configuration.title
         self.name = configuration.name
+
+        self.whereEvent = whereEvent
 
         self.termsAndConditions = configuration.termsAndConditions.flatMap {
             TermsAndConditions(linkLabel: $0.label, linkURL: $0.link)
@@ -409,7 +412,7 @@ typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & Response
 
         let questionResponses = Dictionary(uniqueKeysWithValues: questionResponseTuples)
 
-        return SurveyResponse(surveyID: self.interaction.id, questionResponses: questionResponses)
+        return SurveyResponse(surveyID: self.interaction.id, questionResponses: questionResponses, whereEvent: self.whereEvent)
     }
 
     internal var allQuestions: [SurveyViewModel.Question] {
@@ -471,7 +474,7 @@ typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & Response
             await self.interactionDelegate.recordResponse(responses, for: questionID)
         }
 
-        self.interactionDelegate.engage(event: .submit(from: self.interaction))
+        self.interactionDelegate.engage(event: .submit(from: self.interaction, whereEvent: self.whereEvent))
         await self.interactionDelegate.send(surveyResponse: self.response)
 
         self.surveyDidSendResponse = true

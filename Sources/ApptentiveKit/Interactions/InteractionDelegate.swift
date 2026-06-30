@@ -111,5 +111,5 @@ typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesti
 
 /// Describes an object that can record positive or negative sentiment regarding the app.
 @MainActor protocol EnjoymentRecording: AnyObject {
-    func recordEnjoyment(_ didLove: Bool, from interaction: Interaction)
+    func recordEnjoyment(_ didLove: Bool, from interaction: Interaction, whereEvent: String?)
 }

@@ -420,6 +420,7 @@ struct Payload: Codable, Equatable, CustomDebugStringConvertible {
         // Event keys
         case label
         case interactionID = "interaction_id"
+        case whereEvent = "where_event"
         case userInfo = "data"
         case time
         case location

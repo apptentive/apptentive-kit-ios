@@ -28,7 +28,7 @@ import Testing
             throw TestError(reason: "Interaction configuration should be survey branched configuration")
         }
 
-        let viewModel = SurveyViewModel(configuration: configuration, interaction: self.interaction, interactionDelegate: self.interactionDelegate)
+        let viewModel = SurveyViewModel(configuration: configuration, interaction: self.interaction, interactionDelegate: self.interactionDelegate, whereEvent: "local#app#my_event")
 
         #expect(viewModel.name == "How was your experience?")
         #expect(viewModel.termsAndConditions?.linkURL.absoluteString == "https://www.example.com/")
@@ -47,7 +47,7 @@ import Testing
             throw TestError(reason: "Interaction configuration should be survey branched configuration")
         }
 
-        let viewModel = SurveyViewModel(configuration: configuration, interaction: self.interaction, interactionDelegate: self.interactionDelegate)
+        let viewModel = SurveyViewModel(configuration: configuration, interaction: self.interaction, interactionDelegate: self.interactionDelegate, whereEvent: "local#app#my_event")
 
         let introPage = viewModel.pages["intro"]
 
@@ -91,7 +91,7 @@ import Testing
             throw TestError(reason: "Interaction configuration should be survey branched configuration")
         }
 
-        let viewModel = SurveyViewModel(configuration: configuration, interaction: self.interaction, interactionDelegate: self.interactionDelegate)
+        let viewModel = SurveyViewModel(configuration: configuration, interaction: self.interaction, interactionDelegate: self.interactionDelegate, whereEvent: "local#app#my_event")
 
         viewModel.delegate = self.viewModelDelegate
 
@@ -111,7 +111,7 @@ import Testing
             throw TestError(reason: "Interaction configuration should be survey branched configuration")
         }
 
-        let viewModel = SurveyViewModel(configuration: configuration, interaction: self.interaction, interactionDelegate: self.interactionDelegate)
+        let viewModel = SurveyViewModel(configuration: configuration, interaction: self.interaction, interactionDelegate: self.interactionDelegate, whereEvent: "local#app#my_event")
 
         viewModel.delegate = self.viewModelDelegate
 
@@ -135,7 +135,7 @@ import Testing
             throw TestError(reason: "Interaction configuration should be survey branched configuration")
         }
 
-        let viewModel = SurveyViewModel(configuration: configuration, interaction: disclaimerNoIntroInteraction, interactionDelegate: self.interactionDelegate)
+        let viewModel = SurveyViewModel(configuration: configuration, interaction: disclaimerNoIntroInteraction, interactionDelegate: self.interactionDelegate, whereEvent: "local#app#my_event")
 
         #expect(viewModel.currentPageID == "intro", "Should have an intro page even without intro (but with disclaimer)")
         #expect(viewModel.introduction == nil, "Introduction text should be nil for this interaction")
@@ -149,7 +149,7 @@ import Testing
             throw TestError(reason: "Interaction configuration should be survey branched configuration")
         }
 
-        let viewModel = SurveyViewModel(configuration: configuration, interaction: disclaimerNoIntroInteraction, interactionDelegate: self.interactionDelegate)
+        let viewModel = SurveyViewModel(configuration: configuration, interaction: disclaimerNoIntroInteraction, interactionDelegate: self.interactionDelegate, whereEvent: "local#app#my_event")
 
         #expect(viewModel.currentPageID != "intro")
         #expect(viewModel.disclaimerText == nil, "Disclaimer text should be nil for this interaction")

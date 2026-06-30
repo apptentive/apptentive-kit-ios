@@ -80,7 +80,8 @@ struct EventPayloadTests {
     @Test func testEventUserInfoEncoding() throws {
         let interaction = try InteractionTestHelpers.loadInteraction(named: "NavigateToLink")
 
-        let event: Event = .navigate(to: URL(string: "https://www.apptentive.com")!, success: true, interaction: interaction)
+        var event: Event = .navigate(to: URL(string: "https://www.apptentive.com")!, success: true, interaction: interaction)
+        event.whereEvent = "some_view"
         let interactionPayload = try Payload(wrapping: event, with: self.payloadContext)
 
         let expectedEncodedContent = """
@@ -91,6 +92,7 @@ struct EventPayloadTests {
                     "client_created_at_utc_offset": 0,
                     "label": "com.apptentive#NavigateToLink#navigate",
                     "interaction_id": "\(event.interaction!.id)",
+                    "where_event": "some_view",
                     "data": {
                         "url": "https://www.apptentive.com",
                         "success": true
@@ -99,7 +101,7 @@ struct EventPayloadTests {
             }
             """
 
-        try checkPayloadEquivalence(between: interactionPayload.bodyData!, and: expectedEncodedContent, comparisons: ["label", "interaction_id", "data"])
+        try checkPayloadEquivalence(between: interactionPayload.bodyData!, and: expectedEncodedContent, comparisons: ["label", "interaction_id", "where_event", "data"])
 
         try checkRequestHeading(for: interactionPayload, decoder: self.jsonDecoder, expectedMethod: .post, expectedPathSuffix: "events")
     }

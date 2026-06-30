@@ -25,8 +25,9 @@ import UIKit
     /// - Parameters:
     ///   - interaction: The interaction to present.
     ///   - presentingViewController: The view controller to use to present the interaction.
+    ///   - whereEvent: The code point name of the event that triggered the interaction, if any.
     /// - Throws: An error if the presentation fails.
-    func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController? = nil) async throws {
+    func presentInteraction(_ interaction: Interaction, from presentingViewController: UIViewController? = nil, whereEvent: String? = nil) async throws {
         guard let delegate = self.delegate else {
             throw ApptentiveError.internalInconsistency
         }
@@ -40,7 +41,7 @@ import UIKit
             try await AppleRatingDialogController(interaction: interaction, delegate: delegate).requestReview()
 
         case .enjoymentDialog(let configuration):
-            let viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
+            let viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate, whereEvent: whereEvent)
             try await self.presentEnjoymentDialog(with: viewModel)
 
         case .navigateToLink(let configuration):
@@ -51,7 +52,7 @@ import UIKit
             }
 
         case .textModal(let configuration):
-            let viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
+            let viewModel = DialogViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate, whereEvent: whereEvent)
             try await self.presentTextModal(with: viewModel)
 
         case .messageCenter(let configuration):
@@ -59,11 +60,11 @@ import UIKit
             try await self.presentMessageCenter(with: viewModel)
 
         case .surveyV12(let configuration):
-            let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate)
+            let viewModel = SurveyViewModel(configuration: configuration, interaction: interaction, interactionDelegate: delegate, whereEvent: whereEvent)
             try await self.presentSurvey(with: viewModel)
 
         case .initiator:
-            self.launchInitiator(interaction: interaction)
+            self.launchInitiator(interaction: interaction, whereEvent: whereEvent)
 
         case .notImplemented:
             throw InteractionPresenterError.notImplemented(interaction.typeName, interaction.id)
@@ -214,8 +215,8 @@ import UIKit
         self.delegate?.engage(event: dismissEvent)
     }
 
-    private func launchInitiator(interaction: Interaction) {
-        self.delegate?.engage(event: .launch(from: interaction))
+    private func launchInitiator(interaction: Interaction, whereEvent: String?) {
+        self.delegate?.engage(event: .launch(from: interaction, whereEvent: whereEvent))
     }
 
     /// Walks up the view controller hierarchy to find any ancestors that are being dismissed, and returns that ancestor's parent, or nil if no parents are being dismissed.

@@ -27,6 +27,9 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible, C
     /// Additional information to be sent along with the event.
     var userInfo: EventUserInfo?
 
+    /// The event that triggered an interaction launch event, if any.
+    var whereEvent: String?
+
     /// Creates an event with the provided name.
     /// - Parameter name: The name of the event.
     public init(name: String) {
@@ -46,16 +49,18 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible, C
     /// - Parameters:
     ///   - internalName: The name of the event.
     ///   - interaction: The interaction engaging the event (defaults to `nil`, representing the `app` interaction).
-    init(internalName: String, interaction: Interaction? = nil) {
+    ///   - whereEvent: The event that triggered the interaction, if any.
+    init(internalName: String, interaction: Interaction? = nil, whereEvent: String? = nil) {
         self.name = internalName
         self.vendor = "com.apptentive"
         self.interaction = interaction
+        self.whereEvent = whereEvent
         self.customData = CustomData()
     }
 
     /// Convenience method for a `launch` event.
-    static func launch(from interaction: Interaction? = nil) -> Self {
-        return Self(internalName: "launch", interaction: interaction)
+    static func launch(from interaction: Interaction? = nil, whereEvent: String? = nil) -> Self {
+        return Self(internalName: "launch", interaction: interaction, whereEvent: whereEvent)
     }
 
     /// Convenience method for an `exit` event.
@@ -64,8 +69,8 @@ public struct Event: ExpressibleByStringLiteral, CustomDebugStringConvertible, C
     }
 
     /// Convenience method for a `submit` event (e.g. a survey).
-    static func submit(from interaction: Interaction?) -> Self {
-        return Self(internalName: "submit", interaction: interaction)
+    static func submit(from interaction: Interaction?, whereEvent: String? = nil) -> Self {
+        return Self(internalName: "submit", interaction: interaction, whereEvent: whereEvent)
     }
 
     /// Convenience method for a `submit` event (e.g. a survey).

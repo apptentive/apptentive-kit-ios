@@ -11,12 +11,15 @@ import Foundation
 /// Encapsulates the payload contents for a survey response.
 struct SurveyResponseContent: Equatable, Decodable, PayloadEncodable {
     let answers: SurveyV12AnswersRequestPart
+    let whereEvent: String?
 
     init(with response: SurveyResponse) {
         self.answers = SurveyV12AnswersRequestPart(questionResponses: response.questionResponses)
+        self.whereEvent = response.whereEvent
     }
 
     func encodeContents(to container: inout KeyedEncodingContainer<Payload.AllPossibleCodingKeys>) throws {
+        try container.encodeIfPresent(self.whereEvent, forKey: .whereEvent)
         try container.encode(self.answers, forKey: .answers)
     }
 }

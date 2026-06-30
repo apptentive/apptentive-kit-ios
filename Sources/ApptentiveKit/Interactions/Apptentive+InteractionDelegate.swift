@@ -179,11 +179,11 @@ extension Apptentive {
 
     // MARK: EnjoymentRecording
 
-    func recordEnjoyment(_ didLove: Bool, from interaction: Interaction) {
+    func recordEnjoyment(_ didLove: Bool, from interaction: Interaction, whereEvent: String?) {
         if didLove {
-            self.engage(event: .yes(from: interaction))
+            self.engage(event: .yes(from: interaction, whereEvent: whereEvent))
         } else {
-            self.engage(event: .no(from: interaction))
+            self.engage(event: .no(from: interaction, whereEvent: whereEvent))
         }
 
         Task {

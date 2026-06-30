@@ -1,3 +1,9 @@
+# 2026-06-30 - v7.2.0
+
+#### New Features
+
+- Interaction launches now report which event triggered the launch
+
 # 2026-04-14 - v7.1.0
 
 #### New Features
