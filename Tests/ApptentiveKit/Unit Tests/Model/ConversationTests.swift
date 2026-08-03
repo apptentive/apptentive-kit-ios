@@ -32,6 +32,27 @@ struct ConversationTests {
         #expect(merged.appRelease.isUpdatedVersion)
     }
 
+    @Test func testMergePreservesLastSyncedProperties() throws {
+        let dataProvider = MockDataProvider()
+
+        // `conversation1` represents the disk-loaded conversation, with a real sync baseline.
+        var conversation1 = Conversation(dataProvider: dataProvider)
+        conversation1.lastSyncedPerson = conversation1.person
+        conversation1.lastSyncedDevice = conversation1.device
+        conversation1.lastSyncedAppRelease = conversation1.appRelease
+
+        // `conversation2` represents the in-memory placeholder conversation, which never has a sync baseline.
+        let conversation2 = Conversation(dataProvider: dataProvider)
+
+        #expect(conversation2.lastSyncedPerson == nil)
+
+        let merged = try conversation1.merged(with: conversation2)
+
+        #expect(merged.lastSyncedPerson == conversation1.lastSyncedPerson)
+        #expect(merged.lastSyncedDevice == conversation1.lastSyncedDevice)
+        #expect(merged.lastSyncedAppRelease == conversation1.lastSyncedAppRelease)
+    }
+
     @Test func testCoding() throws {
         let dataProvider = MockDataProvider()
 
@@ -57,5 +78,27 @@ struct ConversationTests {
         let conversation2 = try decoder.decode(Conversation.self, from: data)
 
         #expect(conversation == conversation2)
+    }
+
+    @Test func testDecodingConversationWithoutLastSyncedProperties() throws {
+        // Simulates a Conversation.plist persisted by an SDK version that predates the
+        // `lastSyncedAppRelease`/`lastSyncedPerson`/`lastSyncedDevice` properties.
+        let dataProvider = MockDataProvider()
+        let conversation = Conversation(dataProvider: dataProvider)
+
+        let data = try PropertyListEncoder().encode(conversation)
+
+        var plistObject = try PropertyListSerialization.propertyList(from: data, format: nil) as! [String: Any]
+        plistObject.removeValue(forKey: "lastSyncedAppRelease")
+        plistObject.removeValue(forKey: "lastSyncedPerson")
+        plistObject.removeValue(forKey: "lastSyncedDevice")
+
+        let legacyData = try PropertyListSerialization.data(fromPropertyList: plistObject, format: .xml, options: 0)
+
+        let decoded = try PropertyListDecoder().decode(Conversation.self, from: legacyData)
+
+        #expect(decoded.lastSyncedAppRelease == nil)
+        #expect(decoded.lastSyncedPerson == nil)
+        #expect(decoded.lastSyncedDevice == nil)
     }
 }

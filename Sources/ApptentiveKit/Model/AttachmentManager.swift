@@ -7,10 +7,10 @@
 //
 
 import Foundation
-import MobileCoreServices
 import OSLog
 import QuickLookThumbnailing
 import UIKit
+import UniformTypeIdentifiers
 
 protocol AttachmentURLProviding {
     func url(for attachment: MessageList.Message.Attachment) -> URL?

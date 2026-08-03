@@ -600,7 +600,6 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
 
             let conversation = Conversation(dataProvider: dataProvider)
             let conversationResponse = try await self.postConversation(conversation, with: PendingAPICredentials(appCredentials: appCredentials), token: token)
-            self.lastSyncedConversation = conversation
             try self.state.roster.createLoggedInRecord(with: jwtSubject, id: conversationResponse.id, token: token, encryptionKey: conversationResponse.encryptionKey)
             try self.saveRoster(self.state.roster)
 
@@ -656,7 +655,11 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
         Logger.default.debug("Registering new anonymous conversation.")
         let postedConversation = conversation
         let conversationResponse = try await self.postConversation(conversation, with: credentials)
-        self.lastSyncedConversation = postedConversation
+
+        self.conversation?.lastSyncedAppRelease = postedConversation.appRelease
+        self.conversation?.lastSyncedPerson = postedConversation.person
+        self.conversation?.lastSyncedDevice = postedConversation.device
+
         try self.state.roster.registerAnonymousRecord(with: conversationResponse.id, token: conversationResponse.token)
         try self.saveRoster(self.state.roster)
     }
@@ -713,9 +716,6 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
     /// A repeating task that periodically runs a task to save the conversation and payload sender.
     private var housekeepingTask: Task<Void, Error>?
 
-    /// The version of the conversation that was last sent to the API.
-    private var lastSyncedConversation: Conversation?
-
     private var registerContinuation: CheckedContinuation<ConnectionType, Error>?
 
     private var messageFetchCompletion: ((UIBackgroundFetchResult) -> Void)?
@@ -756,7 +756,8 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
                 self.registerContinuation?.resume(returning: .new)
                 self.registerContinuation = nil
 
-                self.startHousekeepingTask()
+                self.startHousekeepingTask(skipFirstRun: true)
+                await self.syncCustomDataWithAPI()
 
             case (from: .loading, to: .anonymous(let payloadCredentials, let authenticationContext)):
                 try await self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", authenticationContext: authenticationContext)
@@ -765,7 +766,8 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
                 self.registerContinuation?.resume(returning: .cached)
                 self.registerContinuation = nil
 
-                self.startHousekeepingTask()
+                self.startHousekeepingTask(skipFirstRun: true)
+                await self.syncCustomDataWithAPI()
 
             case (from: .loading, to: .loggedIn(let payloadCredentials, let authenticationContext)):
                 self.registerContinuation?.resume(returning: .cached)
@@ -774,7 +776,8 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
                 self.syncFrontendVariables()
 
                 try await self.payloadSender.updateCredentials(payloadCredentials, for: "placeholder", authenticationContext: authenticationContext)
-                self.startHousekeepingTask()
+                self.startHousekeepingTask(skipFirstRun: true)
+                await self.syncCustomDataWithAPI()
 
             case (from: .loading, to: .loggedOut):
                 self.conversation = nil
@@ -802,10 +805,11 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
 
                 try await self.createRecordSavers(for: activeRecord, containerURL: containerURL)
                 try self.loadRecordFiles(for: activeRecord, containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
-                self.startHousekeepingTask()
+                self.startHousekeepingTask(skipFirstRun: true)
 
                 try await self.startSession()
                 self.syncFrontendVariables()
+                await self.syncCustomDataWithAPI()
                 try await self.engage(event: .login)
 
             case (from: .loggedIn, to: .loggedOut):
@@ -833,13 +837,13 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
             case (from: .anonymous, to: .backgrounded), (from: .loggedIn, to: .backgrounded):
                 await self.startBackgroundTask()
                 try await self.endSession()
+                self.cancelHousekeepingTask()
 
-                await self.syncConversationWithAPI()
+                await self.syncCustomDataWithAPI()
 
                 await self.payloadSender.drain()
                 await self.endBackgroundTask()
 
-                self.cancelHousekeepingTask()
                 try await self.saveToPersistentStorageIfNeeded()
 
             case (from: _, to: .backgrounded):
@@ -865,6 +869,11 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
             } else {
                 apptentiveCriticalError("Error during state transition (from \(transition.from) to \(transition.to): \(error). Suspending SDK operation until next cold launch.")
             }
+
+            if let clientError = error as? HTTPClientError, case .unauthorized = clientError {
+                self.authenticationDidFail(with: .init(error: "Unauthorized", errorType: .invalidToken))
+            }
+
             self.state.fatalError = true
         }
     }
@@ -1003,8 +1012,6 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
     private func loadConversation(from loader: Loader, for record: ConversationRoster.Record) throws {
         let previousConversation = try loader.loadConversation(for: record)
 
-        self.lastSyncedConversation = previousConversation
-
         if let placeholderConversation = self.conversation {
             self.conversation = try previousConversation.merged(with: placeholderConversation)
         } else {
@@ -1033,7 +1040,11 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
 
     // MARK: API syncing
 
-    /// If registered, sends updates to person, device, and app release if they have changed since the last sync.
+    /// If registered, sends updates to person, device, and app release if they have changed since the last sync, and requests
+    /// the latest interactions, status, and messages if needed.
+    ///
+    /// Called periodically by the housekeeping task. Excludes custom data, which is synced separately by `syncCustomDataWithAPI()`
+    /// on app exit (and retried on next launch) so the two don't race over the same person/device payload.
     ///
     /// Would be private but needs to be internal for testing.
     internal func syncConversationWithAPI() async {
@@ -1047,11 +1058,6 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
             return
         }
 
-        guard let lastSyncedConversation = self.lastSyncedConversation else {
-            Logger.network.debug("Skipping API sync: No previously synced conversation.")
-            return
-        }
-
         self.getInteractionsIfNeeded(with: credentials)
 
         if let applicationID = self.state.roster.applicationID {
@@ -1062,37 +1068,89 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
 
         self.getMessagesIfNeeded(with: credentials)
 
-        if AppReleaseContent(with: lastSyncedConversation.appRelease) != AppReleaseContent(with: conversation.appRelease) {
+        await self.syncAppReleaseWithAPI(conversation: conversation)
+        await self.syncPersonWithAPI(conversation: conversation, includeCustomData: false)
+        await self.syncDeviceWithAPI(conversation: conversation, includeCustomData: false)
+    }
+
+    /// Sends updates to person and device custom data if they have changed since the last sync.
+    ///
+    /// Called on app exit, and again on the next launch/login in case the app-exit sync didn't get to run. Kept separate from
+    /// `syncConversationWithAPI()` so it doesn't also re-request interactions/status/messages or re-send the app release payload,
+    /// which the housekeeping task is already responsible for.
+    ///
+    /// Would be private but needs to be internal for testing.
+    internal func syncCustomDataWithAPI() async {
+        guard let conversation = self.conversation else {
+            Logger.network.debug("Skipping custom data sync: No active conversation.")
+            return
+        }
+
+        guard self.state.anonymousCredentials != nil else {
+            Logger.network.debug("Skipping custom data sync: Not yet registered.")
+            return
+        }
+
+        await self.syncPersonWithAPI(conversation: conversation, includeCustomData: true)
+        await self.syncDeviceWithAPI(conversation: conversation, includeCustomData: true)
+    }
+
+    func syncAppReleaseWithAPI(conversation: Conversation) async {
+        let previousAppReleaseContent = conversation.lastSyncedAppRelease.map(AppReleaseContent.init(with:))
+
+        if previousAppReleaseContent != AppReleaseContent(with: conversation.appRelease) {
             Logger.network.debug("App release data changed. Enqueueing update.")
             do {
                 try await self.payloadSender.send(Payload(wrapping: conversation.appRelease, with: self.payloadContext), persistEagerly: false)
-                self.lastSyncedConversation?.appRelease = conversation.appRelease
+                self.conversation?.lastSyncedAppRelease = conversation.appRelease
             } catch let error {
                 Logger.default.error("Unable to enqueue app release payload: \(error).")
             }
         }
+    }
 
-        if PersonContent(with: lastSyncedConversation.person) != PersonContent(with: conversation.person) {
+    func syncPersonWithAPI(conversation: Conversation, includeCustomData: Bool) async {
+        let currentPersonContent = PersonContent(with: conversation.person)
+        let personChanged: Bool
+
+        if let previousPersonContent = conversation.lastSyncedPerson.map(PersonContent.init(with:)) {
+            personChanged = previousPersonContent.differs(from: currentPersonContent, includeCustomData: includeCustomData)
+        } else {
+            personChanged = true
+        }
+
+        if personChanged {
             Logger.network.debug("Person data changed. Enqueueing update.")
             do {
                 try await self.payloadSender.send(Payload(wrapping: conversation.person, with: self.payloadContext), persistEagerly: false)
-                self.lastSyncedConversation?.person = conversation.person
+                self.conversation?.lastSyncedPerson = conversation.person
             } catch let error {
                 Logger.default.error("Unable to enqueue person payload: \(error).")
             }
         }
+    }
 
-        if DeviceContent(with: lastSyncedConversation.device) != DeviceContent(with: conversation.device) {
+    func syncDeviceWithAPI(conversation: Conversation, includeCustomData: Bool) async {
+        let currentDeviceContent = DeviceContent(with: conversation.device)
+        let deviceChanged: Bool
+
+        if let previousDeviceContent = conversation.lastSyncedDevice.map(DeviceContent.init(with:)) {
+            deviceChanged = previousDeviceContent.differs(from: currentDeviceContent, includeCustomData: includeCustomData)
+        } else {
+            deviceChanged = true
+        }
+
+        if deviceChanged {
             Logger.network.debug("Device data changed. Enqueueing update.")
             do {
                 try await self.payloadSender.send(Payload(wrapping: conversation.device, with: self.payloadContext), persistEagerly: false)
 
-                if lastSyncedConversation.device.localeRaw != conversation.device.localeRaw {
+                if conversation.lastSyncedDevice?.localeRaw != conversation.device.localeRaw {
                     Logger.engagement.debug("Locale changed. Invalidating engagement manifest.")
                     self.invalidateEngagementManifest()
                 }
 
-                self.lastSyncedConversation?.device = conversation.device
+                self.conversation?.lastSyncedDevice = conversation.device
             } catch let error {
                 Logger.default.error("Unable to enqueue device payload: \(error).")
             }
@@ -1139,16 +1197,24 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
 
     // MARK: Housekeeping timer
 
-    private func startHousekeepingTask() {
+    /// Starts the periodic housekeeping task.
+    ///
+    /// - Parameter skipFirstRun: Pass `true` when a `syncCustomDataWithAPI()` call immediately follows this call at the same
+    ///   call site, so the loop's first tick doesn't race that call over the person/device payload.
+    private func startHousekeepingTask(skipFirstRun: Bool = false) {
         if self.housekeepingTask == nil {
             self.housekeepingTask = Task {
-                repeat {
+                if skipFirstRun {
+                    try? await Task.sleep(nanoseconds: 10 * NSEC_PER_SEC)
+                }
+
+                while !Task.isCancelled {
                     Logger.default.debug("Running periodic housekeeping task")
                     await self.syncConversationWithAPI()
                     try? await self.saveToPersistentStorageIfNeeded()
 
                     try? await Task.sleep(nanoseconds: 10 * NSEC_PER_SEC)
-                } while !Task.isCancelled
+                }
 
                 self.housekeepingTask = nil
             }
@@ -1213,6 +1279,11 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
                     self.messageFetchCompletion?(didReceiveNewMessages ? .newData : .noData)
 
                 } catch let error {
+                    if let clientError = error as? HTTPClientError, case .unauthorized = clientError {
+                        self.authenticationDidFail(with: .init(error: "Unauthorized", errorType: .invalidToken))
+                        self.state.fatalError = true
+                    }
+
                     Logger.network.error("Failed to download message list: \(error)")
                     self.messageFetchCompletion?(.failed)
                 }
@@ -1270,6 +1341,11 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
 
                     Logger.network.debug("Engagement manifest received from \(source). New expiry is \(engagementManifest.expiry as? NSObject)")
                 } catch let error {
+                    if let clientError = error as? HTTPClientError, case .unauthorized = clientError {
+                        self.authenticationDidFail(with: .init(error: "Unauthorized", errorType: .invalidToken))
+                        self.state.fatalError = true
+                    }
+
                     Logger.network.error("Failed to download engagement manifest: \(error).")
                 }
             }

@@ -118,7 +118,7 @@ struct ConversationDataProvider: ConversationDataProviding {
             #endif
         #endif
 
-        self.osBuild = Version(string: UIDevice.current.systemVersion)
+        self.osBuild = Version(string: Self.getOSBuild() ?? UIDevice.current.systemVersion)
         self.hardware = Self.getDeviceIdentifier()
 
         self.contentSizeCategory = UIApplication.shared.preferredContentSizeCategory
@@ -133,8 +133,13 @@ struct ConversationDataProvider: ConversationDataProviding {
 
         #if canImport(UIKit)
             self.identifierForVendor = UIDevice.current.identifierForVendor
-            self.osName = UIDevice.current.systemName
             self.osVersion = Version(string: UIDevice.current.systemVersion)
+
+            #if targetEnvironment(macCatalyst)
+                self.osName = "macOS"
+            #else
+                self.osName = UIDevice.current.systemName
+            #endif
         #else
             self.isProtectedDataAvailable = true
             self.isInForeground = true
@@ -195,6 +200,12 @@ struct ConversationDataProvider: ConversationDataProviding {
     }
 
     static func getDeviceIdentifier() -> String {
+        #if targetEnvironment(macCatalyst)
+            if let hwModel = Self.getSysctlString(forKey: "hw.model") {
+                return hwModel
+            }
+        #endif
+
         var sysinfo = utsname()
         uname(&sysinfo)
 
@@ -205,5 +216,24 @@ struct ConversationDataProvider: ConversationDataProviding {
         }
 
         return machine
+    }
+
+    static func getOSBuild() -> String? {
+        return Self.getSysctlString(forKey: "kern.osversion")
+    }
+
+    static func getSysctlString(forKey key: String) -> String? {
+        var size = 0
+        guard sysctlbyname(key, nil, &size, nil, 0) == 0, size > 0 else {
+            return nil
+        }
+
+        var buffer = [CChar](repeating: 0, count: size)
+        guard sysctlbyname(key, &buffer, &size, nil, 0) == 0 else {
+            return nil
+        }
+
+        let bytes = buffer.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }
+        return String(decoding: bytes, as: UTF8.self)
     }
 }

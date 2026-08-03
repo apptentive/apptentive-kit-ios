@@ -32,6 +32,24 @@ struct Conversation: Equatable, Codable {
     /// The time after which the engagement manifest should be considered stale.
     var interactionsInvalidation: Date?
 
+    /// The version of the app release that was last confirmed as enqueued for sending to the API.
+    ///
+    /// Persisted alongside the rest of the conversation (rather than kept in memory only) so that, across
+    /// an app launch, syncing can tell what's actually been sent from what's merely been saved locally.
+    /// Optional (rather than defaulted) so that decoding a conversation predating this property yields `nil`
+    /// (meaning "never synced") instead of throwing.
+    var lastSyncedAppRelease: AppRelease?
+
+    /// The version of the person that was last confirmed as enqueued for sending to the API.
+    ///
+    /// See `lastSyncedAppRelease` for why this is optional rather than defaulted.
+    var lastSyncedPerson: Person?
+
+    /// The version of the device that was last confirmed as enqueued for sending to the API.
+    ///
+    /// See `lastSyncedAppRelease` for why this is optional rather than defaulted.
+    var lastSyncedDevice: Device?
+
     /// Initializes a conversation with the specified data provider.
     /// - Parameter dataProvider: The data provider used to create the initial app release and device values.
     init(dataProvider: ConversationDataProviding) {
@@ -63,6 +81,13 @@ struct Conversation: Equatable, Codable {
         self.codePoints.merge(with: newer.codePoints)
         self.interactions.merge(with: newer.interactions)
         self.random.merge(with: newer.random)
+
+        // `newer` is the in-memory placeholder conversation created before disk load finished, so it should
+        // never actually have a later sync baseline than `self` (the disk-loaded conversation) in practice —
+        // but prefer it if present, consistent with the last-write-wins strategy used above.
+        self.lastSyncedAppRelease = newer.lastSyncedAppRelease ?? self.lastSyncedAppRelease
+        self.lastSyncedPerson = newer.lastSyncedPerson ?? self.lastSyncedPerson
+        self.lastSyncedDevice = newer.lastSyncedDevice ?? self.lastSyncedDevice
     }
 
     /// Creates a new conversation merged with the specified newer conversation.

@@ -7,9 +7,9 @@
 //
 
 import Foundation
-import MobileCoreServices
 import PhotosUI
 import UIKit
+import UniformTypeIdentifiers
 
 extension MessageCenterViewModel {
     var allUTTypes: [UTType] {

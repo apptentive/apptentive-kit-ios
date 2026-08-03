@@ -13,23 +13,16 @@ class FirstViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
     }
 
     @IBAction func love(_ sender: Any) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate, let apptentive = appDelegate.apptentive else {
-            return print("unable to find appDelegate")
-        }
-
         apptentive.presentLoveDialog(from: self, with: LoveDialogConfiguration())
     }
 
     @IBAction func survey(_ sender: Any) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate, let apptentive = appDelegate.apptentive else {
-            return print("unable to find appDelegate")
-        }
-
-        guard let surveyURL = Bundle.main.url(forResource: "Survey", withExtension: "json"), let surveyData = try? Data(contentsOf: surveyURL) else {
+        guard let surveyURL = Bundle.main.url(forResource: "Survey", withExtension: "json"),
+              let surveyData = try? Data(contentsOf: surveyURL)
+        else {
             return print("Unable to find test survey data")
         }
 

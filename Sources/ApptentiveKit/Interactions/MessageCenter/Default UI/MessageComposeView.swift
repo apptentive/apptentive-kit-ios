@@ -136,6 +136,10 @@ class MessageCenterComposeView: UIView {
         self.textView.returnKeyType = .default
         self.textView.accessibilityIdentifier = "messageTextView"
 
+        if #available(iOS 17.0, *) {
+            self.textView.inlinePredictionType = .no
+        }
+
         self.textView.addSubview(self.placeholderLabel)
         self.placeholderLabel.isAccessibilityElement = false
         self.placeholderLabel.translatesAutoresizingMaskIntoConstraints = false

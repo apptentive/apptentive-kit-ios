@@ -52,4 +52,26 @@ struct DeviceTests {
 
         #expect(device.integrationConfiguration == ["apptentive_push": ["token": tokenData]])
     }
+
+    @Test func testContentDiff() {
+        var dataProvider = MockDataProvider()
+
+        var device1 = Device(dataProvider: dataProvider)
+        device1.customData["string"] = "foo"
+
+        let tokenData = Data(hexString: "06e78d0d5604079bc0a642c19c26983d85a30b40613840501274087cd96415bf")!
+        dataProvider.remoteNotificationDeviceToken = tokenData
+
+        var device2 = Device(dataProvider: dataProvider)
+        device2.customData["string"] = "bar"
+
+        #expect(!DeviceContent(with: device1).differs(from: DeviceContent(with: device1)))
+        #expect(DeviceContent(with: device1).differs(from: DeviceContent(with: device2)))
+
+        var device3 = device1
+        device3.customData["string"] = "bar"
+
+        #expect(!DeviceContent(with: device1).differs(from: DeviceContent(with: device3), includeCustomData: false))
+        #expect(DeviceContent(with: device1).differs(from: DeviceContent(with: device3), includeCustomData: true))
+    }
 }
