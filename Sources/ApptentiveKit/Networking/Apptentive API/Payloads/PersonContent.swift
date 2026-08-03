@@ -28,6 +28,13 @@ struct PersonContent: Equatable, Codable, PayloadEncodable {
         try container.encode(self.customData, forKey: .customData)
     }
 
+    func differs(from other: PersonContent, includeCustomData: Bool = true) -> Bool {
+        return self.name != other.name
+            || self.emailAddress != other.emailAddress
+            || self.mParticleID != other.mParticleID
+            || (includeCustomData && self.customData != other.customData)
+    }
+
     enum CodingKeys: String, CodingKey {
         case name
         case emailAddress = "email"

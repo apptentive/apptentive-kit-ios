@@ -44,4 +44,24 @@ struct PersonTests {
         #expect(person1.customData["foo"] as? String == "baz")
         #expect(person1.customData["bar"] as? String == "foo")
     }
+
+    @Test func testContentDiff() {
+        var person1 = Person()
+        person1.name = "Test"
+        person1.emailAddress = "noreply@apptentive.com"
+        person1.customData["string"] = "foo"
+
+        var person2 = Person()
+        person2.name = "Best"
+        person2.emailAddress = "noreply@apptentive.com"
+        person2.customData["string"] = "bar"
+
+        #expect(!PersonContent(with: person1).differs(from: PersonContent(with: person1)))
+        #expect(PersonContent(with: person1).differs(from: PersonContent(with: person2)))
+
+        person2.name = "Test"
+
+        #expect(!PersonContent(with: person1).differs(from: PersonContent(with: person2), includeCustomData: false))
+        #expect(PersonContent(with: person1).differs(from: PersonContent(with: person2), includeCustomData: true))
+    }
 }

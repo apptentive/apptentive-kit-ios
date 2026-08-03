@@ -1,3 +1,14 @@
+#2026-08-03 - v7.3.0
+
+#### New Features
+
+- The Operator test/development app now uses the UIScene lifecycle
+- API updates for Person and Device custom data are now consolidated and sent on app exit
+
+#### Bugs Fixed
+
+- Authentication failures for all types API requests are now reported to the ApptentiveDelegate object
+
 # 2026-06-30 - v7.2.0
 
 #### New Features

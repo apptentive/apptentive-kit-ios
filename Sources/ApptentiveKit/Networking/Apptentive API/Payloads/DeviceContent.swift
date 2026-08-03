@@ -55,6 +55,22 @@ struct DeviceContent: Equatable, Codable, PayloadEncodable {
         try container.encode(self.customData, forKey: .customData)
     }
 
+    func differs(from other: DeviceContent, includeCustomData: Bool = true) -> Bool {
+        return self.uuid != other.uuid
+            || self.osName != other.osName
+            || self.osVersion != other.osVersion
+            || self.osBuild != other.osBuild
+            || self.hardware != other.hardware
+            || self.carrier != other.carrier
+            || self.contentSizeCategory != other.contentSizeCategory
+            || self.localeRaw != other.localeRaw
+            || self.localeCountryCode != other.localeCountryCode
+            || self.localeLanguageCode != other.localeLanguageCode
+            || self.integrationConfiguration != other.integrationConfiguration
+            || self.advertisingIdentifier != other.advertisingIdentifier
+            || (includeCustomData && self.customData != other.customData)
+    }
+
     enum CodingKeys: String, CodingKey {
         case uuid
         case osName = "os_name"

@@ -13,6 +13,15 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+# Force UTF-8 regardless of the CI runner's locale (LANG/LC_ALL). Without this, a
+# POSIX/C locale makes Ruby assume US-ASCII for subprocess output, and any multi-byte
+# UTF-8 byte from xcodebuild/xcbeautify (checkmarks, curly quotes, emoji) raises
+# "invalid byte sequence in UTF-8" from the `sh` action.
+Encoding.default_external = Encoding::UTF_8
+Encoding.default_internal = Encoding::UTF_8
+ENV['LANG'] ||= 'en_US.UTF-8'
+ENV['LC_ALL'] ||= 'en_US.UTF-8'
+
 build_directory = ".build"
 
 default_platform(:ios)
@@ -132,9 +141,21 @@ platform :ios do
       skip_codesigning: true
     )
 
+    gym(
+      scheme: framework_scheme,
+      output_directory: "build/maccatalyst",
+      destination: 'generic/platform=macOS,variant=Mac Catalyst',
+      archive_path: "build/maccatalyst.xcarchive",
+      derived_data_path: 'build/iphoneos',
+      skip_package_ipa: true,
+      xcargs: xcargs,
+      skip_codesigning: true
+    )
+
     sh("xcodebuild -create-xcframework \
       -framework ../build/ios.xcarchive/Products/Library/Frameworks/ApptentiveKit.framework \
       -framework ../build/iossimulator.xcarchive/Products/Library/Frameworks/ApptentiveKit.framework \
+      -framework ../build/maccatalyst.xcarchive/Products/Library/Frameworks/ApptentiveKit.framework \
       -output ../build/ApptentiveKit.xcframework")
   end
 

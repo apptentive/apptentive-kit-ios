@@ -7,7 +7,6 @@
 //
 
 import StoreKit
-import UIKit
 
 typealias AppleRatingDialogInteractionDelegate = EventEngaging & ReviewRequesting
 
