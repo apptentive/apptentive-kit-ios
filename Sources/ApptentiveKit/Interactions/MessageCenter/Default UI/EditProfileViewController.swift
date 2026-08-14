@@ -68,7 +68,9 @@ class EditProfileViewController: UIViewController, UITextFieldDelegate {
     }
 
     @objc func done() {
-        self.viewModel.commitProfileEdits()
+        Task {
+            try await self.viewModel.commitProfileEdits()
+        }
 
         self.dismiss(animated: true, completion: nil)
     }

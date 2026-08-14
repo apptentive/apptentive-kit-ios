@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 @available(iOS 26, *)
 class GlassDialogViewController: UIViewController, UIGestureRecognizerDelegate, DialogViewModelDelegate {
     let viewModel: DialogViewModel

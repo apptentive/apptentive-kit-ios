@@ -88,9 +88,9 @@ actor MessageManager {
                     if self.messageList.draftMessage != oldValue.draftMessage {
                         await delegate.messageManagerDraftMessageDidChange(messageList.draftMessage, context: attachmentContext)
                     }
-
-                    self.messageListNeedsSaving = true
                 }
+
+                self.messageListNeedsSaving = true
             }
         }
     }
@@ -327,6 +327,18 @@ actor MessageManager {
         return (message, customData)
     }
 
+    /// Restores a message previously removed from the draft via `prepareDraftMessageForSending()` after its send attempt failed.
+    ///
+    /// Without this, a send failure (for example due to a transient state error while the app is locked/unlocked)
+    /// would silently discard the user's typed message and leave subsequent sends failing with an empty-draft error.
+    /// - Parameters:
+    ///   - message: The message to restore as the draft.
+    ///   - customData: The custom data to restore alongside the draft.
+    func restoreDraftMessage(_ message: MessageList.Message, customData: CustomData?) {
+        self.messageList.draftMessage = message
+        self.customData = customData
+    }
+
     func prepareAutomatedMessageForSending() throws -> MessageList.Message? {
         let message = self.automatedMessage
         self.automatedMessage = nil
@@ -346,6 +358,8 @@ actor MessageManager {
         newMessage.status = .queued
 
         self.messageList.messages.append(newMessage)
+
+        try? self.saveMessagesIfNeeded()
     }
 
     func saveMessagesIfNeeded() throws {
@@ -417,6 +431,10 @@ actor MessageManager {
 
         if existing.status == .read {
             result.status = .read
+        }
+
+        if existing.isAutomated {
+            result.isAutomated = true
         }
 
         for (index, existingAttachment) in existing.attachments.enumerated() {

@@ -54,12 +54,14 @@ protocol BackendProtocol: Actor {
     func setAutomatedMessageBody(_ body: String?) async
     func prepareAutomatedMessageForSending() async throws -> MessageList.Message?
     func prepareDraftMessageForSending() async throws -> (MessageList.Message, CustomData?)
+    func restoreDraftMessage(_ message: MessageList.Message, customData: CustomData?) async
     func addDraftAttachment(data: Data, name: String?, mediaType: String, thumbnailSize: CGSize, thumbnailScale: CGFloat) async throws -> URL
     func addDraftAttachment(url: URL, thumbnailSize: CGSize, thumbnailScale: CGFloat) async throws -> URL
     func removeDraftAttachment(at index: Int) async throws
     func loadAttachment(at index: Int, in message: MessageList.Message, thumbnailSize: CGSize, thumbnailScale: CGFloat) async throws -> URL
     func url(for attachment: MessageList.Message.Attachment) async -> URL?
     func updateReadMessage(with messageNonce: String) async throws
+    func setProfile(name: String?, emailAddress: String?) throws
     func getMessages() async -> [MessageList.Message]
     func getAttachmentContext() async -> MessageList.AttachmentContext?
 
@@ -530,6 +532,14 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
         return try await self.messageManager.prepareDraftMessageForSending()
     }
 
+    /// Restores a message previously removed from the draft after its send attempt failed.
+    /// - Parameters:
+    ///   - message: The message to restore as the draft.
+    ///   - customData: The custom data to restore alongside the draft.
+    func restoreDraftMessage(_ message: MessageList.Message, customData: CustomData?) async {
+        await self.messageManager.restoreDraftMessage(message, customData: customData)
+    }
+
     func addDraftAttachment(data: Data, name: String?, mediaType: String, thumbnailSize: CGSize, thumbnailScale: CGFloat) async throws -> URL {
         return try await self.messageManager.addDraftAttachment(data: data, name: name, mediaType: mediaType, thumbnailSize: thumbnailSize, thumbnailScale: thumbnailScale)
     }
@@ -552,6 +562,18 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
 
     func updateReadMessage(with messageNonce: String) async throws {
         try await self.messageManager.updateReadMessage(with: messageNonce)
+    }
+
+    func setProfile(name: String?, emailAddress: String?) throws {
+        self.conversation?.person.name = name
+        self.conversation?.person.emailAddress = emailAddress
+        try self.saveConversationIfNeeded()
+        // Keep the Apptentive singleton's @BackendSync caches (`personName`,
+        // `personEmailAddress`) in sync. Without this, the next read via
+        // `interactionDelegate.personName` returns the pre-edit value — so a
+        // freshly created MessageCenterViewModel sees an empty profile and
+        // shows the inline form again even though the data is on disk.
+        self.syncFrontendVariables()
     }
 
     func getMessages() async -> [MessageList.Message] {

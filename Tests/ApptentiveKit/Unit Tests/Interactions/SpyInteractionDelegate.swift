@@ -13,11 +13,8 @@ import UIKit
 
 class SpyInteractionDelegate: InteractionDelegate {
     var messageCenterInForeground: Bool = false
-
-    var personEmailAddress: String?
-
-    var personName: String?
-
+    private(set) var personEmailAddress: String?
+    private(set) var personName: String?
     var engagedEvent: Event?
     var sentSurveyResponse: SurveyResponse?
     var shouldRequestReviewSucceed = true
@@ -197,5 +194,10 @@ class SpyInteractionDelegate: InteractionDelegate {
 
     func recordEnjoyment(_ didLove: Bool, from interaction: ApptentiveKit.Interaction, whereEvent: String?) {
         self.recordedEnjoyment = didLove
+    }
+
+    func setProfile(name: String?, emailAddress: String?) async throws {
+        self.personName = name
+        self.personEmailAddress = emailAddress
     }
 }

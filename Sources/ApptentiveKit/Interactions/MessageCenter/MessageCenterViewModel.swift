@@ -240,9 +240,10 @@ typealias MessageCenterInteractionDelegate = EventEngaging & MessageSending & Me
     }
 
     /// Saves changes from the `name` and `emailAddress` properties to the interactionDelegate.
-    public func commitProfileEdits() {
-        self.interactionDelegate.personName = self.name?.trimmingCharacters(in: .whitespacesAndNewlines).nullifiedIfEmpty()
-        self.interactionDelegate.personEmailAddress = self.emailAddress?.trimmingCharacters(in: .whitespacesAndNewlines).nullifiedIfEmpty()
+    public func commitProfileEdits() async throws {
+        try await self.interactionDelegate.setProfile(
+            name: self.name?.trimmingCharacters(in: .whitespacesAndNewlines).nullifiedIfEmpty(),
+            emailAddress: self.emailAddress?.trimmingCharacters(in: .whitespacesAndNewlines).nullifiedIfEmpty())
     }
 
     /// Reverts the values of the `name` and `emailAddress` properties to those from the interactionDelegate.

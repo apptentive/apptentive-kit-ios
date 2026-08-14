@@ -21,8 +21,9 @@ typealias InteractionDelegate = ResponseSending & EventEngaging & ReviewRequesti
 
 /// Describes an object that edits the name and email of the consumer.
 @MainActor protocol ProfileEditing: AnyObject {
-    var personEmailAddress: String? { get set }
-    var personName: String? { get set }
+    var personEmailAddress: String? { get }
+    var personName: String? { get }
+    func setProfile(name: String?, emailAddress: String?) async throws
 }
 
 /// Describes an object that can send the unread message ID to the backend to update the unread message count.

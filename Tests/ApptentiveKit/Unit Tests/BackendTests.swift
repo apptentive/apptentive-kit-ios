@@ -164,6 +164,69 @@ struct BackendTests {
         }
     }
 
+    /// Polls `condition` until it returns `true` or `timeout` elapses.
+    ///
+    /// `Backend`'s lock/unlock side effects (tearing down and rebuilding the attachment
+    /// manager) run in an unstructured `Task` spawned from `state`'s `didSet`, so awaiting
+    /// `protectedDataWillBecomeUnavailable()`/`protectedDataDidBecomeAvailable()` alone
+    /// doesn't guarantee those side effects have completed. Polling for the actual
+    /// consequence is what makes the race reproducible deterministically in a test,
+    /// instead of guessing at a fixed delay (or trying to time a real screen lock by hand).
+    private func waitUntil(timeout: TimeInterval = 2, _ condition: () async -> Bool) async throws {
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while await !condition() {
+            if Date() > deadline {
+                Issue.record("Timed out waiting for condition")
+                return
+            }
+
+            try await Task.sleep(nanoseconds: 5_000_000)
+        }
+    }
+
+    /// Regression test for the customer report: if the screen locks while composing a second
+    /// message in Message Center, and the user unlocks and tries to send, Message Center got
+    /// stuck and could no longer send messages until reopened or the app was restarted.
+    ///
+    /// Root cause: locking (while the app stays in the foreground) asynchronously tears down the
+    /// attachment manager; unlocking asynchronously rebuilds it. If `sendMessage` lands in the gap,
+    /// it throws `internalInconsistency`. Without the fix, the draft was already cleared before the
+    /// throw with nothing to restore it, so the message was lost and every subsequent send attempt
+    /// failed too. `restoreDraftMessage(_:customData:)` (called by
+    /// `Apptentive+InteractionDelegate.sendDraftMessage()` on failure) is what fixes this, so this
+    /// test mirrors that same catch-and-restore to verify a retry succeeds after unlocking.
+    @Test func testMessageCenterStuckAfterLockUnlockRace() async throws {
+        await self.messageManager.setDraftMessageBody("Second message")
+
+        // Simulate the screen locking while Message Center is still on screen.
+        await self.backend.protectedDataWillBecomeUnavailable()
+
+        // Wait for the lock transition's teardown to actually land us in the failure window.
+        try await self.waitUntil { await self.messageManager.attachmentManager == nil }
+
+        let (message, customData) = try await self.backend.prepareDraftMessageForSending()
+
+        do {
+            try await self.backend.sendMessage(message, with: customData)
+            Issue.record("Expected internalInconsistency while the attachment manager is torn down")
+        } catch ApptentiveError.internalInconsistency {
+            await self.backend.restoreDraftMessage(message, customData: customData)
+        }
+
+        let restoredBody = await self.messageManager.draftMessage.body
+        #expect(restoredBody == "Second message")
+
+        // Simulate unlocking.
+        await self.backend.protectedDataDidBecomeAvailable()
+        try await self.waitUntil { await self.messageManager.attachmentManager != nil }
+
+        // Retrying the (restored) draft after unlocking should now succeed, instead of the
+        // "stuck" Message Center the customer reported.
+        let (retryMessage, retryCustomData) = try await self.backend.prepareDraftMessageForSending()
+        try await self.backend.sendMessage(retryMessage, with: retryCustomData)
+    }
+
     //    deinit {
     //        self.containerURL.flatMap { try? FileManager.default.removeItem(at: $0) }
     //    }

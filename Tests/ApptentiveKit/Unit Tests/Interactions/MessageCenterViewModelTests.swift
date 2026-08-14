@@ -167,11 +167,11 @@ import UIKit
         #expect(self.spyDelegate.insertedRows == [IndexPath(row: 1, section: 2), IndexPath(row: 3, section: 2)])  // Inserts are relative to new groupings
     }
 
-    @Test func testSettingEmail() {
+    @Test func testSettingEmail() async throws {
         self.viewModel.emailAddress = "test email"
         #expect(self.spyInteractionDelegate.personEmailAddress == nil)
 
-        self.viewModel.commitProfileEdits()
+        try await self.viewModel.commitProfileEdits()
         #expect(self.spyInteractionDelegate.personEmailAddress == "test email")
 
         self.viewModel.emailAddress = "fake email"
@@ -179,15 +179,15 @@ import UIKit
         #expect(self.viewModel.emailAddress == "test email")
 
         self.viewModel.emailAddress = " "
-        self.viewModel.commitProfileEdits()
+        try await self.viewModel.commitProfileEdits()
         #expect(self.spyInteractionDelegate.personEmailAddress == nil)
     }
 
-    @Test func testSettingName() {
+    @Test func testSettingName() async throws {
         self.viewModel.name = "name"
         #expect(self.spyInteractionDelegate.personName == nil)
 
-        self.viewModel.commitProfileEdits()
+        try await self.viewModel.commitProfileEdits()
         #expect(self.spyInteractionDelegate.personName == "name")
 
         self.viewModel.name = "fake name"
@@ -195,7 +195,7 @@ import UIKit
         #expect(self.viewModel.name == "name")
 
         self.viewModel.name = " "
-        self.viewModel.commitProfileEdits()
+        try await self.viewModel.commitProfileEdits()
         #expect(self.spyInteractionDelegate.personName == nil)
     }
 

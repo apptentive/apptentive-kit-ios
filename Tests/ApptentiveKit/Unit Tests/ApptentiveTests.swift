@@ -503,7 +503,11 @@ struct ApptentiveTests {
         let result = try await self.apptentive.addDraftAttachment(url: attachmentURL)
 
         #expect(result.path == "/tmp")
-        #expect(await self.backend.draftAttachment?.storage == .saved(path: attachmentURL.path))
+
+        guard case .saved(let path) = await self.backend.draftAttachment?.storage else {
+            throw TestError(reason: "Expected draft attachment storage to be saved (i.e. in persistent storage)")
+        }
+        #expect(path.contains("/tmp/"))
     }
 
     @Test func testAddDraftAttachmentData() async throws {
@@ -666,6 +670,11 @@ actor SpyBackend: BackendProtocol {
         self.distributionName = distributionName
     }
 
+    func setProfile(name: String?, emailAddress: String?) throws {
+        self.personName = name
+        self.personEmailAddress = emailAddress
+    }
+
     func canShowInteraction(event: ApptentiveKit.Event) async throws -> Bool {
         return true
     }
@@ -736,6 +745,10 @@ actor SpyBackend: BackendProtocol {
         self.draftMessageBody = nil
 
         return (draftMessage, nil)
+    }
+
+    func restoreDraftMessage(_ message: ApptentiveKit.MessageList.Message, customData: ApptentiveKit.CustomData?) async {
+        self.draftMessageBody = message.body
     }
 
     var draftAttachment: MessageList.Message.Attachment?

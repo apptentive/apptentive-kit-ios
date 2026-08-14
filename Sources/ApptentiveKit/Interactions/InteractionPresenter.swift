@@ -83,7 +83,7 @@ import UIKit
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
     open func presentMessageCenter(with viewModel: MessageCenterViewModel) async throws {
 
-        let messageViewController = MessageCenterViewController(viewModel: viewModel)
+        let messageViewController = MessageCenterSwiftUIHostingController(viewModel: viewModel)
 
         let navigationController = ApptentiveNavigationController(rootViewController: messageViewController)
 
@@ -200,7 +200,7 @@ import UIKit
         if let apptentiveNavigationController = self.presentedViewController as? ApptentiveNavigationController,
             let rootViewController = apptentiveNavigationController.viewControllers.first
         {
-            return rootViewController is MessageCenterViewController
+            return rootViewController is MessageCenterViewController || rootViewController is MessageCenterSwiftUIHostingController
         } else {
             return false
         }
