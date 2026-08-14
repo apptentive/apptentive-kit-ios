@@ -30,11 +30,22 @@ extension MessageCenterViewController {
         private func setUpLabel() {
             self.label.numberOfLines = 0
             self.label.lineBreakMode = .byWordWrapping
-            self.label.font = .apptentiveMessageCenterStatus
-            self.label.textColor = .apptentiveMessageCenterStatus
+            self.label.textColor = .apptentiveLabel
             self.label.textAlignment = .center
             self.label.adjustsFontForContentSizeCategory = true
             self.label.isAccessibilityElement = true
+            self.applyStatusFont()
+        }
+
+        private func applyStatusFont() {
+            self.label.font = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: UIFont.apptentiveMessageCenterStatus)
+        }
+
+        override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+            super.traitCollectionDidChange(previousTraitCollection)
+            if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory {
+                self.applyStatusFont()
+            }
         }
 
         private func setUpConstraints() {

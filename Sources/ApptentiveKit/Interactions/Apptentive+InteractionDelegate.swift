@@ -78,7 +78,14 @@ extension Apptentive {
             try await self.backend.sendMessage(automatedMessage, with: nil)
         }
 
-        try await self.backend.sendMessage(message, with: customData)
+        do {
+            try await self.backend.sendMessage(message, with: customData)
+        } catch {
+            // Put the message back in the draft so the user's text/attachments aren't lost
+            // and a subsequent send attempt isn't doomed by an already-empty draft.
+            await self.backend.restoreDraftMessage(message, customData: customData)
+            throw error
+        }
     }
 
     // MARK: MessageProviding
@@ -169,7 +176,12 @@ extension Apptentive {
         try await self.backend.updateReadMessage(with: nonce)
     }
 
-    // Note: ProfileUpdating is public (stored) properties and thus not present here.
+    // MARK: ProfileEditing
+    // Note: name/email are public (stored) properties and thus not present here.
+
+    func setProfile(name: String?, emailAddress: String?) async throws {
+        try await self.backend.setProfile(name: name, emailAddress: emailAddress)
+    }
 
     // MARK: ResourceProviding
 

@@ -13,6 +13,7 @@ class RichTextLabel: UILabel {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        self.adjustsFontForContentSizeCategory = true
         self.accessibilityTraits = .staticText
     }
 

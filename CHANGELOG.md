@@ -1,3 +1,17 @@
+# 2026-08-14 - v7.3.1
+
+#### New Features
+
+- Message Center has been rewritten in SwiftUI, with fixes for compose field, status banner, and profile prompt styling and timing
+- Message Center's compose field is now docked to the bottom of the screen by default; set `apptentiveMessageCenterComposerPosition` to `.inline` to restore the previous placement
+
+#### Bugs Fixed
+
+- Fixed occasional word duplication when using AutoComplete in Message Center on iOS 26
+- Fixed an issue where a sent message could fail to appear if the app was killed before it was saved
+- Fixed an issue where profile name and email could be lost if the app was killed immediately after saving
+- Fixed an issue where locking and unlocking the screen while composing a message could throw an internal error and cause the message to silently fail to send
+
 #2026-08-03 - v7.3.0
 
 #### New Features

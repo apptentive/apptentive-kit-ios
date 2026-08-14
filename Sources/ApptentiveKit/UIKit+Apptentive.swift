@@ -526,3 +526,20 @@ public class ApptentiveNavigationController: UINavigationController {
     /// The corner configuration for Enjoyment Dialog ("Love Dialog") and Text Modal ("Prompt") buttons in iOS 26 and later.
     public static var apptentiveDialogButton: UICornerConfiguration = .capsule(maximumRadius: 32)
 }
+
+@MainActor extension UIViewController {
+    /// Determines where the Message Center composer (input field) appears when no messages exist yet.
+    public enum MessageCenterComposerPosition {
+        /// The composer appears inline, just below the greeting, when no messages exist yet.
+        case inline
+        /// The composer is pinned to the bottom of the screen, matching its position once messages
+        /// exist. This is the default SDK behaviour.
+        case bottom
+    }
+
+    /// Controls the position of the Message Center input field when no messages exist.
+    ///
+    /// Set to `.inline` for the composer to appear just below the greeting when no messages exist.
+    /// Defaults to `.bottom`, where the composer is pinned to the bottom of the screen (matching its position once messages exist).
+    public static var apptentiveMessageCenterComposerPosition: MessageCenterComposerPosition = .bottom
+}

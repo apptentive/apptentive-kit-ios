@@ -126,6 +126,7 @@ class ProfileView: UIView {
             self.errorLabel.leadingAnchor.constraint(equalTo: self.readableContentGuide.leadingAnchor, constant: 5),
             self.readableContentGuide.trailingAnchor.constraint(equalTo: self.errorLabel.trailingAnchor, constant: 5),
             self.bottomAnchor.constraint(equalTo: self.errorLabel.bottomAnchor),
+            self.errorLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 16),
         ])
     }
 }

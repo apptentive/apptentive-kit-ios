@@ -13,7 +13,7 @@ import UIKit
 
 class MessageCenterViewController: UITableViewController, UITextViewDelegate, MessageCenterViewModelDelegate,
     PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate,
-    @preconcurrency QLPreviewControllerDelegate, QLPreviewControllerDataSource, UITextFieldDelegate
+    @preconcurrency QLPreviewControllerDelegate, QLPreviewControllerDataSource, UITextFieldDelegate, UIGestureRecognizerDelegate
 {
     private let viewModel: MessageCenterViewModel
     private let headerView: GreetingHeaderView
@@ -48,6 +48,8 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         super.init(style: .grouped)
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardDidShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     deinit {
@@ -81,6 +83,11 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.tableView.rowHeight = UITableView.automaticDimension
         self.tableView.estimatedRowHeight = 1000
         self.tableView.keyboardDismissMode = .interactive
+
+        let tapToDismissGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapToDismissGestureRecognizer.cancelsTouchesInView = false
+        tapToDismissGestureRecognizer.delegate = self
+        self.tableView.addGestureRecognizer(tapToDismissGestureRecognizer)
         self.tableView.register(MessageReceivedCell.self, forCellReuseIdentifier: self.messageReceivedCellID)
         self.tableView.register(MessageSentCell.self, forCellReuseIdentifier: self.messageSentCellID)
         self.tableView.register(AutomatedMessageCell.self, forCellReuseIdentifier: self.automatedMessageCellID)
@@ -220,6 +227,19 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         return self.composeContainerView
     }
 
+    override func resignFirstResponder() -> Bool {
+        // The view controller was losing first responder status after return
+        // from the "add to calendar" popover.
+        // This will force becoming the first responder rather than resigning
+        // if the presented view controller is being dismissed.
+        if self.presentedViewController?.isBeingDismissed == true {
+            let _ = self.becomeFirstResponder()
+            return false
+        } else {
+            return super.resignFirstResponder()
+        }
+    }
+
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -285,6 +305,18 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         return self.viewModel.dateStringForMessagesInGroup(at: section)
     }
 
+    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        guard let header = view as? UITableViewHeaderFooterView else {
+            return
+        }
+
+        header.textLabel?.textColor = UIColor.apptentiveLabel
+        header.textLabel?.font = UIFont.preferredFont(forTextStyle: .footnote)
+        header.textLabel?.textAlignment = .center
+        header.textLabel?.numberOfLines = 0
+        header.textLabel?.adjustsFontForContentSizeCategory = true
+    }
+
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         self.viewModel.markMessageAsRead(at: indexPath)
     }
@@ -299,6 +331,13 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     func textFieldDidBeginEditing(_ textField: UITextField) {
         self.composeView.textView.layer.borderColor = UIColor.apptentiveMessageCenterTextInputBorder.cgColor
         textField.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
+
+        // Make sure the tapped field ends up visible above the keyboard. Dispatch so the
+        // system's keyboard inset is in place before we scroll.
+        DispatchQueue.main.async {
+            let fieldRect = textField.convert(textField.bounds, to: self.tableView).insetBy(dx: 0, dy: -16)
+            self.tableView.scrollRectToVisible(fieldRect, animated: true)
+        }
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
@@ -307,7 +346,9 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.updateProfileValidation(strict: textField == self.profileView.emailTextField)
 
         if self.viewModel.profileIsValid {
-            self.viewModel.commitProfileEdits()
+            Task {
+                try await self.viewModel.commitProfileEdits()
+            }
         }
 
         self.updateFooter()
@@ -330,12 +371,27 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     func textViewDidChange(_ textView: UITextView) {
         self.sizeComposeTextView()
 
+        if self.composerIsInline {
+            // Keep the caret visible as the composer grows while typing.
+            self.adjustInlineScrollForKeyboard()
+        }
+
         self.viewModel.draftMessageBody = textView.text
         self.composeView.sendButton.isEnabled = self.viewModel.canSendMessage
     }
 
     func textViewDidBeginEditing(_ textView: UITextView) {
         textView.layer.borderColor = UIColor.apptentiveTextInputBorderSelected.cgColor
+
+        // If focus moves here from the name/email field, the keyboard is already up and no
+        // keyboardWillShow/DidShow fires — adjust the scroll position explicitly.
+        if self.composerIsInline && self.keyboardOverlap > 0 {
+            DispatchQueue.main.async {
+                UIView.animate(withDuration: 0.25) {
+                    self.adjustInlineScrollForKeyboard()
+                }
+            }
+        }
     }
 
     // MARK: - UIImagePickerControllerDelegate
@@ -473,6 +529,13 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
 
         self.updateProfileEditButton()
 
+        // Sending a message (especially the first one) kicks off a cascade of layout changes:
+        // the row-insertion animation, the composer moving to the input accessory view, and a
+        // keyboard transition once the text view resigns first responder. A single scroll here
+        // can land mid-transition with stale insets, so also re-assert it once the keyboard
+        // frame settles (see keyboardDidShow/keyboardWillHide).
+        self.needsScrollAfterKeyboardChange = true
+
         DispatchQueue.main.async {
             // Give the reload time to take effect.
             self.scrollToRelevantMessage(true)
@@ -530,10 +593,87 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
             return
         }
 
-        // This is only needed because we want to keep the bottom of the message list fixed WRT the bottom of the table view
+        // Note: we intentionally do NOT touch `contentInset` here. UITableViewController
+        // (and UIScrollView on iOS 15+) already adds the keyboard overlap to
+        // `adjustedContentInset.bottom`. Adding our own inset on top of that doubles the
+        // scrollable area, which is what allowed scrolling past the content into empty
+        // space while the keyboard was up.
+        let keyboardInView = self.view.convert(keyboardRect, from: nil)
+        self.keyboardOverlap = max(0, self.tableView.bounds.maxY - keyboardInView.minY)
+
         UIView.animate(withDuration: animationDuration) {
-            self.tableView.contentOffset = CGPoint(x: 0, y: self.tableView.contentOffset.y + keyboardRect.height - self.tableView.adjustedContentInset.bottom)
+            if self.composerIsInline && self.composeView.textView.isFirstResponder {
+                self.adjustInlineScrollForKeyboard()
+            } else if self.viewModel.numberOfMessageGroups > 0 {
+                // Keep the bottom of the message list fixed WRT the bottom of the table view
+                self.tableView.contentOffset = CGPoint(x: 0, y: self.tableView.contentOffset.y + keyboardRect.height - self.tableView.adjustedContentInset.bottom)
+            }
         }
+    }
+
+    @objc func keyboardDidShow(_ notification: Notification) {
+        if self.composerIsInline, self.composeView.textView.isFirstResponder {
+            // UITableViewController's built-in keyboard avoidance scrolls the focused text view
+            // into view after `keyboardWillShow` completes, which can push the greeting off the
+            // top and only reveals the text view itself (clipping the rest of the composer).
+            // Re-run our own adjustment here so the final scroll position is the one we want.
+            self.adjustInlineScrollForKeyboard()
+        } else if self.needsScrollAfterKeyboardChange {
+            // A message was just inserted and the keyboard/accessory transition has now
+            // settled — re-assert the scroll with up-to-date insets.
+            self.needsScrollAfterKeyboardChange = false
+            self.scrollToBottom(true)
+        }
+    }
+
+    @objc func keyboardWillHide(_ notification: Notification) {
+        self.keyboardOverlap = 0
+
+        if self.needsScrollAfterKeyboardChange {
+            self.needsScrollAfterKeyboardChange = false
+
+            let animationDuration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0.25
+
+            // Wait for the hide animation to finish so `adjustedContentInset` reflects the
+            // final (keyboard-less) state before computing the bottom offset.
+            DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
+                self.scrollToBottom(true)
+            }
+        }
+    }
+
+    /// Adjusts the scroll position of the inline composer (no messages yet) when the keyboard is up.
+    ///
+    /// When the greeting and composer both fit above the keyboard, the greeting header is pinned to
+    /// the top so the composer sits directly beneath it. When the content is taller than the
+    /// available space — for example when the name/email profile fields are shown — the message
+    /// composer is scrolled to rest just above the keyboard (not at the top of the screen).
+    private func adjustInlineScrollForKeyboard() {
+        let topInset = self.tableView.adjustedContentInset.top
+        let minOffsetY = -topInset
+
+        // Measure the available space from the actual keyboard frame rather than from
+        // `contentInset` — the keyboard inset is managed by the system and lives in
+        // `adjustedContentInset`, which isn't reliably up to date mid-animation.
+        let keyboardTopY = self.tableView.bounds.height - self.keyboardOverlap
+        let visibleHeight = keyboardTopY - topInset
+
+        // Everything fits above the keyboard: pin the greeting to the top with the composer beneath it.
+        if self.tableView.contentSize.height <= visibleHeight {
+            self.tableView.contentOffset.y = minOffsetY
+            return
+        }
+
+        // Otherwise scroll just enough to rest the message composer above the keyboard. The profile
+        // fields (when present) sit directly above the composer and remain visible along with it.
+        let frameInContent = self.composeView.convert(self.composeView.bounds, to: self.tableView)
+        let margin: CGFloat = 8
+
+        // Never allow scrolling past the point where the bottom of the content meets the top of
+        // the keyboard — anything beyond that is empty space.
+        let maxOffsetY = max(minOffsetY, self.tableView.contentSize.height - keyboardTopY)
+        let desiredOffsetY = frameInContent.maxY + margin - keyboardTopY
+        self.tableView.contentOffset.y = min(max(desiredOffsetY, minOffsetY), maxOffsetY)
     }
 
     // MARK: - Actions
@@ -560,19 +700,28 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     }
 
     @objc func sendMessage() {
-        self.viewModel.commitProfileEdits()
-
         Task {
             do {
+                try await self.viewModel.commitProfileEdits()
                 try await self.viewModel.sendMessage()
 
-                self.composeView.textView.resignFirstResponder()
                 self.viewModel.draftMessageBody = nil
                 self.updateFooter()
 
                 self.navigationItem.leftBarButtonItem?.isEnabled = true
             } catch let error {
                 Logger.messages.error("Unable to send message: \(error).")
+
+                self.updateFooter()
+
+                let alertController = UIAlertController(
+                    title: nil,
+                    message: NSLocalizedString("MC Unavailable Message", bundle: .apptentive, value: "Make sure your device can access the internet and try again.", comment: "Message for note saying MC is unavailable"),
+                    preferredStyle: .alert)
+                alertController.addAction(
+                    UIAlertAction(
+                        title: NSLocalizedString("MC Unavailable Dismiss Button", bundle: .apptentive, value: "OK", comment: "Dismiss button title for note saying MC is unavailable"), style: .default))
+                self.present(alertController, animated: true)
             }
         }
     }
@@ -646,6 +795,40 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.updateProfileValidation(strict: false)
     }
 
+    @objc func dismissKeyboard() {
+        if self.composeView.textView.isFirstResponder {
+            self.composeView.textView.resignFirstResponder()
+
+            if !self.composerIsInline {
+                // Reclaim first responder status so the docked composer (our input
+                // accessory view) stays visible after the keyboard goes away.
+                self.becomeFirstResponder()
+            }
+        } else if self.profileView.nameTextField.isFirstResponder {
+            self.profileView.nameTextField.resignFirstResponder()
+        } else if self.profileView.emailTextField.isFirstResponder {
+            self.profileView.emailTextField.resignFirstResponder()
+        }
+    }
+
+    // MARK: - Gesture Recognizer Delegate
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // Don't let the tap-to-dismiss gesture interfere with the profile fields, status view,
+        // or inline composer in the table footer — tapping those should focus, not dismiss.
+        if let view = touch.view, view.isDescendant(of: self.footerView) {
+            return false
+        }
+
+        return true
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // Let taps on attachments (which have their own tap recognizers) still go through;
+        // the keyboard dismisses at the same time, matching Messages behavior.
+        return true
+    }
+
     // MARK: - Private
 
     private var initialScrollToBottomCompleted = false
@@ -662,17 +845,23 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
     // I spent way to much time trying and failing to fix this the "right" way, hence this hack.
     private var footerSizeAdjustment: CGFloat = 0
 
+    // The portion of the table view that's currently covered by the keyboard,
+    // updated from keyboard notifications.
+    private var keyboardOverlap: CGFloat = 0
+
+    // Set when a table view update (e.g. an inserted message) should be followed by a
+    // bottom scroll once the keyboard/accessory transition settles. The scroll attempted
+    // immediately after `endUpdates` can land mid-transition with stale insets.
+    private var needsScrollAfterKeyboardChange = false
+
     private var profilePhotoTasks = [IndexPath: Task<Void, Error>]()
 
     private var composerIsInline: Bool {
-        return self.isBigScreen || self.viewModel.numberOfMessageGroups == 0
-    }
-
-    private var isBigScreen: Bool {
-        if #available(iOS 14.0, *) {
-            return self.traitCollection.userInterfaceIdiom == .mac || self.traitCollection.userInterfaceIdiom == .pad
-        } else {
-            return self.traitCollection.userInterfaceIdiom == .pad
+        switch UIViewController.apptentiveMessageCenterComposerPosition {
+        case .inline:
+            return self.viewModel.numberOfMessageGroups == 0
+        case .bottom:
+            return false
         }
     }
 
@@ -739,20 +928,41 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
             self.tableView.scrollToRow(at: oldestUnreadIndexPath, at: .top, animated: animated)
             self.postAccessibilityNotification(for: oldestUnreadIndexPath)
         } else if let newestMessageIndexPath = newestMessageIndexPath {
-            if let statusRect = self.tableView.tableFooterView?.frame, !self.statusView.isHidden {
-                self.tableView.scrollRectToVisible(statusRect, animated: animated)
-            } else {
-                self.tableView.scrollToRow(at: newestMessageIndexPath, at: .bottom, animated: animated)
-            }
+            // Scrolling to the bottom shows both the newest message and the status footer
+            // beneath it (when visible)
+            self.scrollToBottom(animated)
             self.postAccessibilityNotification(for: newestMessageIndexPath)
         }
     }
 
+    /// Scrolls so that the bottom of the content (newest message plus status footer) rests just
+    /// above the keyboard or input accessory view.
+    ///
+    /// Computes the target offset directly from `contentSize` and `adjustedContentInset` rather
+    /// than using `scrollToRow`/`scrollRectToVisible`, which silently no-op or mis-scroll when
+    /// called with frames that are stale mid-row-insertion or mid-keyboard-transition.
+    private func scrollToBottom(_ animated: Bool) {
+        self.tableView.layoutIfNeeded()
+
+        let minOffsetY = -self.tableView.adjustedContentInset.top
+        let maxOffsetY = self.tableView.contentSize.height + self.tableView.adjustedContentInset.bottom - self.tableView.bounds.height
+        self.tableView.setContentOffset(CGPoint(x: 0, y: max(minOffsetY, maxOffsetY)), animated: animated)
+    }
+
     private func moveComposeViewToInputAccessoryView() {
+        let textViewWasFocused = self.composeView.textView.isFirstResponder
+
         self.footerView.removeArrangedSubview(self.composeView)
         self.composeContainerView = MessageCenterComposeContainerView(composeView: composeView)
         self.sizeComposeTextView()
         self.becomeFirstResponder()
+
+        if textViewWasFocused {
+            // Reparenting the compose view (and the view controller becoming first responder)
+            // takes focus away from the text view. Restore it so the keyboard stays up after
+            // sending the first message.
+            self.composeView.textView.becomeFirstResponder()
+        }
     }
 
     private func updateFooter() {
