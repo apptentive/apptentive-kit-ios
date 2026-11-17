@@ -190,8 +190,8 @@ extension View {
     /// rounded rectangle with hairline border). Used by the compose bar and the
     /// profile name/email fields.
     func apptentiveInputBackground(
-        fill: Color = .apptentiveMessageCenterTextInputBackground,
-        stroke: Color = .apptentiveMessageCenterTextInputBorder,
+        fill: Color,
+        stroke: Color,
         cornerRadius: CGFloat = 6
     ) -> some View {
         modifier(ApptentiveInputBackground(fill: fill, stroke: stroke, cornerRadius: cornerRadius))
