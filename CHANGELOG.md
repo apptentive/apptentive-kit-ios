@@ -5,6 +5,7 @@
 - Surveys have been rewritten in SwiftUI
 - The SDK can now be remotely disabled; when disabled, it stops sending queued API requests
 - Interaction throttling is now configured from the server
+- Added `excludeEventsFromRateLimit(_:)` to exempt specific events from interaction throttling
 - Added support for the Canada (CA) region
 - Links in rich text now open through the interaction delegate
 - The remaining public methods of the Apptentive class are now annotated as `nonisolated`
@@ -28,10 +29,6 @@
 - Fixed custom events being dropped and a delay before interactions could be shown after a cold launch
 - Fixed overriding the API base URL through the Objective-C API
 - Refined HTTP request retry behavior
-
-#### Release Notes
-
-- The `setInteractionRateLimitPerSession` method has been removed; interaction throttling is now controlled from the server
 
 # 2026-08-14 - v7.3.1
 
