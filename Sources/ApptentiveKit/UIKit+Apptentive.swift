@@ -7,6 +7,7 @@
 //
 
 import OSLog
+import SwiftUI
 import UIKit
 
 /// `UINavigationController` subclass intended primarily to facilitate scoping `UIAppearance` rules to Apptentive UI.
@@ -189,13 +190,25 @@ public class ApptentiveNavigationController: UINavigationController {
     @objc public static var apptentiveMessageLabelOutbound = white
 
     /// The color to use for labels in a non-error state.
-    @objc public static var apptentiveQuestionLabel = apptentiveLabel
+    @objc public static var apptentiveQuestionLabel = apptentiveLabel {
+        didSet {
+            Color.apptentiveQuestionLabel = Color(uiColor: apptentiveQuestionLabel)
+        }
+    }
 
     /// The color to use for instruction labels.
-    @objc public static var apptentiveInstructionsLabel = apptentiveSecondaryLabel
+    @objc public static var apptentiveInstructionsLabel = apptentiveSecondaryLabel {
+        didSet {
+            Color.apptentiveInstructionsLabel = Color(uiColor: apptentiveInstructionsLabel)
+        }
+    }
 
     /// The color to use for choice labels.
-    @objc public static var apptentiveChoiceLabel = apptentiveLabel
+    @objc public static var apptentiveChoiceLabel = apptentiveLabel {
+        didSet {
+            Color.apptentiveChoiceLabel = Color(uiColor: apptentiveChoiceLabel)
+        }
+    }
 
     /// The color to use for UI elements to indicate an error state.
     @objc public static var apptentiveError: UIColor = UIColor { traitCollection in
@@ -205,6 +218,11 @@ public class ApptentiveNavigationController: UINavigationController {
 
         default:
             return UIColor(red: 0.86, green: 0.1, blue: 0, alpha: 1)
+        }
+    }
+    {
+        didSet {
+            Color.apptentiveError = Color(uiColor: apptentiveError)
         }
     }
 
@@ -219,6 +237,11 @@ public class ApptentiveNavigationController: UINavigationController {
             return .systemBlue
         }
     }()
+    {
+        didSet {
+            Color.apptentiveTint = Color(uiColor: apptentiveTint)
+        }
+    }
 
     /// The color to use for labels of secondary prominence.
     @objc public static var apptentiveSecondaryLabel = secondaryLabel
@@ -227,7 +250,11 @@ public class ApptentiveNavigationController: UINavigationController {
     @objc public static var apptentiveRangeControlBorder = clear
 
     /// The color to use for the survey introduction text.
-    @objc public static var apptentiveSurveyIntroduction = apptentiveLabel
+    @objc public static var apptentiveSurveyIntroduction = apptentiveLabel {
+        didSet {
+            Color.apptentiveSurveyIntroduction = Color(uiColor: apptentiveSurveyIntroduction)
+        }
+    }
 
     /// The color to use for text fields/text views that are part of a survey (but not part of an "other" choice).
     @objc public static var apptentiveSurveyTextInputBackground = {
@@ -263,7 +290,11 @@ public class ApptentiveNavigationController: UINavigationController {
     @objc public static var apptentiveTextInputPlaceholder = placeholderText
 
     /// The color used for min and max labels for the range survey.
-    @objc public static var apptentiveMinMaxLabel: UIColor = .apptentiveSecondaryLabel
+    @objc public static var apptentiveMinMaxLabel: UIColor = .apptentiveSecondaryLabel {
+        didSet {
+            Color.apptentiveMinMaxLabel = Color(uiColor: apptentiveMinMaxLabel)
+        }
+    }
 
     /// The color used for the background of the entire survey.
     @objc public static var apptentiveGroupedBackground = systemGroupedBackground
@@ -275,10 +306,18 @@ public class ApptentiveNavigationController: UINavigationController {
     @objc public static var apptentiveSeparator = separator
 
     /// The color to use for images in a selected state for surveys.
-    @objc public static var apptentiveImageSelected = apptentiveTint
+    @objc public static var apptentiveImageSelected = apptentiveTint {
+        didSet {
+            Color.apptentiveImageSelected = Color(uiColor: apptentiveImageSelected)
+        }
+    }
 
     /// The color to use for images in a non-selected state for surveys.
-    @objc public static var apptentiveImageNotSelected = apptentiveTint
+    @objc public static var apptentiveImageNotSelected = apptentiveTint {
+        didSet {
+            Color.apptentiveImageNotSelected = Color(uiColor: apptentiveImageNotSelected)
+        }
+    }
 
     /// The background color to use for the submit button on surveys.
     @objc public static var apptentiveSubmitButton = apptentiveTint
@@ -298,10 +337,18 @@ public class ApptentiveNavigationController: UINavigationController {
     }
 
     /// The color to use for the survey footer label (Thank You text).
-    @objc public static var apptentiveSubmitStatusLabel = apptentiveLabel
+    @objc public static var apptentiveSubmitStatusLabel = apptentiveLabel {
+        didSet {
+            Color.apptentiveSubmitStatusLabel = Color(uiColor: apptentiveSubmitStatusLabel)
+        }
+    }
 
     /// The color to use for the terms of service label.
-    @objc public static var apptentiveTermsOfServiceLabel = apptentiveTint
+    @objc public static var apptentiveTermsOfServiceLabel = apptentiveTint {
+        didSet {
+            Color.apptentiveTermsOfServiceLabel = Color(uiColor: apptentiveTermsOfServiceLabel)
+        }
+    }
 
     /// The color to use for the submit button text color.
     @objc public static var apptentiveSubmitButtonTitle = white
@@ -353,7 +400,11 @@ public class ApptentiveNavigationController: UINavigationController {
     @objc public static var apptentiveTextInputBorderSelected = apptentiveTextInputBorder
 
     /// The text color used for the disclaimer text.
-    @objc public static var apptentiveDisclaimerLabel = lightGray
+    @objc public static var apptentiveDisclaimerLabel = apptentiveSecondaryLabel {
+        didSet {
+            Color.apptentiveDisclaimerLabel = Color(uiColor: apptentiveDisclaimerLabel)
+        }
+    }
 
     /// The color used for the background of the Enjoyment Dialog ("Love Dialog") and Text Modals ("Prompts").
     @objc public static var apptentiveDialogBackground: UIColor? = nil
@@ -407,19 +458,35 @@ public class ApptentiveNavigationController: UINavigationController {
     @objc public static var apptentiveMessageCenterAttachmentLabel = preferredFont(forTextStyle: .caption1)
 
     /// The font used for all survey question labels.
-    @objc public static var apptentiveQuestionLabel = preferredFont(forTextStyle: .headline)
+    @objc public static var apptentiveQuestionLabel = preferredFont(forTextStyle: .headline) {
+        didSet {
+            Font.apptentiveQuestionLabel = Font(apptentiveQuestionLabel)
+        }
+    }
 
     /// The font used for the terms of service.
-    @objc public static var apptentiveTermsOfServiceLabel = preferredFont(forTextStyle: .footnote)
+    @objc public static var apptentiveTermsOfServiceLabel = preferredFont(forTextStyle: .footnote) {
+        didSet {
+            Font.apptentiveTermsOfServiceLabel = Font(apptentiveTermsOfServiceLabel)
+        }
+    }
 
     /// The font used for all survey answer choice labels.
-    @objc public static var apptentiveChoiceLabel = preferredFont(forTextStyle: .body)
+    @objc public static var apptentiveChoiceLabel = preferredFont(forTextStyle: .body) {
+        didSet {
+            Font.apptentiveChoiceLabel = Font(apptentiveChoiceLabel)
+        }
+    }
 
     /// The font used for the message body in message center.
     @objc public static var apptentiveMessageLabel = preferredFont(forTextStyle: .body)
 
     /// The font used for the min and max labels for the range survey.
-    @objc public static var apptentiveMinMaxLabel = preferredFont(forTextStyle: .footnote)
+    @objc public static var apptentiveMinMaxLabel = preferredFont(forTextStyle: .footnote) {
+        didSet {
+            Font.apptentiveMinMaxLabel = Font(apptentiveMinMaxLabel)
+        }
+    }
 
     /// The font used for the sender label in message center.
     @objc public static var apptentiveSenderLabel = preferredFont(forTextStyle: .caption2)
@@ -428,10 +495,18 @@ public class ApptentiveNavigationController: UINavigationController {
     @objc public static var apptentiveMessageDateLabel = preferredFont(forTextStyle: .caption2)
 
     /// The font used for the instructions label for surveys.
-    @objc public static var apptentiveInstructionsLabel = preferredFont(forTextStyle: .footnote)
+    @objc public static var apptentiveInstructionsLabel = preferredFont(forTextStyle: .footnote) {
+        didSet {
+            Font.apptentiveInstructionsLabel = Font(apptentiveInstructionsLabel)
+        }
+    }
 
     /// The font used for the survey introduction label.
-    @objc public static var apptentiveSurveyIntroductionLabel = preferredFont(forTextStyle: .subheadline)
+    @objc public static var apptentiveSurveyIntroductionLabel = preferredFont(forTextStyle: .subheadline) {
+        didSet {
+            Font.apptentiveSurveyIntroductionLabel = Font(apptentiveSurveyIntroductionLabel)
+        }
+    }
 
     /// The font used for the survey footer label (Thank You text).
     @available(*, deprecated, message: "This property has been renamed to 'apptentiveSubmitStatusLabel'.")
@@ -445,16 +520,32 @@ public class ApptentiveNavigationController: UINavigationController {
     }
 
     /// The font used for the survey footer label (Thank You text).
-    @objc public static var apptentiveSubmitStatusLabel = preferredFont(forTextStyle: .headline)
+    @objc public static var apptentiveSubmitStatusLabel = preferredFont(forTextStyle: .headline) {
+        didSet {
+            Font.apptentiveSubmitStatusLabel = Font(apptentiveSubmitStatusLabel)
+        }
+    }
 
     /// The font used for the disclaimer text.
-    @objc public static var apptentiveDisclaimerLabel = preferredFont(forTextStyle: .callout)
+    @objc public static var apptentiveDisclaimerLabel = preferredFont(forTextStyle: .callout) {
+        didSet {
+            Font.apptentiveDisclaimerLabel = Font(apptentiveDisclaimerLabel)
+        }
+    }
 
     /// The font used for the submit button at the end of surveys.
-    @objc public static var apptentiveSubmitButtonTitle = preferredFont(forTextStyle: .headline)
+    @objc public static var apptentiveSubmitButtonTitle = preferredFont(forTextStyle: .headline) {
+        didSet {
+            Font.apptentiveSubmitButtonTitle = Font(apptentiveSubmitButtonTitle)
+        }
+    }
 
     /// The font used for the multi- and single-line text inputs in surveys.
-    @objc public static var apptentiveTextInput = preferredFont(forTextStyle: .body)
+    @objc public static var apptentiveTextInput = preferredFont(forTextStyle: .body) {
+        didSet {
+            Font.apptentiveTextInput = Font(apptentiveTextInput)
+        }
+    }
 
     /// The font used for the title of a Text Modal ("Prompt") that also has a message.
     @objc public static var apptentiveDialogTitle = preferredFont(forTextStyle: .headline)
@@ -485,6 +576,21 @@ public class ApptentiveNavigationController: UINavigationController {
         }
 
         return UIFontMetrics(forTextStyle: UIFont.TextStyle(rawValue: textStyleString)).scaledFont(for: self)
+    }
+
+    /// Returns this font resized for the content size category of `traitCollection`.
+    ///
+    /// The `apptentive*` font statics are resolved once, at the text size in effect on first
+    /// access, so they don't follow later changes to the user's text size setting. Fonts that
+    /// carry a text style are re-resolved; fonts without one (fixed-size custom fonts) are
+    /// returned unchanged.
+    internal func apptentiveResized(for traitCollection: UITraitCollection) -> UIFont {
+        guard let textStyleString = self.fontDescriptor.object(forKey: UIFontDescriptor.AttributeName.textStyle) as? String else {
+            return self
+        }
+
+        let preferredFont = UIFont.preferredFont(forTextStyle: UIFont.TextStyle(rawValue: textStyleString), compatibleWith: traitCollection)
+        return self.withSize(preferredFont.pointSize)
     }
 }
 

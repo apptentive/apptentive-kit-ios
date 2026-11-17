@@ -1,77 +1,85 @@
 pipeline {
-  agent {
-    label 'apple'
-  }
+  agent none
 
   options {
     timeout(time: 20, unit: 'MINUTES')
   }
 
-  environment {
-    GEM_HOME=".gem"
-    LC_ALL="en_US.UTF-8"
-    LANG="en_US.UTF-8"
-  }
-
   stages {
-    stage('Dev PR') {
+    stage('Environment Check') {
       when {
-        changeRequest target: 'develop'
-
         expression {
           env.ENVIRONMENT == 'dev-eks_0'
         }
       }
 
       stages {
-        stage('bundle install') {
-          steps {
-            script {
-              sh 'brew install xcbeautify'
-              sh 'source /Users/ec2-user/.zprofile && rbenv install --skip-existing && rbenv rehash && which ruby && which gem && gem install bundler:2.2.28 && bundle install'
-            }
+        stage('Dev PR') {
+          when {
+            changeRequest target: 'develop'
           }
-        }
 
-        stage('clean') {
-          steps {
-            script {
-              sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane clean'
-              sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane action clear_derived_data'
-            }
+          agent {
+            label 'apple'
           }
-        }
 
-        stage('verification') {
-          parallel {
-            stage('test') {
+          environment {
+            GEM_HOME=".gem"
+            LC_ALL="en_US.UTF-8"
+            LANG="en_US.UTF-8"
+          }
+
+          stages {
+            stage('bundle install') {
               steps {
-                withCredentials([string(credentialsId: 'iosBuildProdSignature', variable: 'APPTENTIVE_PROD_SIGNATURE')]) {
-                  withCredentials([string(credentialsId: 'iosBuildProdKey', variable: 'APPTENTIVE_PROD_KEY')]) {
+                script {
+                  sh 'brew install xcbeautify'
+                  sh 'source /Users/ec2-user/.zprofile && rbenv install --skip-existing && rbenv rehash && which ruby && which gem && gem install bundler:2.2.28 && bundle install'
+                }
+              }
+            }
+
+            stage('clean') {
+              steps {
+                script {
+                  sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane clean'
+                  sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane action clear_derived_data'
+                }
+              }
+            }
+
+            stage('verification') {
+              parallel {
+                stage('test') {
+                  steps {
+                    withCredentials([string(credentialsId: 'iosBuildProdSignature', variable: 'APPTENTIVE_PROD_SIGNATURE')]) {
+                      withCredentials([string(credentialsId: 'iosBuildProdKey', variable: 'APPTENTIVE_PROD_KEY')]) {
+                        script {
+                          // Remove coverage check while xcov is updated to work with iOS 26 (https://github.com/fastlane-community/xcov/issues/229)
+                          // sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane test && bundle exec fastlane coverage'
+                          sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane test'
+                        }
+                      }
+                    }
+                  }
+                }
+
+                stage('lint') {
+                  steps {
                     script {
-                      // Remove coverage check while xcov is updated to work with iOS 26 (https://github.com/fastlane-community/xcov/issues/229)
-                      // sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane test && bundle exec fastlane coverage'
-                      sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane test'
+                      sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane lint'
                     }
                   }
                 }
               }
             }
 
-            stage('lint') {
+            stage('framework') {
               steps {
                 script {
-                  sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane lint'
+                  sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane clean && bundle exec fastlane framework'
                 }
               }
-            }
-          }
-        }
-
-        stage('framework') {
-          steps {
-            script {
-              sh 'source /Users/ec2-user/.zprofile &&  bundle exec fastlane clean && bundle exec fastlane framework'
             }
           }
         }

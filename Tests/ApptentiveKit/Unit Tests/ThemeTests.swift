@@ -317,7 +317,7 @@ final class ThemeTests {
         }
 
         // The text color used for the disclaimer text.
-        #expect(UIColor.apptentiveDisclaimerLabel == .lightGray)
+        #expect(UIColor.apptentiveDisclaimerLabel == .apptentiveSecondaryLabel)
 
         // MARK: Fonts
 

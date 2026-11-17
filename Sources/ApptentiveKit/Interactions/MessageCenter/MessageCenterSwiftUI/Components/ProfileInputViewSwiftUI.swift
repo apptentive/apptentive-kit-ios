@@ -19,6 +19,7 @@ struct ProfileInputViewSwiftUI: View {
         case email
     }
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @FocusState private var focusedField: Field?
 
     private let cornerRadius: CGFloat = 5
@@ -101,10 +102,9 @@ struct ProfileInputViewSwiftUI: View {
     }
 
     private func fieldBackground<Content: View>(isError: Bool, @ViewBuilder content: () -> Content) -> some View {
-        // Reuse the compose-bar cap so name/email fields don't balloon to
-        // screen-dominating heights at accessibility text sizes.
+        // Same font as the compose input, so text and placeholder follow the user's text size.
         content()
-            .font(Font(ComposeTextInputRepresentable.cappedFont()))
+            .font(Font(ComposeTextInputRepresentable.font(for: dynamicTypeSize)))
             .foregroundStyle(Color.apptentiveMessageCenterTextInput)
             .padding(.horizontal, fieldHorizontalPadding)
             .padding(.vertical, fieldVerticalPadding)

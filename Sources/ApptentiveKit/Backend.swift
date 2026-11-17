@@ -74,7 +74,6 @@ protocol BackendProtocol: Actor {
 
     func setRemoteNotificationDeviceToken(_ tokenData: Data)
     func setIsOverridingStyles()
-    func setInteractionRateLimitPerSession(_ count: Int)
     func excludeEventsFromRateLimit(_ events: [Event])
 
     func invalidateEngagementManifest(after invalidationDate: Date?)
@@ -356,10 +355,6 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
         self.dataProvider.isOverridingStyles = true
     }
 
-    func setInteractionRateLimitPerSession(_ limit: Int) {
-        self.interactionRateLimitPerSession = limit
-    }
-
     func excludeEventsFromRateLimit(_ events: [Event]) {
         for event in events {
             self.rateLimitExemptCodePoints.insert(event.codePointName)
@@ -382,7 +377,12 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
             Logger.engagement.info("No active conversation (logged out).")
         }
 
-        if self.status?.metricsEnabled == true || event.vendor == "com.apptentive" || self.dataProvider.isDebugBuild {
+        // Defaults to sending when `metricsEnabled` isn't known yet (status hasn't loaded), rather
+        // than silently and permanently dropping the event — matches the default-enabled
+        // convention already used for `sdkEnabled ?? true`. Previously this also bypassed the
+        // check entirely in Debug builds (`|| self.dataProvider.isDebugBuild`), which masked the
+        // drop from QA/engineers testing locally, since real customers always run Release.
+        if (self.status?.metricsEnabled ?? true) || event.vendor == "com.apptentive" {
             do {
                 try await self.payloadSender.send(Payload(wrapping: event, with: self.payloadContext), persistEagerly: false)
             } catch let error {
@@ -713,6 +713,9 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
     private var status: Status? {
         didSet {
             if let status = self.status {
+                self.state.roster.sdkEnabled = status.sdkEnabled ?? true
+
+                self.interactionRateLimitPerSession = status.perSessionInteractionLimit
                 Task {
                     await self.messageManager.setPollingIntervals(
                         foreground: status.messageCenter.foregroundPollingInterval,
@@ -728,6 +731,11 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
 
     /// The saver used to save the conversation roster to persistent storage.
     private var rosterSaver: RosterSaver?
+
+    /// The saver used to save the last-fetched `/status` response (including its `expiry`) to
+    /// persistent storage, so a cold launch can tell how much of its cache lifetime is actually
+    /// left instead of always starting with no cached status.
+    private var statusSaver: PropertyListSaver<Status>?
 
     /// The saver used to save the conversation to persistent storage.
     private var conversationSaver: EncryptedPropertyListSaver<Conversation>?
@@ -758,7 +766,20 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
             switch transition {
             case (from: .waiting, to: .loading(let appCredentials)), (from: .backgrounded, to: .loading(let appCredentials)):
                 try await self.createCommonSavers(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
-                let roster = try await self.loadCommonFiles(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
+                var roster = try await self.loadCommonFiles(containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
+
+                // Folded into `roster` *before* it's assigned to `self.state.roster` below, rather
+                // than assigning `self.status` separately afterward: doing it afterward let summary
+                // briefly land on `.anonymous`/`.loggedIn` (computed from the just-loaded roster,
+                // whose own `sdkEnabled` isn't persisted) before a second, separate mutation moved
+                // it to `.disabled` moments later. That spurious `.anonymous` reached `startSession()`
+                // (which has its own status check, to keep a launch event from firing before status
+                // is known) at nearly the same time as `(from: _, to: .disabled)`'s own status
+                // check — racing each other past the `requestIsUnderway` guard and firing `/status`
+                // twice. Resolving `sdkEnabled` up front means only one transition — straight to
+                // `.disabled` if that's what the cached status says — ever gets scheduled.
+                let persistedStatus = self.loadPersistedStatus(containerURL: containerURL, appCredentials: appCredentials)
+                roster.sdkEnabled = persistedStatus?.sdkEnabled ?? true
 
                 if let activeRecord = roster.active {
                     try await self.createRecordSavers(for: activeRecord, containerURL: containerURL)
@@ -767,6 +788,12 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
                 }
 
                 self.state.roster = roster
+
+                // Doesn't trigger a further transition: `roster.sdkEnabled` above already reflects
+                // this same status, so `status`'s own `didSet` mutates `state.roster.sdkEnabled` to
+                // the value it's already set to. Still needed so `getStatusIfNeeded`'s expiry gate
+                // has the real persisted `expiry` to check against.
+                self.status = persistedStatus
 
             case (from: .loading, to: .posting(let pendingCredentials)):
                 try await self.startAnonymousConversation(with: pendingCredentials)
@@ -881,6 +908,49 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
                 self.cancelHousekeepingTask()
                 await self.destroySavers()
 
+            case (from: _, to: .disabled):
+                self.cancelHousekeepingTask()
+                self.targeter.engagementManifest = .placeholder
+                self.conversation = nil
+                self.clearFrontendVariables()
+                await self.payloadSender.setAppCredentials(nil)
+                await self.requestRetrier.cancelAll()
+
+                // Cancelling housekeeping above also cancels the only other thing that would ever
+                // re-check `/status`, so without this, re-enabling the SDK server-side would never
+                // be noticed. This is only meaningful now that `self.status` is persisted and
+                // reloaded on cold launch (see `loadPersistedStatus`): `getStatusIfNeeded`'s own
+                // expiry gate means a status that's loaded from disk and still within its
+                // `Cache-Control` window correctly skips this as a no-op (no extra traffic for a
+                // churned customer before their cached status actually expires), while one loaded
+                // past its expiry correctly fetches fresh data right away.
+                if let credentials = self.state.anonymousCredentials, let applicationID = self.state.roster.applicationID {
+                    await self.getStatusIfNeeded(with: StatusCredentials(appCredentials: credentials.appCredentials, applicationID: applicationID))
+                }
+
+            case (from: .disabled, to: .anonymous(let payloadCredentials, let authenticationContext)),
+                (from: .disabled, to: .loggedIn(let payloadCredentials, let authenticationContext)):
+                // Reverses the `(from: _, to: .disabled)` teardown above: the roster/credentials
+                // themselves didn't change while disabled, so the active record's savers are still
+                // in place and just need their in-memory state (conversation, payload sender,
+                // engagement manifest) reloaded rather than recreated from scratch.
+                guard let activeRecord = self.state.roster.active, let appCredentials = self.state.appCredentials else {
+                    throw ApptentiveError.internalInconsistency
+                }
+
+                await self.payloadSender.setAppCredentials(appCredentials)
+                try await self.payloadSender.updateCredentials(payloadCredentials, for: activeRecord.path, authenticationContext: authenticationContext)
+
+                try self.loadRecordFiles(for: activeRecord, containerURL: containerURL, cacheURL: cacheURL, appCredentials: appCredentials)
+                self.invalidateEngagementManifest()
+                self.startHousekeepingTask(skipFirstRun: true)
+
+                try await self.startSession()
+                self.syncFrontendVariables()
+
+            case (from: .disabled, to: .loggedOut):
+                break  // Nothing active to resume; a subsequent login will set things up.
+
             default:
                 throw ApptentiveError.unsupportedBackendStateTransition
             }
@@ -905,6 +975,34 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
         self.invalidateEngagementManifestForDebug()
         await self.messageManager.setForceMessageDownload()
         await self.requestRetrier.resetRetryDelay()
+
+        // `syncConversationWithAPI()`'s own status check (inside the housekeeping task, started
+        // right after this returns) isn't early enough for a returning/killed customer: it would
+        // still let this launch event out first and only disable things ~10s later on the first
+        // housekeeping tick. Check status here instead, using the `applicationID` already on the
+        // persisted roster for an existing conversation. Only the very first registration ever
+        // (no `applicationID` yet) can't check and is left alone — same bootstrap exception as
+        // `syncConversationWithAPI()`.
+        if let credentials = self.state.anonymousCredentials {
+            if let applicationID = self.state.roster.applicationID {
+                let isEnabled = await self.getStatusIfNeeded(with: StatusCredentials(appCredentials: credentials.appCredentials, applicationID: applicationID))
+
+                guard isEnabled else {
+                    Logger.network.debug("Skipping launch event: SDK is disabled.")
+                    return
+                }
+            }
+
+            // Also kick off the engagement manifest fetch here instead of leaving it to the
+            // housekeeping task's first tick, which `startHousekeepingTask(skipFirstRun: true)`
+            // deliberately sleeps 10s before running (to avoid racing `syncCustomDataWithAPI()`
+            // over the person/device payload — unrelated to the manifest). Without this,
+            // `self.targeter.engagementManifest` stays `.placeholder` for that whole window, so
+            // any interaction targeted to an event engaged in the first ~10-20s after register —
+            // including this very launch event — could never be shown.
+            self.getInteractionsIfNeeded(with: credentials)
+        }
+
         try await self.engage(event: .launch())
     }
 
@@ -928,9 +1026,13 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
         let interactionIsRateLimited = interactionSessionCount >= self.interactionRateLimitPerSession
         let eventIsExempt = self.rateLimitExemptCodePoints.contains(event.codePointName)
 
+        Logger.interaction.info("Interaction “\(interaction.id)” shown \(interactionSessionCount) time(s) this session (limit \(self.interactionRateLimitPerSession)) for event “\(event.codePointName)”.")
+
         if interactionIsRateLimited && !eventIsExempt && !interaction.isExemptFromRateLimit {
-            // Temporarily disable client-side interaction throttling.
-            // throw ApptentiveError.interactionExceededRateLimit(count: interactionSessionCount, limit: self.interactionRateLimitPerSession)
+            Logger.interaction.warning("Throttling interaction “\(interaction.id)”: exceeded per-session limit of \(self.interactionRateLimitPerSession).")
+            throw ApptentiveError.interactionExceededRateLimit(count: interactionSessionCount, limit: self.interactionRateLimitPerSession)
+        } else if interactionIsRateLimited {
+            Logger.interaction.info("Interaction “\(interaction.id)” exceeded its per-session limit but is exempt from rate limiting (\(eventIsExempt ? "event" : "interaction") exemption); presenting anyway.")
         }
 
         self.interactionRateLimitCounts[interaction.id] = interactionSessionCount + 1
@@ -961,8 +1063,22 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
         let saverTokenStore = self.shouldUseSecureTokenStorage ? self.tokenStore : nil
 
         self.rosterSaver = RosterSaver(containerURL: containerURL, filename: CurrentLoader.rosterFilename(for: appCredentials), fileManager: self.fileManager, tokenStore: saverTokenStore)
+        self.statusSaver = PropertyListSaver<Status>(containerURL: containerURL, filename: CurrentLoader.statusFilename(for: appCredentials), fileManager: self.fileManager)
         await self.payloadSender.makeSaver(containerURL: containerURL, filename: CurrentLoader.payloadsFilename(for: appCredentials))
         await self.messageManager.setAttachmentManager(AttachmentManager(requestor: URLSession.shared, cacheContainerURL: cacheURL, savedContainerURL: containerURL))
+    }
+
+    /// Loads the last-fetched `/status` response from persistent storage, if any, so
+    /// `getStatusIfNeeded` can tell whether its cache lifetime has actually elapsed across a cold
+    /// launch instead of treating every fresh process as having no cached status at all.
+    private func loadPersistedStatus(containerURL: URL, appCredentials: Apptentive.AppCredentials) -> Status? {
+        let url = containerURL.appendingPathComponent(CurrentLoader.statusFilename(for: appCredentials)).appendingPathExtension("plist")
+
+        guard let data = try? Data(contentsOf: url) else {
+            return nil
+        }
+
+        return try? PropertyListDecoder().decode(Status.self, from: data)
     }
 
     private func loadCommonFiles(containerURL: URL, cacheURL: URL, appCredentials: Apptentive.AppCredentials) async throws -> ConversationRoster {
@@ -970,7 +1086,7 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
 
         let result = try CurrentLoader.loadLatestVersion(context: context) { loader in
             let roster = try loader.loadRoster(with: self.tokenStore)
-            Task {
+            _ = Task {
                 try await self.payloadSender.load(from: loader)
 
                 // Save any data that might have been migrated
@@ -998,7 +1114,7 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
             try self.loadConversation(from: loader, for: activeRecord)
             try self.saveConversationIfNeeded()
 
-            Task {
+            _ = Task {
                 try await self.messageManager.load(from: loader, for: activeRecord)
                 try await self.messageManager.saveMessagesIfNeeded()
             }
@@ -1080,14 +1196,27 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
             return
         }
 
-        self.getInteractionsIfNeeded(with: credentials)
-
+        // Status is checked before anything else (rather than in parallel, as the other calls
+        // below are) so that a disabled SDK doesn't fire interactions/messages/person/device/app
+        // release traffic first and only find out afterwards that it shouldn't have — which used
+        // to happen on every cold launch, since `roster.sdkEnabled` isn't persisted to disk and
+        // `self.status` always starts `nil` for a fresh process. The one unavoidable exception is
+        // the very first sync ever for this installation, before `applicationID` exists yet (it
+        // can only be learned from the engagement manifest, so status - which needs it - can't be
+        // checked until `getInteractionsIfNeeded` below has run at least once); `applicationID` is
+        // itself persisted, so this only affects that first bootstrap tick, not every cold launch.
         if let applicationID = self.state.roster.applicationID {
-            self.getStatusIfNeeded(with: StatusCredentials(appCredentials: credentials.appCredentials, applicationID: applicationID))
+            let isEnabled = await self.getStatusIfNeeded(with: StatusCredentials(appCredentials: credentials.appCredentials, applicationID: applicationID))
+
+            guard isEnabled else {
+                Logger.network.debug("Skipping API sync: SDK is disabled.")
+                return
+            }
         } else {
             Logger.default.info("Skipping status check due to missing application ID.")
         }
 
+        self.getInteractionsIfNeeded(with: credentials)
         self.getMessagesIfNeeded(with: credentials)
 
         await self.syncAppReleaseWithAPI(conversation: conversation)
@@ -1375,32 +1504,35 @@ actor Backend: PayloadAuthenticationDelegate, BackendProtocol {
     }
 
     /// Retrieves a Configuration object from the Apptentive API if the current one is missing or expired.
-    private func getStatusIfNeeded(with credentials: StatusCredentials) {
+    /// - Returns: Whether the SDK is enabled per the resulting (fetched or already-cached) status. Defaults to `true`
+    ///   if no status has ever been fetched or the fetch fails, so a transient network error doesn't itself disable the SDK.
+    @discardableResult
+    private func getStatusIfNeeded(with credentials: StatusCredentials) async -> Bool {
         let statusExpired = self.status?.expiry ?? .distantFuture < Date()
 
-        // Check that the configuration in memory (if any) is expired.
-        Task {
-            if await !self.requestRetrier.requestIsUnderway(for: "get status") && (self.status == nil || statusExpired) {
-                Logger.default.info("Requesting new application status via Apptentive API/URL cache (current one is absent or stale).")
+        if await !self.requestRetrier.requestIsUnderway(for: "get status") && (self.status == nil || statusExpired) {
+            Logger.default.info("Requesting new application status via Apptentive API/URL cache (current one is absent or stale).")
 
-                do {
-                    let status: Status = try await self.requestRetrier.start(ApptentiveAPI.getStatus(with: credentials), identifier: "get status")
-                    self.status = status
+            do {
+                let status: Status = try await self.requestRetrier.start(ApptentiveAPI.getStatus(with: credentials), identifier: "get status")
+                self.status = status
+                try? self.statusSaver?.save(status)
 
-                    let source: String = {
-                        if let downloadTime = status.downloadTime {
-                            return Date().timeIntervalSince(downloadTime) > 10 ? "URL cache" : "API"
-                        } else {
-                            return "<unknown>"
-                        }
-                    }()
+                let source: String = {
+                    if let downloadTime = status.downloadTime {
+                        return Date().timeIntervalSince(downloadTime) > 10 ? "URL cache" : "API"
+                    } else {
+                        return "<unknown>"
+                    }
+                }()
 
-                    Logger.network.debug("App status received from \(source). New expiry is \(status.expiry as? NSObject)")
-                } catch let error {
-                    Logger.network.error("Failed to download application status: \(error).")
-                }
+                Logger.network.debug("App status received from \(source). New expiry is \(status.expiry as? NSObject)")
+            } catch let error {
+                Logger.network.error("Failed to download application status: \(error).")
             }
         }
+
+        return self.status?.sdkEnabled ?? true
     }
 
     static let urlSessionConfiguration: URLSessionConfiguration = {

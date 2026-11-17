@@ -97,7 +97,7 @@ import UIKit
     /// - Parameter viewModel: the survey view model that represents the survey and handles submissions.
     /// - Throws: Default behavior is to rethrow errors encountered when calling `present(_:)`.
     open func presentSurvey(with viewModel: SurveyViewModel) async throws {
-        let viewController = SurveyViewController(viewModel: viewModel)
+        let viewController = SurveyHostingController(viewModel: viewModel)
 
         let navigationController = ApptentiveNavigationController(rootViewController: viewController)
 

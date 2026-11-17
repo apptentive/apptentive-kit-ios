@@ -6,6 +6,7 @@
 //  Copyright © 2020 Apptentive. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 extension SurveyViewModel {
@@ -18,7 +19,7 @@ extension SurveyViewModel {
         public let allowMultipleLines: Bool
 
         /// The text of the user's current answer to the question.
-        public var value: String? {
+        @Published public var value: String? {
             didSet {
                 self.checkIfFixed()
             }

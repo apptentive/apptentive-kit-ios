@@ -16,6 +16,9 @@ struct ConversationRoster: Codable, Equatable {
     /// The server-side identifier for the application.
     var applicationID: String?
 
+    /// Whether the server-side (de)activation mechanism is set.
+    var sdkEnabled: Bool?
+
     struct Record: Codable, Equatable, Sendable {
         var state: State
 

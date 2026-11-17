@@ -69,3 +69,9 @@
 
 /* The validation error displayed in Message Center when the profile email is invalid */
 "MC Email Validation Error" = "Fout - E-mailadres ontbreekt of heeft een ongeldige indeling.";
+
+/* Announcement when a dialog is presented. */
+"Dialog announcement" = "Waarschuwing";
+
+/* Default navigation title shown for a survey that has no configured name. */
+"SurveyDefaultTitle" = "Enquête";

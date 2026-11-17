@@ -6,6 +6,7 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 /// Describes the interface that users of the view model should conform to to receive updates in response to user actions.
@@ -35,7 +36,7 @@ import Foundation
 typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & ResponseRecording & URLOpening & SurveyBranching
 
 /// A class that describes the data in a survey interaction and allows reponses to be gathered and transmitted.
-@MainActor public class SurveyViewModel {
+@MainActor public class SurveyViewModel: ObservableObject {
 
     /// The name of the survey, typically displayed in a navigation bar.
     public let name: String?
@@ -130,7 +131,13 @@ typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & Response
     }
 
     /// Whether the survey answers have been sent to the API.
-    public var surveyDidSendResponse: Bool = false
+    @Published public var surveyDidSendResponse: Bool = false
+
+    /// Drives the SwiftUI list identity so paged mode replaces the whole list on page change.
+    @Published public var pageTransitionID: Int = 0
+
+    /// Whether the survey uses paged (multi-page) rendering.
+    public var isPaged: Bool { displayMode == .paged }
 
     /// Indicates whether to highlight the first indicator segment when there is no intro screen.
     public var highlightFirstQuestionSegment: Bool = false
@@ -155,6 +162,8 @@ typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & Response
         default:
             apptentiveCriticalError("Attempting to set text for question/choice with no freeform value")
         }
+
+        objectWillChange.send()
     }
 
     /// Selects the value for the question at the index path's first index corresponding to the index path's second index.
@@ -448,11 +457,16 @@ typealias SurveyInteractionDelegate = EventEngaging & ResponseSending & Response
     }
 
     internal func setNeedsUpdateValidation() {
+        objectWillChange.send()
         if self.shouldCoalesceValidationChanges {
             self.validationChanged = true
         } else {
             self.delegate?.surveyViewModelValidationDidChange(self)
         }
+    }
+
+    func openURL(_ url: URL) async {
+        _ = await self.interactionDelegate.open(url)
     }
 
     // MARK: - Private

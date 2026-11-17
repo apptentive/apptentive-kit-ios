@@ -1,5 +1,5 @@
 //
-//  DialogViewController.swift
+//  GlassDialogViewController.swift
 //  AlertController
 //
 //  Created by Frank Schmitt on 8/1/25.
@@ -8,10 +8,13 @@
 import UIKit
 
 @available(iOS 26, *)
-class GlassDialogViewController: UIViewController, UIGestureRecognizerDelegate, DialogViewModelDelegate {
+class GlassDialogViewController: UIViewController, UIGestureRecognizerDelegate, DialogViewModelDelegate, RichTextLabelDelegate {
     let viewModel: DialogViewModel
     let dialogView: GlassDialogView
+    var upperSpaceConstraint = NSLayoutConstraint()
+    var lowerSpaceConstraint = NSLayoutConstraint()
     var verticalPositionConstraint = NSLayoutConstraint()
+    var sizeClassObservation: UITraitChangeRegistration?
 
     init(viewModel: DialogViewModel) {
         self.viewModel = viewModel
@@ -26,6 +29,11 @@ class GlassDialogViewController: UIViewController, UIGestureRecognizerDelegate, 
         self.modalTransitionStyle = .crossDissolve
     }
 
+    @MainActor
+    deinit {
+        self.sizeClassObservation.flatMap { unregisterForTraitChanges($0) }
+    }
+
     override func viewDidLoad() {
         self.view.backgroundColor = UIColor(white: 0, alpha: 0.2)  // Dimming view
 
@@ -34,7 +42,9 @@ class GlassDialogViewController: UIViewController, UIGestureRecognizerDelegate, 
         self.view.addSubview(self.dialogView)
 
         self.dialogView.titleLabel.attributedString = self.viewModel.title
+        self.dialogView.titleLabel.delegate = self
         self.dialogView.messageLabel.attributedString = self.viewModel.message
+        self.dialogView.messageLabel.delegate = self
 
         for action in self.viewModel.actions {
             var button: GlassDialogButton
@@ -62,8 +72,10 @@ class GlassDialogViewController: UIViewController, UIGestureRecognizerDelegate, 
             self.dialogView.gestureRecognizer.delegate = self
         }
 
-        let upperSpaceConstraint = self.dialogView.topAnchor.constraint(greaterThanOrEqualTo: self.view.safeAreaLayoutGuide.topAnchor, constant: self.viewModel.verticalMargins)
-        let lowerSpaceConstraint = self.view.safeAreaLayoutGuide.bottomAnchor.constraint(greaterThanOrEqualTo: self.dialogView.bottomAnchor, constant: self.viewModel.verticalMargins)
+        self.upperSpaceConstraint = self.dialogView.topAnchor.constraint(greaterThanOrEqualTo: self.view.safeAreaLayoutGuide.topAnchor, constant: self.viewModel.verticalMargins)
+        self.upperSpaceConstraint.priority = .defaultHigh
+        self.lowerSpaceConstraint = self.view.safeAreaLayoutGuide.bottomAnchor.constraint(greaterThanOrEqualTo: self.dialogView.bottomAnchor, constant: self.viewModel.verticalMargins)
+        self.lowerSpaceConstraint.priority = .defaultHigh
         let preferredHeightConstraint = self.dialogView.heightAnchor.constraint(equalToConstant: 48)
         preferredHeightConstraint.priority = .init(500)
 
@@ -85,13 +97,13 @@ class GlassDialogViewController: UIViewController, UIGestureRecognizerDelegate, 
             self.verticalPositionConstraint,
             self.dialogView.widthAnchor.constraint(equalToConstant: 320),
             preferredHeightConstraint,
-            upperSpaceConstraint,
-            lowerSpaceConstraint,
+            self.upperSpaceConstraint,
+            self.lowerSpaceConstraint,
         ])
 
         self.dialogView.titleLabel.isHidden = self.viewModel.isTitleHidden
         self.dialogView.messageLabel.isHidden = self.viewModel.isMessageHidden
-        self.dialogView.imageView.isHidden = self.viewModel.dialogContainsImage
+        self.dialogView.imageView.isHidden = !self.viewModel.dialogContainsImage
 
         if self.viewModel.isTitleHidden || self.viewModel.isMessageHidden {
             // If only one label (out of title/message) is visible, iOS 26
@@ -150,7 +162,7 @@ class GlassDialogViewController: UIViewController, UIGestureRecognizerDelegate, 
     }
 
     public override func viewDidAppear(_ animated: Bool) {
-        UIAccessibility.post(notification: .announcement, argument: NSLocalizedString("Dialog announcement", bundle: .main, value: "Alert", comment: "Announcement when a dialog is presented."))
+        UIAccessibility.post(notification: .announcement, argument: NSLocalizedString("Dialog announcement", bundle: .apptentive, value: "Alert", comment: "Announcement when a dialog is presented."))
 
         let contentFits = floor(self.dialogView.contentScrollView.contentSize.height) <= self.dialogView.contentScrollView.bounds.height
         self.dialogView.gradientView.isHidden = contentFits
@@ -208,6 +220,14 @@ class GlassDialogViewController: UIViewController, UIGestureRecognizerDelegate, 
             self.dialogView.imageView.isAccessibilityElement = false
             self.dialogView.imageView.isHidden = true
             self.layoutImage(for: nil, with: nil)
+        }
+    }
+
+    // MARK: - RichTextLabelDelegate
+
+    func handleLink(_ url: URL) {
+        Task {
+            await self.viewModel.openURL(url)
         }
     }
 

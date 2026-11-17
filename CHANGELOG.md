@@ -1,3 +1,38 @@
+# 2026-11-17 - v7.4.0
+
+#### New Features
+
+- Surveys have been rewritten in SwiftUI
+- The SDK can now be remotely disabled; when disabled, it stops sending queued API requests
+- Interaction throttling is now configured from the server
+- Added support for the Canada (CA) region
+- Links in rich text now open through the interaction delegate
+- The remaining public methods of the Apptentive class are now annotated as `nonisolated`
+- Surveys and the Message Center input field now support Dynamic Type
+
+#### Bugs Fixed
+
+- Fixed layout issues in card surveys, including progress bar position, text visibility after starting in landscape, and Thank You message position
+- Fixed alignment of survey introduction, Thank You, and disclaimer text, and the display of long Thank You messages
+- Fixed truncation, styling, font color, and VoiceOver recognition of the Terms & Conditions link in surveys
+- Fixed the placement of range and NPS labels and of the "select one/all that apply" hint
+- Fixed italic and bold rendering in survey question text and the order of the disclaimer and Submit button
+- Fixed the "Other" text field not opening when the option is selected
+- The keyboard in surveys is now dismissed when tapping outside a text field
+- Fixed the Message Center composer disappearing after adding a date to the calendar on iOS 26; dates in messages are now tappable
+- Fixed message bubbles for right-to-left languages in Message Center
+- Fixed image width, indentation under alternate text, safe area, and rotation issues in prompts
+- VoiceOver announcements for prompts and the Love Dialog are now localized
+- In Message Center, VoiceOver now announces when a message is sent, reads the header as a heading, and keeps focus on an attachment after it downloads
+- Added full keyboard access to links in surveys
+- Fixed custom events being dropped and a delay before interactions could be shown after a cold launch
+- Fixed overriding the API base URL through the Objective-C API
+- Refined HTTP request retry behavior
+
+#### Release Notes
+
+- The `setInteractionRateLimitPerSession` method has been removed; interaction throttling is now controlled from the server
+
 # 2026-08-14 - v7.3.1
 
 #### New Features
@@ -12,7 +47,7 @@
 - Fixed an issue where profile name and email could be lost if the app was killed immediately after saving
 - Fixed an issue where locking and unlocking the screen while composing a message could throw an internal error and cause the message to silently fail to send
 
-#2026-08-03 - v7.3.0
+# 2026-08-03 - v7.3.0
 
 #### New Features
 

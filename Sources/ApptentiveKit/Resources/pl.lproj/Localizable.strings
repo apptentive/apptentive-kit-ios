@@ -69,3 +69,9 @@
 
 /* The validation error displayed in Message Center when the profile email is invalid */
 "MC Email Validation Error" = "Błąd - Brakuje wiadomości e-mail lub ma ona nieprawidłowy format.";
+
+/* Announcement when a dialog is presented. */
+"Dialog announcement" = "Alert";
+
+/* Default navigation title shown for a survey that has no configured name. */
+"SurveyDefaultTitle" = "Ankieta";

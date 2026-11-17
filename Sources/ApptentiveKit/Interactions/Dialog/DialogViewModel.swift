@@ -9,7 +9,7 @@
 import OSLog
 import UIKit
 
-typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & ResponseRecording & ResourceProviding & EnjoymentRecording & Sendable
+typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & ResponseRecording & ResourceProviding & URLOpening & EnjoymentRecording & Sendable
 
 /// Describes the updates to the UI triggered from the view model.
 @MainActor public protocol DialogViewModelDelegate: AnyObject {
@@ -201,6 +201,9 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
         }
     }
 
+    func openURL(_ url: URL) async {
+        _ = await self.interactionDelegate.open(url)
+    }
     // MARK: - Private
 
     private var prepareForPresentationCompletion: (() -> Void)? = nil
@@ -231,7 +234,7 @@ typealias DialogInteractionDelegate = EventEngaging & InvocationInvoking & Respo
                         return apptentiveCriticalError("TextModal interaction button missing invocations.")
                     }
 
-                    Task {
+                    _ = Task {
                         let invokedInteractionID = try await interactionDelegate.invoke(invocations)
                         let invokedAction = TextModalAction(label: action.label, position: position, invokedInteractionID: invokedInteractionID, actionID: action.id)
                         interactionDelegate.engage(event: .interaction(for: interaction, action: invokedAction, whereEvent: whereEvent))

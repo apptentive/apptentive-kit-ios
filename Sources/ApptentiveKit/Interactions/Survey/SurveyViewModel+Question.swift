@@ -6,11 +6,12 @@
 //  Copyright © 2020 Apptentive. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 extension SurveyViewModel {
     /// Base class for question view models (should be treated as abstract).
-    @MainActor public class Question: Validating {
+    @MainActor public class Question: Validating, ObservableObject {
         weak var surveyViewModel: SurveyViewModel?
         let questionID: String
 
@@ -46,7 +47,7 @@ extension SurveyViewModel {
         }
 
         /// Whether the UI should show the question as invalid.
-        public var isMarkedAsInvalid = false {
+        @Published public var isMarkedAsInvalid = false {
             didSet {
                 if isMarkedAsInvalid != oldValue {
                     guard let surveyViewModel = self.surveyViewModel else {
@@ -95,6 +96,7 @@ extension SurveyViewModel {
                 return apptentiveCriticalError("Should have a view model set")
             }
 
+            surveyViewModel.objectWillChange.send()
             surveyViewModel.delegate?.surveyViewModelSelectionDidChange(surveyViewModel)
         }
 

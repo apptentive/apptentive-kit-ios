@@ -16,6 +16,7 @@ struct ReceivedMessageRow: View {
     let maxBubbleWidth: CGFloat
     let openHint: String
     let downloadHint: String
+    var focusedAttachment: AccessibilityFocusState<AttachmentFocusTarget?>.Binding
     let onAppear: () -> Void
     let loadAvatar: () async -> UIImage?
     let onAttachmentTap: (Int) -> Void
@@ -27,6 +28,7 @@ struct ReceivedMessageRow: View {
     var body: some View {
         HStack(alignment: .bottom, spacing: 4) {
             avatarView
+                .accessibilityHidden(true)
             bubble
                 .frame(maxWidth: maxBubbleWidth, alignment: .leading)
             Spacer(minLength: 0)
@@ -42,9 +44,6 @@ struct ReceivedMessageRow: View {
             avatar = raw?.preparingThumbnail(of: target) ?? raw
         }
         .onAppear { onAppear() }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(message.accessibilityLabel ?? "")
-        .accessibilityHint(message.accessibilityHint ?? "")
     }
 
     @ViewBuilder
@@ -87,6 +86,7 @@ struct ReceivedMessageRow: View {
                         ) {
                             onAttachmentTap(index)
                         }
+                        .accessibilityFocused(focusedAttachment, equals: AttachmentFocusTarget(indexPath: indexPath, attachmentIndex: index))
                     }
                 }
                 .padding(.top, (message.sender?.name?.isEmpty ?? true) && (message.body?.isEmpty ?? true) ? 6 : 0)
@@ -99,8 +99,6 @@ struct ReceivedMessageRow: View {
             }
         }
         .padding(EdgeInsets(top: 12, leading: 42, bottom: 12, trailing: 16))
-        .background(
-            Image.apptentiveReceivedMessageBubble.foregroundStyle(Color.apptentiveMessageBubbleInbound)
-        )
+        .background(MessageBubbleBackground(image: .apptentiveReceivedMessageBubble, color: .apptentiveMessageBubbleInbound))
     }
 }

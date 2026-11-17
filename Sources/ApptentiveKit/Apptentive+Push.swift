@@ -13,7 +13,7 @@ import UIKit
 extension Apptentive: @preconcurrency UNUserNotificationCenterDelegate {
     /// Sets the remote notification device token to the specified value.
     /// - Parameter tokenData: The remote notification device token passed into `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`.
-    @objc public func setRemoteNotificationDeviceToken(_ tokenData: Data) {
+    @objc nonisolated public func setRemoteNotificationDeviceToken(_ tokenData: Data) {
         Task {
             await self.backend.setRemoteNotificationDeviceToken(tokenData)
         }
@@ -26,7 +26,7 @@ extension Apptentive: @preconcurrency UNUserNotificationCenterDelegate {
     ///   - userInfo: The `userInfo` parameter passed to `application(_:didReceiveRemoteNotification:)`.
     ///   - completionHandler: The `fetchCompletionHandler` parameter passed to `application(_:didReceiveRemoteNotification:)`.
     /// - Returns: `true` if the notification was handled by the Apptentive SDK, `false` if not.
-    @objc public func didReceiveRemoteNotification(_ userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @Sendable @escaping (UIBackgroundFetchResult) -> Void) -> Bool {
+    @objc nonisolated public func didReceiveRemoteNotification(_ userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @Sendable @escaping (UIBackgroundFetchResult) -> Void) -> Bool {
         guard let _ = userInfo["apptentive"] as? [String: Any] else {
             Logger.default.info("Non-apptentive push notification received.")
             return false
@@ -34,17 +34,19 @@ extension Apptentive: @preconcurrency UNUserNotificationCenterDelegate {
 
         Logger.default.info("Apptentive push notification received with userInfo: \(userInfo).")
         if let userInfo = userInfo as? [String: any Sendable], let aps = userInfo["aps"] as? [String: any Sendable], let contentAvailable = aps["content-available"] as? Bool, contentAvailable {
-            let isInForeground = self.hostContext.isInForeground
+            Task { @MainActor in
+                let isInForeground = self.hostContext.isInForeground
 
-            Task {
-                await fetchMessages(with: userInfo, shouldPostLocalNotification: aps["alert"] == nil || isInForeground)
+                await self.fetchMessages(with: userInfo, shouldPostLocalNotification: aps["alert"] == nil || isInForeground)
 
                 // Always send .newData so Apple doesn't throttle us.
                 completionHandler(.newData)
             }
         } else {
-            // Always send .newData so Apple doesn't throttle us.
-            completionHandler(.newData)
+            Task { @MainActor in
+                // Always send .newData so Apple doesn't throttle us.
+                completionHandler(.newData)
+            }
         }
 
         return true
@@ -59,14 +61,17 @@ extension Apptentive: @preconcurrency UNUserNotificationCenterDelegate {
     ///   - response: The `response` parameter passed to `userNotificationCenter(_:didReceive:withCompletionHandler:)`.
     ///   - completionHandler: The `completionHandler` parameter passed to `userNotificationCenter(_:didReceive:withCompletionHandler:)`.
     /// - Returns: `true` if the notification was handled by the Apptentive SDK, `false` if not.
-    @objc public func didReceveUserNotificationResponse(_ response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) -> Bool {
+    @objc nonisolated public func didReceveUserNotificationResponse(_ response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping @Sendable () -> Void) -> Bool {
         guard let _ = response.notification.request.content.userInfo["apptentive"] else {
             return false
         }
 
         Logger.default.info("Apptentive user notification received.")
-        self.presentMessageCenterIfNeeded(for: response.notification.request.content.userInfo)
-        completionHandler()
+
+        Task { @MainActor in
+            self.presentMessageCenterIfNeeded(for: response.notification.request.content.userInfo)
+            completionHandler()
+        }
         return true
     }
 
@@ -79,18 +84,20 @@ extension Apptentive: @preconcurrency UNUserNotificationCenterDelegate {
     ///   - notification: The `response` parameter passed to `userNotificationCenter(_:willPresent:notification:withCompletionHandler:)`.
     ///   - completionHandler: The `completionHandler` parameter passed to `userNotificationCenter(_:willPresent:notification:withCompletionHandler:)`.
     /// - Returns: `true` if the notification was handled by the Apptentive SDK, `false` if not.
-    @objc public func willPresent(_ notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) -> Bool {
+    @objc nonisolated public func willPresent(_ notification: UNNotification, withCompletionHandler completionHandler: @escaping @Sendable (UNNotificationPresentationOptions) -> Void) -> Bool {
         guard let _ = notification.request.content.userInfo["apptentive"] else {
             return false
         }
 
-        if notification.request.trigger is UNPushNotificationTrigger {
-            completionHandler([])
-        } else {
-            if #available(iOS 14.0, *) {
-                completionHandler(.banner)
+        Task { @MainActor in
+            if notification.request.trigger is UNPushNotificationTrigger {
+                completionHandler([])
             } else {
-                completionHandler(.alert)
+                if #available(iOS 14.0, *) {
+                    completionHandler(.banner)
+                } else {
+                    completionHandler(.alert)
+                }
             }
         }
 
@@ -128,9 +135,13 @@ extension Apptentive: @preconcurrency UNUserNotificationCenterDelegate {
             return
         }
 
-        Task {
-            if await !self.interactionPresenter.messageCenterCurrentlyPresented {
-                await self.presentMessageCenter(from: nil, completion: nil)
+        Task { @MainActor in
+            guard !self.interactionPresenter.messageCenterCurrentlyPresented else {
+                return
+            }
+
+            Task {
+                let _ = try? await self.presentMessageCenter(from: nil, with: nil)
             }
         }
     }

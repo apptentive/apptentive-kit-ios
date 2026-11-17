@@ -46,10 +46,12 @@ struct GreetingHeaderViewSwiftUI: View {
                 .scaledToFit()
                 .frame(width: imageSize, height: imageSize)
                 .clipShape(RoundedRectangle(cornerRadius: imageCornerRadius))
+                .accessibilityHidden(true)
         } else {
             RoundedRectangle(cornerRadius: imageCornerRadius)
                 .fill(Color(uiColor: .secondarySystemFill))
                 .frame(width: imageSize, height: imageSize)
+                .accessibilityHidden(true)
         }
     }
 

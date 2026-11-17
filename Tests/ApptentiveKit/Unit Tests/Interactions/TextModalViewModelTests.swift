@@ -162,4 +162,16 @@ import UIKit
         #expect(DialogViewModel.Image.Layout.center.contentMode(for: UITraitCollection()) == .center)
         #expect(DialogViewModel.Image.Layout.center.imageInset == UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8))
     }
+
+    @Test("URL opened successfully")
+    func openURL() async {
+        // Given
+        let url = URL(string: "https://www.example.com/")!
+
+        // When
+        await viewModel.openURL(url)
+
+        // Then
+        #expect(spySender.openedURL == url)
+    }
 }

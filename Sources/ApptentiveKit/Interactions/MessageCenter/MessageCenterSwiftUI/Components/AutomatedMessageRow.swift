@@ -36,6 +36,7 @@ struct AutomatedMessageRow: View {
         .padding(EdgeInsets(top: 12, leading: 42, bottom: 12, trailing: 16))
         .background(
             Image.apptentiveReceivedMessageBubble.foregroundStyle(Color.apptentiveMessageBubbleInbound)
+                .accessibilityHidden(true)
         )
     }
 }

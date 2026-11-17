@@ -6,11 +6,12 @@
 //  Copyright © 2020 Apptentive, Inc. All rights reserved.
 //
 
+import SwiftUI
 import UIKit
 
 extension Apptentive {
     /// Overrides the system font in Apptentive interactions using the font with the specified name.
-    @objc public static var fontName: String? {
+    @MainActor @objc public static var fontName: String? {
         didSet {
             if let fontName = Self.fontName,
                 let bodyFont = UIFont(name: fontName, size: 17.0),
@@ -31,18 +32,27 @@ extension Apptentive {
                 UIFont.apptentiveMessageCenterGreetingBody = UIFontMetrics(forTextStyle: .body).scaledFont(for: bodyFont)
                 UIFont.apptentiveMessageCenterAttachmentLabel = UIFontMetrics(forTextStyle: .caption1).scaledFont(for: caption1Font)
                 UIFont.apptentiveQuestionLabel = UIFontMetrics(forTextStyle: .headline).scaledFont(for: headlineFont)
+                Font.apptentiveQuestionLabel = .custom(fontName, size: bodyFont.pointSize, relativeTo: .headline)
                 UIFont.apptentiveTermsOfServiceLabel = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: footnoteFont)
                 UIFont.apptentiveChoiceLabel = UIFontMetrics(forTextStyle: .body).scaledFont(for: bodyFont)
+                Font.apptentiveChoiceLabel = .custom(fontName, size: bodyFont.pointSize, relativeTo: .body)
                 UIFont.apptentiveMessageLabel = UIFontMetrics(forTextStyle: .body).scaledFont(for: bodyFont)
                 UIFont.apptentiveMinMaxLabel = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: footnoteFont)
+                Font.apptentiveMinMaxLabel = .custom(fontName, size: footnoteFont.pointSize, relativeTo: .footnote)
                 UIFont.apptentiveSenderLabel = UIFontMetrics(forTextStyle: .caption2).scaledFont(for: caption2Font)
                 UIFont.apptentiveMessageDateLabel = UIFontMetrics(forTextStyle: .caption2).scaledFont(for: caption2Font)
                 UIFont.apptentiveInstructionsLabel = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: footnoteFont)
+                Font.apptentiveInstructionsLabel = .custom(fontName, size: footnoteFont.pointSize, relativeTo: .footnote)
                 UIFont.apptentiveSurveyIntroductionLabel = UIFontMetrics(forTextStyle: .subheadline).scaledFont(for: subheadlineFont)
+                Font.apptentiveSurveyIntroductionLabel = .custom(fontName, size: subheadlineFont.pointSize, relativeTo: .subheadline)
                 UIFont.apptentiveSubmitStatusLabel = UIFontMetrics(forTextStyle: .headline).scaledFont(for: headlineFont)
+                Font.apptentiveSubmitStatusLabel = .custom(fontName, size: bodyFont.pointSize, relativeTo: .headline)
                 UIFont.apptentiveDisclaimerLabel = UIFontMetrics(forTextStyle: .callout).scaledFont(for: calloutFont)
+                Font.apptentiveDisclaimerLabel = .custom(fontName, size: calloutFont.pointSize, relativeTo: .callout)
                 UIFont.apptentiveSubmitButtonTitle = UIFontMetrics(forTextStyle: .headline).scaledFont(for: headlineFont)
+                Font.apptentiveSubmitButtonTitle = .custom(fontName, size: bodyFont.pointSize, relativeTo: .headline)
                 UIFont.apptentiveTextInput = UIFontMetrics(forTextStyle: .body).scaledFont(for: bodyFont)
+                Font.apptentiveTextInput = .custom(fontName, size: bodyFont.pointSize, relativeTo: .body)
                 UIFont.apptentiveDialogTitle = UIFontMetrics(forTextStyle: .headline).scaledFont(for: headlineFont)
                 UIFont.apptentiveDialogText = UIFontMetrics(forTextStyle: .body).scaledFont(for: bodyFont)
                 UIFont.apptentiveDialogMessage = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: footnoteFont)
@@ -56,18 +66,27 @@ extension Apptentive {
                 UIFont.apptentiveMessageCenterGreetingBody = .preferredFont(forTextStyle: .body)
                 UIFont.apptentiveMessageCenterAttachmentLabel = .preferredFont(forTextStyle: .caption1)
                 UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .headline)
+                Font.apptentiveQuestionLabel = .headline
                 UIFont.apptentiveTermsOfServiceLabel = .preferredFont(forTextStyle: .footnote)
                 UIFont.apptentiveChoiceLabel = .preferredFont(forTextStyle: .body)
+                Font.apptentiveChoiceLabel = .body
                 UIFont.apptentiveMessageLabel = .preferredFont(forTextStyle: .body)
                 UIFont.apptentiveMinMaxLabel = .preferredFont(forTextStyle: .footnote)
+                Font.apptentiveMinMaxLabel = .caption
                 UIFont.apptentiveSenderLabel = .preferredFont(forTextStyle: .caption2)
                 UIFont.apptentiveMessageDateLabel = .preferredFont(forTextStyle: .caption2)
                 UIFont.apptentiveInstructionsLabel = .preferredFont(forTextStyle: .footnote)
+                Font.apptentiveInstructionsLabel = .footnote
                 UIFont.apptentiveSurveyIntroductionLabel = .preferredFont(forTextStyle: .subheadline)
+                Font.apptentiveSurveyIntroductionLabel = .body
                 UIFont.apptentiveSubmitStatusLabel = .preferredFont(forTextStyle: .headline)
+                Font.apptentiveSubmitStatusLabel = .headline
                 UIFont.apptentiveDisclaimerLabel = .preferredFont(forTextStyle: .callout)
+                Font.apptentiveDisclaimerLabel = .caption
                 UIFont.apptentiveSubmitButtonTitle = .preferredFont(forTextStyle: .headline)
+                Font.apptentiveSubmitButtonTitle = .headline
                 UIFont.apptentiveTextInput = .preferredFont(forTextStyle: .body)
+                Font.apptentiveTextInput = .body
                 UIFont.apptentiveDialogTitle = .preferredFont(forTextStyle: .headline)
                 UIFont.apptentiveDialogText = .preferredFont(forTextStyle: .body)
                 UIFont.apptentiveDialogMessage = .preferredFont(forTextStyle: .footnote)
@@ -77,7 +96,7 @@ extension Apptentive {
     }
 
     /// This method will set colors and non-resizeable images from any asset catalog included in the app's main bundle.
-    static func applyCustomerTheme(from bundle: Bundle = .main) {
+    @MainActor static func applyCustomerTheme(from bundle: Bundle = .main) {
         UIColor(named: "Apptentive/Survey/IntroductionText", in: bundle, compatibleWith: nil).flatMap { UIColor.apptentiveSurveyIntroduction = $0 }
         UIColor(named: "Apptentive/Survey/QuestionText", in: bundle, compatibleWith: nil).flatMap { UIColor.apptentiveQuestionLabel = $0 }
         UIColor(named: "Apptentive/Survey/InstructionsText", in: bundle, compatibleWith: nil).flatMap { UIColor.apptentiveInstructionsLabel = $0 }
@@ -139,7 +158,7 @@ extension Apptentive {
     }
 
     /// This method will apply the default cross-platform Apptentive look for Apptentive UI.
-    static func applyApptentiveTheme() {
+    @MainActor static func applyApptentiveTheme() {
         let bundle = Bundle.apptentive
         guard let barTintColor = UIColor(named: "barTint", in: bundle, compatibleWith: nil),
             let barForegroundColor = UIColor(named: "barForeground", in: bundle, compatibleWith: nil),
@@ -259,8 +278,11 @@ extension Apptentive {
         UIColor.apptentiveAttachmentRemoveButton = attachmentDeleteButton
 
         UIFont.apptentiveQuestionLabel = .preferredFont(forTextStyle: .body)
+        Font.apptentiveQuestionLabel = .body
         UIFont.apptentiveChoiceLabel = .preferredFont(forTextStyle: .body)
+        Font.apptentiveChoiceLabel = .body
         UIFont.apptentiveTextInput = .preferredFont(forTextStyle: .body)
+        Font.apptentiveTextInput = .body
 
         UIColor.apptentiveDialogTitle = dialogText
         UIColor.apptentiveDialogSeparator = dialogSeparator

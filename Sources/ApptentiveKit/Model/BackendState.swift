@@ -33,30 +33,33 @@ struct BackendState: Equatable, Sendable {
     }
 
     var summary: Summary {
-        switch (self.isInForeground, self.isProtectedDataAvailable, self.appCredentials, self.roster.active?.state, self.fatalError) {
-        case (false, _, _, _, false):
+        switch (self.isInForeground, self.isProtectedDataAvailable, self.appCredentials, self.roster.active?.state, self.fatalError, self.roster.sdkEnabled ?? true) {
+        case (false, _, _, _, false, true):
             return .backgrounded
 
-        case (true, false, _, .placeholder, false),
-            (true, true, .none, .placeholder, false):
+        case (true, false, _, .placeholder, false, true),
+            (true, true, .none, .placeholder, false, true):
             return .waiting
 
-        case (true, true, .some(let appCredentials), .placeholder, false):
+        case (true, true, .some(let appCredentials), .placeholder, false, true):
             return .loading(appCredentials: appCredentials)
 
-        case (true, true, .some(let appCredentials), .anonymousPending, false):
+        case (true, true, .some(let appCredentials), .anonymousPending, false, true):
             return .posting(pendingCredentials: PendingAPICredentials(appCredentials: appCredentials))
 
-        case (true, true, .some, .anonymous(let credentials), false):
+        case (true, true, .some, .anonymous(let credentials), false, true):
             return .anonymous(payloadCredentials: .secure(id: credentials.id), authenticationContext: .init(encryptionKey: nil, token: credentials.token))
 
-        case (true, true, .some, .loggedIn(credentials: let credentials, subject: _, encryptionKey: let encryptionKey), false):
+        case (true, true, .some, .loggedIn(credentials: let credentials, subject: _, encryptionKey: let encryptionKey), false, true):
             return .loggedIn(payloadCredentials: .embedded(id: credentials.id), authenticationContext: .init(encryptionKey: encryptionKey, token: credentials.token))
 
-        case (true, true, .some, .none, false):
+        case (true, true, .some, .none, false, true):
             return .loggedOut
 
-        case (true, false, _, _, false):
+        case (_, _, _, _, _, false):
+            return .disabled
+
+        case (true, false, _, _, false, true):
             return .locked
 
         default:
@@ -74,6 +77,7 @@ struct BackendState: Equatable, Sendable {
         case loggedOut
         case locked
         case backgrounded
+        case disabled
         case error
     }
 }

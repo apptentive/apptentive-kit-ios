@@ -69,3 +69,9 @@
 
 /* The validation error displayed in Message Center when the profile email is invalid */
 "MC Email Validation Error" = "Hata - E-posta eksik veya geçersiz biçimde.";
+
+/* Announcement when a dialog is presented. */
+"Dialog announcement" = "Uyarı";
+
+/* Default navigation title shown for a survey that has no configured name. */
+"SurveyDefaultTitle" = "Anket";

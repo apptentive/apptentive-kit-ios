@@ -69,3 +69,9 @@
 
 /* The validation error displayed in Message Center when the profile email is invalid */
 "MC Email Validation Error" = "Ошибка — адрес электронной почты отсутствует или имеет недопустимый формат.";
+
+/* Announcement when a dialog is presented. */
+"Dialog announcement" = "Предупреждение";
+
+/* Default navigation title shown for a survey that has no configured name. */
+"SurveyDefaultTitle" = "Опрос";

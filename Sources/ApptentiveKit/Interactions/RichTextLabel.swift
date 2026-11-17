@@ -9,12 +9,20 @@
 import OSLog
 import UIKit
 
+@MainActor
+protocol RichTextLabelDelegate: AnyObject {
+    func handleLink(_ url: URL)
+}
+
 class RichTextLabel: UILabel {
+    private var linkRanges: [(range: NSRange, url: URL, rect: CGRect)] = []
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         self.adjustsFontForContentSizeCategory = true
         self.accessibilityTraits = .staticText
+        self.isUserInteractionEnabled = true
     }
 
     required init?(coder: NSCoder) {
@@ -26,6 +34,8 @@ class RichTextLabel: UILabel {
             self.updateAttributedText()
         }
     }
+
+    weak var delegate: RichTextLabelDelegate?
 
     override var font: UIFont? {
         didSet {
@@ -45,15 +55,6 @@ class RichTextLabel: UILabel {
         }
     }
 
-    private var computedFont: UIFont {
-        if let font, !font.fontName.contains(".SFUI") {
-            // Font has been explicitly set to something that's not the system font.
-            return font
-        } else {
-            return .preferredFont(forTextStyle: self.textStyle)
-        }
-    }
-
     private var labelTextColor: UIColor?
 
     override var textColor: UIColor? {
@@ -70,30 +71,41 @@ class RichTextLabel: UILabel {
         if let attributedString = self.attributedString {
             let nsAttributedString = NSMutableAttributedString(attributedString)
 
-            nsAttributedString.enumerateAttribute(.font, in: NSRange(location: 0, length: nsAttributedString.length), options: []) { value, range, _ in
-                var newFontDescriptor: UIFontDescriptor = self.computedFont.fontDescriptor
+            // Use preferred font for text style so we scale once and respect Dynamic Type without double-scaling.
+            let baseFont = UIFont.preferredFont(forTextStyle: self.textStyle)
+            // Custom font: use its descriptor so the family applies; system: use preferred font descriptor.
+            let baseDescriptor = (self.font.flatMap { font in font.fontName.contains(".SFUI") ? nil : font.fontDescriptor }) ?? baseFont.fontDescriptor
 
-                if let oldFont = value as? UIFont {
-                    var traits: UIFontDescriptor.SymbolicTraits = []
-                    let descriptor = oldFont.fontDescriptor
+            var charOffset = 0
+            for run in attributedString.runs {
+                let runStr = String(attributedString.characters[run.range])
+                let nsLen = (runStr as NSString).length
+                guard nsLen > 0 else { continue }
+                let nsRange = NSRange(location: charOffset, length: nsLen)
+                charOffset += nsLen
 
-                    if descriptor.symbolicTraits.contains(.traitBold) || self.textStyle == .headline {
-                        traits.insert(.traitBold)
-                    }
+                var traits: UIFontDescriptor.SymbolicTraits = []
 
-                    if descriptor.symbolicTraits.contains(.traitItalic) {
-                        traits.insert(.traitItalic)
-                    }
-
-                    if let updatedDescriptor = newFontDescriptor.withSymbolicTraits(traits) {
-                        newFontDescriptor = updatedDescriptor
-                    }
+                // Bold/italic from explicit UIFont attribute (backward compat with any non-parser sources)
+                if let oldFont = run.uiKit.font {
+                    if oldFont.fontDescriptor.symbolicTraits.contains(.traitBold) { traits.insert(.traitBold) }
+                    if oldFont.fontDescriptor.symbolicTraits.contains(.traitItalic) { traits.insert(.traitItalic) }
                 }
 
-                let newFont = UIFont(descriptor: newFontDescriptor, size: self.computedFont.pointSize)
+                // Bold/italic from inlinePresentationIntent (set by SimpleHTMLParser)
+                if run.inlinePresentationIntent?.contains(.stronglyEmphasized) == true { traits.insert(.traitBold) }
+                if run.inlinePresentationIntent?.contains(.emphasized) == true { traits.insert(.traitItalic) }
 
-                let scaledFont = UIFontMetrics(forTextStyle: self.textStyle).scaledFont(for: newFont)
-                nsAttributedString.addAttribute(.font, value: scaledFont, range: range)
+                if self.textStyle == .headline { traits.insert(.traitBold) }
+
+                var newFontDescriptor = baseDescriptor
+                if !traits.isEmpty, let updatedDescriptor = baseDescriptor.withSymbolicTraits(traits) {
+                    newFontDescriptor = updatedDescriptor
+                }
+
+                // Always use preferred font's point size so we scale once (theme fonts are already scaled; avoid double-scaling).
+                let fontToApply = UIFont(descriptor: newFontDescriptor, size: baseFont.pointSize)
+                nsAttributedString.addAttribute(.font, value: fontToApply, range: nsRange)
             }
 
             nsAttributedString.enumerateAttribute(.paragraphStyle, in: NSRange(location: 0, length: nsAttributedString.length), options: []) { value, range, _ in
@@ -120,30 +132,70 @@ class RichTextLabel: UILabel {
             self.accessibilityLabel = self.text
 
             self.detectLinks()
-            self.addCustomAccessibilityActions()
 
-            if self.accessibilityCustomActions?.count ?? 0 > 0 {
-                self.isUserInteractionEnabled = true
+            // Add tap gesture if we have links
+            if gestureRecognizers?.isEmpty ?? true {
                 let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
                 addGestureRecognizer(tapGesture)
             }
+
+            // Update accessibility elements for keyboard navigation
+            updateAccessibilityElements()
         }
     }
 
-    private func addCustomAccessibilityActions() {
-        var customActions: [UIAccessibilityCustomAction] = []
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if previousTraitCollection?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory {
+            updateAttributedText()
+        }
+    }
 
-        attributedText?.enumerateAttribute(.link, in: NSRange(location: 0, length: attributedText?.length ?? 0), options: []) { (value, range, _) in
-            if let link = value as? URL {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        updateAccessibilityElements()
+    }
 
-                let actionFormat = NSLocalizedString("OpenLinkAction", bundle: .apptentive, value: "Open %@ link", comment: "Action name format for opening a link")
-                let actionName = String(format: actionFormat, link.absoluteString)
-                let customAction = UIAccessibilityCustomAction(name: actionName, target: self, selector: #selector(handleLink(_:)))
-                customActions.append(customAction)
+    private func updateAccessibilityElements() {
+        guard let attributedText = attributedText else {
+            isAccessibilityElement = true
+            accessibilityElements = nil
+            return
+        }
+
+        linkRanges = []
+        var accessibilityElements: [UIAccessibilityElement] = []
+
+        // Find all links in the attributed string
+        attributedText.enumerateAttribute(.link, in: NSRange(location: 0, length: attributedText.length)) { value, range, _ in
+            if let url = value as? URL {
+                // Get the bounding rect for this link
+                let rect = boundingRect(forCharacterRange: range)
+                linkRanges.append((range, url, rect))
+
+                // Create an accessibility element for this link
+                let element = UIAccessibilityElement(accessibilityContainer: self)
+                element.accessibilityFrameInContainerSpace = rect
+                element.accessibilityLabel = (attributedText.string as NSString).substring(with: range)
+                element.accessibilityTraits = .link
+                element.accessibilityHint = "Double tap to open link"
+
+                // Store the URL in the element so we can access it later
+                element.accessibilityValue = url.absoluteString
+
+                accessibilityElements.append(element)
             }
         }
 
-        accessibilityCustomActions = customActions.isEmpty ? nil : customActions
+        if accessibilityElements.isEmpty {
+            // No links - treat the whole label as accessible
+            isAccessibilityElement = true
+            self.accessibilityElements = nil
+        } else {
+            // Has links - use custom accessibility elements
+            isAccessibilityElement = false
+            self.accessibilityElements = accessibilityElements
+        }
     }
 
     //    private func addDebugRectangles() {
@@ -234,26 +286,24 @@ class RichTextLabel: UILabel {
     }
 
     @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
-        guard let attributedText = attributedText else { return }
         let tapLocation = gesture.location(in: self)
 
-        attributedText.enumerateAttributes(in: NSRange(location: 0, length: attributedText.length), options: []) { attributes, range, _ in
-            if let link = attributes[.link] as? URL {
-                let boundingRect = self.boundingRect(forCharacterRange: range)
-                if boundingRect.contains(tapLocation) {
-                    // TODO: Use Interaction Delegate to open links (PBI-8569)
-                    UIApplication.shared.open(link)
-                }
+        // Check if tap is on a link using cached linkRanges
+        for (_, url, rect) in linkRanges {
+            if rect.contains(tapLocation) {
+                delegate?.handleLink(url)
+                return
             }
         }
     }
 
-    @objc private func handleLink(_ action: UIAccessibilityCustomAction) -> Bool {
-
-        if let urlString = action.name.components(separatedBy: " ").last,
+    override func accessibilityActivate() -> Bool {
+        // Find which accessibility element is focused and open its URL
+        if let focusedElement = UIAccessibility.focusedElement(using: nil) as? UIAccessibilityElement,
+            let urlString = focusedElement.accessibilityValue,
             let url = URL(string: urlString)
         {
-            UIApplication.shared.open(url)
+            delegate?.handleLink(url)
             return true
         }
         return false

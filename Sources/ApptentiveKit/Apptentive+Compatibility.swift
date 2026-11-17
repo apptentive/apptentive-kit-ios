@@ -14,39 +14,93 @@
 import UIKit
 import OSLog
 
+@available(swift, deprecated: 1.0, message: "Use the 'AuthenticationFailureReason' enumeration.")
+private final class ApptentiveCompatibilityDelegate: ApptentiveDelegate {
+    func authenticationDidFail(with error: Error) {
+        let (reason, responseString) = Self.convertAuthenticationFailureError(error)
+
+        self.authenticationFailureCallback?(reason, responseString)
+    }
+
+    var authenticationFailureCallback: ApptentiveAuthenticationFailureCallback?
+
+    static func convertAuthenticationFailureError(_ error: Error) -> (ApptentiveAuthenticationFailureReason, String?) {
+        if case .authenticationFailed(reason: let reason, responseString: let responseString) = error as? ApptentiveError {
+            switch reason {
+            case .invalidAlgorithm:
+                return (ApptentiveAuthenticationFailureReason.invalidAlgorithm, responseString)
+            case .malformedToken:
+                return (ApptentiveAuthenticationFailureReason.malformedToken, responseString)
+            case .invalidToken:
+                return (ApptentiveAuthenticationFailureReason.invalidToken, responseString)
+            case .missingSubClaim:
+                return (ApptentiveAuthenticationFailureReason.missingSubClaim, responseString)
+            case .mismatchedSubClaim:
+                return (ApptentiveAuthenticationFailureReason.mismatchedSubClaim, responseString)
+            case .invalidSubClaim:
+                return (ApptentiveAuthenticationFailureReason.invalidSubClaim, responseString)
+            case .expiredToken:
+                return (ApptentiveAuthenticationFailureReason.expiredToken, responseString)
+            case .revokedToken:
+                return (ApptentiveAuthenticationFailureReason.revokedToken, responseString)
+            case .missingAppKey:
+                return (ApptentiveAuthenticationFailureReason.missingAppKey, responseString)
+            case .missingAppSignature:
+                return (ApptentiveAuthenticationFailureReason.missingAppSignature, responseString)
+            case .invalidKeySignaturePair:
+                return (ApptentiveAuthenticationFailureReason.invalidKeySignaturePair, responseString)
+            default:
+                return (.unknown, responseString)
+            }
+        } else {
+            return (.unknown, "")
+        }
+    }
+}
+
 extension Apptentive {
     @available(swift, deprecated: 1.0, message: "Use the 'register(with:completion:) method that takes an 'AppCredentials' argument.")
-    @objc(registerWithConfiguration:completion:) public func register(with configuration: ApptentiveConfiguration, completion: (@Sendable (Bool) -> Void)? = nil) {
-        if let distributionName = configuration.distributionName {
-            self.distributionName = distributionName
-        }
+    @objc(registerWithConfiguration:completion:) nonisolated public func register(with configuration: ApptentiveConfiguration, completion: (@Sendable (Bool) -> Void)? = nil) {
 
-        if let distributionVersion = configuration.distributionVersion {
-            self.distributionVersion = distributionVersion
-        }
+        let distributionName = configuration.distributionName
+        let distributionVersion = configuration.distributionVersion
+        let region = configuration.region.flatMap(Region.init(rawValue:)) ?? .us
+        let environment = configuration.overrideBaseURL
+            .flatMap(Environment.custom) ?? .production
+        let credentials = AppCredentials(
+            key: configuration.apptentiveKey,
+            signature: configuration.apptentiveSignature
+        )
 
-        let region = configuration.region.flatMap { region in Region(rawValue: region) } ?? .us
+        Task { @MainActor in
+            if let distributionName {
+                self.distributionName = distributionName
+            }
 
-        let environment = configuration.baseURL?.host.flatMap { host in
-            Environment({ _, _ in return host })
-        } ?? .production
+            if let distributionVersion {
+                self.distributionVersion = distributionVersion
+            }
 
-        self.register(with: .init(key: configuration.apptentiveKey, signature: configuration.apptentiveSignature), region: region, environment: environment) { result in
-            switch result {
-            case .success:
-                completion?(true)
-
-            case .failure:
-                completion?(false)
+            self.register(
+                with: credentials,
+                region: region,
+                environment: environment
+            ) { result in
+                switch result {
+                case .success:
+                    completion?(true)
+                case .failure:
+                    completion?(false)
+                }
             }
         }
     }
 
-    @objc(engage:fromViewController:) public func engage(_ event: String, fromViewController viewController: UIViewController?) {
+    @objc(engage:fromViewController:) nonisolated public func engage(_ event: String, fromViewController viewController: UIViewController?) {
         self.engage(event: Event(name: event), from: viewController)
     }
 
-    @objc(engage:fromViewController:completion:) public func engage(_ event: String, fromViewController viewController: UIViewController?, completion: (@Sendable (Bool) -> Void)? = nil) {
+    @objc(engage:fromViewController:completion:) nonisolated public func engage(_ event: String, fromViewController viewController: UIViewController?, completion: (@Sendable (Bool) -> Void)? = nil) {
         self.engage(event: Event(name: event), from: viewController) { (result) in
             switch result {
             case .success:
@@ -59,14 +113,14 @@ extension Apptentive {
     }
 
     @available(swift, deprecated: 1.0, message: "Create an 'Event' object and subscript its 'customData' property.")
-    @objc(engage:withCustomData:fromViewController:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?) {
+    @objc(engage:withCustomData:fromViewController:) nonisolated public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?) {
         var event = Event(name: event)
         event.customData = Self.convertLegacyCustomData(customData)
         self.engage(event: event, from: viewController, completion: nil)
     }
 
     @available(swift, deprecated: 1.0, message: "Create an 'Event' object and subscript its 'customData' property.")
-    @objc(engage:withCustomData:fromViewController:completion:) public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?, completion: (@Sendable (Bool) -> Void)? = nil) {
+    @objc(engage:withCustomData:fromViewController:completion:) nonisolated public func engage(event: String, withCustomData customData: [AnyHashable: Any]?, from viewController: UIViewController?, completion: (@Sendable (Bool) -> Void)? = nil) {
         var event = Event(name: event)
         event.customData = Self.convertLegacyCustomData(customData)
         self.engage(event: event, from: viewController) { (result) in
@@ -81,7 +135,7 @@ extension Apptentive {
     }
 
     @available(swift, deprecated: 1.0, message: "Use the 'canShowInteraction(event:)' method instead.")
-    @objc public func queryCanShowInteraction(forEvent event: String, completion: @Sendable @escaping (Bool) -> Void) {
+    @objc nonisolated public func queryCanShowInteraction(forEvent event: String, completion: @Sendable @escaping (Bool) -> Void) {
         let event = Event(name: event)
         self.canShowInteraction(event: event) { result in
             switch result {
@@ -94,7 +148,7 @@ extension Apptentive {
     }
 
     @available(swift, deprecated: 1.0, message: "Use the 'canShowMessageCenter()' method instead.")
-    @objc public func queryCanShowMessageCenter(completion: @Sendable @escaping (Bool) -> Void) {
+    @objc nonisolated public func queryCanShowMessageCenter(completion: @Sendable @escaping (Bool) -> Void) {
         self.canShowMessageCenter() { result in
             switch result {
             case .success(let canShowMessageCenter):
@@ -106,13 +160,13 @@ extension Apptentive {
     }
 
     @objc(presentMessageCenterFromViewController:)
-    public func presentMessageCenterCompat(from viewController: UIViewController?) {
+    nonisolated public func presentMessageCenterCompat(from viewController: UIViewController?) {
         self.presentMessageCenter(from: viewController)
     }
 
     @available(swift, deprecated: 1.0, message: "Use the async version of this method.")
     @objc(presentMessageCenterFromViewController:completion:)
-    public func presentMessageCenterCompat(from viewController: UIViewController?, completion: (@Sendable (Bool) -> Void)? = nil) {
+    nonisolated public func presentMessageCenterCompat(from viewController: UIViewController?, completion: (@Sendable (Bool) -> Void)? = nil) {
         self.presentMessageCenter(from: viewController) { result in
             switch result {
             case .success(let didShow):
@@ -125,13 +179,13 @@ extension Apptentive {
     }
 
     @objc(presentMessageCenterFromViewController:withCustomData:)
-    public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?) {
+    nonisolated public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?) {
         self.presentMessageCenter(from: viewController, with: Self.convertLegacyCustomData(customData))
     }
 
     @available(swift, deprecated: 1.0, message: "Use the async version of this method.")
     @objc(presentMessageCenterFromViewController:withCustomData:completion:)
-    public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?, completion: (@Sendable (Bool) -> Void)? = nil) {
+    nonisolated public func presentMessageCenterCompat(from viewController: UIViewController?, withCustomData customData: [AnyHashable: Any]?, completion: (@Sendable (Bool) -> Void)? = nil) {
         self.presentMessageCenter(from: viewController, with: Self.convertLegacyCustomData(customData)) { result in
             switch result {
             case .success(let didShow):
@@ -144,47 +198,63 @@ extension Apptentive {
     }
 
     @available(swift, deprecated: 1.0, message: "Subscript the 'personCustomData' property instead.")
-    @objc public func removeCustomPersonData(withKey key: String) {
-        self.personCustomData[key] = nil
+    @objc nonisolated public func removeCustomPersonData(withKey key: String) {
+        Task { @MainActor in
+            self.personCustomData[key] = nil
+        }
     }
 
     @available(swift, deprecated: 1.0, message: "Subscript the 'deviceCustomData' property instead.")
-    @objc public func removeCustomDeviceData(withKey key: String) {
-        self.deviceCustomData[key] = nil
+    @objc nonisolated public func removeCustomDeviceData(withKey key: String) {
+        Task { @MainActor in
+            self.deviceCustomData[key] = nil
+        }
     }
 
     @available(swift, deprecated: 1.0, message: "Subscript the 'deviceCustomData' property instead.")
-    @objc(addCustomDeviceDataString:withKey:) public func addCustomDeviceData(_ string: String, withKey key: String) {
-        self.deviceCustomData[key] = string
+    @objc(addCustomDeviceDataString:withKey:) nonisolated public func addCustomDeviceData(_ string: String, withKey key: String) {
+        Task { @MainActor in
+            self.deviceCustomData[key] = string
+        }
     }
 
     @available(swift, deprecated: 1.0, message: "Subscript the 'deviceCustomData' property instead.")
-    @objc(addCustomDeviceDataNumber:withKey:) public func addCustomDeviceData(_ number: NSNumber, withKey key: String) {
-        self.deviceCustomData[key] = number.doubleValue
+    @objc(addCustomDeviceDataNumber:withKey:) nonisolated public func addCustomDeviceData(_ number: NSNumber, withKey key: String) {
+        Task { @MainActor in
+            self.deviceCustomData[key] = number.doubleValue
+        }
     }
 
     @available(swift, deprecated: 1.0, message: "Subscript the 'deviceCustomData' property instead.")
-    @objc(addCustomDeviceDataBool:withKey:) public func addCustomDeviceData(_ boolValue: Bool, withKey key: String) {
-        self.deviceCustomData[key] = boolValue
+    @objc(addCustomDeviceDataBool:withKey:) nonisolated public func addCustomDeviceData(_ boolValue: Bool, withKey key: String) {
+        Task { @MainActor in
+            self.deviceCustomData[key] = boolValue
+        }
     }
 
     @available(swift, deprecated: 1.0, message: "Subscript the 'personCustomData' property instead.")
-    @objc(addCustomPersonDataString:withKey:) public func addCustomPersonData(_ string: String, withKey key: String) {
-        self.personCustomData[key] = string
+    @objc(addCustomPersonDataString:withKey:) nonisolated public func addCustomPersonData(_ string: String, withKey key: String) {
+        Task { @MainActor in
+            self.personCustomData[key] = string
+        }
     }
 
     @available(swift, deprecated: 1.0, message: "Subscript the 'personCustomData' property instead.")
-    @objc(addCustomPersonDataNumber:withKey:) public func addCustomPersonData(_ number: NSNumber, withKey key: String) {
-        self.personCustomData[key] = number.doubleValue
+    @objc(addCustomPersonDataNumber:withKey:) nonisolated public func addCustomPersonData(_ number: NSNumber, withKey key: String) {
+        Task { @MainActor in
+            self.personCustomData[key] = number.doubleValue
+        }
     }
 
     @available(swift, deprecated: 1.0, message: "Subscript the 'personCustomData' property instead.")
-    @objc(addCustomPersonDataBool:withKey:) public func addCustomPersonData(_ boolValue: Bool, withKey key: String) {
-        self.personCustomData[key] = boolValue
+    @objc(addCustomPersonDataBool:withKey:) nonisolated public func addCustomPersonData(_ boolValue: Bool, withKey key: String) {
+        Task { @MainActor in
+            self.personCustomData[key] = boolValue
+        }
     }
 
     @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Void, Error> parameter.")
-    @objc public func logIn(withToken token: String, completion: @Sendable @escaping (Bool, Error?) -> Void) {
+    @objc nonisolated public func logIn(withToken token: String, completion: @Sendable @escaping (Bool, Error?) -> Void) {
         self.logIn(with: token) { result in
             switch result {
             case .success:
@@ -197,12 +267,12 @@ extension Apptentive {
     }
 
     @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Void, Error> parameter.")
-    @objc public func logOut() {
+    @objc nonisolated public func logOut() {
         self.logOut(completion: nil)
     }
 
     @available(swift, deprecated: 1.0, message: "Assign an object that conforms to the 'ApptentiveDelegate' protocol to the Apptentive instance's 'delegate' property.")
-    @objc public var authenticationFailureCallback: ApptentiveAuthenticationFailureCallback? {
+    @objc nonisolated public var authenticationFailureCallback: ApptentiveAuthenticationFailureCallback? {
         get {
             return Self.compatibilityDelegate.authenticationFailureCallback
         }
@@ -212,7 +282,7 @@ extension Apptentive {
     }
 
     @available(swift, deprecated: 1.0, message: "Use the method whose completion handler takes a Result<Void, Error> parameter.")
-    @objc public func updateToken(_ token: String, completion: (@Sendable (Bool) -> Void)? = nil) {
+    @objc nonisolated public func updateToken(_ token: String, completion: (@Sendable (Bool) -> Void)? = nil) {
         self.updateToken(token) { (result: Result<Void, Error>) in
             switch result {
             case .success:
@@ -226,7 +296,7 @@ extension Apptentive {
     }
 
     @available(swift, deprecated: 1.0, message: "Log level is no longer supported. Use the filtering in Xcode or Console app.")
-    @objc public var logLevel: ApptentiveLogLevel {
+    @objc nonisolated public var logLevel: ApptentiveLogLevel {
         get {
             return .undefined
         }
@@ -268,51 +338,7 @@ extension Apptentive {
     }
 
     @available(swift, deprecated: 1.0, message: "(Needed to silence deprecation warning elsewhere)")
-    private static let compatibilityDelegate = CompatibilityDelegate()
-
-    @available(swift, deprecated: 1.0, message: "Use the 'AuthenticationFailureReason' enumeration.")
-    class CompatibilityDelegate: ApptentiveDelegate {
-        func authenticationDidFail(with error: Error) {
-            let (reason, responseString) = Self.convertAuthenticationFailureError(error)
-
-            self.authenticationFailureCallback?(reason, responseString)
-        }
-
-        var authenticationFailureCallback: ApptentiveAuthenticationFailureCallback?
-
-        static func convertAuthenticationFailureError(_ error: Error) -> (ApptentiveAuthenticationFailureReason, String?) {
-            if case .authenticationFailed(reason: let reason, responseString: let responseString) = error as? ApptentiveError {
-                switch reason {
-                case .invalidAlgorithm:
-                    return (ApptentiveAuthenticationFailureReason.invalidAlgorithm, responseString)
-                case .malformedToken:
-                    return (ApptentiveAuthenticationFailureReason.malformedToken, responseString)
-                case .invalidToken:
-                    return (ApptentiveAuthenticationFailureReason.invalidToken, responseString)
-                case .missingSubClaim:
-                    return (ApptentiveAuthenticationFailureReason.missingSubClaim, responseString)
-                case .mismatchedSubClaim:
-                    return (ApptentiveAuthenticationFailureReason.mismatchedSubClaim, responseString)
-                case .invalidSubClaim:
-                    return (ApptentiveAuthenticationFailureReason.invalidSubClaim, responseString)
-                case .expiredToken:
-                    return (ApptentiveAuthenticationFailureReason.expiredToken, responseString)
-                case .revokedToken:
-                    return (ApptentiveAuthenticationFailureReason.revokedToken, responseString)
-                case .missingAppKey:
-                    return (ApptentiveAuthenticationFailureReason.missingAppKey, responseString)
-                case .missingAppSignature:
-                    return (ApptentiveAuthenticationFailureReason.missingAppSignature, responseString)
-                case .invalidKeySignaturePair:
-                    return (ApptentiveAuthenticationFailureReason.invalidKeySignaturePair, responseString)
-                default:
-                    return (.unknown, responseString)
-                }
-            } else {
-                return (.unknown, "")
-            }
-        }
-    }
+    nonisolated(unsafe) private static let compatibilityDelegate = ApptentiveCompatibilityDelegate()
 }
 
 extension UIButton {
@@ -427,7 +453,7 @@ public class ApptentiveConfiguration: NSObject {
     @objc public var shouldSanitizeLogMessages: Bool = true
 
     /// The server URL to use for API calls. Should only be used for testing.
-    @objc public var baseURL: URL? = nil
+    @objc public var overrideBaseURL: URL? = nil
 
     /// The region to use when resolving the API server base URL.
     @objc public var region: String? = nil

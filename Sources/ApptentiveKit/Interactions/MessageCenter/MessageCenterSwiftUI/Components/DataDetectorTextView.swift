@@ -9,11 +9,44 @@
 import SwiftUI
 import UIKit
 
-/// Renders text with detected URLs, phone numbers, and email addresses as tappable
-/// links. Backed by a native SwiftUI `Text` over an `AttributedString` so wrapping
-/// and content-hugging behave correctly on iOS 15 (where `UIViewRepresentable`
-/// lacks the `sizeThatFits(_:uiView:context:)` hook and tends to overflow).
+/// Renders message text with detected links/phone numbers/dates as tappable.
+/// On iOS 16+, delegates to `NativeDataDetectorText`, a `UIViewRepresentable`-wrapped
+/// `UITextView` with `dataDetectorTypes = .all` — this gets the same native system menu
+/// (e.g. "Add to Calendar" for a detected date) that the UIKit Message Center already has,
+/// for free. Below iOS 16, falls back to `LegacyDataDetectorText`, a native SwiftUI `Text`
+/// over an `AttributedString` that only detects links/phone numbers (no dates), because
+/// `UIViewRepresentable` lacks the `sizeThatFits(_:uiView:context:)` hook pre-iOS 16 and
+/// tends to overflow when wrapping `UITextView`.
 struct DataDetectorTextView: View {
+    let text: String
+    var textColor: UIColor = .label
+    var textAlignment: TextAlignment = .leading
+
+    var body: some View {
+        centered(
+            Group {
+                if #available(iOS 16.0, *) {
+                    NativeDataDetectorText(text: text, textColor: textColor, textAlignment: textAlignment)
+                } else {
+                    LegacyDataDetectorText(text: text, textColor: textColor, textAlignment: textAlignment)
+                }
+            }
+        )
+    }
+
+    @ViewBuilder
+    private func centered<V: View>(_ view: V) -> some View {
+        if textAlignment == .center {
+            view.frame(maxWidth: .infinity)
+        } else {
+            view
+        }
+    }
+}
+
+/// Text-only fallback for iOS 15: renders via SwiftUI `Text(AttributedString)` and only
+/// detects links/phone numbers (no dates — see `DataDetectorTextView`'s doc comment).
+private struct LegacyDataDetectorText: View {
     let text: String
     var textColor: UIColor = .label
     var textAlignment: TextAlignment = .leading
@@ -31,7 +64,7 @@ struct DataDetectorTextView: View {
     }
 
     var body: some View {
-        let base = Text(attributed)
+        Text(attributed)
             .font(.body)
             .foregroundColor(Color(uiColor: textColor))
             .multilineTextAlignment(textAlignment)
@@ -42,12 +75,6 @@ struct DataDetectorTextView: View {
                     attributed = new
                 }
             }
-
-        if textAlignment == .center {
-            base.frame(maxWidth: .infinity)
-        } else {
-            base
-        }
     }
 
     private static func detect(in text: String) -> AttributedString {
