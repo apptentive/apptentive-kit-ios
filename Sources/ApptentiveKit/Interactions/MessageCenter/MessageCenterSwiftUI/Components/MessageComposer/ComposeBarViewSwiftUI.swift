@@ -128,7 +128,11 @@ struct ComposeBarViewSwiftUI: View {
                     .allowsHitTesting(false)
             }
         }
-        .apptentiveInputBackground(cornerRadius: textContainerCornerRadius)
+        .apptentiveInputBackground(
+            fill: .apptentiveMessageCenterTextInputBackground,
+            stroke: .apptentiveMessageCenterTextInputBorder,
+            cornerRadius: textContainerCornerRadius
+        )
     }
 
     /// On iOS 26 the glass capsule needs generous breathing room so the text
