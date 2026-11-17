@@ -18,10 +18,60 @@ import SwiftUI
 // we bridge through `Color(uiColor:)` so dark-mode adaptivity is preserved. Those
 // bridges depend only on UIKit framework symbols.
 
+@MainActor
 extension Color {
-    public static var apptentiveTint: Color { .accentColor }
+    /// The tint/accent color to use for buttons and similar controls in Apptentive interaction UI.
+    ///
+    /// Bridges `UIColor.tintColor`, which resolves to whatever tint color the host app's view
+    /// hierarchy provides, rather than SwiftUI's app-wide `.accentColor` — preserving the same
+    /// "inherit the host app's customization" behavior as the UIKit-rendered interactions.
+    public static var apptentiveTint: Color = Color(uiColor: .tintColor)
 
-    public static var apptentiveError: Color { .red }
+    /// The color to use for UI elements to indicate an error state.
+    public static var apptentiveError: Color = Color(
+        uiColor: UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor(red: 1, green: 0.28, blue: 0.24, alpha: 1)
+
+            default:
+                return UIColor(red: 0.86, green: 0.1, blue: 0, alpha: 1)
+            }
+        })
+
+    // MARK: Survey
+
+    /// The color to use for the survey introduction text.
+    public static var apptentiveSurveyIntroduction: Color = .primary
+
+    /// The color to use for labels in a non-error state.
+    public static var apptentiveQuestionLabel: Color = .primary
+
+    /// The color to use for instruction labels.
+    public static var apptentiveInstructionsLabel: Color = .secondary
+
+    /// The color to use for choice labels.
+    public static var apptentiveChoiceLabel: Color = .primary
+
+    /// The color to use for images in a non-selected state for surveys.
+    public static var apptentiveImageNotSelected: Color = .accentColor
+
+    /// The color to use for images in a selected state for surveys.
+    public static var apptentiveImageSelected: Color = .accentColor
+
+    /// The color used for min and max labels for the range survey.
+    public static var apptentiveMinMaxLabel: Color = .secondary
+
+    /// The text color used for the disclaimer text.
+    public static var apptentiveDisclaimerLabel: Color = .secondary
+
+    /// The color to use for the survey footer label (Thank You text).
+    public static var apptentiveSubmitStatusLabel: Color = .primary
+
+    /// The text color used for the Terms and Conditions link in surveys.
+    public static var apptentiveTermsOfServiceLabel: Color = .apptentiveTint
+
+    // MARK: Message Center
 
     public static var apptentiveMessageLabelInbound: Color { .white }
     public static var apptentiveMessageLabelOutbound: Color { .white }
@@ -31,9 +81,7 @@ extension Color {
         Color(red: 0, green: 0.42, blue: 1)
     }
 
-    /// Mid-gray matching `UIColor.darkGray` (RGB ~0.333).
-    ///
-    /// Non-adaptive in UIKit too.
+    /// Mid-gray matching `UIColor.darkGray` (RGB ~0.333). Non-adaptive in UIKit too.
     public static var apptentiveMessageBubbleInbound: Color {
         Color(red: 1.0 / 3.0, green: 1.0 / 3.0, blue: 1.0 / 3.0)
     }
@@ -64,8 +112,42 @@ extension Color {
 
 // MARK: - Font
 
+@MainActor
 extension Font {
-    public static var apptentiveInstructionsLabel: Font { .footnote }
+    // MARK: Survey
+
+    /// The font used for the survey introduction label.
+    public static var apptentiveSurveyIntroductionLabel: Font = .body
+
+    /// The font used for all survey question labels.
+    public static var apptentiveQuestionLabel: Font = .headline
+
+    /// The font used for the instructions label for surveys.
+    public static var apptentiveInstructionsLabel: Font = .footnote
+
+    /// The font used for all survey answer choice labels.
+    public static var apptentiveChoiceLabel: Font = .body
+
+    /// The font used for the min and max labels for the range survey.
+    public static var apptentiveMinMaxLabel: Font = .caption
+
+    /// The font used for the disclaimer text.
+    public static var apptentiveDisclaimerLabel: Font = .caption
+
+    /// The font used for the multi- and single-line text inputs in surveys.
+    public static var apptentiveTextInput: Font = .body
+
+    /// The font used for the submit button at the end of surveys.
+    public static var apptentiveSubmitButtonTitle: Font = .headline
+
+    /// The font used for the survey footer label (Thank You text).
+    public static var apptentiveSubmitStatusLabel: Font = .headline
+
+    /// The font used for the Terms and Conditions link in surveys.
+    public static var apptentiveTermsOfServiceLabel: Font = .footnote
+
+    // MARK: Message Center
+
     public static var apptentiveMessageCenterTextInput: Font { .body }
     public static var apptentiveMessageCenterTextInputPlaceholder: Font { .body }
     public static var apptentiveMessageCenterGreetingTitle: Font { .headline }
@@ -75,9 +157,8 @@ extension Font {
 
 /// Applies the standard Apptentive text-input container chrome to a view: a tinted
 /// glass rounded rectangle (max-radius 26, matching UIKit's `.capsule(maximumRadius: 26)`)
-/// on iOS 26+, otherwise a rounded-rectangle fill plus a hairline stroke.
-///
-/// Defaults match the Message Center compose bar; profile fields override `fill` and
+/// on iOS 26+, otherwise a rounded-rectangle fill plus a hairline stroke. Defaults
+/// match the Message Center compose bar; profile fields override `fill` and
 /// `cornerRadius` to match their counterparts.
 struct ApptentiveInputBackground: ViewModifier {
     let fill: Color
@@ -106,9 +187,8 @@ struct ApptentiveInputBackground: ViewModifier {
 
 extension View {
     /// Standard Apptentive text-input container chrome (glass on iOS 26+, otherwise
-    /// rounded rectangle with hairline border).
-    ///
-    /// Used by the compose bar and the profile name/email fields.
+    /// rounded rectangle with hairline border). Used by the compose bar and the
+    /// profile name/email fields.
     func apptentiveInputBackground(
         fill: Color = .apptentiveMessageCenterTextInputBackground,
         stroke: Color = .apptentiveMessageCenterTextInputBorder,
@@ -118,9 +198,8 @@ extension View {
     }
 
     /// Applies the prominent-glass button style on iOS 26+ to match UIKit's
-    /// `MessageCenterGlassComposeView` (`.prominentGlass()`).
-    ///
-    /// On older OSes the existing `.circle.fill` SF symbols already provide the filled-circle look.
+    /// `MessageCenterGlassComposeView` (`.prominentGlass()`). On older OSes the
+    /// existing `.circle.fill` SF symbols already provide the filled-circle look.
     func apptentiveComposeButtonStyle() -> some View {
         modifier(ApptentiveComposeButtonStyle())
     }
@@ -132,9 +211,8 @@ extension View {
         modifier(ApptentiveComposeBarBackground())
     }
 
-    /// `onChange(of:)` that compiles without deprecation on the iOS 15 floor and on the iOS 17+ SDK.
-    ///
-    /// The single-closure `onChange(of:perform:)` is deprecated in iOS 17; the two-closure
+    /// `onChange(of:)` that compiles without deprecation on the iOS 15 floor and on the iOS 17+ SDK. The
+    /// single-closure `onChange(of:perform:)` is deprecated in iOS 17; the two-closure
     /// form doesn't exist before it. Used for observing non-`@Published`, derived values (where
     /// `onReceive` of a publisher isn't available).
     @ViewBuilder
@@ -191,7 +269,6 @@ struct ApptentiveComposeBarBackground: ViewModifier {
 @MainActor
 extension Image {
     /// The image to use for the attach-attachment button in the Message Center compose bar.
-    ///
     /// On iOS 26+ uses the lightweight `paperclip` glyph; otherwise the filled circle variant.
     public static var apptentiveMessageAttachmentButton: Image {
         if #available(iOS 26, *) {
@@ -210,6 +287,18 @@ extension Image {
             return Image(systemName: "paperplane.circle.fill")
         }
     }
+
+    /// The image to use next to a radio button question choice.
+    public static var apptentiveRadioButton = Image(systemName: "circle")
+
+    /// The image to use next to a checkbox question choice.
+    public static var apptentiveCheckbox = Image(systemName: "square")
+
+    /// The image to use next to a selected radio button question choice.
+    public static var apptentiveRadioButtonSelected = Image(systemName: "smallcircle.filled.circle.fill")
+
+    /// The image to use next to a selected checkbox question choice.
+    public static var apptentiveCheckboxSelected = Image(systemName: "checkmark.square.fill")
 
     /// The image to use as the chat bubble for outbound messages.
     public static var apptentiveSentMessageBubble = Image("messageSentBubble", bundle: .apptentive)

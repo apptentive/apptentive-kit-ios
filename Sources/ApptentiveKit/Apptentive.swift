@@ -51,23 +51,23 @@ import UIKit
     @objc public var shouldUseSecureTokenStorage: Bool = false
 
     /// The name of the person using the app, if available.
-    @objc @BackendSync public var personName: String?
+    @MainActor @objc @BackendSync public var personName: String?
 
     /// The email address of the person using the app, if available.
-    @objc @BackendSync public var personEmailAddress: String?
+    @MainActor @objc @BackendSync public var personEmailAddress: String?
 
     /// The string used by the mParticle integration to identify the current user.
-    @objc @BackendSync public var mParticleID: String?
+    @MainActor @objc @BackendSync public var mParticleID: String?
 
     /// The custom data assocated with the person using the app.
     ///
     /// Supported types are `String`, `Bool`, and numbers.
-    @BackendSync public var personCustomData: CustomData
+    @MainActor @BackendSync public var personCustomData: CustomData
 
     /// The custom data associated with the device running the app.
     ///
     /// Supported types are `String`, `Bool`, and numbers.
-    @BackendSync public var deviceCustomData: CustomData
+    @MainActor @BackendSync public var deviceCustomData: CustomData
 
     /// The number of unread messages in message center.
     @objc dynamic public var unreadMessageCount = 0
@@ -80,7 +80,7 @@ import UIKit
     /// This property is not intended to be set by apps using the SDK, but
     /// should be set by projects that re-package the SDK for distribution
     /// as part of e.g. a cross-platform app framework.
-    @objc @BackendSync public var distributionName: String?
+    @MainActor @objc @BackendSync public var distributionName: String?
 
     /// The version of the distribution for this SDK instance (not for app use).
     ///
@@ -89,7 +89,7 @@ import UIKit
     /// development framework.
     ///
     /// This property is not intended to be set by apps using the SDK.
-    @objc @BackendSync public var distributionVersion: String?
+    @MainActor @objc @BackendSync public var distributionVersion: String?
 
     /// Indicates a theme that will be applied to Apptentive UI.
     @objc public enum UITheme: Int, Sendable {
@@ -125,14 +125,17 @@ import UIKit
 
     /// Specifies which server should host data associated with the host app.
     public enum Region: String, Sendable {
-        /// The United States region.
-        case us
+        /// The Australian region.
+        case au
+
+        /// The Canadian region.
+        case ca
 
         /// The European Union region.
         case eu
 
-        /// The Australian region.
-        case au
+        /// The United States region (default).
+        case us
     }
 
     /// Specifies which environment's (production/staging) URL template to use.
@@ -166,17 +169,23 @@ import UIKit
     ///   - region: The region to use when making API requests (defaults to `.us`).
     ///   - environment: The environment to use when building the API base URL.
     ///   - completion: A completion handler that is called after the SDK succeeds or fails to connect to the Apptentive API.
-    public func register(with credentials: AppCredentials, region: Region = .us, environment: Environment = .production, completion: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
+    nonisolated public func register(with credentials: AppCredentials, region: Region = .us, environment: Environment = .production, completion: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
         Task {
             do {
                 try await self.register(with: credentials, region: region, environment: environment)
-                completion?(.success(()))
+                await MainActor.run {
+                    completion?(.success(()))
+                }
             } catch let error {
                 if let completion {
-                    completion(.failure(error))
+                    await MainActor.run {
+                        completion(.failure(error))
+                    }
                 } else {
-                    Logger.default.error("Failed to register Apptentive SDK: \(error)")
-                    apptentiveCriticalError("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                    await MainActor.run {
+                        Logger.default.error("Failed to register Apptentive SDK: \(error)")
+                        apptentiveCriticalError("Failed to register Apptentive SDK: Please double-check that the app key, signature, and the url is correct.")
+                    }
                 }
             }
         }
@@ -224,13 +233,17 @@ import UIKit
     ///   - event: The event to engage.
     ///   - viewController: The view controller from which any interactions triggered by this (or future) event(s) should be presented.
     ///   - completion: A completion handler that is called with a boolean indicating whether or not an interaction was presented.
-    public func engage(event: Event, from viewController: UIViewController? = nil, completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
+    nonisolated public func engage(event: Event, from viewController: UIViewController? = nil, completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
         Task {
             do {
                 let result = try await self.engage(event: event, from: viewController)
-                completion?(.success(result))
+                await MainActor.run {
+                    completion?(.success(result))
+                }
             } catch let error {
-                completion?(.failure(error))
+                await MainActor.run {
+                    completion?(.failure(error))
+                }
             }
         }
     }
@@ -251,12 +264,28 @@ import UIKit
         return try await self.backend.engage(event: event)
     }
 
+    /// Adds an event to the list of events whose interactions should not be rate limited.
+    ///
+    /// Use this setting for events that engaged by your app that are intended to
+    /// always present the interaction, for example a button that launches a feature via this SDK.
+    /// The Message Center launch event is automatically included.
+    ///
+    /// The list of events is not persisted, so your app must set it on every launch.
+    /// - Parameter events: The event objects to exclude.
+    nonisolated public func excludeEventsFromRateLimit(_ events: [Event]) {
+        Task {
+            await self.backend.excludeEventsFromRateLimit(events)
+        }
+    }
+
     /// Dimisses any currently-visible interactions.
     ///
     /// Note that it is not possible to programmatically dismiss the Apple Rating Dialog (`SKStoreReviewController`).
     /// - Parameter animated: Whether to animate the dismissal.
-    public func dismissAllInteractions(animated: Bool) {
-        self.interactionPresenter.dismissPresentedViewController(animated: animated)
+    nonisolated public func dismissAllInteractions(animated: Bool) {
+        Task { @MainActor in
+            self.interactionPresenter.dismissPresentedViewController(animated: animated)
+        }
     }
 
     // MARK: Message Center
@@ -267,13 +296,17 @@ import UIKit
     ///   - viewController: The view controller from which to present Message Center.
     ///   - customData: The custom data to send along with the message.
     ///   - completion: Called with the result of the message center presentation request.
-    public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData? = nil, completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
+    nonisolated public func presentMessageCenter(from viewController: UIViewController?, with customData: CustomData? = nil, completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
         Task {
             do {
                 let shown = try await self.presentMessageCenter(from: viewController, with: customData)
-                completion?(.success(shown))
+                await MainActor.run {
+                    completion?(.success(shown))
+                }
             } catch let error {
-                completion?(.failure(error))
+                await MainActor.run {
+                    completion?(.failure(error))
+                }
             }
         }
     }
@@ -338,14 +371,18 @@ import UIKit
     /// - Parameters:
     ///  - event: The event used to check if it can trigger an interaction.
     ///  - completion: A completion handler that is called with a boolean indicating whether or not an interaction can be shown using the event.
-    public func canShowInteraction(event: Event, completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
+    nonisolated public func canShowInteraction(event: Event, completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
         Task {
             do {
                 let result = try await self.canShowInteraction(event: event)
-                completion?(.success(result))
+                await MainActor.run {
+                    completion?(.success(result))
+                }
             } catch let error {
-                Logger.default.error("Error when evaluating criteria: \(error)")
-                completion?(.failure(error))
+                await MainActor.run {
+                    Logger.default.error("Error when evaluating criteria: \(error)")
+                    completion?(.failure(error))
+                }
             }
         }
     }
@@ -360,7 +397,7 @@ import UIKit
 
     /// Checks if Message Center can be presented.
     /// - Parameter completion: A completion handler that is called with a boolean indicating whether or not an interaction can be shown using the event.
-    public func canShowMessageCenter(completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
+    nonisolated public func canShowMessageCenter(completion: (@Sendable (Result<Bool, Error>) -> Void)? = nil) {
         self.canShowInteraction(event: .showMessageCenter, completion: completion)
     }
 
@@ -391,13 +428,17 @@ import UIKit
     ///   signed with the secret from the API & Development section of the
     ///   Settings tab in your app's Apptentive dashboard.
     ///   - completion: A completion handler that is called with the result  of the login operation.
-    public func logIn(with token: String, completion: @Sendable @escaping (Result<Void, Error>) -> Void) {
+    nonisolated public func logIn(with token: String, completion: @Sendable @escaping (Result<Void, Error>) -> Void) {
         Task {
             do {
                 try await self.backend.logIn(with: token)
-                completion(.success(()))
+                await MainActor.run {
+                    completion(.success(()))
+                }
             } catch let error {
-                completion(.failure(error))
+                await MainActor.run {
+                    completion(.failure(error))
+                }
             }
         }
     }
@@ -429,16 +470,22 @@ import UIKit
     ///
     /// This also discards the key used to encrypt/decrypt the conversation data and deletes cached attachments.
     /// - Parameter completion: A completion handler that is called with the result of the logout operation.
-    public func logOut(completion: (@Sendable (Result<Void, Error>) -> Void)?) {
+    nonisolated public func logOut(completion: (@Sendable (Result<Void, Error>) -> Void)?) {
         Task {
             do {
                 try await self.backend.logOut()
-                completion?(.success(()))
+                await MainActor.run {
+                    completion?(.success(()))
+                }
             } catch let error {
                 if let completion = completion {
-                    completion(.failure(error))
+                    await MainActor.run {
+                        completion(.failure(error))
+                    }
                 } else {
-                    Logger.default.error("Error when logging out: \(error).")
+                    await MainActor.run {
+                        Logger.default.error("Error when logging out: \(error).")
+                    }
                 }
             }
         }
@@ -456,16 +503,22 @@ import UIKit
     /// - Parameters:
     ///   - token: The new JWT.
     ///   - completion: A completion handler that is called with the result of the update operation.
-    public func updateToken(_ token: String, completion: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
+    nonisolated public func updateToken(_ token: String, completion: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
         Task {
             do {
                 try await self.backend.updateToken(token)
-                completion?(.success(()))
+                await MainActor.run {
+                    completion?(.success(()))
+                }
             } catch let error {
                 if let completion = completion {
-                    completion(.failure(error))
+                    await MainActor.run {
+                        completion(.failure(error))
+                    }
                 } else {
-                    Logger.default.error("Error when updating token: \(error).")
+                    await MainActor.run {
+                        Logger.default.error("Error when updating token: \(error).")
+                    }
                 }
             }
         }
@@ -564,7 +617,7 @@ import UIKit
 
     func applicationWillTerminate(_ context: GlobalContext) {
         if context.isInForeground {
-            Task {
+            _ = Task {
                 let _ = try await self.engage(event: .exit())
             }
         }

@@ -69,3 +69,9 @@
 
 /* The validation error displayed in Message Center when the profile email is invalid */
 "MC Email Validation Error" = "Fehler - Die E-Mail ist entweder nicht vorhanden oder hat ein ungültiges Format.";
+
+/* Announcement when a dialog is presented. */
+"Dialog announcement" = "Warnhinweis";
+
+/* Default navigation title shown for a survey that has no configured name. */
+"SurveyDefaultTitle" = "Umfrage";

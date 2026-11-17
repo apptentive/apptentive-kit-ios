@@ -179,7 +179,7 @@ import Foundation
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         let request = UNNotificationRequest(identifier: "com.apptentive", content: content, trigger: trigger)
 
-        Task {
+        _ = Task {
             try await UNUserNotificationCenter.current().add(request)
         }
 

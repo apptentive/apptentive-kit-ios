@@ -11,6 +11,12 @@ import Testing
 
 @testable import ApptentiveKit
 
+extension Backend {
+    fileprivate func setInteractionRateLimitForTesting(_ limit: Int) {
+        self.interactionRateLimitPerSession = limit
+    }
+}
+
 struct BackendTests {
     var backend: Backend
     var requestor: SpyRequestor
@@ -119,28 +125,22 @@ struct BackendTests {
         #expect(numberOfPresentations == 2)  // Message center fallback should not throttle
     }
 
-    // TODO: remove "withKnownIssue" after re-enabling interaction throttling.
     @Test func testEngageThrottled() async throws {
         try await self.backend.engage(event: "test_event")
 
         var numberOfPresentations = await self.backendDelegate.spyInteractionPresenter.numberOfPresentations
         #expect(numberOfPresentations == 1)
 
-        await withKnownIssue {
-            await #expect(throws: ApptentiveError.interactionExceededRateLimit(count: 1, limit: 1)) {
-                try await self.backend.engage(event: "test_event")
-            }
+        await #expect(throws: ApptentiveError.interactionExceededRateLimit(count: 1, limit: 1)) {
+            try await self.backend.engage(event: "test_event")
         }
 
         numberOfPresentations = await self.backendDelegate.spyInteractionPresenter.numberOfPresentations
-        withKnownIssue {
-            #expect(numberOfPresentations == 1)
-        }
+        #expect(numberOfPresentations == 1)
     }
 
-    // TODO: remove "withKnownIssue" after re-enabling interaction throttling.
     @Test func testEngageThrottledWithLimitOf2() async throws {
-        await self.backend.setInteractionRateLimitPerSession(2)
+        await self.backend.setInteractionRateLimitForTesting(2)
 
         try await self.backend.engage(event: "test_event")
 
@@ -152,16 +152,12 @@ struct BackendTests {
         numberOfPresentations = await self.backendDelegate.spyInteractionPresenter.numberOfPresentations
         #expect(numberOfPresentations == 2)
 
-        await withKnownIssue {
-            await #expect(throws: ApptentiveError.interactionExceededRateLimit(count: 2, limit: 2)) {
-                try await self.backend.engage(event: "test_event")
-            }
+        await #expect(throws: ApptentiveError.interactionExceededRateLimit(count: 2, limit: 2)) {
+            try await self.backend.engage(event: "test_event")
         }
 
         numberOfPresentations = await self.backendDelegate.spyInteractionPresenter.numberOfPresentations
-        withKnownIssue {
-            #expect(numberOfPresentations == 2)
-        }
+        #expect(numberOfPresentations == 2)
     }
 
     /// Polls `condition` until it returns `true` or `timeout` elapses.

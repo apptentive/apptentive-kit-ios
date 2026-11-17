@@ -34,7 +34,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     configuration.logLevel = ApptentiveLogLevelDebug;
     configuration.shouldSanitizeLogMessages = true;
-    configuration.baseURL = [NSURL URLWithString:@"https://example.com"];
+    configuration.overrideBaseURL = [NSURL URLWithString:@"https://example.com"];
     configuration.distributionName = @"Test Distro";
     configuration.distributionVersion = @"1.2.3";
 

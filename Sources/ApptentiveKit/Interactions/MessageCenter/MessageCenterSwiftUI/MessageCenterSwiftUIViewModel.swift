@@ -10,6 +10,13 @@ import Combine
 import UIKit
 import UniformTypeIdentifiers
 
+/// Identifies a specific attachment thumbnail so VoiceOver focus can be restored to it
+/// after the attachment preview sheet is dismissed.
+struct AttachmentFocusTarget: Hashable {
+    let indexPath: IndexPath
+    let attachmentIndex: Int
+}
+
 /// ObservableObject adapter that bridges `MessageCenterViewModel` (UIKit/delegate-based) to SwiftUI.
 ///
 /// Takes ownership of `MessageCenterViewModel.delegate`. Sets `@Published` properties from
@@ -64,6 +71,10 @@ import UniformTypeIdentifiers
     @Published var previewItems: [MessageCenterViewModel.Message.Attachment] = []
     @Published var attachmentError: Error?
     @Published var sendError: Error?
+
+    /// The attachment that triggered the currently (or most recently) presented preview
+    /// sheet, so VoiceOver focus can be restored to it once the sheet is dismissed.
+    var lastPreviewedAttachmentTarget: AttachmentFocusTarget?
 
     /// Injected by `MessageCenterSwiftUIHostingController` so the SwiftUI close button can
     /// trigger UIKit modal dismissal. `@Environment(\.dismiss)` is unreliable when the
@@ -193,6 +204,7 @@ import UniformTypeIdentifiers
     func openAttachment(at index: Int, in message: MessageCenterViewModel.Message, indexPath: IndexPath) {
         let attachment = message.attachments[index]
         if attachment.localURL != nil {
+            lastPreviewedAttachmentTarget = AttachmentFocusTarget(indexPath: indexPath, attachmentIndex: index)
             previewItems = [attachment]
             showPreview = true
             return
@@ -276,7 +288,7 @@ import UniformTypeIdentifiers
     func messageCenterViewModel(_ viewModel: MessageCenterViewModel, didInsertRowsAt indexPaths: [IndexPath]) {}
 
     func messageCenterViewModelDidEndUpdates(_ viewModel: MessageCenterViewModel) {
-        snapshotState()
+        snapshotState(announceStatusChanges: true)
         setScrollTarget()
     }
 
@@ -306,7 +318,14 @@ import UniformTypeIdentifiers
     /// Guarded so unchanged values don't trigger spurious view re-renders.
     /// `groupedMessages` is the expensive one — even if its contents haven't moved,
     /// an unconditional assignment invalidates every visible row.
-    private func snapshotState() {
+    ///
+    /// - Parameter announceStatusChanges: Whether to post a VoiceOver announcement for any
+    ///   outbound message that changed `SentStatus` between the previous and incoming
+    ///   snapshots. Pass `false` for the initial history load, where every message is "new"
+    ///   but none of them just transitioned.
+    private func snapshotState(announceStatusChanges: Bool = false) {
+        let previousMessages = groupedMessages
+
         // `shouldRequestProfile` factors in whether any messages exist yet, so it must be
         // recomputed on every message-list change (e.g. right after sending the first
         // message) — not just on the initial load. `base` only does this itself on initial
@@ -318,11 +337,47 @@ import UniformTypeIdentifiers
         if groupedMessages != base.groupedMessages {
             groupedMessages = base.groupedMessages
         }
+        if announceStatusChanges {
+            announceSentStatusChanges(from: previousMessages, to: groupedMessages)
+        }
         if shouldRequestProfile != base.shouldRequestProfile {
             shouldRequestProfile = base.shouldRequestProfile
         }
         if shouldAllowProfileEdit != base.shouldAllowProfileEdit {
             shouldAllowProfileEdit = base.shouldAllowProfileEdit
+        }
+    }
+
+    /// Posts a VoiceOver announcement when an outbound message's `SentStatus` changes.
+    ///
+    /// The status caption under a sent message ("Sending…", "Sent", "Not Delivered") is purely
+    /// visual — a VoiceOver user has typically moved focus to the composer to write their next
+    /// message by the time the send completes, so they'd never navigate back to notice the
+    /// caption change. An active announcement is the only way they'd hear about it.
+    private func announceSentStatusChanges(from previous: [[MessageCenterViewModel.Message]], to current: [[MessageCenterViewModel.Message]]) {
+        let previousStatuses = Self.sentStatusesByNonce(previous)
+
+        for message in current.flatMap({ $0 }) {
+            guard case .sentFromDevice(let status) = message.direction, previousStatuses[message.nonce] != status else { continue }
+
+            switch status {
+            case .sending:
+                UIAccessibility.post(notification: .announcement, argument: base.sendingText)
+            case .sent:
+                UIAccessibility.post(notification: .announcement, argument: base.sentText)
+            case .failed:
+                UIAccessibility.post(notification: .announcement, argument: base.failedText)
+            case .draft, .queued:
+                break
+            }
+        }
+    }
+
+    private static func sentStatusesByNonce(_ grouped: [[MessageCenterViewModel.Message]]) -> [String: MessageCenterViewModel.Message.SentStatus] {
+        grouped.flatMap { $0 }.reduce(into: [:]) { statuses, message in
+            if case .sentFromDevice(let status) = message.direction {
+                statuses[message.nonce] = status
+            }
         }
     }
 

@@ -16,6 +16,7 @@ struct MessageGroupSection: View {
     let sectionIndex: Int
     let maxBubbleWidth: CGFloat
     @ObservedObject var viewModel: MessageCenterSwiftUIViewModel
+    var focusedAttachment: AccessibilityFocusState<AttachmentFocusTarget?>.Binding
 
     var body: some View {
         VStack(spacing: 0) {
@@ -49,6 +50,7 @@ struct MessageGroupSection: View {
                 maxBubbleWidth: maxBubbleWidth,
                 openHint: viewModel.showAttachmentButtonAccessibilityHint,
                 downloadHint: viewModel.downloadAttachmentButtonAccessibilityHint,
+                focusedAttachment: focusedAttachment,
                 onAttachmentTap: { index in
                     viewModel.openAttachment(at: index, in: message, indexPath: indexPath)
                 }
@@ -60,6 +62,7 @@ struct MessageGroupSection: View {
                 maxBubbleWidth: maxBubbleWidth,
                 openHint: viewModel.showAttachmentButtonAccessibilityHint,
                 downloadHint: viewModel.downloadAttachmentButtonAccessibilityHint,
+                focusedAttachment: focusedAttachment,
                 onAppear: { viewModel.markMessageAsRead(at: indexPath) },
                 loadAvatar: { try? await viewModel.getProfilePhoto(for: indexPath) },
                 onAttachmentTap: { index in

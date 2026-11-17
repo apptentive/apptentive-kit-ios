@@ -30,7 +30,7 @@ extension Apptentive {
     /// Overrides the API-provided engagement manifest with one from the specified URL.
     /// - Parameter url: The (file) URL of the manifest to load.
     /// - Throws: An error if the manifest fails to load.
-    public func loadEngagementManifest(at url: URL?) async throws {
+    nonisolated public func loadEngagementManifest(at url: URL?) async throws {
         if let url = url {
             let manifestData = try Data(contentsOf: url)
 
@@ -38,18 +38,22 @@ extension Apptentive {
 
             await self.backend.setLocalEngagementManifest(engagementManifest)
             await self.resourceManager.prefetchResources(at: engagementManifest.prefetch ?? [])
+            await MainActor.run {
+                Self.engagementManifestURL = url
+            }
 
-            Self.engagementManifestURL = url
         } else {
             await self.backend.setLocalEngagementManifest(nil)
 
-            Self.engagementManifestURL = nil
+            await MainActor.run {
+                Self.engagementManifestURL = nil
+            }
         }
     }
 
     /// Returns a list of objects describing the interactions encoded in the engagement manifest.
     /// - Returns: The list of interaction items.
-    public func getInteractionList() async -> [InteractionListItem] {
+    nonisolated public func getInteractionList() async -> [InteractionListItem] {
         return await self.backend.getInteractions()
             .map({ InteractionListItem(id: $0.id, displayName: $0.displayName, typeName: $0.typeName) })
     }
@@ -57,7 +61,7 @@ extension Apptentive {
     /// Attempts to present the interaction with the specified identifier from the active engagement manifest.
     /// - Parameter id: The identifier of the interaction.
     /// - Throws: An error if the interaction fails to present.
-    public func presentInteraction(with id: String) async throws {
+    nonisolated public func presentInteraction(with id: String) async throws {
         if let interaction = await self.backend.getInteraction(with: id) {
             try await self.interactionPresenter.presentInteraction(interaction)
         }
@@ -66,7 +70,7 @@ extension Apptentive {
     /// Attempts to load a JSON-encoded interaction from the specified URL and present it.
     /// - Parameter url: The URL for the interaction
     /// - Throws: An error if presenting the interaction fails.
-    public func presentInteraction(at url: URL) async throws {
+    nonisolated public func presentInteraction(at url: URL) async throws {
         let interactionData = try Data(contentsOf: url)
         let interaction = try JSONDecoder.apptentive.decode(Interaction.self, from: interactionData)
 
@@ -87,13 +91,14 @@ extension Apptentive {
 
     /// Calls a completion handler with a list of app-defined events that may trigger an interaction.
     /// - Parameter completion: A completion handler that is called with the list of events.
-    public func getEventList(_ completion: @escaping ([String]) -> Void) {
+    nonisolated public func getEventList(_ completion: @escaping @MainActor @Sendable ([String]) -> Void) {
         Task {
             let targetedEvents = await self.backend.getTargets()
                 .filter({ $0.hasPrefix("local#app#") })
                 .compactMap({ $0.split(separator: "#").last?.removingPercentEncoding })
+                .sorted()
 
-            DispatchQueue.main.async {
+            await MainActor.run {
                 completion(targetedEvents)
             }
         }
@@ -101,7 +106,7 @@ extension Apptentive {
 
     /// Queries information about the current connection to the Apptentive API.
     /// - Returns: A tuple containing the conversation state, conversation ID, and conversation token.
-    public func getConnectionInfo() async -> (ConversationState, String?, String?) {
+    nonisolated public func getConnectionInfo() async -> (ConversationState, String?, String?) {
         let conversationState = await self.backend.getState()
 
         switch conversationState {

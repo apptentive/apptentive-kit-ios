@@ -516,6 +516,18 @@ import UIKit
         #expect(self.gotDidFinish)
     }
 
+    @Test("URL opened successfully")
+    func openURL() async {
+        // Given
+        let url = URL(string: "https://www.example.com/")!
+
+        // When
+        await viewModel.openURL(url)
+
+        // Then
+        #expect(spyInteractionDelegate.openedURL == url)
+    }
+
     func surveyViewModelDidFinish(_ viewModel: SurveyViewModel) {
         self.gotDidFinish = true
     }

@@ -59,13 +59,7 @@ final class Targeter {
 
     func interactionID(for invocations: [EngagementManifest.Invocation], state: TargetingState) throws -> String? {
         let invocation = try invocations.first(where: { invocation in
-            invocation.preLog()
-
-            let result = try invocation.criteria.isSatisfied(for: state)
-
-            invocation.postLog(result)
-
-            return result
+            try invocation.evaluateWithLogging(for: state)
         })
 
         return invocation?.interactionID

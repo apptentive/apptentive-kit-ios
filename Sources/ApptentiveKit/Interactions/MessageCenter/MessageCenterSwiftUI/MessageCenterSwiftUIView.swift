@@ -20,6 +20,10 @@ struct MessageCenterSwiftUIView: View {
     @State private var measuredWidth: CGFloat = 0
     @State private var keyboardActive: Bool = false
 
+    /// Restores VoiceOver focus to the attachment that was tapped once its preview
+    /// sheet is dismissed, rather than leaving focus wherever the system defaults to.
+    @AccessibilityFocusState private var focusedAttachment: AttachmentFocusTarget?
+
     private let bubbleWidthRatio: CGFloat = 0.75
 
     /// Delay before scrolling the status banner into view on keyboard show. Lets the keyboard
@@ -54,7 +58,10 @@ struct MessageCenterSwiftUIView: View {
                 DocumentPickerRepresentable(viewModel: viewModel)
                     .ignoresSafeArea()
             }
-            .sheet(isPresented: $viewModel.showPreview) {
+            .sheet(
+                isPresented: $viewModel.showPreview,
+                onDismiss: { focusedAttachment = viewModel.lastPreviewedAttachmentTarget }
+            ) {
                 QLPreviewRepresentable(viewModel: viewModel)
                     .ignoresSafeArea()
             }
@@ -128,7 +135,8 @@ struct MessageCenterSwiftUIView: View {
                                 group: group,
                                 sectionIndex: sectionIndex,
                                 maxBubbleWidth: maxBubbleWidth,
-                                viewModel: viewModel
+                                viewModel: viewModel,
+                                focusedAttachment: $focusedAttachment
                             )
                         }
 

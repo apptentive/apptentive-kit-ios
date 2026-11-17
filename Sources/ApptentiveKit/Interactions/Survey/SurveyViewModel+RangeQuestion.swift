@@ -6,6 +6,7 @@
 //  Copyright © 2020 Apptentive. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 extension SurveyViewModel {
@@ -24,7 +25,7 @@ extension SurveyViewModel {
         public let maxText: String?
 
         /// The index of the value selected by the user, if any.
-        public private(set) var selectedValueIndex: Int?
+        @Published public private(set) var selectedValueIndex: Int?
 
         /// The value that was selected by the user, if any.
         public var value: Int? {

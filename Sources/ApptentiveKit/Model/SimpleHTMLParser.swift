@@ -20,10 +20,8 @@ class SimpleHTMLParser {
 
         var attributes: [NSAttributedString.Key: Any] {
             switch self {
-            case .bold, .strong:
-                return [.font: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)]
-            case .italic, .emphasis:
-                return [.font: UIFont.italicSystemFont(ofSize: UIFont.systemFontSize)]
+            case .bold, .strong, .italic, .emphasis:
+                return [:]
             case .underline:
                 return [.underlineStyle: NSUnderlineStyle.single.rawValue]
             case .strikethrough:
@@ -59,10 +57,9 @@ class SimpleHTMLParser {
         mutating func pushTag(_ tag: HTMLTag, attributes: [String: String] = [:]) {
             tags.append(tag)
 
-            // Handle font traits (bold/italic) separately for proper nesting
+            // Track font traits (bold/italic) for inlinePresentationIntent
             if !tag.fontTraits.isEmpty {
                 fontTraits.insert(tag.fontTraits)
-                updateFont()
             }
 
             // Update other attributes based on the tag
@@ -116,7 +113,6 @@ class SimpleHTMLParser {
                 // Remove font trait if it was applied by this tag
                 if !tag.fontTraits.isEmpty {
                     fontTraits.remove(tag.fontTraits)
-                    updateFont()
                 }
 
                 // Update other attributes
@@ -142,19 +138,6 @@ class SimpleHTMLParser {
             }
         }
 
-        mutating func updateFont() {
-            // Start with system font
-            var font = UIFont.systemFont(ofSize: UIFont.systemFontSize)
-
-            // If we have any font traits, apply them
-            if !fontTraits.isEmpty {
-                if let descriptor = font.fontDescriptor.withSymbolicTraits(fontTraits) {
-                    font = UIFont(descriptor: descriptor, size: UIFont.systemFontSize)
-                }
-            }
-
-            currentAttributes[.font] = font
-        }
     }
 
     static func parseHTML(_ html: String) -> AttributedString {
@@ -195,7 +178,7 @@ class SimpleHTMLParser {
             if char == "<" {
                 // Save the current text with current attributes
                 if !currentText.isEmpty {
-                    result.append(AttributedString(currentText, attributes: AttributeContainer(tagStack.currentAttributes)))
+                    result.append(makeSegment(currentText, tagStack: tagStack))
                     currentText = ""
                 }
 
@@ -358,9 +341,25 @@ class SimpleHTMLParser {
 
         // Add any remaining text
         if !currentText.isEmpty {
-            result.append(AttributedString(currentText, attributes: AttributeContainer(tagStack.currentAttributes)))
+            result.append(makeSegment(currentText, tagStack: tagStack))
         }
 
         return result
+    }
+
+    private static func makeSegment(_ text: String, tagStack: TagStack) -> AttributedString {
+        var segment = AttributedString(text, attributes: AttributeContainer(tagStack.currentAttributes))
+        let bold = tagStack.fontTraits.contains(.traitBold)
+        let italic = tagStack.fontTraits.contains(.traitItalic)
+        if bold || italic {
+            var traits: UIFontDescriptor.SymbolicTraits = []
+            if bold { traits.insert(.traitBold) }
+            if italic { traits.insert(.traitItalic) }
+            let baseFont = UIFont.preferredFont(forTextStyle: .body)
+            if let descriptor = baseFont.fontDescriptor.withSymbolicTraits(traits) {
+                segment.mergeAttributes(AttributeContainer([NSAttributedString.Key.font: UIFont(descriptor: descriptor, size: 0)]))
+            }
+        }
+        return segment
     }
 }

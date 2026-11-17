@@ -13,6 +13,7 @@ struct CurrentLoader: Loader {
     private static let rosterFilename = "Roster.B"
     static let conversationFilename = "Conversation.B"
     private static let payloadsFilename = "PayloadQueue.B"
+    private static let statusFilename = "Status.B"
     static let messagesFilename = "MessageList.B"
     private static let resourceDirectoryName = "Resources.B"
     private static let fileExtension = "plist"
@@ -23,6 +24,10 @@ struct CurrentLoader: Loader {
 
     static func payloadsFilename(for appCredentials: Apptentive.AppCredentials) -> String {
         return "\(self.payloadsFilename).\(appCredentials.key)"
+    }
+
+    static func statusFilename(for appCredentials: Apptentive.AppCredentials) -> String {
+        return "\(self.statusFilename).\(appCredentials.key)"
     }
 
     static func conversationFilePath(for record: ConversationRoster.Record) -> String {

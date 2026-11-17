@@ -20,8 +20,9 @@ struct StatusTests {
                    "fg_poll": 10,
                    "bg_poll": 300
                 },
-                "hibernate_until": 1759491198654,
-                "metrics_enabled": true
+                "sdk_enabled": true,
+                "metrics_enabled": true, 
+                "per_session_interaction_limit": 2,
              }
             """
 
@@ -30,9 +31,9 @@ struct StatusTests {
         let status = try JSONDecoder.apptentive.decode(Status.self, from: data)
 
         #expect(status.lastUpdate == Date(timeIntervalSince1970: 1_759_491_198_654))
-        #expect(status.hibernateUntil == Date(timeIntervalSince1970: 1_759_491_198_654))
+        #expect(status.sdkEnabled == true)
         #expect(status.metricsEnabled)
-
+        #expect(status.perSessionInteractionLimit == 2)
         #expect(status.messageCenter.foregroundPollingInterval == 10)
         #expect(status.messageCenter.backgroundPollingInterval == 300)
     }

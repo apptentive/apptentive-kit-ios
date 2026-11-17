@@ -16,6 +16,7 @@ struct SentMessageRow: View {
     let maxBubbleWidth: CGFloat
     let openHint: String
     let downloadHint: String
+    var focusedAttachment: AccessibilityFocusState<AttachmentFocusTarget?>.Binding
     let onAttachmentTap: (Int) -> Void
 
     var body: some View {
@@ -27,9 +28,6 @@ struct SentMessageRow: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 4)
         .id("msg-\(indexPath.section)-\(indexPath.row)")
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(message.accessibilityLabel ?? "")
-        .accessibilityHint(message.accessibilityHint ?? "")
     }
 
     private var bubble: some View {
@@ -51,6 +49,7 @@ struct SentMessageRow: View {
                         ) {
                             onAttachmentTap(index)
                         }
+                        .accessibilityFocused(focusedAttachment, equals: AttachmentFocusTarget(indexPath: indexPath, attachmentIndex: index))
                     }
                 }
                 .padding(.top, (message.body?.isEmpty ?? true) ? 6 : 0)
@@ -63,8 +62,6 @@ struct SentMessageRow: View {
             }
         }
         .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 42))
-        .background(
-            Image.apptentiveSentMessageBubble.foregroundStyle(Color.apptentiveMessageBubbleOutbound)
-        )
+        .background(MessageBubbleBackground(image: .apptentiveSentMessageBubble, color: .apptentiveMessageBubbleOutbound))
     }
 }

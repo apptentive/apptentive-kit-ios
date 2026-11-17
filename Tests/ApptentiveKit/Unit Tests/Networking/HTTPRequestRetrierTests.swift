@@ -135,3 +135,51 @@ struct HTTPRequestRetrierTests {
 
     struct FakeError: Error {}
 }
+
+struct RetryDelayTests {
+    @Test func testInitialDelayIsThreeSeconds() {
+        let delay = HTTPRequestRetrier.RetryDelay(useJitter: false)
+        #expect(delay.retryDelay == 3.0)
+    }
+
+    @Test func testDelayDoesNotMultiplyOnFirstRetry() {
+        var delay = HTTPRequestRetrier.RetryDelay(useJitter: false)
+        let firstDelay = delay.retryDelay
+        delay.incrementRetryDelay()
+        let secondDelay = delay.retryDelay
+        #expect(firstDelay == 3.0)
+        #expect(secondDelay == 9.0)
+    }
+
+    @Test func testDelayMultipliesByThree() {
+        var delay = HTTPRequestRetrier.RetryDelay(useJitter: false)
+        delay.incrementRetryDelay()  // 3 → 9
+        delay.incrementRetryDelay()  // 9 → 27
+        delay.incrementRetryDelay()  // 27 → 81
+        #expect(delay.retryDelay == 81.0)
+    }
+
+    @Test func testDelayIsCapppedAtMaximum() {
+        var delay = HTTPRequestRetrier.RetryDelay(useJitter: false)
+        for _ in 0..<20 {
+            delay.incrementRetryDelay()
+        }
+        #expect(delay.retryDelay == 10800.0)
+    }
+
+    @Test func testResetRestoresInitialDelay() {
+        var delay = HTTPRequestRetrier.RetryDelay(useJitter: false)
+        delay.incrementRetryDelay()
+        delay.incrementRetryDelay()
+        delay.resetRetryDelay()
+        #expect(delay.retryDelay == 3.0)
+    }
+
+    @Test func testJitterIsWithinExpectedRange() {
+        let delay = HTTPRequestRetrier.RetryDelay(useJitter: true)
+        for _ in 0..<100 {
+            let jitteredDelay = delay.retryDelay
+            #expect(jitteredDelay >= 1.5 && jitteredDelay < 3.0)
+        }
+    }
+}

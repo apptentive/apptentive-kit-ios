@@ -10,15 +10,13 @@ import Foundation
 import OSLog
 
 extension EngagementManifest.Invocation {
-    func preLog() {
-        CriteriaLogPrefix.shared.reset()
+    func evaluateWithLogging(for state: TargetingState) throws -> Bool {
         Logger.targeting.info("Evaluating criteria for interaction with identifier \(self.interactionID):")
-        CriteriaLogPrefix.shared.indent()
-    }
-
-    func postLog(_ result: Bool) {
-        CriteriaLogPrefix.shared.outdent()
+        let result = try CriteriaLogging.$indentationLevel.withValue(1) {
+            try self.criteria.isSatisfied(for: state)
+        }
         Logger.targeting.info("Criteria are\(result ? " " : " not ")met.")
+        return result
     }
 }
 
@@ -27,18 +25,14 @@ extension ImplicitAndClause {
         return self.subClauses.count > 1
     }
 
-    func preLog() {
-        if self.shouldLog {
-            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)AND (all are true) [")
-            CriteriaLogPrefix.shared.indent()
+    func withLogging(evaluating operation: () throws -> Bool) rethrows -> Bool {
+        guard self.shouldLog else { return try operation() }
+        Logger.targeting.debug("\(CriteriaLogging.prefix)AND (all are true) [")
+        let result = try CriteriaLogging.$indentationLevel.withValue(CriteriaLogging.indentationLevel + 1) {
+            try operation()
         }
-    }
-
-    func postLog(_ result: Bool) {
-        if self.shouldLog {
-            CriteriaLogPrefix.shared.outdent()
-            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)] is \(result).")
-        }
+        Logger.targeting.debug("\(CriteriaLogging.prefix)] is \(result).")
+        return result
     }
 }
 
@@ -47,17 +41,22 @@ extension LogicalClause {
         return self.subClauses.count > 1 || self.logicalOperator == .not
     }
 
-    func preLog() {
-        if self.shouldLog {
-            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)\(self.logicalOperator.rawValue) [")
-            CriteriaLogPrefix.shared.indent()
-        }
-    }
-
-    func postLog(_ result: Bool) {
-        if self.shouldLog {
-            CriteriaLogPrefix.shared.outdent()
-            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)] is \(result).")
+    func withLogging(evaluating operation: () throws -> Bool) rethrows -> Bool {
+        guard self.shouldLog else { return try operation() }
+        if self.subClauses.count > 10 {
+            Logger.targeting.debug("\(CriteriaLogging.prefix)\(self.logicalOperator.rawValue): evaluating \(self.subClauses.count) subclauses")
+            let result = try CriteriaLogging.$suppressDetailedLogging.withValue(true) {
+                try operation()
+            }
+            Logger.targeting.debug("\(CriteriaLogging.prefix)result is \(result).")
+            return result
+        } else {
+            Logger.targeting.debug("\(CriteriaLogging.prefix)\(self.logicalOperator.rawValue) [")
+            let result = try CriteriaLogging.$indentationLevel.withValue(CriteriaLogging.indentationLevel + 1) {
+                try operation()
+            }
+            Logger.targeting.debug("\(CriteriaLogging.prefix)] is \(result).")
+            return result
         }
     }
 }
@@ -67,24 +66,21 @@ extension ConditionalClause {
         return self.conditionalTests.count > 1
     }
 
-    func preLog() {
-        if self.shouldLog {
-            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)AND (all are true) [")
-            CriteriaLogPrefix.shared.indent()
+    func withLogging(evaluating operation: () throws -> Bool) rethrows -> Bool {
+        guard self.shouldLog else { return try operation() }
+        Logger.targeting.debug("\(CriteriaLogging.prefix)AND (all are true) [")
+        let result = try CriteriaLogging.$indentationLevel.withValue(CriteriaLogging.indentationLevel + 1) {
+            try operation()
         }
-    }
-
-    func postLog(_ result: Bool) {
-        if self.shouldLog {
-            CriteriaLogPrefix.shared.outdent()
-            Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)] is \(result).")
-        }
+        Logger.targeting.debug("\(CriteriaLogging.prefix)] is \(result).")
+        return result
     }
 }
 
 extension ConditionalTest {
     func log(field: Field, value: Any?, result: Bool) {
-        Logger.targeting.debug("\(CriteriaLogPrefix.shared.stringValue)Comparison “\(field.fullPath) (\(String(describing: value))) \(conditionalOperator.rawValue) \(String(describing: parameter))” is \(result).")
+        guard !CriteriaLogging.suppressDetailedLogging else { return }
+        Logger.targeting.debug("\(CriteriaLogging.prefix)Comparison “\(field.fullPath) (\(String(describing: value))) \(conditionalOperator.rawValue) \(String(describing: parameter))” is \(result).")
     }
 }
 
@@ -146,30 +142,11 @@ extension ConditionalOperator: CustomDebugStringConvertible {
     }
 }
 
-struct CriteriaLogPrefix {
-    // This will only ever be accessed by the targeting system, which
-    // is entirely running in the Backend actor's isolation context.
-    nonisolated(unsafe) static var shared = CriteriaLogPrefix()
+enum CriteriaLogging {
+    @TaskLocal static var indentationLevel: Int = 0
+    @TaskLocal static var suppressDetailedLogging: Bool = false
 
-    var stringValue: String {
-        return String(repeating: " ", count: 2 * self.indentationLevel)
+    static var prefix: String {
+        String(repeating: " ", count: 2 * indentationLevel)
     }
-
-    mutating func indent() {
-        self.indentationLevel += 1
-    }
-
-    mutating func outdent() {
-        self.indentationLevel -= 1
-
-        if self.indentationLevel < 0 {
-            self.reset()
-        }
-    }
-
-    mutating func reset() {
-        self.indentationLevel = 0
-    }
-
-    private var indentationLevel: Int = 0
 }

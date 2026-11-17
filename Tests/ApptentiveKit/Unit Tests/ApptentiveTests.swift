@@ -874,9 +874,6 @@ actor SpyBackend: BackendProtocol {
         return .none
     }
 
-    func setInteractionRateLimitPerSession(_ count: Int) {
-    }
-
     func excludeEventsFromRateLimit(_ events: [ApptentiveKit.Event]) {
     }
 }

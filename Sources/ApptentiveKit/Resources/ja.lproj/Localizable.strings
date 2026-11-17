@@ -69,3 +69,9 @@
 
 /* The validation error displayed in Message Center when the profile email is invalid */
 "MC Email Validation Error" = "エラー - メールアドレスが入力されていないか、形式が無効です。";
+
+/* Announcement when a dialog is presented. */
+"Dialog announcement" = "アラート";
+
+/* Default navigation title shown for a survey that has no configured name. */
+"SurveyDefaultTitle" = "アンケート";

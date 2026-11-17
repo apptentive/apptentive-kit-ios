@@ -69,3 +69,9 @@
 
 /* The validation error displayed in Message Center when the profile email is invalid */
 "MC Email Validation Error" = "Erreur - Le courriel est soit manquant, soit d\'un format non valide.";
+
+/* Announcement when a dialog is presented. */
+"Dialog announcement" = "Alerte";
+
+/* Default navigation title shown for a survey that has no configured name. */
+"SurveyDefaultTitle" = "Sondage";

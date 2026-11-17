@@ -22,7 +22,7 @@ extension Apptentive {
     // MARK: EventEngaging
 
     func engage(event: Event) {
-        Task {
+        _ = Task {
             try await self.engage(event: event, from: nil)
         }
     }
@@ -72,11 +72,11 @@ extension Apptentive {
     // MARK: MessageSending
 
     func sendDraftMessage() async throws {
-        let (message, customData) = try await self.backend.prepareDraftMessageForSending()
-
         if let automatedMessage = try await self.backend.prepareAutomatedMessageForSending() {
             try await self.backend.sendMessage(automatedMessage, with: nil)
         }
+
+        let (message, customData) = try await self.backend.prepareDraftMessageForSending()
 
         do {
             try await self.backend.sendMessage(message, with: customData)

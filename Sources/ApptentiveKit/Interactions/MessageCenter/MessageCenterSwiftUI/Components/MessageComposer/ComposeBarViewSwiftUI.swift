@@ -15,10 +15,12 @@ import SwiftUI
 struct ComposeBarViewSwiftUI: View {
     @ObservedObject var viewModel: MessageCenterSwiftUIViewModel
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var showAttachmentOptions = false
 
-    private let textInputMinHeight: CGFloat = 18
-    private let textInputMaxHeight: CGFloat = 100
+    /// Visible lines before the text input starts scrolling.
+    private let textInputMaxVisibleLines: CGFloat = 3
+    private let textInputBaseMaxHeight: CGFloat = 100
     private let textContainerCornerRadius: CGFloat = 6
 
     var body: some View {
@@ -116,10 +118,11 @@ struct ComposeBarViewSwiftUI: View {
 
             if viewModel.draftMessageBody.isEmpty {
                 Text(viewModel.composerPlaceholderText)
-                    .font(Font(ComposeTextInputRepresentable.cappedFont()))
+                    .font(Font(ComposeTextInputRepresentable.font(for: dynamicTypeSize)))
                     .foregroundStyle(Color.apptentiveMessageCenterTextInputPlaceholder)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.1)
+                    // Wrap instead of shrinking to one line, so the placeholder follows the
+                    // user's text size and the container grows to fit it.
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, textInputHorizontalPadding)
                     .padding(.vertical, textInputVerticalPadding)
                     .allowsHitTesting(false)
@@ -139,6 +142,16 @@ struct ComposeBarViewSwiftUI: View {
         if #available(iOS 26, *) { 10 } else { 8 }
     }
 
+    /// At least one line of text, so the field grows with the user's text size.
+    private var textInputMinHeight: CGFloat {
+        ComposeTextInputRepresentable.lineHeight(for: dynamicTypeSize)
+    }
+
+    /// Keeps room for several lines at larger text sizes before the input scrolls.
+    private var textInputMaxHeight: CGFloat {
+        max(textInputBaseMaxHeight, ceil(textInputMinHeight * textInputMaxVisibleLines))
+    }
+
     /// On iOS 16+, `ComposeTextInputRepresentable.sizeThatFits(_:uiView:context:)`
     /// drives sizing correctly. On iOS 15 that hook doesn't exist, so SwiftUI
     /// stretches the representable to the full proposed height — `.fixedSize`
@@ -147,6 +160,8 @@ struct ComposeBarViewSwiftUI: View {
     private var composeInput: some View {
         let input = ComposeTextInputRepresentable(
             text: $viewModel.draftMessageBody,
+            placeholder: viewModel.composerPlaceholderText,
+            dynamicTypeSize: dynamicTypeSize,
             minHeight: textInputMinHeight,
             maxHeight: textInputMaxHeight
         )

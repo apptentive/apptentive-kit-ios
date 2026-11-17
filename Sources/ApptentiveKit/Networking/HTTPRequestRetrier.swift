@@ -63,8 +63,8 @@ actor HTTPRequestRetrier: HTTPRequestStarting {
                     throw error
                 }
 
-                self.retryDelay.incrementRetryDelay()
                 try await Task.sleep(nanoseconds: self.retryDelay.retryDelayNanoseconds)
+                self.retryDelay.incrementRetryDelay()
             }
         }
 
@@ -86,23 +86,31 @@ actor HTTPRequestRetrier: HTTPRequestStarting {
         }
     }
 
+    func cancelAll() {
+        for (_, task) in self.tasks {
+            task.cancel()
+        }
+    }
+
     struct RetryDelay {
         let initialDelay: Double
         let multiplier: Double
+        let maximumDelay: Double
         let useJitter: Bool
 
         private var baseRetryDelay: TimeInterval
 
-        internal init(initialDelay: Double = 5.0, multiplier: Double = 2.0, useJitter: Bool = true) {
+        internal init(initialDelay: Double = 3.0, multiplier: Double = 3.0, maximumDelay: Double = 10800, useJitter: Bool = true) {
             self.initialDelay = initialDelay
             self.multiplier = multiplier
+            self.maximumDelay = maximumDelay
             self.useJitter = useJitter
 
             self.baseRetryDelay = initialDelay
         }
 
         var retryDelay: TimeInterval {
-            let jitter = self.useJitter ? Double.random(in: 0..<1) : 1
+            let jitter = self.useJitter ? Double.random(in: 0.5..<1) : 1
             return self.baseRetryDelay * jitter
         }
 
@@ -111,7 +119,7 @@ actor HTTPRequestRetrier: HTTPRequestStarting {
         }
 
         mutating func incrementRetryDelay() {
-            self.baseRetryDelay *= multiplier
+            self.baseRetryDelay = min(self.baseRetryDelay * self.multiplier, self.maximumDelay)
         }
 
         mutating func resetRetryDelay() {

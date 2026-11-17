@@ -6,6 +6,7 @@
 //  Copyright © 2020 Apptentive. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 extension SurveyViewModel {
@@ -19,12 +20,15 @@ extension SurveyViewModel {
         /// In the case of a questions whose `selectionStyle` is `.radioButton`, toggling an already-selected choice has no effect.
         /// - Parameter index: the index of the choice to toggle.
         public func toggleChoice(at index: Int) {
+            // Views that observe only the question (not each choice) need to re-evaluate, e.g. to show or hide the "Other" text field.
+            self.objectWillChange.send()
+
             switch self.selectionStyle {
             case .checkbox:
                 self.choices[index].isSelected.toggle()
 
             case .radioButton:
-                self.choices.forEach { $0.isSelected = false }
+                self.choices.forEach { if $0.isSelected { $0.isSelected = false } }
                 self.choices[index].isSelected = true
             }
 
@@ -115,7 +119,7 @@ extension SurveyViewModel {
 
         /// Describes a choice that can be selected for a choice question type.
 
-        public class Choice: Validating {
+        public class Choice: Validating, ObservableObject {
             /// The label to be shown as part of the choice user interface.
             public let label: AttributedString
 
@@ -129,12 +133,12 @@ extension SurveyViewModel {
             ///
             /// This should not be modified by the view controller. Use the
             /// question's `toggleChoice(at:)` method instead.
-            public internal(set) var isSelected: Bool
+            @Published public internal(set) var isSelected: Bool
 
             /// Whether the user interface should indicate this choice as having an invalid response.
             ///
             /// This should not be modified by the view controller.
-            public internal(set) var isMarkedAsInvalid: Bool {
+            @Published public internal(set) var isMarkedAsInvalid: Bool {
                 didSet {
                     if isMarkedAsInvalid != oldValue {
                         guard let question = self.questionViewModel, let surveyViewModel = question.surveyViewModel else {
@@ -147,7 +151,7 @@ extension SurveyViewModel {
             }
 
             /// The freeform "Other" text entered by the user for this choice.
-            public var value: String? {
+            @Published public var value: String? {
                 didSet {
                     self.checkIfFixed()
 
@@ -205,7 +209,7 @@ extension SurveyViewModel {
                 self.isMarkedAsInvalid = !self.isValid
             }
 
-            private let id: String
+            let id: String
 
             private var trimmedOtherText: String? {
                 if let trimmed = self.value?.trimmingCharacters(in: .whitespacesAndNewlines), trimmed.count > 0 {

@@ -24,13 +24,9 @@ struct ImplicitAndClause: CriteriaClause {
     /// - Throws: An error in case of an invalid field.
     /// - Returns: Whether the clause is satisfied.
     func isSatisfied(for state: TargetingState) throws -> Bool {
-        self.preLog()
-
-        let result = try subClauses.allSatisfy { try $0.isSatisfied(for: state) }
-
-        self.postLog(result)
-
-        return result
+        try self.withLogging {
+            try subClauses.allSatisfy { try $0.isSatisfied(for: state) }
+        }
     }
 }
 
@@ -49,13 +45,9 @@ struct LogicalClause: CriteriaClause {
     /// - Throws: An error in case of an invalid field.
     /// - Returns: Whether the clause is satisfied.
     func isSatisfied(for state: TargetingState) throws -> Bool {
-        self.preLog()
-
-        let result = try logicalOperator.evaluate(subClauses, for: state)
-
-        self.postLog(result)
-
-        return result
+        try self.withLogging {
+            try logicalOperator.evaluate(subClauses, for: state)
+        }
     }
 }
 
@@ -72,13 +64,9 @@ struct ConditionalClause: CriteriaClause {
     /// - Throws: An error in case of an invalid field.
     /// - Returns: Whether the clause is satisfied.
     func isSatisfied(for state: TargetingState) throws -> Bool {
-        self.preLog()
-
-        let result = try conditionalTests.allSatisfy { try $0.isSatisfied(for: field, of: state) }
-
-        self.postLog(result)
-
-        return result
+        try self.withLogging {
+            try conditionalTests.allSatisfy { try $0.isSatisfied(for: field, of: state) }
+        }
     }
 }
 

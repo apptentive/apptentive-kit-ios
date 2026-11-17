@@ -79,3 +79,6 @@ iphoneos/
 # Credential-type files
 Credentials.xcconfig
 Credentials.swift
+
+# Claude Code local settings
+.claude/

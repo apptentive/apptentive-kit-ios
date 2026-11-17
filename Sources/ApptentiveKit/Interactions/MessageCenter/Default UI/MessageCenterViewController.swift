@@ -127,7 +127,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.headerView.greetingTitleLabel.text = self.viewModel.greetingTitle
         self.headerView.greetingBodyText.text = self.viewModel.greetingBody
 
-        Task {
+        _ = Task {
             self.headerView.brandingImageView.image = try await self.viewModel.getGreetingImage()
         }
 
@@ -346,7 +346,7 @@ class MessageCenterViewController: UITableViewController, UITextViewDelegate, Me
         self.updateProfileValidation(strict: textField == self.profileView.emailTextField)
 
         if self.viewModel.profileIsValid {
-            Task {
+            _ = Task {
                 try await self.viewModel.commitProfileEdits()
             }
         }

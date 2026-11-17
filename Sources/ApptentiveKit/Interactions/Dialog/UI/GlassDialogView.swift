@@ -138,6 +138,7 @@ class GlassDialogView: UIView {
         self.titleLabel.accessibilityIdentifier = "DialogTitleText"
         self.titleLabel.font = .apptentiveDialogTitle
         self.titleLabel.textColor = .apptentiveDialogTitle
+        self.titleLabel.accessibilityTraits = self.titleLabel.accessibilityTraits.union(.header)
 
         self.messageLabel.translatesAutoresizingMaskIntoConstraints = false
         self.messageLabel.font = .preferredFont(forTextStyle: .subheadline)
@@ -189,7 +190,7 @@ class GlassDialogView: UIView {
             if let action = hitView as? GlassDialogButton {
                 action.completion?()
             }
-            self.setScale(1.01, animated: true)
+            self.setScale(1.0, animated: true)
 
         case .cancelled, .failed:
             self.setScale(1, animated: true)

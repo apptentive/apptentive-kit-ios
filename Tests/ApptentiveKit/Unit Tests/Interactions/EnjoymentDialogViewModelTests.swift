@@ -53,4 +53,16 @@ import UIKit
 
         #expect(self.spySender.recordedEnjoyment == false)
     }
+
+    @Test("URL opened successfully")
+    func openURL() async {
+        // Given
+        let url = URL(string: "https://www.example.com/")!
+
+        // When
+        await viewModel.openURL(url)
+
+        // Then
+        #expect(spySender.openedURL == url)
+    }
 }

@@ -75,7 +75,7 @@ final class WebViewController: UIViewController, WKNavigationDelegate {
     }
 
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-        Task { @MainActor in
+        _ = Task { @MainActor in
             if keyPath == "title" {
                 self.navigationItem.title = self.webView.title
 

@@ -9,13 +9,15 @@
 import UIKit
 
 /// A class used to display TextModal ("Note") and EnjoymentDialog ("Love Dialog") interactions.
-public class DialogViewController: UIViewController, DialogViewModelDelegate {
+public class DialogViewController: UIViewController, DialogViewModelDelegate, RichTextLabelDelegate {
 
     static let widthConstant: CGFloat = 270
     let viewModel: DialogViewModel
     var dialogView: DialogView
     var buttons: [DialogButton] = []
     var buttonRadiusIsCustom: Bool = false
+    var upperSpaceConstraint = NSLayoutConstraint()
+    var lowerSpaceConstraint = NSLayoutConstraint()
     var verticalPositionConstraint = NSLayoutConstraint()
 
     // Prevent touches from passing through to e.g. a FlutterView behind this one.
@@ -46,7 +48,9 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
         self.view.isOpaque = false
 
         self.dialogView.titleLabel.attributedString = self.viewModel.title
+        self.dialogView.titleLabel.delegate = self
         self.dialogView.messageLabel.attributedString = self.viewModel.message
+        self.dialogView.messageLabel.delegate = self
 
         self.view.addSubview(dialogView)
 
@@ -157,7 +161,7 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
             fitPriority = .defaultHigh
         }
 
-        self.dialogView.headerImageViewHeightConstraint = self.dialogView.headerImageView.heightAnchor.constraint(lessThanOrEqualToConstant: height)
+        self.dialogView.headerImageViewHeightConstraint = self.dialogView.headerImageView.heightAnchor.constraint(equalToConstant: height)
         self.dialogView.headerImageViewHeightConstraint.priority = fitPriority
 
         if self.viewModel.isMessageHidden && !self.viewModel.isTitleHidden {
@@ -171,7 +175,6 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
         }
 
         NSLayoutConstraint.activate([
-            self.dialogView.heightAnchor.constraint(lessThanOrEqualToConstant: maxHeight),
             self.dialogView.headerImageView.widthAnchor.constraint(equalToConstant: maxWidth),
             self.dialogView.headerImageViewHeightConstraint,
             self.dialogView.headerImageViewAspectConstraint,
@@ -217,8 +220,10 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
     private func setConstraints() {
         self.dialogView.translatesAutoresizingMaskIntoConstraints = false
 
-        let upperSpaceConstraint = self.dialogView.topAnchor.constraint(greaterThanOrEqualTo: self.view.safeAreaLayoutGuide.topAnchor, constant: self.viewModel.verticalMargins)
-        let lowerSpaceConstraint = self.view.safeAreaLayoutGuide.bottomAnchor.constraint(greaterThanOrEqualTo: self.dialogView.bottomAnchor, constant: self.viewModel.verticalMargins)
+        self.upperSpaceConstraint = self.dialogView.topAnchor.constraint(greaterThanOrEqualTo: self.view.safeAreaLayoutGuide.topAnchor, constant: self.viewModel.verticalMargins)
+        self.upperSpaceConstraint.priority = .defaultHigh
+        self.lowerSpaceConstraint = self.view.safeAreaLayoutGuide.bottomAnchor.constraint(greaterThanOrEqualTo: self.dialogView.bottomAnchor, constant: self.viewModel.verticalMargins)
+        self.lowerSpaceConstraint.priority = .defaultHigh
         let preferredHeightConstraint = self.dialogView.heightAnchor.constraint(equalToConstant: 48)
         preferredHeightConstraint.priority = .init(500)
 
@@ -240,9 +245,17 @@ public class DialogViewController: UIViewController, DialogViewModelDelegate {
             self.verticalPositionConstraint,
             self.dialogView.widthAnchor.constraint(equalToConstant: DialogViewController.widthConstant),
             preferredHeightConstraint,
-            upperSpaceConstraint,
-            lowerSpaceConstraint,
+            self.upperSpaceConstraint,
+            self.lowerSpaceConstraint,
         ])
+    }
+
+    // MARK: - RichTextLabelDelegate
+
+    func handleLink(_ url: URL) {
+        Task {
+            await self.viewModel.openURL(url)
+        }
     }
 }
 
